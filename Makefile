@@ -10,4 +10,4 @@ test:
 	pytest -v speechmatics/ tests/ functests/
 
 docs:
-	sphinx-build -b html docs/ docs/_build/
+	sphinx-build -b html sphinx/ docs/
