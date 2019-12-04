@@ -1,1 +1,1 @@
-websockets==8.0.2
+websockets==8.1

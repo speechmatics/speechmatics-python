@@ -1,4 +1,4 @@
-.PHONY: lint test all docs
+.PHONY: lint test all docs unittest functest
 
 all: lint test docs
 
@@ -6,8 +6,13 @@ lint:
 	pylint speechmatics/
 	flake8 speechmatics/
 
-test:
-	pytest -v speechmatics/ tests/ functests/
+test: unittest functest
+
+unittest:
+	pytest -v speechmatics/ tests/
+
+functest:
+	pytest -v speechmatics/ functests/
 
 docs:
 	sphinx-build -b html sphinx/ sphinx/_build

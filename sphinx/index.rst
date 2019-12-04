@@ -8,6 +8,7 @@ speechmatics-python
 
 speechmatics-python provides the Python API and command-line interface for Speechmatics.
 
+
 Getting started
 ---------------
 
@@ -23,7 +24,7 @@ Reference
 
 
 Indices and tables
-==================
+------------------
 
 * :ref:`genindex`
 * :ref:`modindex`
