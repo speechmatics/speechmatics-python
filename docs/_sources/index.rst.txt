@@ -8,10 +8,11 @@ speechmatics-python
 
 speechmatics-python provides the Python API and command-line interface for Speechmatics.
 
+
 Getting started
 ---------------
 
-speechmatics-python can be installed via `PyPI <https://pypi.org/project/speechmatics>`_. Official support is available for Python 3.6 and above.
+speechmatics-python can be installed via `PyPI <https://pypi.org/project/speechmatics>`_. Official support is available for Python 3.7 and above.
 
 
 Reference
@@ -21,9 +22,12 @@ Reference
    :maxdepth: 2
    :caption: Contents:
 
+   models
+   client
+
 
 Indices and tables
-==================
+------------------
 
 * :ref:`genindex`
 * :ref:`modindex`

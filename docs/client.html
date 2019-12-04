@@ -1,0 +1,298 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>speechmatics.client &#8212; speechmatics-python  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="speechmatics.models" href="models.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-speechmatics.client">
+<span id="speechmatics-client"></span><h1>speechmatics.client<a class="headerlink" href="#module-speechmatics.client" title="Permalink to this headline">¶</a></h1>
+<p>Module to use the websocket API with an appliance.
+Based on <a class="reference external" href="http://asyncio.readthedocs.io/en/latest/producer_consumer.html">http://asyncio.readthedocs.io/en/latest/producer_consumer.html</a></p>
+<dl class="exception">
+<dt id="speechmatics.client.EndOfTranscriptException">
+<em class="property">exception </em><code class="sig-prename descclassname">speechmatics.client.</code><code class="sig-name descname">EndOfTranscriptException</code><a class="reference internal" href="_modules/speechmatics/client.html#EndOfTranscriptException"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#speechmatics.client.EndOfTranscriptException" title="Permalink to this definition">¶</a></dt>
+<dd><p>An Exception raised to indicate that the session has finished.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="speechmatics.client.TranscriptionError">
+<em class="property">exception </em><code class="sig-prename descclassname">speechmatics.client.</code><code class="sig-name descname">TranscriptionError</code><a class="reference internal" href="_modules/speechmatics/client.html#TranscriptionError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#speechmatics.client.TranscriptionError" title="Permalink to this definition">¶</a></dt>
+<dd><p>An error has occurred in transcription.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="speechmatics.client.WebsocketClient">
+<em class="property">class </em><code class="sig-prename descclassname">speechmatics.client.</code><code class="sig-name descname">WebsocketClient</code><span class="sig-paren">(</span><em class="sig-param">connection_settings</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/speechmatics/client.html#WebsocketClient"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#speechmatics.client.WebsocketClient" title="Permalink to this definition">¶</a></dt>
+<dd><p>Manage a transcription session with the server.</p>
+<p>The best way to interact with this library is to instantiate this client
+and then add a set of handlers to it. Handlers respond to particular types
+of messages received from the server.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>connection_settings (speechmatics.models.ConnectionSettings): Settings</dt><dd><p>for the WebSocket connection, including the URL of the server.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="method">
+<dt id="speechmatics.client.WebsocketClient.add_event_handler">
+<code class="sig-name descname">add_event_handler</code><span class="sig-paren">(</span><em class="sig-param">event_name</em>, <em class="sig-param">event_handler</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/speechmatics/client.html#WebsocketClient.add_event_handler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#speechmatics.client.WebsocketClient.add_event_handler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add an event handler (a.k.a. callback function) to handle an incoming
+message from the server. Event handlers are passed a copy of the
+incoming message from the server. If <cite>event_name</cite> is set to ‘all’ then
+the handler will be added for every event.</p>
+<p>For example, a simple handler that just prints out the AddTranscript
+messages received:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">client</span> <span class="o">=</span> <span class="n">WebsocketClient</span><span class="p">(</span>
+<span class="go">        ConnectionSettings(url=&quot;wss://localhost:9000&quot;))</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">handler</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">msg</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">add_event_handler</span><span class="p">(</span><span class="n">ServerMessageType</span><span class="o">.</span><span class="n">AddTranscript</span><span class="p">,</span> <span class="n">handler</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>event_name (str): The name of the message for which a handler is</dt><dd><p>being added. Refer to the V2 API docs for a list of the
+possible message types.</p>
+</dd>
+<dt>event_handler (Callable[[dict], None]): A function to be called</dt><dd><p>when a message of the given type is received.</p>
+</dd>
+</dl>
+</dd>
+<dt>Raises:</dt><dd><p>ValueError: If the given event name is not valid.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="speechmatics.client.WebsocketClient.add_middleware">
+<code class="sig-name descname">add_middleware</code><span class="sig-paren">(</span><em class="sig-param">event_name</em>, <em class="sig-param">middleware</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/speechmatics/client.html#WebsocketClient.add_middleware"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#speechmatics.client.WebsocketClient.add_middleware" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a middleware to handle outgoing messages sent to the server.
+Middlewares are passed a reference to the outgoing message, which
+they may alter.
+If <cite>event_name</cite> is set to ‘all’ then the handler will be added for
+every event.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>event_name (str): The name of the message for which a middleware is</dt><dd><p>being added. Refer to the V2 API docs for a list of the
+possible message types.</p>
+</dd>
+<dt>middleware (Callable[[dict, bool], None]): A function to be called</dt><dd><p>to process an outgoing message of the given type. The function
+receives the message as the first argument and a second, boolean
+argument indicating whether or not the message is binary data
+(which implies it is an AddAudio message).</p>
+</dd>
+</dl>
+</dd>
+<dt>Raises:</dt><dd><p>ValueError: If the given event name is not valid.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="speechmatics.client.WebsocketClient.run">
+<em class="property">async </em><code class="sig-name descname">run</code><span class="sig-paren">(</span><em class="sig-param">stream</em>, <em class="sig-param">transcription_config</em>, <em class="sig-param">audio_settings</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/speechmatics/client.html#WebsocketClient.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#speechmatics.client.WebsocketClient.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Begin a new recognition session.
+This will run asynchronously. Most callers may prefer to use
+run_synchronously which will block until the session is finished.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>stream (io.IOBase): File-like object which an audio stream can be</dt><dd><p>read from.</p>
+</dd>
+<dt>transcription_config (speechmatics.models.TranscriptionConfig):</dt><dd><p>Configuration for the transcription.</p>
+</dd>
+<dt>audio_settings (speechmatics.models.AudioSettings): Configuration</dt><dd><p>for the audio stream.</p>
+</dd>
+</dl>
+</dd>
+<dt>Raises:</dt><dd><dl class="simple">
+<dt>Exception: Can raise any exception returned by the consumer/producer</dt><dd><p>tasks.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="speechmatics.client.WebsocketClient.run_synchronously">
+<code class="sig-name descname">run_synchronously</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">timeout=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/speechmatics/client.html#WebsocketClient.run_synchronously"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#speechmatics.client.WebsocketClient.run_synchronously" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run the transcription synchronously.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="speechmatics.client.WebsocketClient.stop">
+<code class="sig-name descname">stop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/speechmatics/client.html#WebsocketClient.stop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#speechmatics.client.WebsocketClient.stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Indicates that the recognition session should be forcefully stopped.
+Only used in conjunction with <cite>run</cite>.
+You probably don’t need to call this if you’re running the client via
+<cite>run_synchronously</cite>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="speechmatics.client.WebsocketClient.update_transcription_config">
+<code class="sig-name descname">update_transcription_config</code><span class="sig-paren">(</span><em class="sig-param">new_transcription_config</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/speechmatics/client.html#WebsocketClient.update_transcription_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#speechmatics.client.WebsocketClient.update_transcription_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the transcription config used for the session.
+This results in a SetRecognitionConfig message being sent to the server.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>new_transcription_config (speechmatics.models.TranscriptionConfig):</dt><dd><p>The new config object.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="speechmatics.client.json_utf8">
+<code class="sig-prename descclassname">speechmatics.client.</code><code class="sig-name descname">json_utf8</code><span class="sig-paren">(</span><em class="sig-param">func</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/speechmatics/client.html#json_utf8"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#speechmatics.client.json_utf8" title="Permalink to this definition">¶</a></dt>
+<dd><p>A wrapper to turn a function’s return value into JSON</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="speechmatics.client.read_in_chunks">
+<code class="sig-prename descclassname">speechmatics.client.</code><code class="sig-name descname">read_in_chunks</code><span class="sig-paren">(</span><em class="sig-param">stream</em>, <em class="sig-param">chunk_size</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/speechmatics/client.html#read_in_chunks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#speechmatics.client.read_in_chunks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Utility method for reading in and yielding chunks</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>stream (io.IOBase): file-like object to read audio from
+chunk_size (int): maximum chunk size in bytes</p>
+</dd>
+<dt>Raises:</dt><dd><p>ValueError: if no data was read from the stream</p>
+</dd>
+<dt>Returns:</dt><dd><p>bytestring: a chunk of data</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/logo.png" alt="Logo"/>
+            </a></p>
+<p class="logo">
+  <a href="index.html">
+    <img class="logo" src="_static/logo" alt="Logo"/>
+    
+  </a>
+</p>
+
+
+
+<p class="blurb">Python API client for Speechmatics</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=speechmatics&repo=speechmatics-python&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+    
+
+<p>
+<a class="badge" href="https://travis-ci.org/speechmatics/speechmatics-python">
+    <img
+        alt="https://secure.travis-ci.org/speechmatics/speechmatics-python.svg?branch=master"
+        src="https://secure.travis-ci.org/speechmatics/speechmatics-python.svg?branch=master"
+    />
+</a>
+</p>
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="models.html">speechmatics.models</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">speechmatics.client</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="models.html" title="previous chapter">speechmatics.models</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Cantab Research Ltd..
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/client.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

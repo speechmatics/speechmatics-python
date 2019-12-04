@@ -10,9 +10,9 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
+import os
+import sys
+sys.path.insert(0, os.path.abspath('..'))
 
 
 # -- Project information -----------------------------------------------------
@@ -28,6 +28,10 @@ author = 'Speechmatics'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    'sphinx.ext.autodoc',
+    'sphinx.ext.doctest',
+    'sphinx.ext.viewcode',
+    'sphinx.ext.githubpages'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -55,9 +59,10 @@ html_static_path = ['_static']
 # further.  For a list of options available for each theme, see the
 # documentation.
 #
+html_logo = 'logo.png'
 html_theme_options = {
     'description': 'Python API client for Speechmatics',
-    'logo': 'logo.png',
+    'logo': 'logo',
     'logo_name': False,
     'github_user': 'speechmatics',
     'github_repo': 'speechmatics-python',

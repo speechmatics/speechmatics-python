@@ -16,4 +16,5 @@ functest:
 
 docs:
 	sphinx-build -b html sphinx/ sphinx/_build
+	rm -r docs/*
 	mv sphinx/_build/* docs/
