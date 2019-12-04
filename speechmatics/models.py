@@ -1,7 +1,8 @@
 """
-Module with models used by speechmatics
+Models used by speechmatics
 """
 import ssl
+
 from dataclasses import asdict, dataclass, field
 from enum import Enum
 
@@ -13,6 +14,7 @@ def del_none(dictionary):
         elif isinstance(value, dict):
             del_none(value)
     return dictionary
+
 
 # pylint: disable=R0902
 @dataclass
@@ -41,34 +43,37 @@ class AudioSettings:
 
     def asdict(self):
         if not self.encoding:
-            return {'type': 'file'}
+            return {"type": "file"}
 
-        return {'type': 'raw',
-                'encoding': self.encoding,
-                'sample_rate': self.sample_rate}
+        return {
+            "type": "raw",
+            "encoding": self.encoding,
+            "sample_rate": self.sample_rate,
+        }
 
 
 @dataclass
 class ConnectionSettings:
     url: str
     message_buffer_size: int = 512
-    ssl_context: ssl.SSLContext = field(default_factory=ssl.create_default_context)
+    ssl_context: ssl.SSLContext = field(
+        default_factory=ssl.create_default_context)
     semaphore_timeout_seconds: float = 120
 
 
 class ClientMessageType(str, Enum):
-    StartRecognition = 'StartRecognition'
-    AddAudio = 'AddAudio'
-    EndOfStream = 'EndOfStream'
-    SetRecognitionConfig = 'SetRecognitionConfig'
+    StartRecognition = "StartRecognition"
+    AddAudio = "AddAudio"
+    EndOfStream = "EndOfStream"
+    SetRecognitionConfig = "SetRecognitionConfig"
 
 
 class ServerMessageType(str, Enum):
-    RecognitionStarted = 'RecognitionStarted'
-    AudioAdded = 'AudioAdded'
-    AddPartialTranscript = 'AddPartialTranscript'
-    AddTranscript = 'AddTranscript'
-    EndOfTranscript = 'EndOfTranscript'
-    Info = 'Info'
-    Warning = 'Warning'
-    Error = 'Error'
+    RecognitionStarted = "RecognitionStarted"
+    AudioAdded = "AudioAdded"
+    AddPartialTranscript = "AddPartialTranscript"
+    AddTranscript = "AddTranscript"
+    EndOfTranscript = "EndOfTranscript"
+    Info = "Info"
+    Warning = "Warning"
+    Error = "Error"

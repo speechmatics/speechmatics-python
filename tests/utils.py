@@ -2,7 +2,8 @@ import os
 import ssl
 
 from speechmatics.client import WebsocketClient
-from speechmatics.models import AudioSettings, ConnectionSettings, TranscriptionConfig
+from speechmatics.models import AudioSettings, ConnectionSettings, \
+    TranscriptionConfig
 
 
 def path_to_test_resource(file_name):
@@ -24,24 +25,26 @@ def path_to_test_resource(file_name):
 
 def default_ws_client_setup(mock_server_url):
     """
-    Returns a 3-tuple with a WebsocketClient, TranscriptionConfig and AudioSettings all
-    with default settings for use in test cases.
+    Returns a 3-tuple with a WebsocketClient, TranscriptionConfig and
+    AudioSettings all with default settings for use in test cases.
 
     Args:
-        mock_server_url (str): The address that the mock RT server is listening on.
+        mock_server_url (str): address that the mock RT server is listening on.
 
     Returns:
-        Tuple[WebsocketClient, TranscriptionConfig, AudioSettings]: Websocket client and other
-            useful config objects.
+        Tuple[WebsocketClient, TranscriptionConfig, AudioSettings]: Websocket
+            client and other useful config objects.
     """
 
     ssl_context = ssl.create_default_context()
     ssl_context.check_hostname = False
     ssl_context.verify_mode = ssl.CERT_NONE
 
-    conn_settings = ConnectionSettings(url=mock_server_url, ssl_context=ssl_context)
+    conn_settings = ConnectionSettings(
+        url=mock_server_url, ssl_context=ssl_context)
     ws_client = WebsocketClient(conn_settings)
 
     transcription_config = TranscriptionConfig("en")
     audio_settings = AudioSettings()
+
     return ws_client, transcription_config, audio_settings
