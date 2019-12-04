@@ -1,8 +1,8 @@
-# speechmatics-py
+# speechmatics-python &ensp; [![Build Status](https://travis-ci.org/speechmatics/speechmatics-python.svg?branch=master)](https://travis-ci.org/speechmatics/speechmatics-python) [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/speechmatics/speechmatics-python/blob/master/LICENSE.txt)
 
-This library provides a reference client for interfacing with version 2 of the Speechmatics Realtime ASR API.
+<a href="https://www.speechmatics.com/"><img src="https://speechmatics.github.io/speechmatics-python/_static/logo.png" align="left"</img></a>
 
-A command line interface is also provided for convenience.
+**speechmatics-python** provides a reference client for interfacing with version 2 of the Speechmatics Realtime ASR API. A command line interface is also provided for convenience.
 
 ## Dependencies
 
