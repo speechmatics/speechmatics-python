@@ -341,7 +341,7 @@ class WebsocketClient:
         try:
             websocket = await websockets.connect(self.connection_settings.url,
                                                  ssl=self.connection_settings.ssl_context)
-        except ConnectionResetError as exc:
+        except ConnectionResetError:
             traceback.print_exc()
             LOGGER.error("Caught ConnectionResetError when attempting to connect to server. "
                          "The most likely reason for this is that the client has been configured "
