@@ -313,8 +313,7 @@ def add_printing_handlers(
                     language=language,
                 )
                 print("* [{:.4f}] {}".format(
-                    alternative["confidence"], words_joined)
-                )
+                    alternative["confidence"], words_joined))
             print()
 
     def end_of_transcript_handler(_):
