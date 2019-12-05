@@ -67,6 +67,7 @@ setup(
     author_email='support@speechmatics.com',
     description='Python API client for Speechmatics',
     long_description=read('README.md'),
+    long_description_content_type='text/markdown',
     install_requires=read_list('requirements.txt'),
     tests_require=read_list('requirements-dev.txt'),
     entry_points={
