@@ -1,6 +1,7 @@
 .PHONY: lint test all docs unittest
 
 SOURCES := speechmatics/ setup.py
+VERSION ?= $(shell cat VERSION).dev0
 
 all: lint test docs
 
@@ -14,7 +15,7 @@ unittest:
 	pytest -v tests/
 
 build:
-	python setup.py sdist bdist_wheel
+	VERSION=$(VERSION) python setup.py sdist bdist_wheel
 
 docs:
 	sphinx-build -b html sphinx/ sphinx/_build

@@ -59,7 +59,7 @@ logging.basicConfig(level=logging.INFO)
 
 setup(
     name='speechmatics-python',
-    version=get_version('VERSION'),
+    version=os.getenv('VERSION', get_version('VERSION')),
     packages=['speechmatics'],
     url='https://github.com/speechmatics/speechmatics-python.git',
     license='MIT',
