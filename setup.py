@@ -76,7 +76,9 @@ setup(
     },
     classifiers=[
         "Environment :: Console",
-        "Programming Language :: Python :: 3"
+        "License :: OSI Approved :: MIT License",
+        "Programming Language :: Python :: 3",
+        "Topic :: Multimedia :: Sound/Audio :: Speech"
     ],
     include_package_data=True,
 )
