@@ -23,7 +23,6 @@ deploy:
     password: "$TEST_PYPI_ORG_TOKEN"
     distributions: sdist bdist_wheel
     server: https://test.pypi.org/legacy/
-    skip_cleanup: true
     "on":
       all_branches: true
       tags: false
