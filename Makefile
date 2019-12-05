@@ -1,17 +1,19 @@
 .PHONY: lint test all docs unittest
 
+SOURCES := speechmatics/ setup.py
+
 all: lint test docs
 
 lint:
-	pylint speechmatics/
-	flake8 speechmatics/
+	pylint $(SOURCES)
+	flake8 $(SOURCES)
 
 test: unittest
 
 unittest:
-	pytest -v speechmatics/ tests/
+	pytest -v tests/
 
 docs:
 	sphinx-build -b html sphinx/ sphinx/_build
-	rm -r docs/*
+	$(RM) docs/*
 	mv sphinx/_build/* docs/
