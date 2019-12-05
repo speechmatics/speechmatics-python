@@ -8,6 +8,16 @@ from enum import Enum
 
 
 def del_none(dictionary):
+    """
+    Recursively delete all keys from the dictionary which are pointing to
+    no value (None)
+    Args:
+        dictionary (dict): input dictionary
+    Returns:
+        dict: output dictionary
+    Note:
+        This function changes the input parameter in place.
+    """
     for key, value in list(dictionary.items()):
         if value is None:
             del dictionary[key]
