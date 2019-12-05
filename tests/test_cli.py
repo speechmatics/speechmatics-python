@@ -14,24 +14,25 @@ from .utils import path_to_test_resource
     "args, values",
     [
         (
-            [],
+            ["transcribe"],
             {
                 "ssl_mode": "regular",
                 "enable_partials": False,
                 "punctuation_permitted_marks": None,
             },
         ),
-        (["-v"], {"verbose": 1}),
-        (["-vv"], {"verbose": 2}),
-        (["--ssl-mode=insecure"], {"ssl_mode": "insecure"}),
-        (["--ssl-mode=none"], {"ssl_mode": "none"}),
-        (["--additional-vocab"], {"additional_vocab": []}),
+        (["-v", "transcribe"], {"verbose": 1}),
+        (["-vv", "transcribe"], {"verbose": 2}),
+        (["transcribe", "--ssl-mode=insecure"], {"ssl_mode": "insecure"}),
+        (["transcribe", "--ssl-mode=none"], {"ssl_mode": "none"}),
+        (["transcribe", "--additional-vocab"], {"additional_vocab": []}),
         (
-            ["--additional-vocab", "Speechmatics", "gnocchi"],
+            ["transcribe", "--additional-vocab", "Speechmatics", "gnocchi"],
             {"additional_vocab": ["Speechmatics", "gnocchi"]},
         ),
         (
             [
+                "transcribe",
                 "--additional-vocab",
                 "gnocchi:nokey,nochi",
                 "Speechmatics:speechmadticks",
@@ -44,13 +45,13 @@ from .utils import path_to_test_resource
             },
         ),
         (
-            ["--punctuation-permitted-marks", ", ? ."],
+            ["transcribe", "--punctuation-permitted-marks", ", ? ."],
             {"punctuation_permitted_marks": ", ? ."},
         ),
-        (["--punctuation-permitted-marks", ""], {"punctuation_permitted_marks": ""}),
-        (["--enable-partials"], {"enable_partials": True}),
-        (["--speaker-change-token"], {"speaker_change_token": True}),
-        (["--n-best-limit=5"], {"n_best_limit": 5}),
+        (["transcribe", "--punctuation-permitted-marks", ""], {"punctuation_permitted_marks": ""}),
+        (["transcribe", "--enable-partials"], {"enable_partials": True}),
+        (["transcribe", "--speaker-change-token"], {"speaker_change_token": True}),
+        (["transcribe", "--n-best-limit=5"], {"n_best_limit": 5}),
     ],
 )
 def test_cli_arg_parse(args, values):
@@ -143,6 +144,7 @@ def test_get_log_level():
 def test_main_with_basic_options(mock_server):
     args = [
         "-vv",
+        "transcribe",
         "--ssl-mode=insecure",
         "--url",
         mock_server.url,
@@ -169,6 +171,7 @@ def test_main_with_all_options(mock_server, tmp_path):
 
     args = [
         "-v",
+        "transcribe",
         "--ssl-mode=insecure",
         "--buffer-size=256",
         "--debug",
