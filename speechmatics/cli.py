@@ -431,10 +431,9 @@ def parse_args(args=None):
     )
 
     subparsers = parser.add_subparsers(title='Commands', dest='command')
-    transcribe = subparsers.add_parser("transcribe", help="Transcribe one or more audio file(s)")
+    transcribe_subparser = subparsers.add_parser("transcribe", help="Transcribe one or more audio file(s)")
 
-    # RT applianceRE
-    transcribe.add_argument(
+    transcribe_subparser.add_argument(
         "--ssl-mode",
         default="regular",
         choices=["regular", "insecure", "none"],
@@ -444,7 +443,7 @@ def parse_args(args=None):
             "signed certificate is allowed. With `none` then SSL is not used."
         ),
     )
-    transcribe.add_argument(
+    transcribe_subparser.add_argument(
         "--buffer-size",
         default=512,
         type=int,
@@ -453,7 +452,7 @@ def parse_args(args=None):
             "acknowledgements from the server."
         ),
     )
-    transcribe.add_argument(
+    transcribe_subparser.add_argument(
         "--debug",
         default=False,
         action="store_true",
@@ -463,24 +462,24 @@ def parse_args(args=None):
             "redirected to a file."
         ),
     )
-    transcribe.add_argument(
+    transcribe_subparser.add_argument(
         "--url",
         type=str,
         required=True,
         help="Websockets URL (e.g. wss://192.168.8.12:9000/)",
     )
-    transcribe.add_argument(
+    transcribe_subparser.add_argument(
         "--lang", type=str, default="en",
         help="Language (ISO code, e.g. en, fr, de)"
     )
-    transcribe.add_argument(
+    transcribe_subparser.add_argument(
         "--output-locale",
         metavar="LOCALE",
         type=str,
         default=None,
         help="Locale of the output of transcripts. eg. en-US",
     )
-    transcribe.add_argument(
+    transcribe_subparser.add_argument(
         "--additional-vocab",
         nargs="*",
         type=additional_vocab_item,
@@ -491,14 +490,14 @@ def parse_args(args=None):
             "Vocab list with sounds like example: 'gnocchi:nokey,nochi'."
         ),
     )
-    transcribe.add_argument(
+    transcribe_subparser.add_argument(
         "--additional-vocab-file",
         metavar="VOCAB_FILEPATH",
         type=str,
         help="File with additional vocab in JSON format",
     )
-    transcribe.add_argument("--enable-partials", default=False, action="store_true")
-    transcribe.add_argument(
+    transcribe_subparser.add_argument("--enable-partials", default=False, action="store_true")
+    transcribe_subparser.add_argument(
         "--punctuation-permitted-marks",
         type=str,
         default=None,
@@ -507,29 +506,29 @@ def parse_args(args=None):
             "punctuation."
         ),
     )
-    transcribe.add_argument(
+    transcribe_subparser.add_argument(
         "--punctuation-sensitivity",
         type=float,
         help="Sensitivity level for advanced punctuation.",
     )
-    transcribe.add_argument(
+    transcribe_subparser.add_argument(
         "--diarization",
         choices=["none", "speaker_change"],
         help="Which type of diarization to use.",
     )
-    transcribe.add_argument(
+    transcribe_subparser.add_argument(
         "--speaker-change-sensitivity",
         type=float,
         help="Sensitivity level for speaker change.",
     )
-    transcribe.add_argument(
+    transcribe_subparser.add_argument(
         "--speaker-change-token",
         default=False,
         action="store_true",
         help="Shows a <sc> token where a speaker change was detected.",
     )
-    transcribe.add_argument("--max-delay", type=float)
-    transcribe.add_argument(
+    transcribe_subparser.add_argument("--max-delay", type=float)
+    transcribe_subparser.add_argument(
         "--raw",
         metavar="ENCODING",
         type=str,
@@ -538,9 +537,9 @@ def parse_args(args=None):
             "this raw audio, eg. pcm_f32le"
         ),
     )
-    transcribe.add_argument("--sample-rate", type=int, default=44_100)
-    transcribe.add_argument("--chunk-size", type=int, default=1024*4)
-    transcribe.add_argument(
+    transcribe_subparser.add_argument("--sample-rate", type=int, default=44_100)
+    transcribe_subparser.add_argument("--chunk-size", type=int, default=1024*4)
+    transcribe_subparser.add_argument(
         "--n-best-limit",
         type=int,
         default=None,
@@ -548,7 +547,7 @@ def parse_args(args=None):
         "each final. If not specified, N-best output is disabled. Be aware that"
         " this option is not supported for all Speechmatics products.",
     )
-    transcribe.add_argument(
+    transcribe_subparser.add_argument(
         "files", metavar="FILEPATHS", type=str, nargs="+",
         help="File(s) to process"
     )
