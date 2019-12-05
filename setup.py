@@ -33,8 +33,8 @@ def read_list(fname):
         fname (str): file name (or path relative to the project root)
 
     Returns:
-        List[str]: file content (one string per line) with end of lines characters stripped off
-                   and empty lines filtered out
+        List[str]: file content (one string per line) with end of lines
+                   characters stripped off and empty lines filtered out
     """
     content = read(fname)
     retval = list(filter(None, content.split('\n')))
