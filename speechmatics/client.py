@@ -120,7 +120,8 @@ class WebsocketClient:
 
     async def _init_synchronization_primitives(self):
         """
-        Used to initialise synchronization primitives that require an event loop
+        Used to initialise synchronization primitives that require
+        an event loop
         """
         self._recognition_started = asyncio.Event()
         self._buffer_semaphore = asyncio.BoundedSemaphore(
@@ -130,8 +131,8 @@ class WebsocketClient:
     def _flag_recognition_started(self):
         """
         Handle a SetRecognitionConfig message from the server.
-        This updates an internal flag to mark the recognition session as started
-        meaning AddAudio is now allowed.
+        This updates an internal flag to mark the recognition session
+        as started meaning, AddAudio is now allowed.
         """
         self._recognition_started.set()
 
@@ -145,7 +146,8 @@ class WebsocketClient:
             "transcription_config": self.transcription_config.asdict(),
         }
         call_middleware(
-            self.middlewares, ClientMessageType.SetRecognitionConfig, msg, False
+            self.middlewares, ClientMessageType.SetRecognitionConfig,
+            msg, False
         )
         return msg
 
@@ -193,7 +195,7 @@ class WebsocketClient:
             message (str): Message received from the server.
 
         Raises:
-            TranscriptionError: If an error message is received from the server.
+            TranscriptionError: on an error message received from the server.
             EndOfTranscriptException: on EndOfTranscription message
         """
         LOGGER.debug(message)
@@ -262,7 +264,7 @@ class WebsocketClient:
     def update_transcription_config(self, new_transcription_config):
         """
         Updates the transcription config used for the session.
-        This results in a SetRecognitionConfig message being sent to the server.
+        This results in a SetRecognitionConfig message sent to the server.
 
         Args:
             new_transcription_config (speechmatics.models.TranscriptionConfig):
@@ -324,9 +326,9 @@ class WebsocketClient:
                 possible message types.
             middleware (Callable[[dict, bool], None]): A function to be called
                 to process an outgoing message of the given type. The function
-                receives the message as the first argument and a second, boolean
-                argument indicating whether or not the message is binary data
-                (which implies it is an AddAudio message).
+                receives the message as the first argument and a second,
+                boolean argument indicating whether or not the message
+                is binary data (which implies it is an AddAudio message).
 
         Raises:
             ValueError: If the given event name is not valid.
@@ -359,8 +361,8 @@ class WebsocketClient:
                 for the audio stream.
 
         Raises:
-            Exception: Can raise any exception returned by the consumer/producer
-                tasks.
+            Exception: Can raise any exception returned by the
+                       consumer/producer tasks.
         """
         self.transcription_config = transcription_config
         await self._init_synchronization_primitives()

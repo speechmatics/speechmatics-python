@@ -8,6 +8,7 @@ all: lint test docs
 lint:
 	pylint $(SOURCES)
 	flake8 $(SOURCES)
+	pycodestyle $(SOURCES)
 
 test: unittest
 
