@@ -7,17 +7,15 @@ install:
 script:
   - make lint
   - make unittest
-  - export VERSION=${TRAVIS_TAG:-$(<VERSION).dev${TRAVIS_BUILD_NUMBER}}
-  - make build VERSION=${VERSION}
 
 before_deploy:
-  - ls -al; pwd; find dist -ls
   - >
     if [[ -n "$TRAVIS_TAG" ]] && [[ "${TRAVIS_TAG}" != "$(<VERSION)" ]]; then
         >&2 echo "ERROR: You have marked a release by applying a Git tag and your VERSION file doesn't match it"
         >&2 echo "Tip: Don't tag if you want to deploy only to test.pypi.org"
         false
     fi
+  - export VERSION=${TRAVIS_TAG:-$(<VERSION).dev${TRAVIS_BUILD_NUMBER}}
 
 deploy:
   - provider: pypi
