@@ -6,3 +6,13 @@ install:
 script:
   - make lint
   - make unittest
+
+deploy:
+  provider: script
+  user: __token__
+  password: "$TEST_PYPI_ORG_TOKEN"
+  distributions: "sdist bdist_wheel"
+  server: https://test.pypi.org/legacy/
+  on:
+    all_branches: true
+    tags: false

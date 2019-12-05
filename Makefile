@@ -13,6 +13,9 @@ test: unittest
 unittest:
 	pytest -v tests/
 
+build:
+	python setup.py sdist bdist_wheel
+
 docs:
 	sphinx-build -b html sphinx/ sphinx/_build
 	$(RM) docs/*
