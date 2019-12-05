@@ -546,7 +546,3 @@ def parse_args(args=None):
     )
 
     return parser.parse_args(args=args)
-
-
-if __name__ == "__main__":
-    main()
