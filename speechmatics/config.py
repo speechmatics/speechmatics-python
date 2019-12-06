@@ -16,16 +16,16 @@ def load_config(path=None):
     Loads configuration yaml file into python dict object
 
     Args:
-        path (Union[str, None]): File path to a config to load. Can be None, in that case
-            DEFAULT_CONFIG_PATH is used.
+        path (Union[str, None]): File path to a config to load. Can be None, in
+            that case DEFAULT_CONFIG_PATH is used.
 
     Returns:
         dict: Config representation as a dict.
 
     Raises:
-        FileNotFoundError: If configuration file does not exists. Note, that if no `path`
-            is passed and DEFAULT_CONFIG_PATH does not exist, this function silently
-            returns empty dict.
+        FileNotFoundError: If configuration file does not exists. Note, that if
+            no `path` is passed and DEFAULT_CONFIG_PATH does not exist, this
+            function silently returns empty dict.
         ConfigurationFormatError: If configuration file has unexpected format.
     """
     orig_path = path
@@ -38,7 +38,9 @@ def load_config(path=None):
             if config is None:
                 return dict()
             if not isinstance(config, dict):
-                raise ConfigurationFormatError("Configuration format is invalid")
+                raise ConfigurationFormatError(
+                    "Configuration format is invalid"
+                )
             LOGGER.debug("Configuration loaded from file: {path}")
             return config
     except FileNotFoundError as exc:
@@ -50,8 +52,8 @@ def load_config(path=None):
 
 def merge_configs(orig_config, update_config):
     """
-    Merges two configuration dictionaries together. If configurations are not flat,
-    the behaviour is undefined.
+    Merges two configuration dictionaries together. If configurations are not
+    flat, the behaviour is undefined.
 
     Args:
         orig_config (dict): Original configuration.

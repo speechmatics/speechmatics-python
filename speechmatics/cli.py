@@ -423,7 +423,9 @@ def parse_args(args=None):
     Returns:
         Namespace: The set of arguments provided along with their values.
     """
-    parser = argparse.ArgumentParser(description="CLI for Speechmatics products.")
+    parser = argparse.ArgumentParser(
+        description="CLI for Speechmatics products."
+    )
     parser.add_argument(
         "-v",
         dest="verbose",
@@ -509,7 +511,11 @@ def parse_args(args=None):
         type=str,
         help="File with additional vocab in JSON format",
     )
-    transcribe_subparser.add_argument("--enable-partials", default=False, action="store_true")
+    transcribe_subparser.add_argument(
+        "--enable-partials",
+        default=False,
+        action="store_true"
+    )
     transcribe_subparser.add_argument(
         "--punctuation-permitted-marks",
         type=str,
