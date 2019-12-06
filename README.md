@@ -65,6 +65,10 @@
    $ ffmpeg -loglevel quiet -f avfoundation -i ":0" -f f32le -c:a pcm_f32le - | speechmatics transcribe --ssl-mode=insecure --url $URL --raw pcm_f32le --sample-rate 44100 --lang en -
    ```
 
+## Documentation
+
+See the API Reference for the latest release at https://speechmatics.github.io/speechmatics-python/.
+
 ## Testing
 
 To install development dependencies and run tests
@@ -80,4 +84,4 @@ If you have any issues with this library or encounter any bugs then please get i
 
 ---
 
-License: MIT
+License: [MIT](LICENSE.txt)
