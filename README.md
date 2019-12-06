@@ -84,4 +84,4 @@ If you have any issues with this library or encounter any bugs then please get i
 
 ---
 
-License: [MIT](https://opensource.org/licenses/MIT)
+License: [MIT](LICENSE.txt)
