@@ -18,6 +18,7 @@ from speechmatics.models import (
     ServerMessageType,
     ConnectionSettings,
 )
+from speechmatics.config import load_config, merge_configs
 
 LOGGER = logging.getLogger(__name__)
 
@@ -360,6 +361,9 @@ def main(args=None):
     if not args:
         args = vars(parse_args())
 
+    config_args = load_config(args["config"])
+    args = merge_configs(config_args, args)
+
     logging.basicConfig(level=get_log_level(args["verbose"]))
     LOGGER.info("Args: %s", args)
 
@@ -367,6 +371,9 @@ def main(args=None):
         raise SystemExit(f"Unknown command: {args['command']}")
 
     api = WebsocketClient(get_connection_settings(args))
+
+    if args["url"] is None:
+        raise SystemExit("Url must be passed")
 
     if args["url"].lower().startswith("ws://") and args["ssl_mode"] != "none":
         raise SystemExit(
@@ -428,9 +435,17 @@ def parse_args(args=None):
             "-v is INFO and -vv is DEBUG."
         ),
     )
+    parser.add_argument(
+        "--config",
+        type=str,
+        help="Path to the config file to use for CLI",
+    )
 
     subparsers = parser.add_subparsers(title='Commands', dest='command')
-    transcribe_subparser = subparsers.add_parser("transcribe", help="Transcribe one or more audio file(s)")
+    transcribe_subparser = subparsers.add_parser(
+        "transcribe",
+        help="Transcribe one or more audio file(s)"
+    )
 
     transcribe_subparser.add_argument(
         "--ssl-mode",
@@ -464,7 +479,6 @@ def parse_args(args=None):
     transcribe_subparser.add_argument(
         "--url",
         type=str,
-        required=True,
         help="Websockets URL (e.g. wss://192.168.8.12:9000/)",
     )
     transcribe_subparser.add_argument(
@@ -548,7 +562,7 @@ def parse_args(args=None):
     )
     transcribe_subparser.add_argument(
         "files", metavar="FILEPATHS", type=str, nargs="+",
-        help="File(s) to process"
+        help="Path to audio files you want to transcribe"
     )
 
     return parser.parse_args(args=args)
