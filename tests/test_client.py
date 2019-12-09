@@ -43,7 +43,8 @@ def test_read_in_chunks_async_stream():
         buffer = b"\x00\x00\x00\x00\x00"
 
         async def read(self, num_bytes):
-            result, self.buffer = self.buffer[:num_bytes], self.buffer[num_bytes:]
+            result, self.buffer = \
+                self.buffer[:num_bytes], self.buffer[num_bytes:]
             await asyncio.sleep(1e-5)
             return result
 
@@ -91,16 +92,20 @@ def test_handlers_called(mock_server, mocker):
         handlers[msg_type.name] = mock
         ws_client.add_event_handler(msg_type.name, mock)
 
-    # Add a handler for all events to test that the 'all' keyword works properly.
+    # Add a handler for all events to test that the 'all'
+    # keyword works properly.
     all_handler = mocker.MagicMock()
     ws_client.add_event_handler("all", all_handler)
 
     with open(path_to_test_resource("ch.wav"), "rb") as audio_stream:
-        ws_client.run_synchronously(audio_stream, transcription_config, audio_settings)
+        ws_client.run_synchronously(
+            audio_stream, transcription_config, audio_settings)
     mock_server.wait_for_clean_disconnects()
 
-    # Each handler should have been called once for every message received from the server
-    server_message_counts = Counter(msg["message"] for msg in mock_server.messages_sent)
+    # Each handler should have been called once for every message
+    # received from the server
+    server_message_counts = Counter(
+        msg["message"] for msg in mock_server.messages_sent)
     for (msg_name, count) in server_message_counts.items():
         assert msg_name and handlers[msg_name].call_count == count
 
@@ -119,13 +124,15 @@ def test_middlewares_called(mock_server, mocker):
         middlewares[msg_type.name] = mock
         ws_client.add_middleware(msg_type.name, mock)
 
-    # Add a middleware for all events to test that the 'all' keyword works properly.
+    # Add a middleware for all events to test that the 'all'
+    # keyword works properly.
     all_handler = mocker.MagicMock()
     ws_client.add_middleware("all", all_handler)
 
-    # Add another middleware just for StartRecognition to test that we can edit values in
-    # the outgoing messages via a middleware.
-    def language_changing_middleware(msg, is_binary):  # pylint: disable=unused-argument
+    # Add another middleware just for StartRecognition to test that we can
+    # edit values in the outgoing messages via a middleware.
+    # pylint: disable=unused-argument
+    def language_changing_middleware(msg, is_binary):
         msg["transcription_config"]["language"] = "ja"
 
     ws_client.add_middleware(
@@ -133,10 +140,12 @@ def test_middlewares_called(mock_server, mocker):
     )
 
     with open(path_to_test_resource("ch.wav"), "rb") as audio_stream:
-        ws_client.run_synchronously(audio_stream, transcription_config, audio_settings)
+        ws_client.run_synchronously(
+            audio_stream, transcription_config, audio_settings)
     mock_server.wait_for_clean_disconnects()
 
-    # Each handler should have been called once for every message sent from the client
+    # Each handler should have been called once for every message
+    # sent from the client
     client_message_counts = Counter(
         msg["message"] if isinstance(msg, dict) else "AddAudio"
         for msg in mock_server.messages_received
@@ -144,9 +153,10 @@ def test_middlewares_called(mock_server, mocker):
     for (msg_name, count) in client_message_counts.items():
         assert msg_name and middlewares[msg_name].call_count == count
 
-    # The change to the language made by the middleware above should have been received
+    # The change to the language made by the middleware above
+    # should have been received
     assert (
-        mock_server.find_start_recognition_message()["transcription_config"]["language"]
+        mock_server.find_start_recognition_message()["transcription_config"]["language"]  # noqa
         == "ja"
     )
     # The 'all' handler should have been called for every message.
@@ -163,17 +173,19 @@ def test_update_transcription_config_sends_set_recognition_config(mock_server):
         new_config.language = "ja"
         ws_client.update_transcription_config(new_config)
 
-    ws_client.add_event_handler(ServerMessageType.RecognitionStarted, config_updater)
+    ws_client.add_event_handler(
+        ServerMessageType.RecognitionStarted, config_updater)
 
     with open(path_to_test_resource("ch.wav"), "rb") as audio_stream:
-        ws_client.run_synchronously(audio_stream, transcription_config, audio_settings)
+        ws_client.run_synchronously(
+            audio_stream, transcription_config, audio_settings)
     mock_server.wait_for_clean_disconnects()
 
     set_recognition_config_msgs = mock_server.find_messages_by_type(
         "SetRecognitionConfig"
     )
     assert len(set_recognition_config_msgs) == 1
-    assert set_recognition_config_msgs[0]["transcription_config"]["language"] == "ja"
+    assert set_recognition_config_msgs[0]["transcription_config"]["language"] == "ja"  # noqa
 
 
 def test_client_stops_when_asked_and_sends_end_of_stream(mock_server):
@@ -191,7 +203,8 @@ def test_client_stops_when_asked_and_sends_end_of_stream(mock_server):
     ws_client.add_event_handler(ServerMessageType.RecognitionStarted, stopper)
 
     with open(path_to_test_resource("ch.wav"), "rb") as audio_stream:
-        ws_client.run_synchronously(audio_stream, transcription_config, audio_settings)
+        ws_client.run_synchronously(
+            audio_stream, transcription_config, audio_settings)
     mock_server.wait_for_clean_disconnects()
 
     num_messages_after_stop = len(mock_server.messages_received)
@@ -200,8 +213,8 @@ def test_client_stops_when_asked_and_sends_end_of_stream(mock_server):
 
 
 def test_helpful_error_message_received_on_connection_reset_error():
-    """Tests that if connection to the server fails with a ConnectionResetError then
-    a helpful error message is logged.
+    """Tests that if connection to the server fails with
+    a ConnectionResetError then a helpful error message is logged.
     """
     ws_client, _, _ = default_ws_client_setup("wss://this-url-wont-be-used:1")
 
@@ -213,10 +226,12 @@ def test_helpful_error_message_received_on_connection_reset_error():
     with patch("websockets.connect", mock_connect):
         with patch.object(client.LOGGER, "error", mock_logger_error_method):
             with pytest.raises(SystemExit):
-                ws_client.run_synchronously(MagicMock(), MagicMock(), MagicMock())
+                ws_client.run_synchronously(
+                    MagicMock(), MagicMock(), MagicMock())
             mock_logger_error_method.assert_called_once()
             assert (
-                "Caught ConnectionResetError when attempting to connect to server"
+                "Caught ConnectionResetError when attempting to"
+                " connect to server"
                 in mock_logger_error_method.call_args[0][0]
             )
 
@@ -236,9 +251,9 @@ async def test__buffer_semaphore():
             await ws_client._buffer_semaphore.release()
         assert "BoundedSemaphore released too many times" in str(ctx.value)
 
-    # The difference between a Semaphore and a BoundedSemaphore is that with the latter,
-    # a ValueError is raised if you call release() to increase the internal counter value
-    # above its initial value.
+    # The difference between a Semaphore and a BoundedSemaphore is that
+    # with the latter, a ValueError is raised if you call release()
+    # to increase the internal counter value above its initial value.
     await ensure_release_raises()
 
     async def acquire_x_times(times):
@@ -260,7 +275,8 @@ async def test__buffer_semaphore():
 
     task = asyncio.create_task(acquire_x_times(1))
 
-    # task should timeout because it's 'stuck' waiting for the semaphore to be released.
+    # task should timeout because it's 'stuck' waiting for the
+    # semaphore to be released.
     with pytest.raises(concurrent.futures._base.TimeoutError):
         await asyncio.wait_for(task, timeout=0.5)
 
@@ -271,7 +287,10 @@ async def test__buffer_semaphore():
 
 @pytest.mark.asyncio
 async def test__producer_happy_path(mocker):
-    """ Happy path _producer test where the client sends 8 audio chunks and then stops. """
+    """
+    Happy path _producer test where the client sends 8 audio chunks
+    and then stops.
+    """
     # pylint: disable=protected-access,too-many-locals
     no_chunks_to_send = 8
     buffer_size = no_chunks_to_send + 1
@@ -282,7 +301,8 @@ async def test__producer_happy_path(mocker):
     original_state = deepcopy_state(ws_client)
 
     async_iter_mock = asynctest.MagicMock()
-    async_iter_mock.return_value.__aiter__.return_value = range(no_chunks_to_send)
+    async_iter_mock.return_value.__aiter__.return_value = \
+        range(no_chunks_to_send)
     mock_read_in_chunks = mocker.patch(
         "speechmatics.client.read_in_chunks", new=async_iter_mock
     )
@@ -302,12 +322,14 @@ async def test__producer_happy_path(mocker):
         if index < exp_iters - 1:
             assert msg == index  # from range in mock_read_in_chunks
             exp_current_seq_no += 1
-            cmp_dicts(original_state, state, exp_diffs={"seq_no": exp_current_seq_no})
+            cmp_dicts(original_state, state,
+                      exp_diffs={"seq_no": exp_current_seq_no})
         else:
             assert msg == json.dumps(
                 {"message": "EndOfStream", "last_seq_no": exp_final_seq_no}
             )
-            cmp_dicts(original_state, state, exp_diffs={"seq_no": exp_final_seq_no})
+            cmp_dicts(original_state, state,
+                      exp_diffs={"seq_no": exp_final_seq_no})
 
     assert exp_iters == len(msgs_states)
 
@@ -320,8 +342,11 @@ async def test__producer_happy_path(mocker):
 
 @pytest.mark.asyncio
 async def test__producer_semaphore_pause_and_resume(mocker):
-    """ Test simulating the client sending audio chunks to a server faster than it can
-        reply to them with AudioAdded acks causing the client throttling logic to kick-in. """
+    """
+    Test simulating the client sending audio chunks to a server faster
+    than it can reply to them with AudioAdded acks causing the client
+    throttling logic to kick-in.
+    """
     # pylint: disable=protected-access,too-many-locals
     no_chunks_to_send = 5
     buffer_size = no_chunks_to_send - 1
@@ -332,8 +357,9 @@ async def test__producer_semaphore_pause_and_resume(mocker):
     await ws_client._init_synchronization_primitives()
 
     async_iter_mock = asynctest.MagicMock()
-    async_iter_mock.return_value.__aiter__.return_value = range(no_chunks_to_send)
-    mock_read_in_chunks = mocker.patch(  # pylint: disable=unused-variable
+    async_iter_mock.return_value.__aiter__.return_value = \
+        range(no_chunks_to_send)
+    mocker.patch(  # pylint: disable=unused-variable
         "speechmatics.client.read_in_chunks", new=async_iter_mock
     )
 
@@ -348,7 +374,8 @@ async def test__producer_semaphore_pause_and_resume(mocker):
         while True:
             if len(msgs) == buffer_size:
                 times_when_buffer_full += 1
-            if times_when_buffer_full > 5 and ws_client._buffer_semaphore.locked():
+            if times_when_buffer_full > 5 and \
+                    ws_client._buffer_semaphore.locked():
                 ws_client._buffer_semaphore.release()
                 break
             await asyncio.sleep(0.0001)
@@ -370,8 +397,9 @@ async def test__producer_semaphore_pause_and_resume(mocker):
 
 @pytest.mark.asyncio
 async def test__producer_semaphore_timeout(mocker):
-    """ Test simulating the client continually sending audio chunks to a server that
-        isn't responding with AudioAdded acks. """
+    """
+    Test simulating the client continually sending audio chunks to
+    a server that isn't responding with AudioAdded acks. """
     # pylint: disable=protected-access,too-many-locals
     no_chunks_to_send = 5
     buffer_size = no_chunks_to_send - 1
@@ -386,8 +414,9 @@ async def test__producer_semaphore_timeout(mocker):
     await ws_client._init_synchronization_primitives()
 
     async_iter_mock = asynctest.MagicMock()
-    async_iter_mock.return_value.__aiter__.return_value = range(no_chunks_to_send)
-    mock_read_in_chunks = mocker.patch(  # pylint: disable=unused-variable
+    async_iter_mock.return_value.__aiter__.return_value = \
+        range(no_chunks_to_send)
+    mocker.patch(  # pylint: disable=unused-variable
         "speechmatics.client.read_in_chunks", new=async_iter_mock
     )
 
@@ -412,7 +441,8 @@ async def test__producer_semaphore_timeout(mocker):
 
     done_task = done.pop()
     assert ".ensure_timeout()" in str(done_task)
-    assert isinstance(done_task.exception(), concurrent.futures._base.TimeoutError)
+    assert isinstance(done_task.exception(),
+                      concurrent.futures._base.TimeoutError)
 
     pending_task = pending.pop()
     assert ".ensure_timeout_happens_in_time()" in str(pending_task)
@@ -422,14 +452,18 @@ async def test__producer_semaphore_timeout(mocker):
 
 
 def deepcopy_state(obj):
-    """ Return a deepcopy of the __dict__ (or state) of an object but ignore the keys that
-        cause trouble when trying to copy.deepcopy them. """
+    """
+    Return a deepcopy of the __dict__ (or state) of an object but ignore
+    the keys that cause trouble when trying to copy.deepcopy them.
+    """
     state = vars(obj)
     state_copy = {}
 
-    # copy.deepcopy will raise an exception on these types because they can't be pickled.
-    # The try..except method you'd expect to see here causes pytest warnings when run with the
-    # -s flag so we explicitly name the types to skip instead.
+    # copy.deepcopy will raise an exception on these types because they
+    # can't be pickled.
+    # The try..except method you'd expect to see here causes pytest warnings
+    # when run with the -s flag so we explicitly name the types
+    # to skip instead.
     types_to_ignore = (ConnectionSettings, asyncio.Event, asyncio.Semaphore)
 
     for key in state:

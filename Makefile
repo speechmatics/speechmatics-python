@@ -1,6 +1,6 @@
 .PHONY: lint test all docs unittest
 
-SOURCES := speechmatics/ setup.py
+SOURCES := speechmatics/ setup.py tests
 VERSION ?= $(shell cat VERSION).dev0
 
 all: lint test docs

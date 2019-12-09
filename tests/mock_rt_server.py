@@ -107,8 +107,8 @@ class MockRealtimeLogbook:
 
 class MockRealtimeServer(WebSocket):
     """
-    A mock implementation of the Speechmatics Realtime ASR server, which returns
-    dummy responses to most messages.
+    A mock implementation of the Speechmatics Realtime ASR server,
+    which returns dummy responses to most messages.
     """
 
     logbook = None
@@ -162,8 +162,8 @@ class MockRealtimeServer(WebSocket):
                 client. Assumes that if the message is a standard JSON message
                 it has already been parsed into a dictionary. AddAudio messages
                 are expected to be binary bytearrays.
-            is_binary (boolean, optional): Whether or not the message is binary,
-                implying that the message is an AddAudio message.
+            is_binary (boolean, optional): Whether or not the message
+                is binary, implying that the message is an AddAudio message.
 
         Raises:
             ValueError: If the message is invalid or has an unrecognized type.
