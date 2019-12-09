@@ -7,3 +7,4 @@ pytest-mock==1.12.1
 SimpleWebSocketServer==0.1.1
 sphinx==2.2.2
 tenacity==6.0.0
+pytest-cov==2.8.1
