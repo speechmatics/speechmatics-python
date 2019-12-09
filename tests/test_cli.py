@@ -40,7 +40,10 @@ from .utils import path_to_test_resource
             {
                 "additional_vocab": [
                     {"content": "gnocchi", "sounds_like": ["nokey", "nochi"]},
-                    {"content": "Speechmatics", "sounds_like": ["speechmadticks"]},
+                    {
+                        "content": "Speechmatics",
+                        "sounds_like": ["speechmadticks"]
+                    },
                 ]
             },
         ),
@@ -48,9 +51,15 @@ from .utils import path_to_test_resource
             ["transcribe", "--punctuation-permitted-marks", ", ? ."],
             {"punctuation_permitted_marks": ", ? ."},
         ),
-        (["transcribe", "--punctuation-permitted-marks", ""], {"punctuation_permitted_marks": ""}),
+        (
+            ["transcribe", "--punctuation-permitted-marks", ""],
+            {"punctuation_permitted_marks": ""}
+        ),
         (["transcribe", "--enable-partials"], {"enable_partials": True}),
-        (["transcribe", "--speaker-change-token"], {"speaker_change_token": True}),
+        (
+            ["transcribe", "--speaker-change-token"],
+            {"speaker_change_token": True}
+        ),
         (["transcribe", "--n-best-limit=5"], {"n_best_limit": 5}),
     ],
 )
@@ -66,7 +75,8 @@ def test_cli_arg_parse(args, values):
 def test_parse_additional_vocab(tmp_path):
     vocab_file = tmp_path / "vocab.json"
     vocab_file.write_text('["Speechmatics", "gnocchi"]')
-    assert cli.parse_additional_vocab(vocab_file) == ["Speechmatics", "gnocchi"]
+    assert cli.parse_additional_vocab(vocab_file) == \
+        ["Speechmatics", "gnocchi"]
 
     vocab_file.write_text('[{"content": "gnocchi", "sounds_like": ["nokey"]}]')
     assert cli.parse_additional_vocab(vocab_file) == (
@@ -96,7 +106,7 @@ def test_parse_additional_vocab(tmp_path):
     ],
 )
 def test_get_transcription_config_punctuation_permitted_marks(
-    punctuation_permitted_marks, exp_value
+        punctuation_permitted_marks, exp_value
 ):
     args = collections.defaultdict(str)
     args["punctuation_permitted_marks"] = punctuation_permitted_marks
@@ -107,7 +117,8 @@ def test_get_transcription_config_punctuation_permitted_marks(
 @pytest.mark.parametrize(
     "enable_partials, exp_value",
     [
-        # the optional enable_partials arg isn't given so argparse sets it to False
+        # the optional enable_partials arg isn't given
+        # so argparse sets it to False
         (False, None),
         # enable_partials arg was specified
         (True, True),
@@ -220,15 +231,18 @@ def test_main_with_all_options(mock_server, tmp_path):
         [
             "jabberwock",
             {"content": "brillig", "sounds_like": ["brillick"]},
-            "tumtum",
-            {"content": "borogoves", "sounds_like": ["boreohgofes", "borrowgoafs"]},
+            "tumtum", {
+                "content": "borogoves", "sounds_like": [
+                    "boreohgofes", "borrowgoafs"
+                ]
+            },
         ]
     )
     assert mock_server.find_sent_messages_by_type("AddPartialTranscript")
-    assert msg["transcription_config"]["punctuation_overrides"]["permitted_marks"] == [
+    assert msg["transcription_config"]["punctuation_overrides"]["permitted_marks"] == [  # noqa
         "all"
     ]
-    assert msg["transcription_config"]["punctuation_overrides"]["sensitivity"] == 0.1
+    assert msg["transcription_config"]["punctuation_overrides"]["sensitivity"] == 0.1  # noqa
     assert msg["transcription_config"]["diarization"] == "none"
     assert msg["transcription_config"]["max_delay"] == 5.0
     assert msg["transcription_config"]["speaker_change_sensitivity"] == 0.8
@@ -251,7 +265,9 @@ def test_add_printing_handlers_transcript_handler(mocker, capsys):
     assert not out
     assert not err
     assert api.add_event_handler.called
-    call_args_dict = {i[0][0]: i[0][1] for i in api.add_event_handler.call_args_list}
+    call_args_dict = {
+        i[0][0]: i[0][1] for i in api.add_event_handler.call_args_list
+    }
 
     finals_msg_type = "AddTranscript"
     assert finals_msg_type in call_args_dict
@@ -284,13 +300,17 @@ def test_add_printing_handlers_transcript_handler(mocker, capsys):
             "start_time": 0.08999999612569809,
             "end_time": 0.29999998211860657,
             "alternatives": [
-                {"confidence": 1.0, "content": transcript.strip(), "language": "en"}
+                {
+                    "confidence": 1.0, "content": transcript.strip(),
+                    "language": "en"
+                }
             ],
         }
     )
     transcript_handler_cb_func(msg_single_word_transcript)
     assert transcripts.text == transcript
-    assert transcripts.json == [msg_empty_transcript, msg_single_word_transcript]
+    assert transcripts.json == \
+        [msg_empty_transcript, msg_single_word_transcript]
     out, err = capsys.readouterr()
     assert out == transcript + "\n"
     assert not err
@@ -319,7 +339,9 @@ TRANSCRIPT_WITH_SC = {
             "type": "word",
             "start_time": 0.08999999612569809,
             "end_time": 0.29999998211860657,
-            "alternatives": [{"confidence": 1.0, "content": "Hey", "language": "en"}],
+            "alternatives": [
+                {"confidence": 1.0, "content": "Hey", "language": "en"}
+            ],
         },
         {
             "type": "speaker_change",
@@ -331,7 +353,9 @@ TRANSCRIPT_WITH_SC = {
             "type": "word",
             "start_time": 0.08999999612569809,
             "end_time": 0.29999998211860657,
-            "alternatives": [{"confidence": 1.0, "content": "Hello", "language": "en"}],
+            "alternatives": [
+                {"confidence": 1.0, "content": "Hello", "language": "en"}
+            ],
         },
     ],
     "metadata": {
@@ -344,7 +368,8 @@ TRANSCRIPT_WITH_SC = {
 
 
 def check_printing_handlers(
-    mocker, capsys, transcript, expected_transcript_txt, speaker_change_token
+        mocker, capsys, transcript, expected_transcript_txt,
+        speaker_change_token
 ):
     api = mocker.MagicMock()
     transcripts = cli.Transcripts(text="", json=[])
@@ -358,7 +383,9 @@ def check_printing_handlers(
     assert not out
     assert not err
     assert api.add_event_handler.called
-    call_args_dict = {i[0][0]: i[0][1] for i in api.add_event_handler.call_args_list}
+    call_args_dict = {
+        i[0][0]: i[0][1] for i in api.add_event_handler.call_args_list
+    }
 
     finals_msg_type = "AddTranscript"
     assert finals_msg_type in call_args_dict

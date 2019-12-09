@@ -25,9 +25,9 @@ def server_ssl_context():
 @pytest.fixture()
 def mock_server():
     """
-    Fixture for creating a mock RT server. The server is designed to behave very
-    similarly to the actual RT server, but returns dummy responses to most
-    messages.
+    Fixture for creating a mock RT server. The server is designed
+    to behave very similarly to the actual RT server, but returns
+    dummy responses to most messages.
 
     The server runs in a background thread and is cleaned up as part of the
     fixture's tear-down step.

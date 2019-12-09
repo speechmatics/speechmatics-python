@@ -199,10 +199,12 @@ def get_transcription_config(args):
     )
 
     if args["additional_vocab_file"]:
-        additional_vocab = parse_additional_vocab(args["additional_vocab_file"])
+        additional_vocab = parse_additional_vocab(
+            args["additional_vocab_file"])
         config.additional_vocab = additional_vocab
         LOGGER.info(
-            "Using additional vocab from file %s", args["additional_vocab_file"]
+            "Using additional vocab from file %s",
+            args["additional_vocab_file"]
         )
 
     if args["additional_vocab"]:
@@ -291,7 +293,8 @@ def add_printing_handlers(
 
     def partial_transcript_handler(message):
         # "\n" does not appear in partial transcripts
-        print(f'{message["metadata"]["transcript"]}', end="\r", file=sys.stderr)
+        print(f'{message["metadata"]["transcript"]}',
+              end="\r", file=sys.stderr)
 
     def transcript_handler(message):
         transcripts.json.append(message)
@@ -370,8 +373,8 @@ def main(args=None):
 
     if args["url"].lower().startswith("ws://") and args["ssl_mode"] != "none":
         raise SystemExit(
-            f"ssl_mode '{args['ssl_mode']}' is incompatible with protocol 'ws'."
-            "Use 'wss' instead."
+            f"ssl_mode '{args['ssl_mode']}' is incompatible with protocol"
+            " 'ws'. Use 'wss' instead."
         )
     if args["url"].lower().startswith("wss://") and args["ssl_mode"] == "none":
         raise SystemExit(
@@ -392,7 +395,8 @@ def main(args=None):
     def run(stream):
         try:
             api.run_synchronously(
-                stream, get_transcription_config(args), get_audio_settings(args)
+                stream, get_transcription_config(args),
+                get_audio_settings(args)
             )
         except KeyboardInterrupt:
             # Gracefully handle Ctrl-C, else we get a huge stack-trace.
@@ -416,7 +420,8 @@ def parse_args(args=None):
     Returns:
         Namespace: The set of arguments provided along with their values.
     """
-    parser = argparse.ArgumentParser(description="CLI for Speechmatics products.")
+    parser = argparse.ArgumentParser(
+        description="CLI for Speechmatics products.")
     parser.add_argument(
         "-v",
         dest="verbose",
@@ -430,7 +435,10 @@ def parse_args(args=None):
     )
 
     subparsers = parser.add_subparsers(title='Commands', dest='command')
-    transcribe_subparser = subparsers.add_parser("transcribe", help="Transcribe one or more audio file(s)")
+    transcribe_subparser = subparsers.add_parser(
+        "transcribe",
+        help="Transcribe one or more audio file(s)"
+    )
 
     transcribe_subparser.add_argument(
         "--ssl-mode",
@@ -438,8 +446,9 @@ def parse_args(args=None):
         choices=["regular", "insecure", "none"],
         help=(
             "Use a preset configuration for the SSL context. With `regular` "
-            "mode a valid certificate is expected. With `insecure` mode a self "
-            "signed certificate is allowed. With `none` then SSL is not used."
+            "mode a valid certificate is expected. With `insecure` mode"
+            " a self signed certificate is allowed."
+            " With `none` then SSL is not used."
         ),
     )
     transcribe_subparser.add_argument(
@@ -495,7 +504,11 @@ def parse_args(args=None):
         type=str,
         help="File with additional vocab in JSON format",
     )
-    transcribe_subparser.add_argument("--enable-partials", default=False, action="store_true")
+    transcribe_subparser.add_argument(
+        "--enable-partials",
+        default=False,
+        action="store_true"
+    )
     transcribe_subparser.add_argument(
         "--punctuation-permitted-marks",
         type=str,
@@ -536,15 +549,18 @@ def parse_args(args=None):
             "this raw audio, eg. pcm_f32le"
         ),
     )
-    transcribe_subparser.add_argument("--sample-rate", type=int, default=44_100)
-    transcribe_subparser.add_argument("--chunk-size", type=int, default=1024*4)
+    transcribe_subparser.add_argument(
+        "--sample-rate", type=int, default=44_100)
+    transcribe_subparser.add_argument(
+        "--chunk-size", type=int, default=1024*4)
     transcribe_subparser.add_argument(
         "--n-best-limit",
         type=int,
         default=None,
         help="Upper bound on the number of N-best alternatives to return for "
-        "each final. If not specified, N-best output is disabled. Be aware that"
-        " this option is not supported for all Speechmatics products.",
+        "each final. If not specified, N-best output is disabled."
+        "Be aware that this option is not supported for all Speechmatics"
+        " products.",
     )
     transcribe_subparser.add_argument(
         "files", metavar="FILEPATHS", type=str, nargs="+",
