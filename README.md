@@ -36,22 +36,29 @@
 - A normal real time session using a .wav file as the input audio
 
    ```shell
-   $ URL=wss://realtimeappliance.mycompany.io:9000/v2
-   $ speechmatics transcribe--url $URL --lang en --ssl-mode=insecure example_audio.wav
+   $ URL=ws://realtimeappliance.mycompany.io:9000/v2
+   $ speechmatics transcribe--url $URL --lang en --ssl-mode=none example_audio.wav
+   ```
+
+- A normal real time session with a locally running container
+
+   ```shell
+   $ URL=ws://127.0.0.1:9000/v2
+   $ speechmatics transcribe --url $URL --lang en --ssl-mode=none example_audio.wav
    ```
 
 - Show the messages that are going over the websocket connection
 
    ```shell
-   $ URL=wss://realtimeappliance.mycompany.io:9000/v2
-   $ speechmatics transcribe -v --url $URL --lang en --ssl-mode=insecure example_audio.wav
+   $ URL=ws://realtimeappliance.mycompany.io:9000/v2
+   $ speechmatics transcribe -v --url $URL --lang en --ssl-mode=none example_audio.wav
    ```
 
 - Similar to the first example, but this time the input audio is piped in
 
    ```shell
-   $ URL=wss://realtimeappliance.mycompany.io:9000/v2
-   $ cat example_audio.wav | speechmatics transcribe --ssl-mode=insecure --url $URL --lang en -
+   $ URL=ws://realtimeappliance.mycompany.io:9000/v2
+   $ cat example_audio.wav | speechmatics transcribe --ssl-mode=none --url $URL --lang en -
    ```
 
 - The CLI also accepts an audio stream on standard input, meaning that you can stream in a live microphone feed for example.
@@ -61,8 +68,8 @@
    **Mac OS**
 
    ```shell
-   $ URL=wss://realtimeappliance.mycompanyio:9000/v2
-   $ ffmpeg -loglevel quiet -f avfoundation -i ":0" -f f32le -c:a pcm_f32le - | speechmatics transcribe --ssl-mode=insecure --url $URL --raw pcm_f32le --sample-rate 44100 --lang en -
+   $ URL=ws://realtimeappliance.mycompanyio:9000/v2
+   $ ffmpeg -loglevel quiet -f avfoundation -i ":0" -f f32le -c:a pcm_f32le - | speechmatics transcribe --ssl-mode=none --url $URL --raw pcm_f32le --sample-rate 44100 --lang en -
    ```
 
 ## Documentation
