@@ -32,37 +32,59 @@ def json_utf8(func):
     return wrapper
 
 
-async def read_in_chunks(stream, chunk_size):
+async def read_in_chunks(stream, max_chunk_size, sample_max_size):
     """
     Utility method for reading in and yielding chunks
 
     Args:
         stream (io.IOBase): file-like object to read audio from
-        chunk_size (int): maximum chunk size in bytes
+        max_chunk_size (int): maximum chunk size in bytes
+        sample_max_size (int): size in bytes of the largest sample used in raw audio (f32)
 
     Raises:
         ValueError: if no data was read from the stream
 
     Returns:
-        bytestring: a chunk of data
-
+        bytestring: a chunk of data where the length in bytes is <= max_sample_size and a multiple
+        of max_sample_size
     """
-    if chunk_size <= 0:
-        raise ValueError("chunk_size must be > 0")
+    if max_chunk_size <= 0:
+        raise ValueError("max_chunk_size must be > 0")
 
     count = 0
+    audio_chunk = b''
     while True:
         # Work with both async and synchronous file readers.
         if inspect.iscoroutinefunction(stream.read):
-            audio_chunk = await stream.read(chunk_size)
+            audio_chunk += await stream.read(max_chunk_size)
         else:
-            audio_chunk = stream.read(chunk_size)
+            audio_chunk += stream.read(max_chunk_size)
 
         if not audio_chunk:
             if count == 0:
                 raise ValueError("Audio stream is empty")
             break
-        yield audio_chunk
+
+        # On some operating systems including windows, macos and linux the read(2) system call is
+        # allowed to return less bytes then requested. Python exposes this behaviour to applications.
+        # This means that when the samples in the audio stream are more than one byte long it
+        # is possible to read a partial sample into audio_chunk. If each audio_chunk is passed
+        # directly to the server unmodified and in the correct sequence and this does not cause any
+        # issues because the rest of the sample will follow immediately afterwards in the next
+        # audio_chunk and the byte alignment will be unchanged.
+
+        # If the client sends a partial sample and then stops for any reason including a keyboard
+        # interrupt there will be a partial sample in the server side buffers. If the client is
+        # restarted and resumes sending audio bytes to the same stream then any subsequent samples
+        # will be at the wrong byte alignment due to the partial sample in the buffer. This causes
+        # transcription to fail without producing an error message.
+
+        # This issue can be solved client side by only sending chunks of audio that are a multiple
+        # of the sample size.
+
+        num_bytes_to_keep_back = len(audio_chunk) % sample_max_size
+        yield audio_chunk[:-num_bytes_to_keep_back]
+        audio_chunk = audio_chunk[-num_bytes_to_keep_back:]
         count += 1
 
 
@@ -216,16 +238,16 @@ class WebsocketClient:
         elif message_type == ServerMessageType.Error:
             raise TranscriptionError(message["reason"])
 
-    async def _producer(self, stream, audio_chunk_size):
+    async def _producer(self, stream, max_chunk_size):
         """
         Yields messages to send to the server.
 
         Args:
             stream (io.IOBase): File-like object which an audio stream can be
                 read from.
-            audio_chunk_size (int): Size of audio chunks to send.
+            max_chunk_size (int): Maximum size of audio chunks to send.
         """
-        async for audio_chunk in read_in_chunks(stream, audio_chunk_size):
+        async for audio_chunk in read_in_chunks(stream, max_chunk_size):
             if self._session_needs_closing:
                 break
 
@@ -253,12 +275,12 @@ class WebsocketClient:
             message = await self.websocket.recv()
             self._consumer(message)
 
-    async def _producer_handler(self, stream, audio_chunk_size):
+    async def _producer_handler(self, stream, max_chunk_size):
         """
         Controls the producer loop for sending messages to the server.
         """
         await self._recognition_started.wait()
-        async for message in self._producer(stream, audio_chunk_size):
+        async for message in self._producer(stream, max_chunk_size):
             await self.websocket.send(message)
 
     def update_transcription_config(self, new_transcription_config):
@@ -388,7 +410,7 @@ class WebsocketClient:
         await self.websocket.send(start_recognition_msg)
         consumer_task = asyncio.create_task(self._consumer_handler())
         producer_task = asyncio.create_task(
-            self._producer_handler(stream, audio_settings.chunk_size)
+            self._producer_handler(stream, audio_settings.max_chunk_size)
         )
         (done, pending) = await asyncio.wait(
             [consumer_task, producer_task], return_when=asyncio.FIRST_EXCEPTION

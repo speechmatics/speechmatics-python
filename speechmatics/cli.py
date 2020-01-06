@@ -246,7 +246,7 @@ def get_audio_settings(args):
     """
     settings = AudioSettings(
         sample_rate=args["sample_rate"],
-        chunk_size=args["chunk_size"],
+        max_chunk_size=args["max_chunk_size"],
         encoding=args["raw"],
     )
     return settings
@@ -552,7 +552,7 @@ def parse_args(args=None):
     transcribe_subparser.add_argument(
         "--sample-rate", type=int, default=44_100)
     transcribe_subparser.add_argument(
-        "--chunk-size", type=int, default=1024*4)
+        "--max-chunk-size", type=int, default=1024*4)
     transcribe_subparser.add_argument(
         "--n-best-limit",
         type=int,

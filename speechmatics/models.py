@@ -49,7 +49,7 @@ class TranscriptionConfig:
 class AudioSettings:
     encoding: str = None
     sample_rate: int = 44100
-    chunk_size: int = 1024 * 4
+    max_chunk_size: int = 1024 * 4
 
     def asdict(self):
         if not self.encoding:
