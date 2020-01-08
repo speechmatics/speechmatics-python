@@ -32,14 +32,15 @@ def json_utf8(func):
     return wrapper
 
 
-async def read_in_chunks(stream, max_chunk_size, sample_max_size):
+async def read_in_chunks(stream, max_chunk_size, max_sample_size):
     """
     Utility method for reading in and yielding chunks
+    todo:  write tests that check the max_sample_size logic
 
     Args:
         stream (io.IOBase): file-like object to read audio from
         max_chunk_size (int): maximum chunk size in bytes
-        sample_max_size (int): size in bytes of the largest sample
+        max_sample_size (int): size in bytes of the largest sample
             used in raw audio (f32)
 
     Raises:
@@ -54,18 +55,22 @@ async def read_in_chunks(stream, max_chunk_size, sample_max_size):
         raise ValueError("max_chunk_size must be > 0")
 
     count = 0
-    audio_chunk = b''
+    audio_buffer = b''
     while True:
         # Work with both async and synchronous file readers.
         if inspect.iscoroutinefunction(stream.read):
-            audio_chunk += await stream.read(max_chunk_size)
+            new_audio_chunk = await stream.read(max_chunk_size)
         else:
-            audio_chunk += stream.read(max_chunk_size)
+            new_audio_chunk = stream.read(max_chunk_size)
 
-        if not audio_chunk:
+        LOGGER.debug('The client read %d bytes', len(new_audio_chunk))
+        #print(len(new_audio_chunk))
+        if not new_audio_chunk:
             if count == 0:
                 raise ValueError("Audio stream is empty")
             break
+
+        audio_buffer += new_audio_chunk
 
         # On some operating systems including windows, macos and linux the
         # read(2) system call is allowed to return less bytes then requested.
@@ -88,9 +93,11 @@ async def read_in_chunks(stream, max_chunk_size, sample_max_size):
         # This issue can be solved client side by only sending chunks of audio
         # that are a multiple of the sample size.
 
-        num_bytes_to_keep_back = len(audio_chunk) % sample_max_size
-        yield audio_chunk[:-num_bytes_to_keep_back]
-        audio_chunk = audio_chunk[-num_bytes_to_keep_back:]
+        num_bytes_to_send = len(audio_buffer) - len(audio_buffer) % max_sample_size
+        bytes_to_send = audio_buffer[:num_bytes_to_send]
+        LOGGER.debug('The client sent %d bytes', len(bytes_to_send))
+        yield bytes_to_send
+        audio_buffer = audio_buffer[num_bytes_to_send:]
         count += 1
 
 

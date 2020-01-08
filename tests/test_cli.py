@@ -7,7 +7,7 @@ import os
 import pytest
 
 import speechmatics.cli as cli
-from .utils import path_to_test_resource
+from tests.utils import path_to_test_resource
 
 
 @pytest.mark.parametrize(
@@ -177,7 +177,7 @@ def test_main_with_all_options(mock_server, tmp_path):
         '["jabberwock", {"content": "brillig", "sounds_like": ["brillick"]}]'
     )
 
-    chunk_size = 1024 * 8
+    max_chunk_size = 1024 * 8
     audio_path = path_to_test_resource("ch.wav")
 
     args = [
@@ -207,8 +207,8 @@ def test_main_with_all_options(mock_server, tmp_path):
         "--speaker-change-token",
         "--max-delay",
         "5.0",
-        "--chunk-size",
-        str(chunk_size),
+        "--max-chunk-size",
+        str(max_chunk_size),
         audio_path,
     ]
 
@@ -250,7 +250,7 @@ def test_main_with_all_options(mock_server, tmp_path):
     # Check that the chunk size argument is respected
     add_audio_messages = mock_server.find_add_audio_messages()
     size_of_audio_file = os.stat(audio_path).st_size
-    expected_num_messages = size_of_audio_file / chunk_size
+    expected_num_messages = size_of_audio_file / max_chunk_size
     assert -1 <= (len(add_audio_messages) - expected_num_messages) <= 1
 
 

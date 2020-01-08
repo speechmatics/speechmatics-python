@@ -15,7 +15,7 @@ from speechmatics.models import (
     ServerMessageType,
     ClientMessageType,
 )
-from .utils import path_to_test_resource, default_ws_client_setup
+from tests.utils import path_to_test_resource, default_ws_client_setup
 
 
 def test_json_utf8():
@@ -55,14 +55,14 @@ def test_read_in_chunks_async_stream():
 
 @pytest.mark.asyncio
 async def test_read_in_chunks():
-    gen = client.read_in_chunks(io.BytesIO(b"x"), 1024 * 4, 4)
+    gen = client.read_in_chunks(io.BytesIO(b"x"), 1024 * 4, 1)
     assert await gen.__anext__() == b"x"
     with pytest.raises(StopAsyncIteration):
         await gen.__anext__()
 
     stream = io.BytesIO(bytes(range(5)))
 
-    gen = client.read_in_chunks(stream, 0, 4)
+    gen = client.read_in_chunks(stream, 0, 1)
     with pytest.raises(ValueError):
         await gen.__anext__()
 
@@ -311,7 +311,7 @@ async def test__producer_happy_path(mocker):
     async for msg in ws_client._producer("mock", 123):
         msgs_states.append((msg, deepcopy_state(ws_client)))
         assert not ws_client._buffer_semaphore.locked()
-    mock_read_in_chunks.assert_called_once_with("mock", 123)
+    mock_read_in_chunks.assert_called_once_with("mock", 123, 4)
 
     exp_iters = no_chunks_to_send + 1
     exp_final_seq_no = no_chunks_to_send
