@@ -55,7 +55,7 @@ async def read_in_chunks(stream, max_chunk_size, max_sample_size):
         raise ValueError("max_chunk_size must be > 0")
 
     count = 0
-    audio_buffer = b''
+    buffer = b''
     while True:
         # Work with both async and synchronous file readers.
         if inspect.iscoroutinefunction(stream.read):
@@ -63,14 +63,16 @@ async def read_in_chunks(stream, max_chunk_size, max_sample_size):
         else:
             new_audio_chunk = stream.read(max_chunk_size)
 
-        LOGGER.debug('The client read %d bytes', len(new_audio_chunk))
-        #print(len(new_audio_chunk))
+        if len(new_audio_chunk) % 4:
+            LOGGER.debug('The client read %d bytes, this could be an issue',
+                         len(new_audio_chunk))
+            print(len(new_audio_chunk))
         if not new_audio_chunk:
             if count == 0:
                 raise ValueError("Audio stream is empty")
             break
 
-        audio_buffer += new_audio_chunk
+        buffer += new_audio_chunk
 
         # On some operating systems including windows, macos and linux the
         # read(2) system call is allowed to return less bytes then requested.
@@ -93,11 +95,11 @@ async def read_in_chunks(stream, max_chunk_size, max_sample_size):
         # This issue can be solved client side by only sending chunks of audio
         # that are a multiple of the sample size.
 
-        num_bytes_to_send = len(audio_buffer) - len(audio_buffer) % max_sample_size
-        bytes_to_send = audio_buffer[:num_bytes_to_send]
+        num_bytes_to_send = len(buffer) - len(buffer) % max_sample_size
+        bytes_to_send = buffer[:num_bytes_to_send]
         LOGGER.debug('The client sent %d bytes', len(bytes_to_send))
         yield bytes_to_send
-        audio_buffer = audio_buffer[num_bytes_to_send:]
+        buffer = buffer[num_bytes_to_send:]
         count += 1
 
 
