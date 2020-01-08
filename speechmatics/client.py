@@ -39,14 +39,16 @@ async def read_in_chunks(stream, max_chunk_size, sample_max_size):
     Args:
         stream (io.IOBase): file-like object to read audio from
         max_chunk_size (int): maximum chunk size in bytes
-        sample_max_size (int): size in bytes of the largest sample used in raw audio (f32)
+        sample_max_size (int): size in bytes of the largest sample
+            used in raw audio (f32)
 
     Raises:
         ValueError: if no data was read from the stream
 
     Returns:
-        bytestring: a chunk of data where the length in bytes is <= max_sample_size and a multiple
-        of max_sample_size
+        collections.AsyncIterable: a sequence of chunks of data where the
+        length in bytes of each chunk is <= max_sample_size and
+        a multiple of max_sample_size
     """
     if max_chunk_size <= 0:
         raise ValueError("max_chunk_size must be > 0")
@@ -65,22 +67,26 @@ async def read_in_chunks(stream, max_chunk_size, sample_max_size):
                 raise ValueError("Audio stream is empty")
             break
 
-        # On some operating systems including windows, macos and linux the read(2) system call is
-        # allowed to return less bytes then requested. Python exposes this behaviour to applications.
-        # This means that when the samples in the audio stream are more than one byte long it
-        # is possible to read a partial sample into audio_chunk. If each audio_chunk is passed
-        # directly to the server unmodified and in the correct sequence and this does not cause any
-        # issues because the rest of the sample will follow immediately afterwards in the next
-        # audio_chunk and the byte alignment will be unchanged.
+        # On some operating systems including windows, macos and linux the
+        # read(2) system call is allowed to return less bytes then requested.
+        # Python exposes this behaviour to applications. This means that
+        # when the samples in the audio stream are more than one byte long
+        # it is possible to read a partial sample into audio_chunk.
+        # If each audio_chunk is passed directly to the server unmodified
+        # and in the correct sequence and this does not cause any issues
+        # because the rest of the sample will follow immediately
+        # afterwards in the next audio_chunk
+        # and the byte alignment will be unchanged.
 
-        # If the client sends a partial sample and then stops for any reason including a keyboard
-        # interrupt there will be a partial sample in the server side buffers. If the client is
-        # restarted and resumes sending audio bytes to the same stream then any subsequent samples
-        # will be at the wrong byte alignment due to the partial sample in the buffer. This causes
-        # transcription to fail without producing an error message.
+        # If the client sends a partial sample and then stops for any reason
+        # including a keyboard interrupt there will be a partial sample in the
+        # server side buffers. If the client is restarted and resumes sending
+        # audio bytes to the same stream then any subsequent samples will be
+        # at the wrong byte alignment due to the partial sample in the buffer.
+        # This causes transcription to fail without producing an error message.
 
-        # This issue can be solved client side by only sending chunks of audio that are a multiple
-        # of the sample size.
+        # This issue can be solved client side by only sending chunks of audio
+        # that are a multiple of the sample size.
 
         num_bytes_to_keep_back = len(audio_chunk) % sample_max_size
         yield audio_chunk[:-num_bytes_to_keep_back]
@@ -247,7 +253,7 @@ class WebsocketClient:
                 read from.
             max_chunk_size (int): Maximum size of audio chunks to send.
         """
-        async for audio_chunk in read_in_chunks(stream, max_chunk_size):
+        async for audio_chunk in read_in_chunks(stream, max_chunk_size, 4):
             if self._session_needs_closing:
                 break
 

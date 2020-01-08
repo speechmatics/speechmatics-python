@@ -27,7 +27,7 @@ def test_json_utf8():
 
 
 async def get_chunks(stream, chunks):
-    async for chunk in client.read_in_chunks(stream, 2):
+    async for chunk in client.read_in_chunks(stream, 2, 4):
         chunks.append(chunk)
 
 
@@ -55,18 +55,18 @@ def test_read_in_chunks_async_stream():
 
 @pytest.mark.asyncio
 async def test_read_in_chunks():
-    gen = client.read_in_chunks(io.BytesIO(b"x"), 1024 * 4)
+    gen = client.read_in_chunks(io.BytesIO(b"x"), 1024 * 4, 4)
     assert await gen.__anext__() == b"x"
     with pytest.raises(StopAsyncIteration):
         await gen.__anext__()
 
     stream = io.BytesIO(bytes(range(5)))
 
-    gen = client.read_in_chunks(stream, 0)
+    gen = client.read_in_chunks(stream, 0, 4)
     with pytest.raises(ValueError):
         await gen.__anext__()
 
-    gen = client.read_in_chunks(stream, 2)
+    gen = client.read_in_chunks(stream, 2, 1)
     assert await gen.__anext__() == b"\x00\x01"
     assert await gen.__anext__() == b"\x02\x03"
     assert await gen.__anext__() == b"\x04"
@@ -76,7 +76,7 @@ async def test_read_in_chunks():
 
 @pytest.mark.asyncio
 async def test_read_in_chunks_rejects_an_empty_stream():
-    gen = client.read_in_chunks(io.BytesIO(), 1)
+    gen = client.read_in_chunks(io.BytesIO(), 1, 4)
     with pytest.raises(ValueError):
         await gen.__anext__()
 
