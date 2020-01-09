@@ -71,7 +71,7 @@
    $ ffmpeg -f avfoundation -list_devices true -i ""
    ```
 
-   There needs to be at least one available microphone attached to your computer. The below command below gets the microphone output from ffmpeg and pipes it into the speechmatics client side
+   There needs to be at least one available microphone attached to your computer. The command below gets the microphone output from ffmpeg and pipes it into the speechmatics client side
    library. You may need to change the sample rate to match the sample rate that your machine records at.
    You may need to replace `":default"` with something like `":0"` or `":1"` if you want to use a specific microphone.
 
