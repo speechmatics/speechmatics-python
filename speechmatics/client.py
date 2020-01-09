@@ -44,7 +44,9 @@ async def read_in_chunks(stream, chunk_size):
         ValueError: if no data was read from the stream
 
     Returns:
-        bytestring: a chunk of data
+        collections.AsyncIterable: a sequence of chunks of data where the
+        length in bytes of each chunk is <= max_sample_size and
+        a multiple of max_sample_size
 
     """
     if chunk_size <= 0:

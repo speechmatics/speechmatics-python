@@ -7,7 +7,7 @@ import os
 import pytest
 
 import speechmatics.cli as cli
-from .utils import path_to_test_resource
+from tests.utils import path_to_test_resource
 
 
 @pytest.mark.parametrize(

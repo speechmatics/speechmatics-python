@@ -15,7 +15,7 @@ from speechmatics.models import (
     ServerMessageType,
     ClientMessageType,
 )
-from .utils import path_to_test_resource, default_ws_client_setup
+from tests.utils import path_to_test_resource, default_ws_client_setup
 
 
 def test_json_utf8():

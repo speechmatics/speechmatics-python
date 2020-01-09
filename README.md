@@ -62,15 +62,24 @@
    ```
 
 - The CLI also accepts an audio stream on standard input, meaning that you can stream in a live microphone feed for example.
-   This example requires `ffmpeg`. You may need to replace the `":0"` according to the numbering of your input devices.
-   You may also need to change the sample rate to match your machine's recording sample rate.
 
-   **Mac OS**
+   **MacOS example with ffmpeg**
+
+   The command to list input devices available to ffmpeg is:
+
+   ```shell
+   $ ffmpeg -f avfoundation -list_devices true -i ""
+   ```
+
+   There needs to be at least one available microphone attached to your computer. The command below gets the microphone output from ffmpeg and pipes it into the speechmatics client side
+   library. You may need to change the sample rate to match the sample rate that your machine records at.
+   You may need to replace `":default"` with something like `":0"` or `":1"` if you want to use a specific microphone.
 
    ```shell
    $ URL=ws://realtimeappliance.mycompanyio:9000/v2
-   $ ffmpeg -loglevel quiet -f avfoundation -i ":0" -f f32le -c:a pcm_f32le - | speechmatics transcribe --ssl-mode=none --url $URL --raw pcm_f32le --sample-rate 44100 --lang en -
+   $ ffmpeg -loglevel quiet -f avfoundation -i ":default" -f f32le -c:a pcm_f32le - | speechmatics transcribe --ssl-mode=none --url $URL --raw pcm_f32le --sample-rate 44100 --lang en -
    ```
+
 
 ## Documentation
 
@@ -80,10 +89,10 @@ See the API Reference for the latest release at https://speechmatics.github.io/s
 
 To install development dependencies and run tests
 
-```shell
-$ pip install -r requirements-dev.txt
-$ make test
-```
+    ```shell
+    $ pip install -r requirements-dev.txt
+    $ make test
+    ```
 
 ## Support
 
