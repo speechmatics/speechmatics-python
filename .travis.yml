@@ -48,7 +48,7 @@ deploy:
       all_branches: true # todo: this should only deploy on master once pypi is fully setup
       tags: false
       # only deploy from one build
-      condition: "$OSTYPE == linux-gnu"
+      condition: "$TRAVIS_OS_NAME == linux"
 
 env:
   global:
