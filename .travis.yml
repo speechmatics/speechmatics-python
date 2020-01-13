@@ -45,8 +45,9 @@ deploy:
     distributions: sdist bdist_wheel
     server: https://test.pypi.org/legacy/
     "on":
-      all_branches: true
+      all_branches: true # todo: this should only deploy on master once pypi is fully setup
       tags: false
+      # only deploy from one build
       condition: "$OSTYPE == linux-gnu"
 
 env:
