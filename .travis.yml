@@ -1,4 +1,7 @@
 ---
+stages:
+  - test
+  - deploy
 language: python
 jobs:
   include:
@@ -21,6 +24,27 @@ jobs:
     #    - choco install python --version 3.8.0
     #    - python -m pip install --upgrade pip
     #  env: PATH=/c/Python38:/c/Python38/Scripts:$PATH
+    - name: "Deploy to pypi"
+      before_deploy:
+        - >
+          if [[ -n "$TRAVIS_TAG" ]] && [[ "${TRAVIS_TAG}" != "$(<VERSION)" ]]; then
+              >&2 echo "ERROR: You have marked a release by applying a Git tag and your VERSION file doesn't match it"
+              >&2 echo "Tip: Don't tag if you want to deploy only to test.pypi.org"
+              false
+          fi
+        - export VERSION=${TRAVIS_TAG:-$(<VERSION).dev${TRAVIS_BUILD_NUMBER}}
+
+      deploy:
+        - stage: deploy
+          provider: pypi
+          user: __token__
+          password: "$TEST_PYPI_ORG_TOKEN"
+          distributions: sdist bdist_wheel
+          server: https://test.pypi.org/legacy/
+          "on":
+            all_branches: true # todo: this should only deploy on master once pypi is fully setup
+            tags: false
+
 
 install:
   - pip3 install -r requirements.txt -r requirements-dev.txt
@@ -29,27 +53,6 @@ script:
   - make lint
   - make unittest
   - codecov
-
-before_deploy:
-  - >
-    if [[ -n "$TRAVIS_TAG" ]] && [[ "${TRAVIS_TAG}" != "$(<VERSION)" ]]; then
-        >&2 echo "ERROR: You have marked a release by applying a Git tag and your VERSION file doesn't match it"
-        >&2 echo "Tip: Don't tag if you want to deploy only to test.pypi.org"
-        false
-    fi
-  - export VERSION=${TRAVIS_TAG:-$(<VERSION).dev${TRAVIS_BUILD_NUMBER}}
-
-deploy:
-  - provider: pypi
-    user: __token__
-    password: "$TEST_PYPI_ORG_TOKEN"
-    distributions: sdist bdist_wheel
-    server: https://test.pypi.org/legacy/
-    "on":
-      all_branches: true # todo: this should only deploy on master once pypi is fully setup
-      tags: false
-      # only deploy from one build
-      condition: "[$TRAVIS_OS_NAME == linux] && [[ $(python --version) == *3.8* ]]"
 
 env:
   global:
