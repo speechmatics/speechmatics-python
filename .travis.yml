@@ -47,7 +47,7 @@ deploy:
       all_branches: true # todo: this should only deploy on master once pypi is fully setup
       tags: false
       # only deploy from one build
-      condition: "[$TRAVIS_OS_NAME == linux] && [[ $(python --version) == *3.8* ]]"
+      condition: "[$TRAVIS_OS_NAME == linux] && [[ $(python --version | cut -d' ' -f2) =~ ^3.8 ]]"
 
 env:
   global:
