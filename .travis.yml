@@ -2,7 +2,7 @@
 language: python
 jobs:
   include:
-    # the "python: 3.7" syntax works for Linux but is ignored on macOS or Windows
+    # the "python: 3.7" syntax works correctly on Linux but is ignored on macOS or Windows
     - name: "Python 3.7 on Xenial Linux"
       python: 3.7
     #- name: "Python 3.8 on Xenial Linux"

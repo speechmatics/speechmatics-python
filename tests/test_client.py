@@ -232,7 +232,7 @@ def test_helpful_error_message_received_on_connection_reset_error():
             assert (
                 "Caught ConnectionResetError when attempting to"
                 " connect to server"
-                in mock_logger_error_method.call_args[0][0]
+                in mock_logger_error_method.call_args.args[0]
             )
 
 
