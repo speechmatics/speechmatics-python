@@ -1,5 +1,4 @@
 import asyncio
-import concurrent
 import copy
 import io
 import json
@@ -277,7 +276,7 @@ async def test__buffer_semaphore():
 
     # task should timeout because it's 'stuck' waiting for the
     # semaphore to be released.
-    with pytest.raises(concurrent.futures._base.TimeoutError):
+    with pytest.raises(asyncio.exceptions.TimeoutError):
         await asyncio.wait_for(task, timeout=0.5)
 
     assert ws_client._buffer_semaphore.locked()
@@ -442,7 +441,7 @@ async def test__producer_semaphore_timeout(mocker):
     done_task = done.pop()
     assert ".ensure_timeout()" in str(done_task)
     assert isinstance(done_task.exception(),
-                      concurrent.futures._base.TimeoutError)
+                      asyncio.exceptions.TimeoutError)
 
     pending_task = pending.pop()
     assert ".ensure_timeout_happens_in_time()" in str(pending_task)
