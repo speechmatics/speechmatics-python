@@ -228,10 +228,13 @@ def test_helpful_error_message_received_on_connection_reset_error():
                 ws_client.run_synchronously(
                     MagicMock(), MagicMock(), MagicMock())
             mock_logger_error_method.assert_called_once()
+            # pylint: disable=unsubscriptable-object
             assert (
                 "Caught ConnectionResetError when attempting to"
                 " connect to server"
-                in mock_logger_error_method.call_args.args[0]
+                # [0][0] is the first argument to the first call of the
+                # function, pylint doesn't like this.
+                in mock_logger_error_method.call_args[0][0]
             )
 
 
