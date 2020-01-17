@@ -37,10 +37,10 @@ def mock_server():
         information about the messages received and sent by the mock server.
     """
     logbook = MockRealtimeLogbook()
-    logbook.url = "wss://0.0.0.0:8765/v2"
+    logbook.url = "wss://127.0.0.1:8765/v2"
     MockRealtimeServer.logbook = logbook
     server = SimpleSSLWebSocketServer(
-        "0.0.0.0", 8765, MockRealtimeServer, ssl_context=server_ssl_context()
+        "127.0.0.1", 8765, MockRealtimeServer, ssl_context=server_ssl_context()
     )
     server_should_stop = False
 
