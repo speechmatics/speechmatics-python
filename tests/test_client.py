@@ -1,5 +1,4 @@
 import asyncio
-import concurrent
 import copy
 import io
 import json
@@ -229,9 +228,12 @@ def test_helpful_error_message_received_on_connection_reset_error():
                 ws_client.run_synchronously(
                     MagicMock(), MagicMock(), MagicMock())
             mock_logger_error_method.assert_called_once()
+            # pylint: disable=unsubscriptable-object
             assert (
                 "Caught ConnectionResetError when attempting to"
                 " connect to server"
+                # [0][0] is the first argument to the first call of the
+                # function, pylint doesn't like this.
                 in mock_logger_error_method.call_args[0][0]
             )
 
@@ -277,7 +279,7 @@ async def test__buffer_semaphore():
 
     # task should timeout because it's 'stuck' waiting for the
     # semaphore to be released.
-    with pytest.raises(concurrent.futures._base.TimeoutError):
+    with pytest.raises(asyncio.TimeoutError):
         await asyncio.wait_for(task, timeout=0.5)
 
     assert ws_client._buffer_semaphore.locked()
@@ -442,7 +444,7 @@ async def test__producer_semaphore_timeout(mocker):
     done_task = done.pop()
     assert ".ensure_timeout()" in str(done_task)
     assert isinstance(done_task.exception(),
-                      concurrent.futures._base.TimeoutError)
+                      asyncio.TimeoutError)
 
     pending_task = pending.pop()
     assert ".ensure_timeout_happens_in_time()" in str(pending_task)
