@@ -77,7 +77,9 @@
 <span class="sd">        ValueError: if no data was read from the stream</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        bytestring: a chunk of data</span>
+<span class="sd">        collections.AsyncIterable: a sequence of chunks of data where the</span>
+<span class="sd">        length in bytes of each chunk is &lt;= max_sample_size and</span>
+<span class="sd">        a multiple of max_sample_size</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">chunk_size</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
@@ -153,7 +155,8 @@
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">_init_synchronization_primitives</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Used to initialise synchronization primitives that require an event loop</span>
+<span class="sd">        Used to initialise synchronization primitives that require</span>
+<span class="sd">        an event loop</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_recognition_started</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Event</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_buffer_semaphore</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">BoundedSemaphore</span><span class="p">(</span>
@@ -163,8 +166,8 @@
     <span class="k">def</span> <span class="nf">_flag_recognition_started</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Handle a SetRecognitionConfig message from the server.</span>
-<span class="sd">        This updates an internal flag to mark the recognition session as started</span>
-<span class="sd">        meaning AddAudio is now allowed.</span>
+<span class="sd">        This updates an internal flag to mark the recognition session</span>
+<span class="sd">        as started meaning, AddAudio is now allowed.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_recognition_started</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>
 
@@ -178,7 +181,8 @@
             <span class="s2">&quot;transcription_config&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">transcription_config</span><span class="o">.</span><span class="n">asdict</span><span class="p">(),</span>
         <span class="p">}</span>
         <span class="n">call_middleware</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">middlewares</span><span class="p">,</span> <span class="n">ClientMessageType</span><span class="o">.</span><span class="n">SetRecognitionConfig</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">middlewares</span><span class="p">,</span> <span class="n">ClientMessageType</span><span class="o">.</span><span class="n">SetRecognitionConfig</span><span class="p">,</span>
+            <span class="n">msg</span><span class="p">,</span> <span class="kc">False</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">msg</span>
 
@@ -226,7 +230,7 @@
 <span class="sd">            message (str): Message received from the server.</span>
 
 <span class="sd">        Raises:</span>
-<span class="sd">            TranscriptionError: If an error message is received from the server.</span>
+<span class="sd">            TranscriptionError: on an error message received from the server.</span>
 <span class="sd">            EndOfTranscriptException: on EndOfTranscription message</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
@@ -295,7 +299,7 @@
 <div class="viewcode-block" id="WebsocketClient.update_transcription_config"><a class="viewcode-back" href="../../client.html#speechmatics.client.WebsocketClient.update_transcription_config">[docs]</a>    <span class="k">def</span> <span class="nf">update_transcription_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_transcription_config</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Updates the transcription config used for the session.</span>
-<span class="sd">        This results in a SetRecognitionConfig message being sent to the server.</span>
+<span class="sd">        This results in a SetRecognitionConfig message sent to the server.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            new_transcription_config (speechmatics.models.TranscriptionConfig):</span>
@@ -357,9 +361,9 @@
 <span class="sd">                possible message types.</span>
 <span class="sd">            middleware (Callable[[dict, bool], None]): A function to be called</span>
 <span class="sd">                to process an outgoing message of the given type. The function</span>
-<span class="sd">                receives the message as the first argument and a second, boolean</span>
-<span class="sd">                argument indicating whether or not the message is binary data</span>
-<span class="sd">                (which implies it is an AddAudio message).</span>
+<span class="sd">                receives the message as the first argument and a second,</span>
+<span class="sd">                boolean argument indicating whether or not the message</span>
+<span class="sd">                is binary data (which implies it is an AddAudio message).</span>
 
 <span class="sd">        Raises:</span>
 <span class="sd">            ValueError: If the given event name is not valid.</span>
@@ -392,8 +396,8 @@
 <span class="sd">                for the audio stream.</span>
 
 <span class="sd">        Raises:</span>
-<span class="sd">            Exception: Can raise any exception returned by the consumer/producer</span>
-<span class="sd">                tasks.</span>
+<span class="sd">            Exception: Can raise any exception returned by the</span>
+<span class="sd">                       consumer/producer tasks.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">transcription_config</span> <span class="o">=</span> <span class="n">transcription_config</span>
         <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_init_synchronization_primitives</span><span class="p">()</span>

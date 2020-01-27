@@ -108,9 +108,9 @@ every event.</p>
 possible message types.</p>
 </dd>
 <dt>middleware (Callable[[dict, bool], None]): A function to be called</dt><dd><p>to process an outgoing message of the given type. The function
-receives the message as the first argument and a second, boolean
-argument indicating whether or not the message is binary data
-(which implies it is an AddAudio message).</p>
+receives the message as the first argument and a second,
+boolean argument indicating whether or not the message
+is binary data (which implies it is an AddAudio message).</p>
 </dd>
 </dl>
 </dd>
@@ -136,7 +136,7 @@ run_synchronously which will block until the session is finished.</p>
 </dl>
 </dd>
 <dt>Raises:</dt><dd><dl class="simple">
-<dt>Exception: Can raise any exception returned by the consumer/producer</dt><dd><p>tasks.</p>
+<dt>Exception: Can raise any exception returned by the</dt><dd><p>consumer/producer tasks.</p>
 </dd>
 </dl>
 </dd>
@@ -162,7 +162,7 @@ You probably don’t need to call this if you’re running the client via
 <dt id="speechmatics.client.WebsocketClient.update_transcription_config">
 <code class="sig-name descname">update_transcription_config</code><span class="sig-paren">(</span><em class="sig-param">new_transcription_config</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/speechmatics/client.html#WebsocketClient.update_transcription_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#speechmatics.client.WebsocketClient.update_transcription_config" title="Permalink to this definition">¶</a></dt>
 <dd><p>Updates the transcription config used for the session.
-This results in a SetRecognitionConfig message being sent to the server.</p>
+This results in a SetRecognitionConfig message sent to the server.</p>
 <dl class="simple">
 <dt>Args:</dt><dd><dl class="simple">
 <dt>new_transcription_config (speechmatics.models.TranscriptionConfig):</dt><dd><p>The new config object.</p>
@@ -190,7 +190,9 @@ chunk_size (int): maximum chunk size in bytes</p>
 </dd>
 <dt>Raises:</dt><dd><p>ValueError: if no data was read from the stream</p>
 </dd>
-<dt>Returns:</dt><dd><p>bytestring: a chunk of data</p>
+<dt>Returns:</dt><dd><p>collections.AsyncIterable: a sequence of chunks of data where the
+length in bytes of each chunk is &lt;= max_sample_size and
+a multiple of max_sample_size</p>
 </dd>
 </dl>
 </dd></dl>
