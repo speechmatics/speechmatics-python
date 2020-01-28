@@ -2,6 +2,7 @@
 """Example usage of speechmatics by implementing a CLI."""
 
 import argparse
+import curses
 import json
 import logging
 import ssl
@@ -20,6 +21,29 @@ from speechmatics.models import (
 )
 
 LOGGER = logging.getLogger(__name__)
+
+
+class CursesInterface():
+    def __init__(self):
+        self.win = curses.initscr()
+
+        self.win.clear()
+        self.win.refresh()
+
+        self.y, self.x = self.win.getyx()
+
+    def print_partial(self, text):
+        self.win.addstr(self.y, self.x, text, curses.A_UNDERLINE)
+        self.win.refresh()
+
+    def print_final(self, text):
+        self.win.addstr(self.y, self.x, text)
+        self.win.refresh()
+
+        self.y, self.x = self.win.getyx()
+
+    def __del__(self):
+        curses.endwin()
 
 
 def print_symbol(symbol):
@@ -274,6 +298,10 @@ def add_printing_handlers(
         language (string, optional): The language code of the model being used.
             This is needed to configure language-specific text formatting.
     """
+
+    if enable_partials:
+        curwin = CursesInterface()
+
     if debug_handlers_too:
         api.add_event_handler(
             ServerMessageType.AudioAdded, lambda *args: print_symbol("-")
@@ -292,11 +320,14 @@ def add_printing_handlers(
         )
 
     def partial_transcript_handler(message):
-        # "\n" does not appear in partial transcripts
-        print(f'{message["metadata"]["transcript"]}',
-              end="\r", file=sys.stderr)
+        if enable_partials:
+            curwin.print_partial(message["metadata"]["transcript"])
 
     def transcript_handler(message):
+        if enable_partials:
+            curwin.print_final(message["metadata"]["transcript"])
+            return
+
         transcripts.json.append(message)
         transcript = message["metadata"]["transcript"]
         if transcript:
@@ -321,7 +352,7 @@ def add_printing_handlers(
 
     def end_of_transcript_handler(_):
         if enable_partials:
-            print("\n", file=sys.stderr)
+            pass
 
     api.add_event_handler(
         ServerMessageType.AddPartialTranscript, partial_transcript_handler
