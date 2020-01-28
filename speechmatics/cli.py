@@ -30,17 +30,17 @@ class CursesInterface():
         self.win.clear()
         self.win.refresh()
 
-        self.y, self.x = self.win.getyx()
+        self.cursor_y, self.cursor_x = self.win.getyx()
 
     def print_partial(self, text):
-        self.win.addstr(self.y, self.x, text, curses.A_UNDERLINE)
+        self.win.addstr(self.cursor_y, self.cursor_x, text, curses.A_UNDERLINE)
         self.win.refresh()
 
     def print_final(self, text):
-        self.win.addstr(self.y, self.x, text)
+        self.win.addstr(self.cursor_y, self.cursor_x, text)
         self.win.refresh()
 
-        self.y, self.x = self.win.getyx()
+        self.cursor_y, self.cursor_x = self.win.getyx()
 
     def __del__(self):
         curses.endwin()
