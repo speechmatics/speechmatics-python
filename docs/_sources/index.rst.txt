@@ -12,11 +12,12 @@ speechmatics-python provides the Python API and command-line interface for Speec
 Getting started
 ---------------
 
-speechmatics-python can be installed via `PyPI <https://pypi.org/project/speechmatics>`_.
-Official support is available for Python 3.7 and above.
+speechmatics-python is under active development.
 
-Development builds (unstable) are available on
-`PyPI Test <https://test.pypi.org/project/speechmatics>`_.
+Development builds (unstable) can be installed from
+`GitHub <https://github.com/speechmatics/speechmatics-python>`_.
+
+Official support is available for Python 3.7 and above.
 
 
 Reference
