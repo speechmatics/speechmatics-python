@@ -20,5 +20,5 @@ build:
 
 docs:
 	sphinx-build -b html sphinx/ sphinx/_build
-	$(RM) docs/*
+	$(RM) -r docs/*
 	mv sphinx/_build/* docs/

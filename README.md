@@ -2,7 +2,9 @@
 
 <a href="https://www.speechmatics.com/"><img src="https://speechmatics.github.io/speechmatics-python/_static/logo.png" width="25%" align="left"></a>
 
-**speechmatics-python** provides a reference client for interfacing with version 2 of the Speechmatics Realtime ASR API. A command line interface is also provided for convenience.
+**speechmatics-python** provides a reference client for interfacing with version 2 of the Speechmatics Realtime ASR API.
+A command line interface is also provided for convenience.
+
 
 ## Getting started
 
@@ -31,68 +33,79 @@
        transcribe  Transcribe one or more audio file(s)
    ```
 
+
 ## Example usage
 
 - A normal real time session using a .wav file as the input audio
 
    ```shell
-   $ URL=ws://realtimeappliance.mycompany.io:9000/v2
-   $ speechmatics transcribe--url $URL --lang en --ssl-mode=none example_audio.wav
-   ```
+   # Point URL to the local instance of Speechmatics
+   $ URL=ws://realtimeappliance.yourcompany:9000/v2
 
-- A normal real time session with a locally running container
-
-   ```shell
-   $ URL=ws://127.0.0.1:9000/v2
-   $ speechmatics transcribe --url $URL --lang en --ssl-mode=none example_audio.wav
+   $ speechmatics transcribe --url $URL --lang en --ssl-mode none example_audio.wav
    ```
 
 - Show the messages that are going over the websocket connection
 
    ```shell
-   $ URL=ws://realtimeappliance.mycompany.io:9000/v2
-   $ speechmatics transcribe -v --url $URL --lang en --ssl-mode=none example_audio.wav
+   $ speechmatics transcribe -v --url $URL --lang en --ssl-mode none example_audio.wav
    ```
 
-- Similar to the first example, but this time the input audio is piped in
+- The CLI also accepts an audio stream on standard input; transcribe the piped input audio
 
    ```shell
-   $ URL=ws://realtimeappliance.mycompany.io:9000/v2
-   $ cat example_audio.wav | speechmatics transcribe --ssl-mode=none --url $URL --lang en -
+   $ cat example_audio.wav | speechmatics transcribe --ssl-mode none --url $URL --lang en -
    ```
 
-- The CLI also accepts an audio stream on standard input, meaning that you can stream in a live microphone feed for example.
+- Pipe audio directly from the microphone (example uses MacOS with [ffmpeg](https://ffmpeg.org/ffmpeg-devices.html#avfoundation)) 
 
-   **MacOS example with ffmpeg**
+  First list available input devices with
 
-   The command to list input devices available to ffmpeg is:
+  ```shell
+  $ ffmpeg -f avfoundation -list_devices true -i ""
+  ```
 
-   ```shell
-   $ ffmpeg -f avfoundation -list_devices true -i ""
-   ```
+  There needs to be at least one available microphone attached to your computer.
+  The command below gets the microphone input and pipes it to the transcriber.
+  You may need to change the sample rate to match the sample rate that your machine records at.
+  You may also need to replace `:default` with something like `:0` or `:1` if you want to use a specific microphone.
 
-   There needs to be at least one available microphone attached to your computer. The command below gets the microphone output from ffmpeg and pipes it into the speechmatics client side
-   library. You may need to change the sample rate to match the sample rate that your machine records at.
-   You may need to replace `":default"` with something like `":0"` or `":1"` if you want to use a specific microphone.
+  ```shell
+  $ ffmpeg -f avfoundation -i ":default" -f f32le -acodec pcm_f32le -ar 44100 - \
+  >   | speechmatics transcribe --ssl-mode none --url $URL --raw pcm_f32le --sample-rate 44100 --lang en -
+  ```
 
-   ```shell
-   $ URL=ws://realtimeappliance.mycompanyio:9000/v2
-   $ ffmpeg -loglevel quiet -f avfoundation -i ":default" -f f32le -c:a pcm_f32le - | speechmatics transcribe --ssl-mode=none --url $URL --raw pcm_f32le --sample-rate 44100 --lang en -
-   ```
+- Transcribe in real-time with partials (example uses Ubuntu with ALSA).
+  In this mode, the transcription engine produces words instantly, which may get updated as additional context becomes available.
+
+  List available input devices with
+
+  ```shell
+  $ cat /proc/asound/cards
+  ```
+
+  Record microphone audio and pipe to transcriber.
+
+  ```shell
+  $ ffmpeg -f alsa -i hw:0 -f f32le -acodec pcm_f32le -ar 44100 - \
+  >   | speechmatics transcribe --ssl-mode none --url $URL --enable-partials --raw pcm_f32le --sample-rate 44100 --lang en -
+  ```
 
 
 ## Documentation
 
-See the API Reference for the latest release at https://speechmatics.github.io/speechmatics-python/.
+See the API reference for the latest release at https://speechmatics.github.io/speechmatics-python/.
+
 
 ## Testing
 
 To install development dependencies and run tests
 
-    ```shell
-    $ pip install -r requirements-dev.txt
-    $ make test
-    ```
+```shell
+$ pip install -r requirements-dev.txt
+$ make test
+```
+
 
 ## Support
 
