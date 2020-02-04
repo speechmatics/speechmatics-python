@@ -49,9 +49,6 @@ async def read_in_chunks(stream, chunk_size):
         a multiple of max_sample_size
 
     """
-    if chunk_size <= 0:
-        raise ValueError("chunk_size must be > 0")
-
     count = 0
     while True:
         # Work with both async and synchronous file readers.
@@ -61,8 +58,6 @@ async def read_in_chunks(stream, chunk_size):
             audio_chunk = stream.read(chunk_size)
 
         if not audio_chunk:
-            if count == 0:
-                raise ValueError("Audio stream is empty")
             break
         yield audio_chunk
         count += 1
