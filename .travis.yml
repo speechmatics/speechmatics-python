@@ -8,6 +8,10 @@ python:
   - "3.9-dev"
 
 jobs:
+  include:
+    - stage: deploy
+      python: "3.7"
+
   allow_failures:
     - python: "3.9-dev"
 
