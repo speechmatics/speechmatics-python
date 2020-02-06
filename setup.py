@@ -65,7 +65,7 @@ setup(
     license='MIT',
     author='Speechmatics',
     author_email='support@speechmatics.com',
-    description='Python API client for Speechmatics',
+    description='Python library and CLI for Speechmatics',
     long_description=read('README.md'),
     long_description_content_type='text/markdown',
     install_requires=read_list('requirements.txt'),

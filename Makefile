@@ -1,23 +1,27 @@
-.PHONY: lint test all docs unittest
-
 SOURCES := speechmatics/ setup.py tests
-VERSION ?= $(shell cat VERSION).dev0
+VERSION ?= $(shell cat VERSION)
 
+.PHONY: all
 all: lint test docs
 
+.PHONY: lint
 lint:
 	pylint $(SOURCES)
 	flake8 $(SOURCES)
 	pycodestyle $(SOURCES)
 
+.PHONY: test
 test: unittest
 
+.PHONY: unittest
 unittest:
 	pytest -v tests/
 
+.PHONY: build
 build:
 	VERSION=$(VERSION) python setup.py sdist bdist_wheel
 
+.PHONY: docs
 docs:
 	sphinx-build -b html sphinx/ sphinx/_build
 	$(RM) -r docs/*

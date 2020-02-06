@@ -2,8 +2,8 @@
 
 <a href="https://www.speechmatics.com/"><img src="https://speechmatics.github.io/speechmatics-python/_static/logo.png" width="25%" align="left"></a>
 
-**speechmatics-python** provides a reference client for interfacing with version 2 of the Speechmatics Realtime ASR API.
-A command line interface is also provided for convenience.
+**speechmatics-python** provides a reference client for interfacing with the Speechmatics Realtime ASR API v2.
+A command line interface is also included for convenience.
 
 
 ## Getting started
