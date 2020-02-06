@@ -1,1 +1,2 @@
-include VERSION
+include .coveragerc CHANGELOG.md LICENSE.txt README.md VERSION
+recursive-include tests *.py
