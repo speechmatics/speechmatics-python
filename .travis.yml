@@ -1,19 +1,31 @@
 ---
 language: python
+
+stages:
+  - test
+  - deploy
+
 jobs:
   include:
     # the "python: 3.7" syntax works correctly on Linux but is ignored on macOS or Windows
     - name: "Python 3.7 on Ubuntu Xenial Linux"
       python: 3.7
+      stage: test
+
     - name: "Python 3.8 on Ubuntu Xenial Linux"
       python: 3.8
+      stage: test
+      
     - name: "Python 3.7.4 on macOS"
+      stage: test
       os: osx
       osx_image: xcode11.2  # Python 3.7.4 running on macOS 10.14.4
       language: shell       # 'language: python' is an error on Travis CI macOS
       before_install:
         - brew install make
+
     - name: "Python 3.8.1 on Windows"
+      stage: test
       os: windows           # Windows 10.0.17134 N/A Build 17134
       language: shell       # 'language: python' is an error on Travis CI Windows
       before_install:
@@ -24,6 +36,7 @@ jobs:
 
 install:
   - pip3 install -r requirements.txt -r requirements-dev.txt
+
 script:
   - make lint unittest
   - codecov
