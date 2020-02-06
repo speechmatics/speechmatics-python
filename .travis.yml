@@ -37,7 +37,7 @@ deploy:
     distributions: sdist bdist_wheel
     server: https://test.pypi.org/legacy/
     on:
-      tags: true
+      all_branches: true
 
 env:
   global:
