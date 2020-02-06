@@ -7,17 +7,31 @@ python:
   - "3.8"
   - "3.9-dev"
 
-jobs:
-  include:
-    - stage: deploy
-      python: "3.7"
-
-  allow_failures:
-    - python: "3.9-dev"
-
 stages:
   - test
   - deploy
+
+jobs:
+  allow_failures:
+    - python: "3.9-dev"
+  include:
+    - stage: deploy
+      python: "3.7"
+      before_deploy:
+        - >
+          if [[ -n "$TRAVIS_TAG" ]] && [[ "${TRAVIS_TAG}" != "$(<VERSION)" ]]; then
+              >&2 echo "ERROR: You have marked a release by applying a Git tag and your VERSION file doesn't match it"
+              false
+          fi
+        - export VERSION=${TRAVIS_TAG:-$(<VERSION).dev${TRAVIS_BUILD_NUMBER}}
+      deploy:
+        - provider: pypi
+          user: "__token__"
+          password: "$TEST_PYPI_ORG_TOKEN"
+          distributions: sdist bdist_wheel
+          server: https://test.pypi.org/legacy/
+          on:
+            all_branches: true
 
 install:
   - pip3 install -r requirements.txt -r requirements-dev.txt
@@ -25,23 +39,6 @@ install:
 script:
   - make lint unittest
   - codecov
-
-before_deploy:
-  - >
-    if [[ -n "$TRAVIS_TAG" ]] && [[ "${TRAVIS_TAG}" != "$(<VERSION)" ]]; then
-        >&2 echo "ERROR: You have marked a release by applying a Git tag and your VERSION file doesn't match it"
-        false
-    fi
-  - export VERSION=${TRAVIS_TAG:-$(<VERSION).dev${TRAVIS_BUILD_NUMBER}}
-
-deploy:
-  - provider: pypi
-    user: "__token__"
-    password: "$TEST_PYPI_ORG_TOKEN"
-    distributions: sdist bdist_wheel
-    server: https://test.pypi.org/legacy/
-    on:
-      all_branches: true
 
 env:
   global:
