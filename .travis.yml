@@ -1,38 +1,19 @@
 ---
+os: linux
+dist: xenial
 language: python
+python:
+  - "3.7"
+  - "3.8"
+  - "3.9-dev"
+
+jobs:
+  allow_failures:
+    - python: "3.9-dev"
 
 stages:
   - test
   - deploy
-
-jobs:
-  include:
-    # the "python: 3.7" syntax works correctly on Linux but is ignored on macOS or Windows
-    - name: "Python 3.7 on Ubuntu Xenial Linux"
-      python: 3.7
-      stage: test
-
-    - name: "Python 3.8 on Ubuntu Xenial Linux"
-      python: 3.8
-      stage: test
-      
-    - name: "Python 3.7.4 on macOS"
-      stage: test
-      os: osx
-      osx_image: xcode11.2  # Python 3.7.4 running on macOS 10.14.4
-      language: shell       # 'language: python' is an error on Travis CI macOS
-      before_install:
-        - brew install make
-
-    - name: "Python 3.8.1 on Windows"
-      stage: test
-      os: windows           # Windows 10.0.17134 N/A Build 17134
-      language: shell       # 'language: python' is an error on Travis CI Windows
-      before_install:
-        - choco install make
-        - choco install python --version 3.8.1
-        - python -m pip install --upgrade pip
-      env: PATH=/c/Python38:/c/Python38/Scripts:$PATH
 
 install:
   - pip3 install -r requirements.txt -r requirements-dev.txt
@@ -45,22 +26,18 @@ before_deploy:
   - >
     if [[ -n "$TRAVIS_TAG" ]] && [[ "${TRAVIS_TAG}" != "$(<VERSION)" ]]; then
         >&2 echo "ERROR: You have marked a release by applying a Git tag and your VERSION file doesn't match it"
-        >&2 echo "Tip: Don't tag if you want to deploy only to test.pypi.org"
         false
     fi
   - export VERSION=${TRAVIS_TAG:-$(<VERSION).dev${TRAVIS_BUILD_NUMBER}}
 
 deploy:
   - provider: pypi
-    user: __token__
+    user: "__token__"
     password: "$TEST_PYPI_ORG_TOKEN"
     distributions: sdist bdist_wheel
     server: https://test.pypi.org/legacy/
-    "on":
-      all_branches: true # todo: this should only deploy on master once pypi is fully setup
-      tags: false
-      # only deploy from one build
-      condition: "[$TRAVIS_OS_NAME == linux] && [[ $(python --version | cut -d' ' -f2) =~ ^3.8 ]]"
+    on:
+      tags: true
 
 env:
   global:
