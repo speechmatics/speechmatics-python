@@ -1,2 +1,2 @@
-include .coveragerc CHANGELOG.md LICENSE.txt README.md VERSION
+include .coveragerc CHANGELOG.md LICENSE.txt README.md VERSION requirements.txt
 recursive-include tests *.py
