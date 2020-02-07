@@ -23,8 +23,14 @@ jobs:
               >&2 echo "ERROR: You have marked a release by applying a Git tag but the VERSION file doesn't match it"
               false
           fi
-        - export VERSION=${TRAVIS_TAG:-$(<VERSION).dev${TRAVIS_BUILD_NUMBER}}
+        - >
+          if [[ -n "$TRAVIS_BRANCH" ]] && [[ "$TRAVIS_BRANCH" != "master" ]]; then
+              # for branches other than master, set version in environment
+              # for master, version will be picked up by setuptools from the VERSION file
+              export VERSION=${TRAVIS_TAG:-$(<VERSION).dev${TRAVIS_BUILD_NUMBER}}
+          fi
       deploy:
+        # Publish all branch builds on PyPI test
         - provider: pypi
           user: "__token__"
           password: "$TEST_PYPI_ORG_TOKEN"
@@ -33,6 +39,7 @@ jobs:
           on:
             all_branches: true
 
+        # Publish only master branch builds on PyPI prod only when git tagged and tag is same as VERSION file
         - provider: pypi
           user: "__token__"
           password: "$PYPI_ORG_TOKEN"
@@ -40,6 +47,7 @@ jobs:
           server: https://pypi.org/
           on:
             tags: true
+            branch: master
 
 install:
   - pip3 install -r requirements.txt -r requirements-dev.txt
