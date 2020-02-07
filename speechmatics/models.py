@@ -1,6 +1,8 @@
+# (c) 2020, Cantab Research Ltd.
 """
-Models used by speechmatics
+Data models used by the library
 """
+
 import ssl
 
 from dataclasses import asdict, dataclass, field

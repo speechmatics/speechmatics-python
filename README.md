@@ -8,30 +8,17 @@ A command line interface is also included for convenience.
 
 ## Getting started
 
-- Make sure that you are running Python 3.7 or greater and install the dependencies
+To install from PyPI:
 
-   ```shell
-   $ python3 --version
-   $ pip install git+https://github.com/speechmatics/speechmatics-python
-   ```
+    $ pip install speechmatics-python
 
-- View the help message to make sure everything has been installed and setup
+To install from source:
 
-   ```shell
-   $ speechmatics --help
-   usage: speechmatics [-h] [-v] {transcribe} ...
+    $ python setup.py install
 
-   CLI for Speechmatics products.
+### Requirements
 
-   optional arguments:
-     -h, --help    show this help message and exit
-     -v            Set the log level for verbose logs. The number of flags
-                   indicate the level, eg. -v is INFO and -vv is DEBUG.
-
-   Commands:
-     {transcribe}
-       transcribe  Transcribe one or more audio file(s)
-   ```
+- Python 3.7+
 
 
 ## Example usage
@@ -94,17 +81,15 @@ A command line interface is also included for convenience.
 
 ## Documentation
 
-See the API reference for the latest release at https://speechmatics.github.io/speechmatics-python/.
+See the API docs at https://speechmatics.github.io/speechmatics-python/.
 
 
 ## Testing
 
 To install development dependencies and run tests
 
-```shell
-$ pip install -r requirements-dev.txt
-$ make test
-```
+    $ pip install -r requirements-dev.txt
+    $ make test
 
 
 ## Support

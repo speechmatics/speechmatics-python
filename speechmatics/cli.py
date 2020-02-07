@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""Example usage of speechmatics by implementing a CLI."""
+# (c) 2020, Cantab Research Ltd.
+"""
+Command-line interface
+"""
 
 import argparse
 import json
