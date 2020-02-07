@@ -20,7 +20,7 @@ jobs:
       before_deploy:
         - >
           if [[ -n "$TRAVIS_TAG" ]] && [[ "${TRAVIS_TAG}" != "$(<VERSION)" ]]; then
-              >&2 echo "ERROR: You have marked a release by applying a Git tag and your VERSION file doesn't match it"
+              >&2 echo "ERROR: You have marked a release by applying a Git tag but the VERSION file doesn't match it"
               false
           fi
         - export VERSION=${TRAVIS_TAG:-$(<VERSION).dev${TRAVIS_BUILD_NUMBER}}
@@ -32,6 +32,14 @@ jobs:
           server: https://test.pypi.org/legacy/
           on:
             all_branches: true
+
+        - provider: pypi
+          user: "__token__"
+          password: "$PYPI_ORG_TOKEN"
+          distributions: sdist bdist_wheel
+          server: https://pypi.org/
+          on:
+            tags: true
 
 install:
   - pip3 install -r requirements.txt -r requirements-dev.txt
