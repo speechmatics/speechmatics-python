@@ -1,6 +1,6 @@
 # (c) 2020, Cantab Research Ltd.
 """
-Exceptions used by the library
+Exceptions and errors used by the library.
 """
 
 

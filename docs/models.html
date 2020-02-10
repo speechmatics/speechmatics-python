@@ -14,8 +14,7 @@
     <script type="text/javascript" src="_static/language_data.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="speechmatics.client" href="client.html" />
-    <link rel="prev" title="speechmatics-python" href="index.html" />
+    <link rel="prev" title="speechmatics.exceptions" href="exceptions.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -34,46 +33,208 @@
             
   <div class="section" id="module-speechmatics.models">
 <span id="speechmatics-models"></span><h1>speechmatics.models<a class="headerlink" href="#module-speechmatics.models" title="Permalink to this headline">¶</a></h1>
-<p>Models used by speechmatics</p>
+<p>Data models and message types used by the library.</p>
 <dl class="class">
 <dt id="speechmatics.models.AudioSettings">
 <em class="property">class </em><code class="sig-prename descclassname">speechmatics.models.</code><code class="sig-name descname">AudioSettings</code><span class="sig-paren">(</span><em class="sig-param">encoding: str = None</em>, <em class="sig-param">sample_rate: int = 44100</em>, <em class="sig-param">chunk_size: int = 4096</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/speechmatics/models.html#AudioSettings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#speechmatics.models.AudioSettings" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Defines audio parameters.</p>
+<dl class="attribute">
+<dt id="speechmatics.models.AudioSettings.chunk_size">
+<code class="sig-name descname">chunk_size</code><em class="property"> = 4096</em><a class="headerlink" href="#speechmatics.models.AudioSettings.chunk_size" title="Permalink to this definition">¶</a></dt>
+<dd><p>Chunk size.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="speechmatics.models.AudioSettings.encoding">
+<code class="sig-name descname">encoding</code><em class="property"> = None</em><a class="headerlink" href="#speechmatics.models.AudioSettings.encoding" title="Permalink to this definition">¶</a></dt>
+<dd><p>Encoding format.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="speechmatics.models.AudioSettings.sample_rate">
+<code class="sig-name descname">sample_rate</code><em class="property"> = 44100</em><a class="headerlink" href="#speechmatics.models.AudioSettings.sample_rate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sampling rate.</p>
+</dd></dl>
+
+</dd></dl>
 
 <dl class="class">
 <dt id="speechmatics.models.ClientMessageType">
 <em class="property">class </em><code class="sig-prename descclassname">speechmatics.models.</code><code class="sig-name descname">ClientMessageType</code><a class="reference internal" href="_modules/speechmatics/models.html#ClientMessageType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#speechmatics.models.ClientMessageType" title="Permalink to this definition">¶</a></dt>
-<dd><p>An enumeration.</p>
+<dd><p>Defines various messages sent from client to server.</p>
+<dl class="attribute">
+<dt id="speechmatics.models.ClientMessageType.AddAudio">
+<code class="sig-name descname">AddAudio</code><em class="property"> = 'AddAudio'</em><a class="headerlink" href="#speechmatics.models.ClientMessageType.AddAudio" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds more audio data to the recognition job.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="speechmatics.models.ClientMessageType.EndOfStream">
+<code class="sig-name descname">EndOfStream</code><em class="property"> = 'EndOfStream'</em><a class="headerlink" href="#speechmatics.models.ClientMessageType.EndOfStream" title="Permalink to this definition">¶</a></dt>
+<dd><p>Indicates the end of audio stream and that the client has send all audio
+it intends to send.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="speechmatics.models.ClientMessageType.SetRecognitionConfig">
+<code class="sig-name descname">SetRecognitionConfig</code><em class="property"> = 'SetRecognitionConfig'</em><a class="headerlink" href="#speechmatics.models.ClientMessageType.SetRecognitionConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>Allows job configuration to be set after the initial <cite>StartRecognition</cite>
+message.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="speechmatics.models.ClientMessageType.StartRecognition">
+<code class="sig-name descname">StartRecognition</code><em class="property"> = 'StartRecognition'</em><a class="headerlink" href="#speechmatics.models.ClientMessageType.StartRecognition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initiates a recognition job based on configuration set previously.</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
 <dt id="speechmatics.models.ConnectionSettings">
 <em class="property">class </em><code class="sig-prename descclassname">speechmatics.models.</code><code class="sig-name descname">ConnectionSettings</code><span class="sig-paren">(</span><em class="sig-param">url: str</em>, <em class="sig-param">message_buffer_size: int = 512</em>, <em class="sig-param">ssl_context: ssl.SSLContext = &lt;factory&gt;</em>, <em class="sig-param">semaphore_timeout_seconds: float = 120</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/speechmatics/models.html#ConnectionSettings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#speechmatics.models.ConnectionSettings" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Defines connection parameters.</p>
+<dl class="attribute">
+<dt id="speechmatics.models.ConnectionSettings.message_buffer_size">
+<code class="sig-name descname">message_buffer_size</code><em class="property"> = 512</em><a class="headerlink" href="#speechmatics.models.ConnectionSettings.message_buffer_size" title="Permalink to this definition">¶</a></dt>
+<dd><p>Message buffer size in bytes.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="speechmatics.models.ConnectionSettings.semaphore_timeout_seconds">
+<code class="sig-name descname">semaphore_timeout_seconds</code><em class="property"> = 120</em><a class="headerlink" href="#speechmatics.models.ConnectionSettings.semaphore_timeout_seconds" title="Permalink to this definition">¶</a></dt>
+<dd><p>Semaphore timeout in seconds.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="speechmatics.models.ConnectionSettings.ssl_context">
+<code class="sig-name descname">ssl_context</code><em class="property"> = None</em><a class="headerlink" href="#speechmatics.models.ConnectionSettings.ssl_context" title="Permalink to this definition">¶</a></dt>
+<dd><p>SSL context.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="speechmatics.models.ConnectionSettings.url">
+<code class="sig-name descname">url</code><em class="property"> = None</em><a class="headerlink" href="#speechmatics.models.ConnectionSettings.url" title="Permalink to this definition">¶</a></dt>
+<dd><p>Websocket server endpoint.</p>
+</dd></dl>
+
+</dd></dl>
 
 <dl class="class">
 <dt id="speechmatics.models.ServerMessageType">
 <em class="property">class </em><code class="sig-prename descclassname">speechmatics.models.</code><code class="sig-name descname">ServerMessageType</code><a class="reference internal" href="_modules/speechmatics/models.html#ServerMessageType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#speechmatics.models.ServerMessageType" title="Permalink to this definition">¶</a></dt>
-<dd><p>An enumeration.</p>
+<dd><p>Defines various message types sent from server to client.</p>
+<dl class="attribute">
+<dt id="speechmatics.models.ServerMessageType.AddPartialTranscript">
+<code class="sig-name descname">AddPartialTranscript</code><em class="property"> = 'AddPartialTranscript'</em><a class="headerlink" href="#speechmatics.models.ServerMessageType.AddPartialTranscript" title="Permalink to this definition">¶</a></dt>
+<dd><p>Indicates a partial transcript, which is portion of the transcript that
+is immediately produced but may change as more context becomes available.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="speechmatics.models.ServerMessageType.AddTranscript">
+<code class="sig-name descname">AddTranscript</code><em class="property"> = 'AddTranscript'</em><a class="headerlink" href="#speechmatics.models.ServerMessageType.AddTranscript" title="Permalink to this definition">¶</a></dt>
+<dd><p>Indicates a full transcript that represents a sentence.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="speechmatics.models.ServerMessageType.AudioAdded">
+<code class="sig-name descname">AudioAdded</code><em class="property"> = 'AudioAdded'</em><a class="headerlink" href="#speechmatics.models.ServerMessageType.AudioAdded" title="Permalink to this definition">¶</a></dt>
+<dd><p>Indicates an acknowledgement that the server has added the audio.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="speechmatics.models.ServerMessageType.EndOfTranscript">
+<code class="sig-name descname">EndOfTranscript</code><em class="property"> = 'EndOfTranscript'</em><a class="headerlink" href="#speechmatics.models.ServerMessageType.EndOfTranscript" title="Permalink to this definition">¶</a></dt>
+<dd><p>Indicates that all audio has been processed and that client can safely
+disconnect.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="speechmatics.models.ServerMessageType.Error">
+<code class="sig-name descname">Error</code><em class="property"> = 'Error'</em><a class="headerlink" href="#speechmatics.models.ServerMessageType.Error" title="Permalink to this definition">¶</a></dt>
+<dd><p>Indicates n generic error message.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="speechmatics.models.ServerMessageType.Info">
+<code class="sig-name descname">Info</code><em class="property"> = 'Info'</em><a class="headerlink" href="#speechmatics.models.ServerMessageType.Info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Indicates a generic info message.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="speechmatics.models.ServerMessageType.RecognitionStarted">
+<code class="sig-name descname">RecognitionStarted</code><em class="property"> = 'RecognitionStarted'</em><a class="headerlink" href="#speechmatics.models.ServerMessageType.RecognitionStarted" title="Permalink to this definition">¶</a></dt>
+<dd><p>Indicates that recognition has started.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="speechmatics.models.ServerMessageType.Warning">
+<code class="sig-name descname">Warning</code><em class="property"> = 'Warning'</em><a class="headerlink" href="#speechmatics.models.ServerMessageType.Warning" title="Permalink to this definition">¶</a></dt>
+<dd><p>Indicates a generic warning message.</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
 <dt id="speechmatics.models.TranscriptionConfig">
 <em class="property">class </em><code class="sig-prename descclassname">speechmatics.models.</code><code class="sig-name descname">TranscriptionConfig</code><span class="sig-paren">(</span><em class="sig-param">language: str</em>, <em class="sig-param">output_locale: str = None</em>, <em class="sig-param">additional_vocab: dict = None</em>, <em class="sig-param">diarization: str = None</em>, <em class="sig-param">max_delay: float = None</em>, <em class="sig-param">speaker_change_sensitivity: float = None</em>, <em class="sig-param">enable_partials: bool = None</em>, <em class="sig-param">punctuation_overrides: dict = None</em>, <em class="sig-param">n_best_limit: int = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/speechmatics/models.html#TranscriptionConfig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#speechmatics.models.TranscriptionConfig" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Defines transcription parameters.</p>
+<dl class="attribute">
+<dt id="speechmatics.models.TranscriptionConfig.additional_vocab">
+<code class="sig-name descname">additional_vocab</code><em class="property"> = None</em><a class="headerlink" href="#speechmatics.models.TranscriptionConfig.additional_vocab" title="Permalink to this definition">¶</a></dt>
+<dd><p>Additional vocabulary that is not part of the standard language.</p>
+</dd></dl>
 
-<dl class="function">
-<dt id="speechmatics.models.del_none">
-<code class="sig-prename descclassname">speechmatics.models.</code><code class="sig-name descname">del_none</code><span class="sig-paren">(</span><em class="sig-param">dictionary</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/speechmatics/models.html#del_none"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#speechmatics.models.del_none" title="Permalink to this definition">¶</a></dt>
-<dd><p>Recursively delete from the dictionary all entries which values are None.</p>
-<dl class="simple">
-<dt>Args:</dt><dd><p>dictionary (dict): input dictionary</p>
-</dd>
-<dt>Returns:</dt><dd><p>dict: output dictionary</p>
-</dd>
-<dt>Note:</dt><dd><p>This function changes the input parameter in place.</p>
-</dd>
-</dl>
+<dl class="attribute">
+<dt id="speechmatics.models.TranscriptionConfig.diarization">
+<code class="sig-name descname">diarization</code><em class="property"> = None</em><a class="headerlink" href="#speechmatics.models.TranscriptionConfig.diarization" title="Permalink to this definition">¶</a></dt>
+<dd><p>Indicates type of diarization to use, if any.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="speechmatics.models.TranscriptionConfig.enable_partials">
+<code class="sig-name descname">enable_partials</code><em class="property"> = None</em><a class="headerlink" href="#speechmatics.models.TranscriptionConfig.enable_partials" title="Permalink to this definition">¶</a></dt>
+<dd><p>Indicates if partial transcription, where words are produced
+immediately, is enabled.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="speechmatics.models.TranscriptionConfig.language">
+<code class="sig-name descname">language</code><em class="property"> = None</em><a class="headerlink" href="#speechmatics.models.TranscriptionConfig.language" title="Permalink to this definition">¶</a></dt>
+<dd><p>ISO 639-1 language code. eg. <code class="docutils literal notranslate"><span class="pre">en</span></code></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="speechmatics.models.TranscriptionConfig.max_delay">
+<code class="sig-name descname">max_delay</code><em class="property"> = None</em><a class="headerlink" href="#speechmatics.models.TranscriptionConfig.max_delay" title="Permalink to this definition">¶</a></dt>
+<dd><p>Maximum acceptable delay.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="speechmatics.models.TranscriptionConfig.n_best_limit">
+<code class="sig-name descname">n_best_limit</code><em class="property"> = None</em><a class="headerlink" href="#speechmatics.models.TranscriptionConfig.n_best_limit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Specifies the number of best matches to be returned for an uttarance.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="speechmatics.models.TranscriptionConfig.output_locale">
+<code class="sig-name descname">output_locale</code><em class="property"> = None</em><a class="headerlink" href="#speechmatics.models.TranscriptionConfig.output_locale" title="Permalink to this definition">¶</a></dt>
+<dd><p>RFC-5646 language code for transcript output. eg. <code class="docutils literal notranslate"><span class="pre">en-AU</span></code></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="speechmatics.models.TranscriptionConfig.punctuation_overrides">
+<code class="sig-name descname">punctuation_overrides</code><em class="property"> = None</em><a class="headerlink" href="#speechmatics.models.TranscriptionConfig.punctuation_overrides" title="Permalink to this definition">¶</a></dt>
+<dd><p>Permitted puctuation marks for advanced punctuation.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="speechmatics.models.TranscriptionConfig.speaker_change_sensitivity">
+<code class="sig-name descname">speaker_change_sensitivity</code><em class="property"> = None</em><a class="headerlink" href="#speechmatics.models.TranscriptionConfig.speaker_change_sensitivity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sensitivity level for speaker change.</p>
+</dd></dl>
+
 </dd></dl>
 
 </div>
@@ -85,19 +246,16 @@
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-            <p class="logo"><a href="index.html">
-              <img class="logo" src="_static/logo.png" alt="Logo"/>
-            </a></p>
 <p class="logo">
   <a href="index.html">
-    <img class="logo" src="_static/logo" alt="Logo"/>
+    <img class="logo" src="_static/logo.png" alt="Logo"/>
     
   </a>
 </p>
 
 
 
-<p class="blurb">Python API client for Speechmatics</p>
+<p class="blurb">Python API client and CLI for Speechmatics</p>
 
 
 
@@ -124,18 +282,17 @@
 
 
 <h3>Navigation</h3>
-<p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">speechmatics.models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="client.html">speechmatics.client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="exceptions.html">speechmatics.exceptions</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">speechmatics.models</a></li>
 </ul>
 
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="index.html" title="previous chapter">speechmatics-python</a></li>
-      <li>Next: <a href="client.html" title="next chapter">speechmatics.client</a></li>
+      <li>Previous: <a href="exceptions.html" title="previous chapter">speechmatics.exceptions</a></li>
   </ul></li>
 </ul>
 </div>
@@ -162,7 +319,7 @@
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2019, Cantab Research Ltd..
+      &copy;2020, Cantab Research Ltd..
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.2</a>

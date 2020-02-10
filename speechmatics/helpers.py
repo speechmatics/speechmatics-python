@@ -1,6 +1,6 @@
 # (c) 2020, Cantab Research Ltd.
 """
-Helper functions
+Helper functions.
 """
 
 

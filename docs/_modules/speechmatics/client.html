@@ -31,10 +31,12 @@
           <div class="body" role="main">
             
   <h1>Source code for speechmatics.client</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Module to use the websocket API with an appliance.</span>
+<span></span><span class="c1"># (c) 2020, Cantab Research Ltd.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Wrapper library to interface with Real-time ASR v2 API.</span>
 <span class="sd">Based on http://asyncio.readthedocs.io/en/latest/producer_consumer.html</span>
 <span class="sd">&quot;&quot;&quot;</span>
+
 <span class="kn">import</span> <span class="nn">asyncio</span>
 <span class="kn">import</span> <span class="nn">copy</span>
 <span class="kn">import</span> <span class="nn">inspect</span>
@@ -45,7 +47,10 @@
 
 <span class="kn">import</span> <span class="nn">websockets</span>
 
+<span class="kn">from</span> <span class="nn">speechmatics.exceptions</span> <span class="kn">import</span> <span class="n">EndOfTranscriptException</span><span class="p">,</span> \
+    <span class="n">TranscriptionError</span>
 <span class="kn">from</span> <span class="nn">speechmatics.models</span> <span class="kn">import</span> <span class="n">ClientMessageType</span><span class="p">,</span> <span class="n">ServerMessageType</span>
+
 
 <span class="n">LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -99,18 +104,6 @@
 <span class="k">def</span> <span class="nf">call_middleware</span><span class="p">(</span><span class="n">middlewares</span><span class="p">,</span> <span class="n">event_name</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
     <span class="k">for</span> <span class="n">middleware</span> <span class="ow">in</span> <span class="n">middlewares</span><span class="p">[</span><span class="n">event_name</span><span class="p">]:</span>
         <span class="n">middleware</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
-
-
-<div class="viewcode-block" id="TranscriptionError"><a class="viewcode-back" href="../../client.html#speechmatics.client.TranscriptionError">[docs]</a><span class="k">class</span> <span class="nc">TranscriptionError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    An error has occurred in transcription.</span>
-<span class="sd">    &quot;&quot;&quot;</span></div>
-
-
-<div class="viewcode-block" id="EndOfTranscriptException"><a class="viewcode-back" href="../../client.html#speechmatics.client.EndOfTranscriptException">[docs]</a><span class="k">class</span> <span class="nc">EndOfTranscriptException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    An Exception raised to indicate that the session has finished.</span>
-<span class="sd">    &quot;&quot;&quot;</span></div>
 
 
 <div class="viewcode-block" id="WebsocketClient"><a class="viewcode-back" href="../../client.html#speechmatics.client.WebsocketClient">[docs]</a><span class="k">class</span> <span class="nc">WebsocketClient</span><span class="p">:</span>
@@ -463,19 +456,16 @@
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-            <p class="logo"><a href="../../index.html">
-              <img class="logo" src="../../_static/logo.png" alt="Logo"/>
-            </a></p>
 <p class="logo">
   <a href="../../index.html">
-    <img class="logo" src="../../_static/logo" alt="Logo"/>
+    <img class="logo" src="../../_static/logo.png" alt="Logo"/>
     
   </a>
 </p>
 
 
 
-<p class="blurb">Python API client for Speechmatics</p>
+<p class="blurb">Python API client and CLI for Speechmatics</p>
 
 
 
@@ -502,10 +492,10 @@
 
 
 <h3>Navigation</h3>
-<p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../models.html">speechmatics.models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../client.html">speechmatics.client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../exceptions.html">speechmatics.exceptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../models.html">speechmatics.models</a></li>
 </ul>
 
 <div class="relations">
@@ -540,7 +530,7 @@
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2019, Cantab Research Ltd..
+      &copy;2020, Cantab Research Ltd..
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.2</a>

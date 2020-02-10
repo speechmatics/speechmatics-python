@@ -1,6 +1,6 @@
 # (c) 2020, Cantab Research Ltd.
 """
-Module to use the websocket API with an appliance.
+Wrapper library to interface with Real-time ASR v2 API.
 Based on http://asyncio.readthedocs.io/en/latest/producer_consumer.html
 """
 
