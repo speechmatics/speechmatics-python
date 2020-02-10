@@ -61,11 +61,11 @@ setup(
     name='speechmatics-python',
     version=os.getenv('VERSION', get_version('VERSION')),
     packages=['speechmatics'],
-    url='https://github.com/speechmatics/speechmatics-python.git',
+    url='https://github.com/speechmatics/speechmatics-python/',
     license='MIT',
     author='Speechmatics',
     author_email='support@speechmatics.com',
-    description='Python API client for Speechmatics',
+    description='Python library and CLI for Speechmatics',
     long_description=read('README.md'),
     long_description_content_type='text/markdown',
     install_requires=read_list('requirements.txt'),
@@ -75,11 +75,21 @@ setup(
             'speechmatics = speechmatics.cli:main'
         ]
     },
+    project_urls={
+        'Documentation': 'https://speechmatics.github.io/speechmatics-python/',
+        'Source Code': 'https://github.com/speechmatics/speechmatics-python/',
+    },
     classifiers=[
         "Environment :: Console",
+        "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
         "Programming Language :: Python :: 3",
-        "Topic :: Multimedia :: Sound/Audio :: Speech"
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Topic :: Multimedia :: Sound/Audio :: Speech",
+        "Topic :: Software Development :: Libraries :: Python Modules",
     ],
     include_package_data=True,
+    python_requires='>=3.7',
 )

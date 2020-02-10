@@ -6,18 +6,14 @@
 speechmatics-python
 ===================
 
-speechmatics-python provides the Python API and command-line interface for Speechmatics.
+speechmatics-python provides API wrapper and CLI to access the Speechmatics Realtime API v2.
 
 
 Getting started
 ---------------
 
-speechmatics-python is under active development.
-
-Development builds (unstable) can be installed from
-`GitHub <https://github.com/speechmatics/speechmatics-python>`_.
-
-Official support is available for Python 3.7 and above.
+Please see
+`GitHub <https://github.com/speechmatics/speechmatics-python/blob/master/README.md>`_.
 
 
 Reference

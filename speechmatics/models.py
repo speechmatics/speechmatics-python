@@ -1,32 +1,17 @@
+# (c) 2020, Cantab Research Ltd.
 """
-Models used by speechmatics
+Data models used by the library
 """
+
 import ssl
 
 from dataclasses import asdict, dataclass, field
 from enum import Enum
 
-
-def del_none(dictionary):
-    """
-    Recursively delete from the dictionary all entries which values are None.
-
-    Args:
-        dictionary (dict): input dictionary
-    Returns:
-        dict: output dictionary
-    Note:
-        This function changes the input parameter in place.
-    """
-    for key, value in list(dictionary.items()):
-        if value is None:
-            del dictionary[key]
-        elif isinstance(value, dict):
-            del_none(value)
-    return dictionary
+from speechmatics.helpers import del_none
 
 
-# pylint: disable=R0902
+# pylint: disable=too-many-instance-attributes
 @dataclass
 class TranscriptionConfig:
     language: str

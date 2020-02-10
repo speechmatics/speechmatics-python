@@ -1,7 +1,9 @@
+# (c) 2020, Cantab Research Ltd.
 """
 Module to use the websocket API with an appliance.
 Based on http://asyncio.readthedocs.io/en/latest/producer_consumer.html
 """
+
 import asyncio
 import copy
 import inspect
@@ -12,7 +14,10 @@ import traceback
 
 import websockets
 
+from speechmatics.exceptions import EndOfTranscriptException, \
+    TranscriptionError
 from speechmatics.models import ClientMessageType, ServerMessageType
+
 
 LOGGER = logging.getLogger(__name__)
 
@@ -66,18 +71,6 @@ async def read_in_chunks(stream, chunk_size):
 def call_middleware(middlewares, event_name, *args):
     for middleware in middlewares[event_name]:
         middleware(*args)
-
-
-class TranscriptionError(Exception):
-    """
-    An error has occurred in transcription.
-    """
-
-
-class EndOfTranscriptException(Exception):
-    """
-    An Exception raised to indicate that the session has finished.
-    """
 
 
 class WebsocketClient:
