@@ -17,10 +17,10 @@ class TranscriptionConfig:
     """Defines transcription parameters."""
 
     language: str
-    """ISO language code. eg. ``en``"""
+    """ISO 639-1 language code. eg. ``en``"""
 
     output_locale: str = None
-    """Locale for transcript output. eg. ``en-AU``"""
+    """RFC-5646 language code for transcript output. eg. ``en-AU``"""
 
     additional_vocab: dict = None
     """Additional vocabulary that is not part of the standard language."""

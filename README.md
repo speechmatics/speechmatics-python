@@ -21,7 +21,7 @@ To install from source:
 - Python 3.7+
 
 
-## Example usage
+## Example command-line usage
 
 - A normal real time session using a .wav file as the input audio
 
@@ -81,7 +81,7 @@ To install from source:
 
 ## API documentation
 
-See the API docs at https://speechmatics.github.io/speechmatics-python/.
+Please see https://speechmatics.github.io/speechmatics-python/.
 
 
 ## Testing

@@ -34,10 +34,47 @@
   <div class="section" id="speechmatics-python">
 <h1>speechmatics-python<a class="headerlink" href="#speechmatics-python" title="Permalink to this headline">¶</a></h1>
 <p>speechmatics-python provides API wrapper and CLI to access the Speechmatics Realtime API v2.</p>
+<div class="section" id="example-library-usage">
+<h2>Example library usage<a class="headerlink" href="#example-library-usage" title="Permalink to this headline">¶</a></h2>
+<p>The example below illustrates a waveform audio file being opened and transcribed.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">speechmatics</span>
+
+<span class="c1"># Define connection parameters</span>
+<span class="n">conn</span> <span class="o">=</span> <span class="n">speechmatics</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">ConnectionSettings</span><span class="p">(</span>
+    <span class="n">url</span><span class="o">=</span><span class="s2">&quot;ws://localhost:9000/v2&quot;</span><span class="p">,</span>
+    <span class="n">ssl_context</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Create a transcription client</span>
+<span class="n">ws</span> <span class="o">=</span> <span class="n">speechmatics</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">WebsocketClient</span><span class="p">(</span><span class="n">conn</span><span class="p">)</span>
+
+<span class="c1"># Define transcription parameters</span>
+<span class="n">conf</span> <span class="o">=</span> <span class="n">speechmatics</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">TranscriptionConfig</span><span class="p">(</span>
+    <span class="n">language</span><span class="o">=</span><span class="s1">&#39;en&#39;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Define an event handler to print the transcript</span>
+<span class="k">def</span> <span class="nf">print_transcript</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">msg</span><span class="p">[</span><span class="s1">&#39;metadata&#39;</span><span class="p">][</span><span class="s1">&#39;transcript&#39;</span><span class="p">])</span>
+
+<span class="c1"># Register the event handler</span>
+<span class="n">ws</span><span class="o">.</span><span class="n">add_event_handler</span><span class="p">(</span>
+    <span class="n">event_name</span><span class="o">=</span><span class="n">speechmatics</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">ServerMessageType</span><span class="o">.</span><span class="n">AddTranscript</span><span class="p">,</span>
+    <span class="n">event_handler</span><span class="o">=</span><span class="n">print_transcript</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Open the audio file</span>
+<span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;sample.wav&#39;</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span>
+
+<span class="c1"># Initiate transcription</span>
+<span class="n">ws</span><span class="o">.</span><span class="n">run_synchronously</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">conf</span><span class="p">,</span> <span class="n">speechmatics</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">Audio</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
 <div class="section" id="command-line-usage">
 <h2>Command-line usage<a class="headerlink" href="#command-line-usage" title="Permalink to this headline">¶</a></h2>
 <p>Please see the
-<a class="reference external" href="https://github.com/speechmatics/speechmatics-python/blob/master/README.md">GitHub readme</a>.</p>
+<a class="reference external" href="https://github.com/speechmatics/speechmatics-python/blob/master/README.md#example-command-line-usage">GitHub readme</a>.</p>
 </div>
 <div class="section" id="reference">
 <h2>Reference<a class="headerlink" href="#reference" title="Permalink to this headline">¶</a></h2>
