@@ -47,15 +47,35 @@
 <span class="c1"># pylint: disable=too-many-instance-attributes</span>
 <div class="viewcode-block" id="TranscriptionConfig"><a class="viewcode-back" href="../../models.html#speechmatics.models.TranscriptionConfig">[docs]</a><span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">TranscriptionConfig</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Defines transcription parameters.&quot;&quot;&quot;</span>
+
     <span class="n">language</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="sd">&quot;&quot;&quot;ISO language code. eg. ``en``&quot;&quot;&quot;</span>
+
     <span class="n">output_locale</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;Locale for transcript output. eg. ``en-AU``&quot;&quot;&quot;</span>
+
     <span class="n">additional_vocab</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;Additional vocabulary that is not part of the standard language.&quot;&quot;&quot;</span>
+
     <span class="n">diarization</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;Indicates type of diarization to use, if any.&quot;&quot;&quot;</span>
+
     <span class="n">max_delay</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;Maximum acceptable delay.&quot;&quot;&quot;</span>
+
     <span class="n">speaker_change_sensitivity</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;Sensitivity level for speaker change.&quot;&quot;&quot;</span>
+
     <span class="n">enable_partials</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;Indicates if partial transcription, where words are produced</span>
+<span class="sd">    immediately, is enabled. &quot;&quot;&quot;</span>
+
     <span class="n">punctuation_overrides</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;Permitted puctuation marks for advanced punctuation.&quot;&quot;&quot;</span>
+
     <span class="n">n_best_limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;Specifies the number of best matches to be returned for an uttarance.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">dictionary</span> <span class="o">=</span> <span class="n">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
@@ -65,9 +85,16 @@
 
 <div class="viewcode-block" id="AudioSettings"><a class="viewcode-back" href="../../models.html#speechmatics.models.AudioSettings">[docs]</a><span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">AudioSettings</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Defines audio parameters.&quot;&quot;&quot;</span>
+
     <span class="n">encoding</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;Encoding format.&quot;&quot;&quot;</span>
+
     <span class="n">sample_rate</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">44100</span>
+    <span class="sd">&quot;&quot;&quot;Sampling rate.&quot;&quot;&quot;</span>
+
     <span class="n">chunk_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">4</span>
+    <span class="sd">&quot;&quot;&quot;Chunk size.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoding</span><span class="p">:</span>
@@ -82,35 +109,69 @@
 
 <div class="viewcode-block" id="ConnectionSettings"><a class="viewcode-back" href="../../models.html#speechmatics.models.ConnectionSettings">[docs]</a><span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">ConnectionSettings</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Defines connection parameters.&quot;&quot;&quot;</span>
+
     <span class="n">url</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="sd">&quot;&quot;&quot;Websocket server endpoint.&quot;&quot;&quot;</span>
+
     <span class="n">message_buffer_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">512</span>
+    <span class="sd">&quot;&quot;&quot;Message buffer size in bytes.&quot;&quot;&quot;</span>
+
     <span class="n">ssl_context</span><span class="p">:</span> <span class="n">ssl</span><span class="o">.</span><span class="n">SSLContext</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
         <span class="n">default_factory</span><span class="o">=</span><span class="n">ssl</span><span class="o">.</span><span class="n">create_default_context</span><span class="p">)</span>
-    <span class="n">semaphore_timeout_seconds</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">120</span></div>
+    <span class="sd">&quot;&quot;&quot;SSL context.&quot;&quot;&quot;</span>
+
+    <span class="n">semaphore_timeout_seconds</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">120</span>
+    <span class="sd">&quot;&quot;&quot;Semaphore timeout in seconds.&quot;&quot;&quot;</span></div>
 
 
 <div class="viewcode-block" id="ClientMessageType"><a class="viewcode-back" href="../../models.html#speechmatics.models.ClientMessageType">[docs]</a><span class="k">class</span> <span class="nc">ClientMessageType</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Defines various messages sent from client to server.&quot;&quot;&quot;</span>
+
     <span class="n">StartRecognition</span> <span class="o">=</span> <span class="s2">&quot;StartRecognition&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Initiates a recognition job based on configuration set previously.&quot;&quot;&quot;</span>
+
     <span class="n">AddAudio</span> <span class="o">=</span> <span class="s2">&quot;AddAudio&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Adds more audio data to the recognition job.&quot;&quot;&quot;</span>
+
     <span class="n">EndOfStream</span> <span class="o">=</span> <span class="s2">&quot;EndOfStream&quot;</span>
-    <span class="n">SetRecognitionConfig</span> <span class="o">=</span> <span class="s2">&quot;SetRecognitionConfig&quot;</span></div>
+    <span class="sd">&quot;&quot;&quot;Indicates the end of audio stream and that the client has send all audio</span>
+<span class="sd">    it intends to send.&quot;&quot;&quot;</span>
+
+    <span class="n">SetRecognitionConfig</span> <span class="o">=</span> <span class="s2">&quot;SetRecognitionConfig&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Allows job configuration to be set after the initial `StartRecognition`</span>
+<span class="sd">    message.&quot;&quot;&quot;</span></div>
 
 
 <div class="viewcode-block" id="ServerMessageType"><a class="viewcode-back" href="../../models.html#speechmatics.models.ServerMessageType">[docs]</a><span class="k">class</span> <span class="nc">ServerMessageType</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Defines various message types returned by the server&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Defines various message types sent from server to client.&quot;&quot;&quot;</span>
 
-    <span class="sd">&quot;&quot;&quot;Indicates that recognition has started&quot;&quot;&quot;</span>
     <span class="n">RecognitionStarted</span> <span class="o">=</span> <span class="s2">&quot;RecognitionStarted&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Indicates that recognition has started.&quot;&quot;&quot;</span>
 
-    <span class="sd">&quot;&quot;&quot;Indicates an acknowledgement that the server has added the audio&quot;&quot;&quot;</span>
     <span class="n">AudioAdded</span> <span class="o">=</span> <span class="s2">&quot;AudioAdded&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Indicates an acknowledgement that the server has added the audio.&quot;&quot;&quot;</span>
 
     <span class="n">AddPartialTranscript</span> <span class="o">=</span> <span class="s2">&quot;AddPartialTranscript&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Indicates a partial transcript, which is portion of the transcript that</span>
+<span class="sd">    is immediately produced but may change as more context becomes available.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">AddTranscript</span> <span class="o">=</span> <span class="s2">&quot;AddTranscript&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Indicates a full transcript that represents a sentence.&quot;&quot;&quot;</span>
+
     <span class="n">EndOfTranscript</span> <span class="o">=</span> <span class="s2">&quot;EndOfTranscript&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Indicates that all audio has been processed and that client can safely</span>
+<span class="sd">    disconnect.&quot;&quot;&quot;</span>
+
     <span class="n">Info</span> <span class="o">=</span> <span class="s2">&quot;Info&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Indicates a generic info message.&quot;&quot;&quot;</span>
+
     <span class="ne">Warning</span> <span class="o">=</span> <span class="s2">&quot;Warning&quot;</span>
-    <span class="n">Error</span> <span class="o">=</span> <span class="s2">&quot;Error&quot;</span></div>
+    <span class="sd">&quot;&quot;&quot;Indicates a generic warning message.&quot;&quot;&quot;</span>
+
+    <span class="n">Error</span> <span class="o">=</span> <span class="s2">&quot;Error&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Indicates n generic error message.&quot;&quot;&quot;</span></div>
 </pre></div>
 
           </div>
@@ -156,9 +217,9 @@
 
 <h3>Navigation</h3>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../models.html">speechmatics.models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../client.html">speechmatics.client</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../exceptions.html">speechmatics.exceptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../models.html">speechmatics.models</a></li>
 </ul>
 
 <div class="relations">

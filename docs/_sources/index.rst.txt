@@ -22,9 +22,9 @@ Reference
 .. toctree::
    :maxdepth: 2
 
-   models
    client
    exceptions
+   models
 
 
 Indices and tables
