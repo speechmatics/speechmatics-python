@@ -43,42 +43,41 @@ Based on <a class="reference external" href="http://asyncio.readthedocs.io/en/la
 <p>The best way to interact with this library is to instantiate this client
 and then add a set of handlers to it. Handlers respond to particular types
 of messages received from the server.</p>
-<dl class="simple">
-<dt>Args:</dt><dd><dl class="simple">
-<dt>connection_settings (speechmatics.models.ConnectionSettings): Settings</dt><dd><p>for the WebSocket connection, including the URL of the server.</p>
-</dd>
-</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>connection_settings</strong> (<a class="reference internal" href="models.html#speechmatics.models.ConnectionSettings" title="speechmatics.models.ConnectionSettings"><em>speechmatics.models.ConnectionSettings</em></a>) – Settings for the WebSocket connection,
+including the URL of the server.</p>
 </dd>
 </dl>
 <dl class="method">
 <dt id="speechmatics.client.WebsocketClient.add_event_handler">
 <code class="sig-name descname">add_event_handler</code><span class="sig-paren">(</span><em class="sig-param">event_name</em>, <em class="sig-param">event_handler</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/speechmatics/client.html#WebsocketClient.add_event_handler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#speechmatics.client.WebsocketClient.add_event_handler" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add an event handler (a.k.a. callback function) to handle an incoming
+<dd><p>Add an event handler (callback function) to handle an incoming
 message from the server. Event handlers are passed a copy of the
 incoming message from the server. If <cite>event_name</cite> is set to ‘all’ then
 the handler will be added for every event.</p>
-<p>For example, a simple handler that just prints out the AddTranscript
+<p>For example, a simple handler that just prints out the
+<a class="reference internal" href="models.html#speechmatics.models.ServerMessageType.AddTranscript" title="speechmatics.models.ServerMessageType.AddTranscript"><code class="xref py py-attr docutils literal notranslate"><span class="pre">speechmatics.models.ServerMessageType.AddTranscript</span></code></a>
 messages received:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">client</span> <span class="o">=</span> <span class="n">WebsocketClient</span><span class="p">(</span>
 <span class="go">        ConnectionSettings(url=&quot;wss://localhost:9000&quot;))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">handler</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">msg</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">add_event_handler</span><span class="p">(</span><span class="n">ServerMessageType</span><span class="o">.</span><span class="n">AddTranscript</span><span class="p">,</span> <span class="n">handler</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">handler</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">msg</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">add_event_handler</span><span class="p">(</span><span class="n">ServerMessageType</span><span class="o">.</span><span class="n">AddTranscript</span><span class="p">,</span> <span class="n">handler</span><span class="p">)</span>
-</pre></div>
-</div>
-<dl class="simple">
-<dt>Args:</dt><dd><dl class="simple">
-<dt>event_name (str): The name of the message for which a handler is</dt><dd><p>being added. Refer to the V2 API docs for a list of the
-possible message types.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>event_name</strong> (<em>str</em>) – The name of the message for which a handler is
+being added. Refer to
+<a class="reference internal" href="models.html#speechmatics.models.ServerMessageType" title="speechmatics.models.ServerMessageType"><code class="xref py py-class docutils literal notranslate"><span class="pre">speechmatics.models.ServerMessageType</span></code></a> for a list
+of the possible message types.</p></li>
+<li><p><strong>event_handler</strong> (<em>Callable</em><em>[</em><em>[</em><em>dict</em><em>]</em><em>, </em><em>None</em><em>]</em>) – A function to be called when a message of the
+given type is received.</p></li>
+</ul>
 </dd>
-<dt>event_handler (Callable[[dict], None]): A function to be called</dt><dd><p>when a message of the given type is received.</p>
-</dd>
-</dl>
-</dd>
-<dt>Raises:</dt><dd><p>ValueError: If the given event name is not valid.</p>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the given event name is not valid.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -91,19 +90,21 @@ Middlewares are passed a reference to the outgoing message, which
 they may alter.
 If <cite>event_name</cite> is set to ‘all’ then the handler will be added for
 every event.</p>
-<dl class="simple">
-<dt>Args:</dt><dd><dl class="simple">
-<dt>event_name (str): The name of the message for which a middleware is</dt><dd><p>being added. Refer to the V2 API docs for a list of the
-possible message types.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>event_name</strong> (<em>str</em>) – The name of the message for which a middleware is
+being added. Refer to the V2 API docs for a list of the possible
+message types.</p></li>
+<li><p><strong>middleware</strong> (<em>Callable</em><em>[</em><em>[</em><em>dict</em><em>, </em><em>bool</em><em>]</em><em>, </em><em>None</em><em>]</em>) – A function to be called to process an outgoing
+message of the given type. The function receives the message as
+the first argument and a second, boolean argument indicating
+whether or not the message is binary data (which implies it is an
+AddAudio message).</p></li>
+</ul>
 </dd>
-<dt>middleware (Callable[[dict, bool], None]): A function to be called</dt><dd><p>to process an outgoing message of the given type. The function
-receives the message as the first argument and a second,
-boolean argument indicating whether or not the message
-is binary data (which implies it is an AddAudio message).</p>
-</dd>
-</dl>
-</dd>
-<dt>Raises:</dt><dd><p>ValueError: If the given event name is not valid.</p>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the given event name is not valid.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -113,21 +114,19 @@ is binary data (which implies it is an AddAudio message).</p>
 <em class="property">async </em><code class="sig-name descname">run</code><span class="sig-paren">(</span><em class="sig-param">stream</em>, <em class="sig-param">transcription_config</em>, <em class="sig-param">audio_settings</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/speechmatics/client.html#WebsocketClient.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#speechmatics.client.WebsocketClient.run" title="Permalink to this definition">¶</a></dt>
 <dd><p>Begin a new recognition session.
 This will run asynchronously. Most callers may prefer to use
-run_synchronously which will block until the session is finished.</p>
-<dl class="simple">
-<dt>Args:</dt><dd><dl class="simple">
-<dt>stream (io.IOBase): File-like object which an audio stream can be</dt><dd><p>read from.</p>
+<a class="reference internal" href="#speechmatics.client.WebsocketClient.run_synchronously" title="speechmatics.client.WebsocketClient.run_synchronously"><code class="xref py py-meth docutils literal notranslate"><span class="pre">run_synchronously()</span></code></a> which will block until the session is
+finished.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>stream</strong> (<em>io.IOBase</em>) – File-like object which an audio stream can be read from.</p></li>
+<li><p><strong>transcription_config</strong> (<a class="reference internal" href="models.html#speechmatics.models.TranscriptionConfig" title="speechmatics.models.TranscriptionConfig"><em>speechmatics.models.TranscriptionConfig</em></a>) – Configuration for the transcription.</p></li>
+<li><p><strong>audio_settings</strong> (<a class="reference internal" href="models.html#speechmatics.models.AudioSettings" title="speechmatics.models.AudioSettings"><em>speechmatics.models.AudioSettings</em></a>) – Configuration for the audio stream.</p></li>
+</ul>
 </dd>
-<dt>transcription_config (speechmatics.models.TranscriptionConfig):</dt><dd><p>Configuration for the transcription.</p>
-</dd>
-<dt>audio_settings (speechmatics.models.AudioSettings): Configuration</dt><dd><p>for the audio stream.</p>
-</dd>
-</dl>
-</dd>
-<dt>Raises:</dt><dd><dl class="simple">
-<dt>Exception: Can raise any exception returned by the</dt><dd><p>consumer/producer tasks.</p>
-</dd>
-</dl>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>Exception</strong> – Can raise any exception returned by the
+consumer/producer tasks.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -144,7 +143,7 @@ run_synchronously which will block until the session is finished.</p>
 <dd><p>Indicates that the recognition session should be forcefully stopped.
 Only used in conjunction with <cite>run</cite>.
 You probably don’t need to call this if you’re running the client via
-<cite>run_synchronously</cite>.</p>
+<a class="reference internal" href="#speechmatics.client.WebsocketClient.run_synchronously" title="speechmatics.client.WebsocketClient.run_synchronously"><code class="xref py py-meth docutils literal notranslate"><span class="pre">run_synchronously()</span></code></a>.</p>
 </dd></dl>
 
 <dl class="method">
@@ -152,38 +151,13 @@ You probably don’t need to call this if you’re running the client via
 <code class="sig-name descname">update_transcription_config</code><span class="sig-paren">(</span><em class="sig-param">new_transcription_config</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/speechmatics/client.html#WebsocketClient.update_transcription_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#speechmatics.client.WebsocketClient.update_transcription_config" title="Permalink to this definition">¶</a></dt>
 <dd><p>Updates the transcription config used for the session.
 This results in a SetRecognitionConfig message sent to the server.</p>
-<dl class="simple">
-<dt>Args:</dt><dd><dl class="simple">
-<dt>new_transcription_config (speechmatics.models.TranscriptionConfig):</dt><dd><p>The new config object.</p>
-</dd>
-</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>new_transcription_config</strong> (<a class="reference internal" href="models.html#speechmatics.models.TranscriptionConfig" title="speechmatics.models.TranscriptionConfig"><em>speechmatics.models.TranscriptionConfig</em></a>) – The new config object.</p>
 </dd>
 </dl>
 </dd></dl>
 
-</dd></dl>
-
-<dl class="function">
-<dt id="speechmatics.client.json_utf8">
-<code class="sig-prename descclassname">speechmatics.client.</code><code class="sig-name descname">json_utf8</code><span class="sig-paren">(</span><em class="sig-param">func</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/speechmatics/client.html#json_utf8"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#speechmatics.client.json_utf8" title="Permalink to this definition">¶</a></dt>
-<dd><p>A wrapper to turn a function’s return value into JSON</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="speechmatics.client.read_in_chunks">
-<code class="sig-prename descclassname">speechmatics.client.</code><code class="sig-name descname">read_in_chunks</code><span class="sig-paren">(</span><em class="sig-param">stream</em>, <em class="sig-param">chunk_size</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/speechmatics/client.html#read_in_chunks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#speechmatics.client.read_in_chunks" title="Permalink to this definition">¶</a></dt>
-<dd><p>Utility method for reading in and yielding chunks</p>
-<dl class="simple">
-<dt>Args:</dt><dd><p>stream (io.IOBase): file-like object to read audio from
-chunk_size (int): maximum chunk size in bytes</p>
-</dd>
-<dt>Raises:</dt><dd><p>ValueError: if no data was read from the stream</p>
-</dd>
-<dt>Returns:</dt><dd><p>collections.AsyncIterable: a sequence of chunks of data where the
-length in bytes of each chunk is &lt;= max_sample_size and
-a multiple of max_sample_size</p>
-</dd>
-</dl>
 </dd></dl>
 
 </div>
@@ -234,6 +208,7 @@ a multiple of max_sample_size</p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">speechmatics.client</a></li>
 <li class="toctree-l1"><a class="reference internal" href="exceptions.html">speechmatics.exceptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="helpers.html">speechmatics.helpers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="models.html">speechmatics.models</a></li>
 </ul>
 
