@@ -18,7 +18,7 @@ sys.path.insert(0, os.path.abspath('..'))
 # -- Project information -----------------------------------------------------
 
 project = 'speechmatics-python'
-copyright = '2019, Cantab Research Ltd.'
+copyright = '2020, Cantab Research Ltd.'
 author = 'Speechmatics'
 
 
@@ -59,10 +59,9 @@ html_static_path = ['_static']
 # further.  For a list of options available for each theme, see the
 # documentation.
 #
-html_logo = 'logo.png'
 html_theme_options = {
-    'description': 'Python API client for Speechmatics',
-    'logo': 'logo',
+    'description': 'Python API client and CLI for Speechmatics',
+    'logo': 'logo.png',
     'logo_name': False,
     'github_user': 'speechmatics',
     'github_repo': 'speechmatics-python',

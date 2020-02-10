@@ -1,6 +1,6 @@
 # (c) 2020, Cantab Research Ltd.
 """
-Data models used by the library
+Data models and message types used by the library.
 """
 
 import ssl
@@ -64,8 +64,14 @@ class ClientMessageType(str, Enum):
 
 
 class ServerMessageType(str, Enum):
+    """Defines various message types returned by the server"""
+
+    """Indicates that recognition has started"""
     RecognitionStarted = "RecognitionStarted"
+
+    """Indicates an acknowledgement that the server has added the audio"""
     AudioAdded = "AudioAdded"
+
     AddPartialTranscript = "AddPartialTranscript"
     AddTranscript = "AddTranscript"
     EndOfTranscript = "EndOfTranscript"

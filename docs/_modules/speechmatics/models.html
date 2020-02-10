@@ -31,35 +31,20 @@
           <div class="body" role="main">
             
   <h1>Source code for speechmatics.models</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Models used by speechmatics</span>
+<span></span><span class="c1"># (c) 2020, Cantab Research Ltd.</span>
 <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Data models and message types used by the library.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
 <span class="kn">import</span> <span class="nn">ssl</span>
 
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">asdict</span><span class="p">,</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
 <span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
 
-
-<div class="viewcode-block" id="del_none"><a class="viewcode-back" href="../../models.html#speechmatics.models.del_none">[docs]</a><span class="k">def</span> <span class="nf">del_none</span><span class="p">(</span><span class="n">dictionary</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Recursively delete from the dictionary all entries which values are None.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        dictionary (dict): input dictionary</span>
-<span class="sd">    Returns:</span>
-<span class="sd">        dict: output dictionary</span>
-<span class="sd">    Note:</span>
-<span class="sd">        This function changes the input parameter in place.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">dictionary</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
-        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">del</span> <span class="n">dictionary</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-            <span class="n">del_none</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">dictionary</span></div>
+<span class="kn">from</span> <span class="nn">speechmatics.helpers</span> <span class="kn">import</span> <span class="n">del_none</span>
 
 
-<span class="c1"># pylint: disable=R0902</span>
+<span class="c1"># pylint: disable=too-many-instance-attributes</span>
 <div class="viewcode-block" id="TranscriptionConfig"><a class="viewcode-back" href="../../models.html#speechmatics.models.TranscriptionConfig">[docs]</a><span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">TranscriptionConfig</span><span class="p">:</span>
     <span class="n">language</span><span class="p">:</span> <span class="nb">str</span>
@@ -112,8 +97,14 @@
 
 
 <div class="viewcode-block" id="ServerMessageType"><a class="viewcode-back" href="../../models.html#speechmatics.models.ServerMessageType">[docs]</a><span class="k">class</span> <span class="nc">ServerMessageType</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Defines various message types returned by the server&quot;&quot;&quot;</span>
+
+    <span class="sd">&quot;&quot;&quot;Indicates that recognition has started&quot;&quot;&quot;</span>
     <span class="n">RecognitionStarted</span> <span class="o">=</span> <span class="s2">&quot;RecognitionStarted&quot;</span>
+
+    <span class="sd">&quot;&quot;&quot;Indicates an acknowledgement that the server has added the audio&quot;&quot;&quot;</span>
     <span class="n">AudioAdded</span> <span class="o">=</span> <span class="s2">&quot;AudioAdded&quot;</span>
+
     <span class="n">AddPartialTranscript</span> <span class="o">=</span> <span class="s2">&quot;AddPartialTranscript&quot;</span>
     <span class="n">AddTranscript</span> <span class="o">=</span> <span class="s2">&quot;AddTranscript&quot;</span>
     <span class="n">EndOfTranscript</span> <span class="o">=</span> <span class="s2">&quot;EndOfTranscript&quot;</span>
@@ -128,19 +119,16 @@
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-            <p class="logo"><a href="../../index.html">
-              <img class="logo" src="../../_static/logo.png" alt="Logo"/>
-            </a></p>
 <p class="logo">
   <a href="../../index.html">
-    <img class="logo" src="../../_static/logo" alt="Logo"/>
+    <img class="logo" src="../../_static/logo.png" alt="Logo"/>
     
   </a>
 </p>
 
 
 
-<p class="blurb">Python API client for Speechmatics</p>
+<p class="blurb">Python API client and CLI for Speechmatics</p>
 
 
 
@@ -167,10 +155,10 @@
 
 
 <h3>Navigation</h3>
-<p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../models.html">speechmatics.models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../client.html">speechmatics.client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../exceptions.html">speechmatics.exceptions</a></li>
 </ul>
 
 <div class="relations">
@@ -205,7 +193,7 @@
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2019, Cantab Research Ltd..
+      &copy;2020, Cantab Research Ltd..
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.2</a>

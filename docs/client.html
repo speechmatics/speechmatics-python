@@ -14,6 +14,7 @@
     <script type="text/javascript" src="_static/language_data.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="speechmatics.exceptions" href="exceptions.html" />
     <link rel="prev" title="speechmatics.models" href="models.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -33,20 +34,8 @@
             
   <div class="section" id="module-speechmatics.client">
 <span id="speechmatics-client"></span><h1>speechmatics.client<a class="headerlink" href="#module-speechmatics.client" title="Permalink to this headline">¶</a></h1>
-<p>Module to use the websocket API with an appliance.
+<p>Wrapper library to interface with Real-time ASR v2 API.
 Based on <a class="reference external" href="http://asyncio.readthedocs.io/en/latest/producer_consumer.html">http://asyncio.readthedocs.io/en/latest/producer_consumer.html</a></p>
-<dl class="exception">
-<dt id="speechmatics.client.EndOfTranscriptException">
-<em class="property">exception </em><code class="sig-prename descclassname">speechmatics.client.</code><code class="sig-name descname">EndOfTranscriptException</code><a class="reference internal" href="_modules/speechmatics/client.html#EndOfTranscriptException"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#speechmatics.client.EndOfTranscriptException" title="Permalink to this definition">¶</a></dt>
-<dd><p>An Exception raised to indicate that the session has finished.</p>
-</dd></dl>
-
-<dl class="exception">
-<dt id="speechmatics.client.TranscriptionError">
-<em class="property">exception </em><code class="sig-prename descclassname">speechmatics.client.</code><code class="sig-name descname">TranscriptionError</code><a class="reference internal" href="_modules/speechmatics/client.html#TranscriptionError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#speechmatics.client.TranscriptionError" title="Permalink to this definition">¶</a></dt>
-<dd><p>An error has occurred in transcription.</p>
-</dd></dl>
-
 <dl class="class">
 <dt id="speechmatics.client.WebsocketClient">
 <em class="property">class </em><code class="sig-prename descclassname">speechmatics.client.</code><code class="sig-name descname">WebsocketClient</code><span class="sig-paren">(</span><em class="sig-param">connection_settings</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/speechmatics/client.html#WebsocketClient"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#speechmatics.client.WebsocketClient" title="Permalink to this definition">¶</a></dt>
@@ -206,19 +195,16 @@ a multiple of max_sample_size</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-            <p class="logo"><a href="index.html">
-              <img class="logo" src="_static/logo.png" alt="Logo"/>
-            </a></p>
 <p class="logo">
   <a href="index.html">
-    <img class="logo" src="_static/logo" alt="Logo"/>
+    <img class="logo" src="_static/logo.png" alt="Logo"/>
     
   </a>
 </p>
 
 
 
-<p class="blurb">Python API client for Speechmatics</p>
+<p class="blurb">Python API client and CLI for Speechmatics</p>
 
 
 
@@ -245,10 +231,10 @@ a multiple of max_sample_size</p>
 
 
 <h3>Navigation</h3>
-<p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="models.html">speechmatics.models</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">speechmatics.client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="exceptions.html">speechmatics.exceptions</a></li>
 </ul>
 
 <div class="relations">
@@ -256,6 +242,7 @@ a multiple of max_sample_size</p>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
       <li>Previous: <a href="models.html" title="previous chapter">speechmatics.models</a></li>
+      <li>Next: <a href="exceptions.html" title="next chapter">speechmatics.exceptions</a></li>
   </ul></li>
 </ul>
 </div>
@@ -282,7 +269,7 @@ a multiple of max_sample_size</p>
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2019, Cantab Research Ltd..
+      &copy;2020, Cantab Research Ltd..
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.2</a>

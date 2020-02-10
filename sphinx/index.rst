@@ -9,11 +9,11 @@ speechmatics-python
 speechmatics-python provides API wrapper and CLI to access the Speechmatics Realtime API v2.
 
 
-Getting started
----------------
+Command-line usage
+------------------
 
-Please see
-`GitHub <https://github.com/speechmatics/speechmatics-python/blob/master/README.md>`_.
+Please see the
+`GitHub readme <https://github.com/speechmatics/speechmatics-python/blob/master/README.md>`_.
 
 
 Reference
@@ -21,10 +21,10 @@ Reference
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
 
    models
    client
+   exceptions
 
 
 Indices and tables

@@ -46,7 +46,7 @@ To install from source:
 
 - Pipe audio directly from the microphone (example uses MacOS with [ffmpeg](https://ffmpeg.org/ffmpeg-devices.html#avfoundation)) 
 
-  First list available input devices with
+  List available input devices with
 
   ```shell
   $ ffmpeg -f avfoundation -list_devices true -i ""
@@ -79,7 +79,7 @@ To install from source:
   ```
 
 
-## Documentation
+## API documentation
 
 See the API docs at https://speechmatics.github.io/speechmatics-python/.
 

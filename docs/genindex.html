@@ -37,7 +37,6 @@
 <div class="genindex-jumpbox">
  <a href="#A"><strong>A</strong></a>
  | <a href="#C"><strong>C</strong></a>
- | <a href="#D"><strong>D</strong></a>
  | <a href="#E"><strong>E</strong></a>
  | <a href="#J"><strong>J</strong></a>
  | <a href="#R"><strong>R</strong></a>
@@ -73,18 +72,10 @@
   </ul></td>
 </tr></table>
 
-<h2 id="D">D</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="models.html#speechmatics.models.del_none">del_none() (in module speechmatics.models)</a>
-</li>
-  </ul></td>
-</tr></table>
-
 <h2 id="E">E</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="client.html#speechmatics.client.EndOfTranscriptException">EndOfTranscriptException</a>
+      <li><a href="exceptions.html#speechmatics.exceptions.EndOfTranscriptException">EndOfTranscriptException</a>
 </li>
   </ul></td>
 </tr></table>
@@ -101,6 +92,8 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="client.html#speechmatics.client.read_in_chunks">read_in_chunks() (in module speechmatics.client)</a>
+</li>
+      <li><a href="models.html#speechmatics.models.ServerMessageType.RecognitionStarted">RecognitionStarted (speechmatics.models.ServerMessageType attribute)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -120,6 +113,8 @@
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="exceptions.html#module-speechmatics.exceptions">speechmatics.exceptions (module)</a>
+</li>
       <li><a href="models.html#module-speechmatics.models">speechmatics.models (module)</a>
 </li>
       <li><a href="client.html#speechmatics.client.WebsocketClient.stop">stop() (speechmatics.client.WebsocketClient method)</a>
@@ -134,7 +129,7 @@
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="client.html#speechmatics.client.TranscriptionError">TranscriptionError</a>
+      <li><a href="exceptions.html#speechmatics.exceptions.TranscriptionError">TranscriptionError</a>
 </li>
   </ul></td>
 </tr></table>
@@ -163,19 +158,16 @@
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-            <p class="logo"><a href="index.html">
-              <img class="logo" src="_static/logo.png" alt="Logo"/>
-            </a></p>
 <p class="logo">
   <a href="index.html">
-    <img class="logo" src="_static/logo" alt="Logo"/>
+    <img class="logo" src="_static/logo.png" alt="Logo"/>
     
   </a>
 </p>
 
 
 
-<p class="blurb">Python API client for Speechmatics</p>
+<p class="blurb">Python API client and CLI for Speechmatics</p>
 
 
 
@@ -202,10 +194,10 @@
 
 
 <h3>Navigation</h3>
-<p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="models.html">speechmatics.models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="client.html">speechmatics.client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="exceptions.html">speechmatics.exceptions</a></li>
 </ul>
 
 <div class="relations">
@@ -238,7 +230,7 @@
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2019, Cantab Research Ltd..
+      &copy;2020, Cantab Research Ltd..
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.2</a>
