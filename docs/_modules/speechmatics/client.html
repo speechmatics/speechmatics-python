@@ -39,7 +39,6 @@
 
 <span class="kn">import</span> <span class="nn">asyncio</span>
 <span class="kn">import</span> <span class="nn">copy</span>
-<span class="kn">import</span> <span class="nn">inspect</span>
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">sys</span>
@@ -50,6 +49,7 @@
 <span class="kn">from</span> <span class="nn">speechmatics.exceptions</span> <span class="kn">import</span> <span class="n">EndOfTranscriptException</span><span class="p">,</span> \
     <span class="n">TranscriptionError</span>
 <span class="kn">from</span> <span class="nn">speechmatics.models</span> <span class="kn">import</span> <span class="n">ClientMessageType</span><span class="p">,</span> <span class="n">ServerMessageType</span>
+<span class="kn">from</span> <span class="nn">speechmatics.helpers</span> <span class="kn">import</span> <span class="n">json_utf8</span><span class="p">,</span> <span class="n">read_in_chunks</span><span class="p">,</span> <span class="n">call_middleware</span>
 
 
 <span class="n">LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
@@ -60,52 +60,6 @@
 <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;websockets.protocol&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="json_utf8"><a class="viewcode-back" href="../../client.html#speechmatics.client.json_utf8">[docs]</a><span class="k">def</span> <span class="nf">json_utf8</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; A wrapper to turn a function&#39;s return value into JSON &quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; wrapper &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
-
-    <span class="k">return</span> <span class="n">wrapper</span></div>
-
-
-<div class="viewcode-block" id="read_in_chunks"><a class="viewcode-back" href="../../client.html#speechmatics.client.read_in_chunks">[docs]</a><span class="k">async</span> <span class="k">def</span> <span class="nf">read_in_chunks</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">chunk_size</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Utility method for reading in and yielding chunks</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        stream (io.IOBase): file-like object to read audio from</span>
-<span class="sd">        chunk_size (int): maximum chunk size in bytes</span>
-
-<span class="sd">    Raises:</span>
-<span class="sd">        ValueError: if no data was read from the stream</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        collections.AsyncIterable: a sequence of chunks of data where the</span>
-<span class="sd">        length in bytes of each chunk is &lt;= max_sample_size and</span>
-<span class="sd">        a multiple of max_sample_size</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-        <span class="c1"># Work with both async and synchronous file readers.</span>
-        <span class="k">if</span> <span class="n">inspect</span><span class="o">.</span><span class="n">iscoroutinefunction</span><span class="p">(</span><span class="n">stream</span><span class="o">.</span><span class="n">read</span><span class="p">):</span>
-            <span class="n">audio_chunk</span> <span class="o">=</span> <span class="k">await</span> <span class="n">stream</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">chunk_size</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">audio_chunk</span> <span class="o">=</span> <span class="n">stream</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">chunk_size</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">audio_chunk</span><span class="p">:</span>
-            <span class="k">break</span>
-        <span class="k">yield</span> <span class="n">audio_chunk</span>
-        <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span></div>
-
-
-<span class="k">def</span> <span class="nf">call_middleware</span><span class="p">(</span><span class="n">middlewares</span><span class="p">,</span> <span class="n">event_name</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
-    <span class="k">for</span> <span class="n">middleware</span> <span class="ow">in</span> <span class="n">middlewares</span><span class="p">[</span><span class="n">event_name</span><span class="p">]:</span>
-        <span class="n">middleware</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
-
-
 <div class="viewcode-block" id="WebsocketClient"><a class="viewcode-back" href="../../client.html#speechmatics.client.WebsocketClient">[docs]</a><span class="k">class</span> <span class="nc">WebsocketClient</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Manage a transcription session with the server.</span>
@@ -114,9 +68,9 @@
 <span class="sd">    and then add a set of handlers to it. Handlers respond to particular types</span>
 <span class="sd">    of messages received from the server.</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">        connection_settings (speechmatics.models.ConnectionSettings): Settings</span>
-<span class="sd">            for the WebSocket connection, including the URL of the server.</span>
+<span class="sd">    :param connection_settings: Settings for the WebSocket connection,</span>
+<span class="sd">        including the URL of the server.</span>
+<span class="sd">    :type connection_settings: speechmatics.models.ConnectionSettings</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># pylint: disable=too-many-instance-attributes</span>
@@ -153,7 +107,9 @@
 
     <span class="k">def</span> <span class="nf">_flag_recognition_started</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Handle a SetRecognitionConfig message from the server.</span>
+<span class="sd">        Handle a</span>
+<span class="sd">        :py:attr:`speechmatics.models.ClientMessageType.SetRecognitionConfig`</span>
+<span class="sd">        message from the server.</span>
 <span class="sd">        This updates an internal flag to mark the recognition session</span>
 <span class="sd">        as started meaning, AddAudio is now allowed.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -162,7 +118,9 @@
     <span class="nd">@json_utf8</span>
     <span class="k">def</span> <span class="nf">_set_recognition_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Constructs a SetRecognitionConfig message.</span>
+<span class="sd">        Constructs a</span>
+<span class="sd">        :py:attr:`speechmatics.models.ClientMessageType.SetRecognitionConfig`</span>
+<span class="sd">        message.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">msg</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="n">ClientMessageType</span><span class="o">.</span><span class="n">SetRecognitionConfig</span><span class="p">,</span>
@@ -177,12 +135,13 @@
     <span class="nd">@json_utf8</span>
     <span class="k">def</span> <span class="nf">_start_recognition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">audio_settings</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Constructs a StartRecognition message.</span>
+<span class="sd">        Constructs a</span>
+<span class="sd">        :py:attr:`speechmatics.models.ClientMessageType.StartRecognition`</span>
+<span class="sd">        message.</span>
 <span class="sd">        This initiates the recognition session.</span>
 
-<span class="sd">        Args:</span>
-<span class="sd">            audio_settings (speechmatics.models.AudioSettings): Audio settings</span>
-<span class="sd">                to use.</span>
+<span class="sd">        :param audio_settings: Audio settings to use.</span>
+<span class="sd">        :type audio_settings: speechmatics.models.AudioSettings</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">msg</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="n">ClientMessageType</span><span class="o">.</span><span class="n">StartRecognition</span><span class="p">,</span>
@@ -199,7 +158,9 @@
     <span class="nd">@json_utf8</span>
     <span class="k">def</span> <span class="nf">_end_of_stream</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Constructs an EndOfStream message.</span>
+<span class="sd">        Constructs an</span>
+<span class="sd">        :py:attr:`speechmatics.models.ClientMessageType.EndOfStream`</span>
+<span class="sd">        message.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">msg</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="n">ClientMessageType</span><span class="o">.</span><span class="n">EndOfStream</span><span class="p">,</span>
@@ -214,12 +175,12 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Consumes messages and acts on them.</span>
 
-<span class="sd">        Args:</span>
-<span class="sd">            message (str): Message received from the server.</span>
+<span class="sd">        :param message: Message received from the server.</span>
+<span class="sd">        :type message: str</span>
 
-<span class="sd">        Raises:</span>
-<span class="sd">            TranscriptionError: on an error message received from the server.</span>
-<span class="sd">            EndOfTranscriptException: on EndOfTranscription message</span>
+<span class="sd">        :raises TranscriptionError: on an error message received from the</span>
+<span class="sd">            server.</span>
+<span class="sd">        :raises EndOfTranscriptException: on EndOfTranscription message.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
         <span class="n">message</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
@@ -243,10 +204,11 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Yields messages to send to the server.</span>
 
-<span class="sd">        Args:</span>
-<span class="sd">            stream (io.IOBase): File-like object which an audio stream can be</span>
-<span class="sd">                read from.</span>
-<span class="sd">            audio_chunk_size (int): Size of audio chunks to send.</span>
+<span class="sd">        :param stream: File-like object which an audio stream can be read from.</span>
+<span class="sd">        :type stream: io.IOBase</span>
+
+<span class="sd">        :param audio_chunk_size: Size of audio chunks to send.</span>
+<span class="sd">        :type audio_chunk_size: int</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">async</span> <span class="k">for</span> <span class="n">audio_chunk</span> <span class="ow">in</span> <span class="n">read_in_chunks</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">audio_chunk_size</span><span class="p">):</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_session_needs_closing</span><span class="p">:</span>
@@ -289,9 +251,8 @@
 <span class="sd">        Updates the transcription config used for the session.</span>
 <span class="sd">        This results in a SetRecognitionConfig message sent to the server.</span>
 
-<span class="sd">        Args:</span>
-<span class="sd">            new_transcription_config (speechmatics.models.TranscriptionConfig):</span>
-<span class="sd">                The new config object.</span>
+<span class="sd">        :param new_transcription_config: The new config object.</span>
+<span class="sd">        :type new_transcription_config: speechmatics.models.TranscriptionConfig</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">new_transcription_config</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transcription_config</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">transcription_config</span> <span class="o">=</span> <span class="n">new_transcription_config</span>
@@ -299,30 +260,31 @@
 
 <div class="viewcode-block" id="WebsocketClient.add_event_handler"><a class="viewcode-back" href="../../client.html#speechmatics.client.WebsocketClient.add_event_handler">[docs]</a>    <span class="k">def</span> <span class="nf">add_event_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">,</span> <span class="n">event_handler</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Add an event handler (a.k.a. callback function) to handle an incoming</span>
+<span class="sd">        Add an event handler (callback function) to handle an incoming</span>
 <span class="sd">        message from the server. Event handlers are passed a copy of the</span>
 <span class="sd">        incoming message from the server. If `event_name` is set to &#39;all&#39; then</span>
 <span class="sd">        the handler will be added for every event.</span>
 
-<span class="sd">        For example, a simple handler that just prints out the AddTranscript</span>
+<span class="sd">        For example, a simple handler that just prints out the</span>
+<span class="sd">        :py:attr:`speechmatics.models.ServerMessageType.AddTranscript`</span>
 <span class="sd">        messages received:</span>
 
 <span class="sd">        &gt;&gt;&gt; client = WebsocketClient(</span>
 <span class="sd">                ConnectionSettings(url=&quot;wss://localhost:9000&quot;))</span>
-
 <span class="sd">        &gt;&gt;&gt; handler = lambda msg: print(msg)</span>
-
 <span class="sd">        &gt;&gt;&gt; client.add_event_handler(ServerMessageType.AddTranscript, handler)</span>
 
-<span class="sd">        Args:</span>
-<span class="sd">            event_name (str): The name of the message for which a handler is</span>
-<span class="sd">                being added. Refer to the V2 API docs for a list of the</span>
-<span class="sd">                possible message types.</span>
-<span class="sd">            event_handler (Callable[[dict], None]): A function to be called</span>
-<span class="sd">                when a message of the given type is received.</span>
+<span class="sd">        :param event_name: The name of the message for which a handler is</span>
+<span class="sd">                being added. Refer to</span>
+<span class="sd">                :py:class:`speechmatics.models.ServerMessageType` for a list</span>
+<span class="sd">                of the possible message types.</span>
+<span class="sd">        :type event_name: str</span>
 
-<span class="sd">        Raises:</span>
-<span class="sd">            ValueError: If the given event name is not valid.</span>
+<span class="sd">        :param event_handler: A function to be called when a message of the</span>
+<span class="sd">            given type is received.</span>
+<span class="sd">        :type event_handler: Callable[[dict], None]</span>
+
+<span class="sd">        :raises ValueError: If the given event name is not valid.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">event_name</span> <span class="o">==</span> <span class="s2">&quot;all&quot;</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">event_handlers</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
@@ -343,18 +305,19 @@
 <span class="sd">        If `event_name` is set to &#39;all&#39; then the handler will be added for</span>
 <span class="sd">        every event.</span>
 
-<span class="sd">        Args:</span>
-<span class="sd">            event_name (str): The name of the message for which a middleware is</span>
-<span class="sd">                being added. Refer to the V2 API docs for a list of the</span>
-<span class="sd">                possible message types.</span>
-<span class="sd">            middleware (Callable[[dict, bool], None]): A function to be called</span>
-<span class="sd">                to process an outgoing message of the given type. The function</span>
-<span class="sd">                receives the message as the first argument and a second,</span>
-<span class="sd">                boolean argument indicating whether or not the message</span>
-<span class="sd">                is binary data (which implies it is an AddAudio message).</span>
+<span class="sd">        :param event_name: The name of the message for which a middleware is</span>
+<span class="sd">            being added. Refer to the V2 API docs for a list of the possible</span>
+<span class="sd">            message types.</span>
+<span class="sd">        :type event_name: str</span>
 
-<span class="sd">        Raises:</span>
-<span class="sd">            ValueError: If the given event name is not valid.</span>
+<span class="sd">        :param middleware: A function to be called to process an outgoing</span>
+<span class="sd">            message of the given type. The function receives the message as</span>
+<span class="sd">            the first argument and a second, boolean argument indicating</span>
+<span class="sd">            whether or not the message is binary data (which implies it is an</span>
+<span class="sd">            AddAudio message).</span>
+<span class="sd">        :type middleware: Callable[[dict, bool], None]</span>
+
+<span class="sd">        :raises ValueError: If the given event name is not valid.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">event_name</span> <span class="o">==</span> <span class="s2">&quot;all&quot;</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">middlewares</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
@@ -373,19 +336,20 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Begin a new recognition session.</span>
 <span class="sd">        This will run asynchronously. Most callers may prefer to use</span>
-<span class="sd">        run_synchronously which will block until the session is finished.</span>
+<span class="sd">        :py:meth:`run_synchronously` which will block until the session is</span>
+<span class="sd">        finished.</span>
 
-<span class="sd">        Args:</span>
-<span class="sd">            stream (io.IOBase): File-like object which an audio stream can be</span>
-<span class="sd">                read from.</span>
-<span class="sd">            transcription_config (speechmatics.models.TranscriptionConfig):</span>
-<span class="sd">                Configuration for the transcription.</span>
-<span class="sd">            audio_settings (speechmatics.models.AudioSettings): Configuration</span>
-<span class="sd">                for the audio stream.</span>
+<span class="sd">        :param stream: File-like object which an audio stream can be read from.</span>
+<span class="sd">        :type stream: io.IOBase</span>
 
-<span class="sd">        Raises:</span>
-<span class="sd">            Exception: Can raise any exception returned by the</span>
-<span class="sd">                       consumer/producer tasks.</span>
+<span class="sd">        :param transcription_config: Configuration for the transcription.</span>
+<span class="sd">        :type transcription_config: speechmatics.models.TranscriptionConfig</span>
+
+<span class="sd">        :param audio_settings: Configuration for the audio stream.</span>
+<span class="sd">        :type audio_settings: speechmatics.models.AudioSettings</span>
+
+<span class="sd">        :raises Exception: Can raise any exception returned by the</span>
+<span class="sd">            consumer/producer tasks.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">transcription_config</span> <span class="o">=</span> <span class="n">transcription_config</span>
         <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_init_synchronization_primitives</span><span class="p">()</span>
@@ -437,7 +401,7 @@
 <span class="sd">        Indicates that the recognition session should be forcefully stopped.</span>
 <span class="sd">        Only used in conjunction with `run`.</span>
 <span class="sd">        You probably don&#39;t need to call this if you&#39;re running the client via</span>
-<span class="sd">        `run_synchronously`.</span>
+<span class="sd">        :py:meth:`run_synchronously`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_session_needs_closing</span> <span class="o">=</span> <span class="kc">True</span></div>
 
@@ -495,6 +459,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../client.html">speechmatics.client</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../exceptions.html">speechmatics.exceptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../helpers.html">speechmatics.helpers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../models.html">speechmatics.models</a></li>
 </ul>
 

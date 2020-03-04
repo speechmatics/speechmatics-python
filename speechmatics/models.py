@@ -17,10 +17,10 @@ class TranscriptionConfig:
     """Defines transcription parameters."""
 
     language: str
-    """ISO 639-1 language code. eg. ``en``"""
+    """ISO 639-1 language code. eg. `en`"""
 
     output_locale: str = None
-    """RFC-5646 language code for transcript output. eg. ``en-AU``"""
+    """RFC-5646 language code for transcript output. eg. `en-AU`"""
 
     additional_vocab: dict = None
     """Additional vocabulary that is not part of the standard language."""
@@ -55,10 +55,11 @@ class AudioSettings:
     """Defines audio parameters."""
 
     encoding: str = None
-    """Encoding format."""
+    """Encoding format when raw audio is used. Allowed values are
+    `pcm_f32le`, `pcm_s16le` and `mulaw`."""
 
     sample_rate: int = 44100
-    """Sampling rate."""
+    """Sampling rate in hertz."""
 
     chunk_size: int = 1024 * 4
     """Chunk size."""
@@ -99,37 +100,39 @@ class ClientMessageType(str, Enum):
     """Initiates a recognition job based on configuration set previously."""
 
     AddAudio = "AddAudio"
-    """Adds more audio data to the recognition job."""
+    """Adds more audio data to the recognition job. The server confirms
+    receipt by sending an :py:attr:`ServerMessageType.AudioAdded` message."""
 
     EndOfStream = "EndOfStream"
-    """Indicates the end of audio stream and that the client has send all audio
-    it intends to send."""
+    """Indicates that the client has no more audio to send."""
 
     SetRecognitionConfig = "SetRecognitionConfig"
-    """Allows job configuration to be set after the initial `StartRecognition`
-    message."""
+    """Allows the client to re-configure the recognition session."""
 
 
 class ServerMessageType(str, Enum):
     """Defines various message types sent from server to client."""
 
     RecognitionStarted = "RecognitionStarted"
-    """Indicates that recognition has started."""
+    """Server response to :py:attr:`ClientMessageType.StartRecognition`,
+    acknowledging that a recognition session has started."""
 
     AudioAdded = "AudioAdded"
-    """Indicates an acknowledgement that the server has added the audio."""
+    """Server response to :py:attr:`ClientMessageType.AddAudio`, indicating
+    that audio has been added successfully."""
 
     AddPartialTranscript = "AddPartialTranscript"
-    """Indicates a partial transcript, which is portion of the transcript that
-    is immediately produced but may change as more context becomes available.
+    """Indicates a partial transcript, which is an incomplete transcript that
+    is immediately produced and may change as more context becomes available.
     """
 
     AddTranscript = "AddTranscript"
-    """Indicates a full transcript that represents a sentence."""
+    """Indicates the final transcript of a part of the audio."""
 
     EndOfTranscript = "EndOfTranscript"
-    """Indicates that all audio has been processed and that client can safely
-    disconnect."""
+    """Server response to :py:attr:`ClientMessageType.EndOfStream`,
+    after the server has finished sending all :py:attr:`AddTranscript`
+    messages."""
 
     Info = "Info"
     """Indicates a generic info message."""

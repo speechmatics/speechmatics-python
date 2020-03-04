@@ -25,8 +25,8 @@ jobs:
           fi
         - >
           if [[ -n "$TRAVIS_BRANCH" ]] && [[ "$TRAVIS_BRANCH" != "master" ]]; then
-              # for branches other than master, set version in environment
-              # for master, version will be picked up by setuptools from the VERSION file
+              # for master branch, version will be picked up by setuptools from the VERSION file
+              # for other branches, version in is set as environment variable appended with .dev
               export VERSION=${TRAVIS_TAG:-$(<VERSION).dev${TRAVIS_BUILD_NUMBER}}
           fi
       deploy:

@@ -6,7 +6,6 @@ Based on http://asyncio.readthedocs.io/en/latest/producer_consumer.html
 
 import asyncio
 import copy
-import inspect
 import json
 import logging
 import sys
@@ -17,6 +16,7 @@ import websockets
 from speechmatics.exceptions import EndOfTranscriptException, \
     TranscriptionError
 from speechmatics.models import ClientMessageType, ServerMessageType
+from speechmatics.helpers import json_utf8, read_in_chunks, call_middleware
 
 
 LOGGER = logging.getLogger(__name__)
@@ -27,52 +27,6 @@ LOGGER = logging.getLogger(__name__)
 logging.getLogger("websockets.protocol").setLevel(logging.INFO)
 
 
-def json_utf8(func):
-    """ A wrapper to turn a function's return value into JSON """
-
-    def wrapper(*args, **kwargs):
-        """ wrapper """
-        return json.dumps(func(*args, **kwargs))
-
-    return wrapper
-
-
-async def read_in_chunks(stream, chunk_size):
-    """
-    Utility method for reading in and yielding chunks
-
-    Args:
-        stream (io.IOBase): file-like object to read audio from
-        chunk_size (int): maximum chunk size in bytes
-
-    Raises:
-        ValueError: if no data was read from the stream
-
-    Returns:
-        collections.AsyncIterable: a sequence of chunks of data where the
-        length in bytes of each chunk is <= max_sample_size and
-        a multiple of max_sample_size
-
-    """
-    count = 0
-    while True:
-        # Work with both async and synchronous file readers.
-        if inspect.iscoroutinefunction(stream.read):
-            audio_chunk = await stream.read(chunk_size)
-        else:
-            audio_chunk = stream.read(chunk_size)
-
-        if not audio_chunk:
-            break
-        yield audio_chunk
-        count += 1
-
-
-def call_middleware(middlewares, event_name, *args):
-    for middleware in middlewares[event_name]:
-        middleware(*args)
-
-
 class WebsocketClient:
     """
     Manage a transcription session with the server.
@@ -81,9 +35,9 @@ class WebsocketClient:
     and then add a set of handlers to it. Handlers respond to particular types
     of messages received from the server.
 
-    Args:
-        connection_settings (speechmatics.models.ConnectionSettings): Settings
-            for the WebSocket connection, including the URL of the server.
+    :param connection_settings: Settings for the WebSocket connection,
+        including the URL of the server.
+    :type connection_settings: speechmatics.models.ConnectionSettings
     """
 
     # pylint: disable=too-many-instance-attributes
@@ -120,7 +74,9 @@ class WebsocketClient:
 
     def _flag_recognition_started(self):
         """
-        Handle a SetRecognitionConfig message from the server.
+        Handle a
+        :py:attr:`speechmatics.models.ClientMessageType.SetRecognitionConfig`
+        message from the server.
         This updates an internal flag to mark the recognition session
         as started meaning, AddAudio is now allowed.
         """
@@ -129,7 +85,9 @@ class WebsocketClient:
     @json_utf8
     def _set_recognition_config(self):
         """
-        Constructs a SetRecognitionConfig message.
+        Constructs a
+        :py:attr:`speechmatics.models.ClientMessageType.SetRecognitionConfig`
+        message.
         """
         msg = {
             "message": ClientMessageType.SetRecognitionConfig,
@@ -144,12 +102,13 @@ class WebsocketClient:
     @json_utf8
     def _start_recognition(self, audio_settings):
         """
-        Constructs a StartRecognition message.
+        Constructs a
+        :py:attr:`speechmatics.models.ClientMessageType.StartRecognition`
+        message.
         This initiates the recognition session.
 
-        Args:
-            audio_settings (speechmatics.models.AudioSettings): Audio settings
-                to use.
+        :param audio_settings: Audio settings to use.
+        :type audio_settings: speechmatics.models.AudioSettings
         """
         msg = {
             "message": ClientMessageType.StartRecognition,
@@ -166,7 +125,9 @@ class WebsocketClient:
     @json_utf8
     def _end_of_stream(self):
         """
-        Constructs an EndOfStream message.
+        Constructs an
+        :py:attr:`speechmatics.models.ClientMessageType.EndOfStream`
+        message.
         """
         msg = {
             "message": ClientMessageType.EndOfStream,
@@ -181,12 +142,12 @@ class WebsocketClient:
         """
         Consumes messages and acts on them.
 
-        Args:
-            message (str): Message received from the server.
+        :param message: Message received from the server.
+        :type message: str
 
-        Raises:
-            TranscriptionError: on an error message received from the server.
-            EndOfTranscriptException: on EndOfTranscription message
+        :raises TranscriptionError: on an error message received from the
+            server.
+        :raises EndOfTranscriptException: on EndOfTranscription message.
         """
         LOGGER.debug(message)
         message = json.loads(message)
@@ -210,10 +171,11 @@ class WebsocketClient:
         """
         Yields messages to send to the server.
 
-        Args:
-            stream (io.IOBase): File-like object which an audio stream can be
-                read from.
-            audio_chunk_size (int): Size of audio chunks to send.
+        :param stream: File-like object which an audio stream can be read from.
+        :type stream: io.IOBase
+
+        :param audio_chunk_size: Size of audio chunks to send.
+        :type audio_chunk_size: int
         """
         async for audio_chunk in read_in_chunks(stream, audio_chunk_size):
             if self._session_needs_closing:
@@ -256,9 +218,8 @@ class WebsocketClient:
         Updates the transcription config used for the session.
         This results in a SetRecognitionConfig message sent to the server.
 
-        Args:
-            new_transcription_config (speechmatics.models.TranscriptionConfig):
-                The new config object.
+        :param new_transcription_config: The new config object.
+        :type new_transcription_config: speechmatics.models.TranscriptionConfig
         """
         if new_transcription_config != self.transcription_config:
             self.transcription_config = new_transcription_config
@@ -266,30 +227,31 @@ class WebsocketClient:
 
     def add_event_handler(self, event_name, event_handler):
         """
-        Add an event handler (a.k.a. callback function) to handle an incoming
+        Add an event handler (callback function) to handle an incoming
         message from the server. Event handlers are passed a copy of the
         incoming message from the server. If `event_name` is set to 'all' then
         the handler will be added for every event.
 
-        For example, a simple handler that just prints out the AddTranscript
+        For example, a simple handler that just prints out the
+        :py:attr:`speechmatics.models.ServerMessageType.AddTranscript`
         messages received:
 
         >>> client = WebsocketClient(
                 ConnectionSettings(url="wss://localhost:9000"))
-
         >>> handler = lambda msg: print(msg)
-
         >>> client.add_event_handler(ServerMessageType.AddTranscript, handler)
 
-        Args:
-            event_name (str): The name of the message for which a handler is
-                being added. Refer to the V2 API docs for a list of the
-                possible message types.
-            event_handler (Callable[[dict], None]): A function to be called
-                when a message of the given type is received.
+        :param event_name: The name of the message for which a handler is
+                being added. Refer to
+                :py:class:`speechmatics.models.ServerMessageType` for a list
+                of the possible message types.
+        :type event_name: str
 
-        Raises:
-            ValueError: If the given event name is not valid.
+        :param event_handler: A function to be called when a message of the
+            given type is received.
+        :type event_handler: Callable[[dict], None]
+
+        :raises ValueError: If the given event name is not valid.
         """
         if event_name == "all":
             for name in self.event_handlers.keys():
@@ -310,18 +272,19 @@ class WebsocketClient:
         If `event_name` is set to 'all' then the handler will be added for
         every event.
 
-        Args:
-            event_name (str): The name of the message for which a middleware is
-                being added. Refer to the V2 API docs for a list of the
-                possible message types.
-            middleware (Callable[[dict, bool], None]): A function to be called
-                to process an outgoing message of the given type. The function
-                receives the message as the first argument and a second,
-                boolean argument indicating whether or not the message
-                is binary data (which implies it is an AddAudio message).
+        :param event_name: The name of the message for which a middleware is
+            being added. Refer to the V2 API docs for a list of the possible
+            message types.
+        :type event_name: str
 
-        Raises:
-            ValueError: If the given event name is not valid.
+        :param middleware: A function to be called to process an outgoing
+            message of the given type. The function receives the message as
+            the first argument and a second, boolean argument indicating
+            whether or not the message is binary data (which implies it is an
+            AddAudio message).
+        :type middleware: Callable[[dict, bool], None]
+
+        :raises ValueError: If the given event name is not valid.
         """
         if event_name == "all":
             for name in self.middlewares.keys():
@@ -340,19 +303,20 @@ class WebsocketClient:
         """
         Begin a new recognition session.
         This will run asynchronously. Most callers may prefer to use
-        run_synchronously which will block until the session is finished.
+        :py:meth:`run_synchronously` which will block until the session is
+        finished.
 
-        Args:
-            stream (io.IOBase): File-like object which an audio stream can be
-                read from.
-            transcription_config (speechmatics.models.TranscriptionConfig):
-                Configuration for the transcription.
-            audio_settings (speechmatics.models.AudioSettings): Configuration
-                for the audio stream.
+        :param stream: File-like object which an audio stream can be read from.
+        :type stream: io.IOBase
 
-        Raises:
-            Exception: Can raise any exception returned by the
-                       consumer/producer tasks.
+        :param transcription_config: Configuration for the transcription.
+        :type transcription_config: speechmatics.models.TranscriptionConfig
+
+        :param audio_settings: Configuration for the audio stream.
+        :type audio_settings: speechmatics.models.AudioSettings
+
+        :raises Exception: Can raise any exception returned by the
+            consumer/producer tasks.
         """
         self.transcription_config = transcription_config
         await self._init_synchronization_primitives()
@@ -404,7 +368,7 @@ class WebsocketClient:
         Indicates that the recognition session should be forcefully stopped.
         Only used in conjunction with `run`.
         You probably don't need to call this if you're running the client via
-        `run_synchronously`.
+        :py:meth:`run_synchronously`.
         """
         self._session_needs_closing = True
 

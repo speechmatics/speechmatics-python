@@ -29,8 +29,8 @@ def print_symbol(symbol):
     """
     Prints a single symbol to standard error.
 
-    Args:
-        symbol (str): The symbol to print.
+    :param symbol: The symbol to print.
+    :type symbol: str
     """
     print(symbol, end="", file=sys.stderr, flush=True)
 
@@ -39,15 +39,14 @@ def parse_additional_vocab(additional_vocab_filepath):
     """
     Parses an additional vocab list from a file.
 
-    Args:
-        additional_vocab_filepath (str): Path to the additional vocab file.
+    :param additional_vocab_filepath: Path to the additional vocab file.
+    :type additional_vocab_filepath: str
 
-    Returns:
-        List[Union[dict, str]]: A list of objects or strings which are the
-                                additional vocab items.
+    :return: A list of objects or strings which are the additional
+        vocab items.
+    :rtype: List[Union[dict, str]]
 
-    Raises:
-        SystemExit: If the file is not valid json.
+    :raises SystemExit: If the file is not valid JSON.
     """
     additional_vocab = []
     with open(additional_vocab_filepath) as additional_vocab_file:
@@ -81,15 +80,14 @@ def additional_vocab_item(to_parse):
     Parses a single item of additional vocab. Used in conjunction with the
     additional vocab command line argument.
 
-    Args:
-        to_parse (str): The item to parse.
+    :param to_parse: The item to parse.
+    :type to_parse: str
 
-    Returns:
-        Union[dict, str]: Either a dictionary or a string depending on the form
-            of the additional vocab item.
+    :return: Either a dictionary or a string depending on the form of the
+        additional vocab item.
+    :rtype: Union[dict, str]
 
-    Raises:
-        argparse.ArgumentTypeError: If the item to parse is invalid.
+    :raises argparse.ArgumentTypeError: If the item to parse is invalid.
     """
     to_parse = str(to_parse)
     parts = to_parse.split(":")
@@ -126,14 +124,13 @@ def get_log_level(verbosity):
     """
     Returns the appropriate log level given a verbosity level.
 
-    Args:
-        verbosity (int): Verbosity level.
+    :param verbosity: Verbosity level.
+    :type verbosity: int
 
-    Returns:
-        int: The logging level (e.g. logging.INFO).
+    :return: The logging level (eg. logging.INFO).
+    :rtype: int
 
-    Raises:
-        SystemExit: If the given verbosity level is invalid.
+    :raises SystemExit: If the given verbosity level is invalid.
     """
     try:
         log_level = {
@@ -161,12 +158,11 @@ def get_connection_settings(args):
     Helper function which returns a ConnectionSettings object based on the
     command line options given to the program.
 
-    Args:
-        args (dict): Keyword arguments, typically from the command line.
+    :param args: Keyword arguments, typically from the command line.
+    :type args: dict
 
-    Returns:
-        speechmatics.models.ConnectionSettings: Settings for the WebSocket
-            connection.
+    :return: Settings for the WebSocket connection.
+    :rtype: speechmatics.models.ConnectionSettings
     """
     settings = ConnectionSettings(
         url=args["url"], message_buffer_size=args["buffer_size"]
@@ -185,11 +181,11 @@ def get_transcription_config(args):
     Helper function which returns a TranscriptionConfig object based on the
     command line options given to the program.
 
-    Args:
-        args (dict): Keyword arguments probably from the command line.
+    :param args: Keyword arguments probably from the command line.
+    :type args: dict
 
-    Returns:
-        speechmatics.models.TranscriptionConfig: Settings for the ASR engine.
+    :return: Settings for the ASR engine.
+    :rtype: speechmatics.models.TranscriptionConfig
     """
     config = TranscriptionConfig(
         args["lang"],
@@ -340,12 +336,14 @@ def join_words(words, language="en"):
     Joins a list of words with a language specific separator. Because not all
     languages use the standard English white-space between words.
 
-    Args:
-        words (List[str]): List of words
-        language (str): Language code
+    :param words: List of words
+    :type words: List[str]
 
-    Returns:
-        str: Words joined with a language-specific separator.
+    :param language: Language code
+    :type language: str
+
+    :return: Words joined with a language-specific separator.
+    :rtype: str
     """
     if language in {"ja", "cmn"}:
         separator = ""
@@ -358,10 +356,10 @@ def main(args=None):
     """
     Main entrypoint.
 
-    Args:
-        args (List[str]): command-line arguments; defaults to None in which
+    :param args: command-line arguments; defaults to None in which
             case arguments will retrieved from `sys.argv` (this is useful
             mainly for unit tests).
+    :type args: List[str]
     """
     if not args:
         args = vars(parse_args())
@@ -417,11 +415,11 @@ def parse_args(args=None):
     """
     Parses command-line arguments.
 
-    Arguments:
-        args: (List[str], optional): List of arguments to parse.
+    :param args: List of arguments to parse.
+    :type args: (List[str], optional)
 
-    Returns:
-        Namespace: The set of arguments provided along with their values.
+    :return: The set of arguments provided along with their values.
+    :rtype: Namespace
     """
     parser = argparse.ArgumentParser(
         description="CLI for Speechmatics products.")

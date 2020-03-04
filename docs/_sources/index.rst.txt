@@ -44,7 +44,7 @@ The example below illustrates a waveform audio file being opened and transcribed
     f = open('sample.wav', 'rb')
 
     # Initiate transcription
-    ws.run_synchronously(f, conf, speechmatics.models.Audio())
+    ws.run_synchronously(f, conf, speechmatics.models.AudioSettings())
 
 
 Command-line usage
@@ -62,6 +62,7 @@ Reference
 
    client
    exceptions
+   helpers
    models
 
 

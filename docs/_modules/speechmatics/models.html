@@ -50,10 +50,10 @@
     <span class="sd">&quot;&quot;&quot;Defines transcription parameters.&quot;&quot;&quot;</span>
 
     <span class="n">language</span><span class="p">:</span> <span class="nb">str</span>
-    <span class="sd">&quot;&quot;&quot;ISO 639-1 language code. eg. ``en``&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;ISO 639-1 language code. eg. `en`&quot;&quot;&quot;</span>
 
     <span class="n">output_locale</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="sd">&quot;&quot;&quot;RFC-5646 language code for transcript output. eg. ``en-AU``&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;RFC-5646 language code for transcript output. eg. `en-AU`&quot;&quot;&quot;</span>
 
     <span class="n">additional_vocab</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="sd">&quot;&quot;&quot;Additional vocabulary that is not part of the standard language.&quot;&quot;&quot;</span>
@@ -88,10 +88,11 @@
     <span class="sd">&quot;&quot;&quot;Defines audio parameters.&quot;&quot;&quot;</span>
 
     <span class="n">encoding</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="sd">&quot;&quot;&quot;Encoding format.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Encoding format when raw audio is used. Allowed values are</span>
+<span class="sd">    `pcm_f32le`, `pcm_s16le` and `mulaw`.&quot;&quot;&quot;</span>
 
     <span class="n">sample_rate</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">44100</span>
-    <span class="sd">&quot;&quot;&quot;Sampling rate.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Sampling rate in hertz.&quot;&quot;&quot;</span>
 
     <span class="n">chunk_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">4</span>
     <span class="sd">&quot;&quot;&quot;Chunk size.&quot;&quot;&quot;</span>
@@ -132,37 +133,39 @@
     <span class="sd">&quot;&quot;&quot;Initiates a recognition job based on configuration set previously.&quot;&quot;&quot;</span>
 
     <span class="n">AddAudio</span> <span class="o">=</span> <span class="s2">&quot;AddAudio&quot;</span>
-    <span class="sd">&quot;&quot;&quot;Adds more audio data to the recognition job.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Adds more audio data to the recognition job. The server confirms</span>
+<span class="sd">    receipt by sending an :py:attr:`ServerMessageType.AudioAdded` message.&quot;&quot;&quot;</span>
 
     <span class="n">EndOfStream</span> <span class="o">=</span> <span class="s2">&quot;EndOfStream&quot;</span>
-    <span class="sd">&quot;&quot;&quot;Indicates the end of audio stream and that the client has send all audio</span>
-<span class="sd">    it intends to send.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Indicates that the client has no more audio to send.&quot;&quot;&quot;</span>
 
     <span class="n">SetRecognitionConfig</span> <span class="o">=</span> <span class="s2">&quot;SetRecognitionConfig&quot;</span>
-    <span class="sd">&quot;&quot;&quot;Allows job configuration to be set after the initial `StartRecognition`</span>
-<span class="sd">    message.&quot;&quot;&quot;</span></div>
+    <span class="sd">&quot;&quot;&quot;Allows the client to re-configure the recognition session.&quot;&quot;&quot;</span></div>
 
 
 <div class="viewcode-block" id="ServerMessageType"><a class="viewcode-back" href="../../models.html#speechmatics.models.ServerMessageType">[docs]</a><span class="k">class</span> <span class="nc">ServerMessageType</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Defines various message types sent from server to client.&quot;&quot;&quot;</span>
 
     <span class="n">RecognitionStarted</span> <span class="o">=</span> <span class="s2">&quot;RecognitionStarted&quot;</span>
-    <span class="sd">&quot;&quot;&quot;Indicates that recognition has started.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Server response to :py:attr:`ClientMessageType.StartRecognition`,</span>
+<span class="sd">    acknowledging that a recognition session has started.&quot;&quot;&quot;</span>
 
     <span class="n">AudioAdded</span> <span class="o">=</span> <span class="s2">&quot;AudioAdded&quot;</span>
-    <span class="sd">&quot;&quot;&quot;Indicates an acknowledgement that the server has added the audio.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Server response to :py:attr:`ClientMessageType.AddAudio`, indicating</span>
+<span class="sd">    that audio has been added successfully.&quot;&quot;&quot;</span>
 
     <span class="n">AddPartialTranscript</span> <span class="o">=</span> <span class="s2">&quot;AddPartialTranscript&quot;</span>
-    <span class="sd">&quot;&quot;&quot;Indicates a partial transcript, which is portion of the transcript that</span>
-<span class="sd">    is immediately produced but may change as more context becomes available.</span>
+    <span class="sd">&quot;&quot;&quot;Indicates a partial transcript, which is an incomplete transcript that</span>
+<span class="sd">    is immediately produced and may change as more context becomes available.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">AddTranscript</span> <span class="o">=</span> <span class="s2">&quot;AddTranscript&quot;</span>
-    <span class="sd">&quot;&quot;&quot;Indicates a full transcript that represents a sentence.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Indicates the final transcript of a part of the audio.&quot;&quot;&quot;</span>
 
     <span class="n">EndOfTranscript</span> <span class="o">=</span> <span class="s2">&quot;EndOfTranscript&quot;</span>
-    <span class="sd">&quot;&quot;&quot;Indicates that all audio has been processed and that client can safely</span>
-<span class="sd">    disconnect.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Server response to :py:attr:`ClientMessageType.EndOfStream`,</span>
+<span class="sd">    after the server has finished sending all :py:attr:`AddTranscript`</span>
+<span class="sd">    messages.&quot;&quot;&quot;</span>
 
     <span class="n">Info</span> <span class="o">=</span> <span class="s2">&quot;Info&quot;</span>
     <span class="sd">&quot;&quot;&quot;Indicates a generic info message.&quot;&quot;&quot;</span>
@@ -219,6 +222,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../client.html">speechmatics.client</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../exceptions.html">speechmatics.exceptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../helpers.html">speechmatics.helpers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../models.html">speechmatics.models</a></li>
 </ul>
 
