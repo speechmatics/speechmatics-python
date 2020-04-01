@@ -8,13 +8,19 @@ A command line interface is also included for convenience.
 
 ## Getting started
 
+<!--
 To install from PyPI:
+
+PIP EXTRA URL
 
     $ pip install speechmatics-python
 
-To install from source:
+-->
 
-    $ python setup.py install
+To install:
+
+    $ git clone https://github.com/speechmatics/speechmatics-python
+    $ cd speechmatics-python && python setup.py install
 
 ### Requirements
 
@@ -58,7 +64,7 @@ To install from source:
   You may also need to replace `:default` with something like `:0` or `:1` if you want to use a specific microphone.
 
   ```shell
-  $ ffmpeg -f avfoundation -i ":default" -f f32le -acodec pcm_f32le -ar 44100 - \
+  $ ffmpeg -loglevel quiet -f avfoundation -i ":default" -f f32le -acodec pcm_f32le -ar 44100 - \
   >   | speechmatics transcribe --ssl-mode none --url $URL --raw pcm_f32le --sample-rate 44100 --lang en -
   ```
 
@@ -74,8 +80,8 @@ To install from source:
   Record microphone audio and pipe to transcriber.
 
   ```shell
-  $ ffmpeg -f alsa -i hw:0 -f f32le -acodec pcm_f32le -ar 44100 - \
-  >   | speechmatics transcribe --ssl-mode none --url $URL --enable-partials --raw pcm_f32le --sample-rate 44100 --lang en -
+  $ ffmpeg -loglevel quiet -f alsa -i hw:0 -f f32le -acodec pcm_f32le -ar 44100 - \
+      | speechmatics transcribe --ssl-mode none --url $URL --enable-partials --raw pcm_f32le --sample-rate 44100 --lang en -
   ```
 
 
