@@ -11,16 +11,19 @@ A command line interface is also included for convenience.
 <!--
 To install from PyPI:
 
-PIP EXTRA URL
-
     $ pip install speechmatics-python
 
 -->
 
-To install:
+To install from source:
 
     $ git clone https://github.com/speechmatics/speechmatics-python
     $ cd speechmatics-python && python setup.py install
+    
+    # or
+
+    $ pip install -e git+https://github.com/speechmatics/speechmatics-python#egg=speechmatics-python
+
 
 ### Requirements
 
