@@ -324,7 +324,8 @@ class WebsocketClient:
         try:
             websocket = await websockets.connect(
                 self.connection_settings.url,
-                ssl=self.connection_settings.ssl_context
+                ssl=self.connection_settings.ssl_context,
+                max_size=None,
             )
         except ConnectionResetError:
             traceback.print_exc()
