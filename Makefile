@@ -1,4 +1,4 @@
-SOURCES := speechmatics/ setup.py tests
+SOURCES := speechmatics/ tests/ setup.py
 VERSION ?= $(shell cat VERSION)
 
 .PHONY: all

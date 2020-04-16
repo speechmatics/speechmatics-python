@@ -72,11 +72,12 @@ def test_cli_arg_parse(args, values):
         assert actual_values[key] == val
 
 
-def test_parse_additional_vocab(tmp_path):
+def test_parse_additional_vocab(tmp_path, mocker):
     vocab_file = tmp_path / "vocab.json"
     vocab_file.write_text('["Speechmatics", "gnocchi"]')
-    assert cli.parse_additional_vocab(vocab_file) == \
+    assert cli.parse_additional_vocab(vocab_file) == (
         ["Speechmatics", "gnocchi"]
+    )
 
     vocab_file.write_text('[{"content": "gnocchi", "sounds_like": ["nokey"]}]')
     assert cli.parse_additional_vocab(vocab_file) == (
@@ -84,8 +85,28 @@ def test_parse_additional_vocab(tmp_path):
     )
 
     vocab_file.write_text("[")
-    with pytest.raises(SystemExit):
+    with pytest.raises(SystemExit) as ex:
         cli.parse_additional_vocab(vocab_file)
+    exp_msg = ('Provided additional vocab at: {} is not valid json.'
+               .format(vocab_file))
+    assert ex.value.code == exp_msg
+
+    vocab_file.write_text('{"content": "gnocchi"}')
+    with pytest.raises(SystemExit) as ex:
+        cli.parse_additional_vocab(vocab_file)
+    exp_msg = ('Additional vocab file at: {} should be a list of '
+               'objects/strings.'.format(vocab_file))
+    assert ex.value.code == exp_msg
+
+    vocab_file.write_text('[]')
+    mock_logger = mocker.patch('speechmatics.cli.LOGGER', autospec=True)
+    assert cli.parse_additional_vocab(vocab_file) == []
+    mock_logger_warning_str_list = [x[0][0] % x[0][1:] for x in
+                                    mock_logger.warning.call_args_list]
+    assert (
+        'Provided additional vocab at: {} is an empty list.'.format(vocab_file)
+    ) in mock_logger_warning_str_list
+    assert len(mock_logger.mock_calls) == 1
 
 
 @pytest.mark.parametrize(
@@ -148,8 +169,12 @@ def test_additional_vocab_item():
 
 def test_get_log_level():
     assert cli.get_log_level(1) == logging.INFO
-    with pytest.raises(SystemExit):
-        cli.get_log_level(3)
+    assert cli.get_log_level(2) == logging.DEBUG
+    for unsupported_log_level in 3, 5:
+        with pytest.raises(SystemExit) as ex:
+            cli.get_log_level(unsupported_log_level)
+        exp_msg = 'Only supports 2 log levels eg. -vv, you are asking for -'
+        assert ex.value.code == exp_msg + 'v' * unsupported_log_level
 
 
 def test_main_with_basic_options(mock_server):
