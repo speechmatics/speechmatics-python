@@ -92,6 +92,9 @@ class ConnectionSettings:
     semaphore_timeout_seconds: float = 120
     """Semaphore timeout in seconds."""
 
+    ping_timeout_seconds: float = 60
+    """Ping-pong timeout in seconds."""
+
 
 class ClientMessageType(str, Enum):
     """Defines various messages sent from client to server."""

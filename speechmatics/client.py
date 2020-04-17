@@ -325,6 +325,8 @@ class WebsocketClient:
             websocket = await websockets.connect(
                 self.connection_settings.url,
                 ssl=self.connection_settings.ssl_context,
+                ping_timeout=self.connection_settings.ping_timeout_seconds,
+                # Don't artificially limit the max. size of incoming messages
                 max_size=None,
             )
         except ConnectionResetError:
