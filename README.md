@@ -44,7 +44,7 @@ To install from source:
 - Show the messages that are going over the websocket connection
 
    ```shell
-   $ speechmatics transcribe -v --url $URL --lang en --ssl-mode none example_audio.wav
+   $ speechmatics -v transcribe --url $URL --lang en --ssl-mode none example_audio.wav
    ```
 
 - The CLI also accepts an audio stream on standard input; transcribe the piped input audio
