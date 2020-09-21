@@ -251,10 +251,36 @@ def get_audio_settings(args):
     return settings
 
 
+def apply_profanity_filter(transcript, results):
+    """
+    Applies a filter over all words tagged with profanity in the transcript.
+    Eg profanity -> p*******y.
+
+    Args:
+        transcript (string): Original transcript to apply filter over.
+        results (dict): Corresponding "results" from the JSON output for given
+            transcript.
+
+    Returns:
+        string: transcript with profanity filter applied over words.
+    """
+    words = [result["alternatives"][0]["content"] for result in results
+             if "profanity" in result["alternatives"][0].get("tags", [])]
+
+    filtered_transcript = transcript
+    for word in words:
+        # first letter + *'s for rest of the letters + last letter
+        filtered_word = word[0] + ("*" * (len(word) - 2)) + word[-1]
+        filtered_transcript = filtered_transcript.replace(word, filtered_word)
+
+    return filtered_transcript
+
+
 # pylint: disable=too-many-arguments
 def add_printing_handlers(
         api, transcripts, enable_partials=False, debug_handlers_too=False,
-        speaker_change_token=False, language="en"):
+        speaker_change_token=False, language="en", json_output=False,
+        filter_profanity=False):
     """
     Adds a set of handlers to the websocket client which print out transcripts
     as they are received. This includes partials if they are enabled.
@@ -272,6 +298,10 @@ def add_printing_handlers(
             changes.
         language (string, optional): The language code of the model being used.
             This is needed to configure language-specific text formatting.
+        json_output (bool, optional): Whether to output transcript in the
+            native JSON v2 output.
+        filter_profanity (bool, optional): Whether to obfuscate words
+            containing profanity.
     """
     if debug_handlers_too:
         api.add_event_handler(
@@ -292,8 +322,11 @@ def add_printing_handlers(
 
     def partial_transcript_handler(message):
         # "\n" does not appear in partial transcripts
-        print(f'{message["metadata"]["transcript"]}',
-              end="\r", file=sys.stderr)
+        transcript_to_print = message["metadata"]["transcript"]
+        if filter_profanity:
+            transcript_to_print = apply_profanity_filter(
+                transcript_to_print, message["results"])
+        print(transcript_to_print, end="\r", file=sys.stderr)
 
     def transcript_handler(message):
         transcripts.json.append(message)
@@ -303,6 +336,9 @@ def add_printing_handlers(
             if speaker_change_token:
                 transcript_with_sc_token = transcript.replace("\n", "\n<sc>\n")
                 transcript_to_print = transcript_with_sc_token
+            if filter_profanity:
+                transcript_to_print = apply_profanity_filter(
+                    transcript_to_print, message["results"])
             transcripts.text += transcript_to_print
             print(transcript_to_print)
 
@@ -322,11 +358,20 @@ def add_printing_handlers(
         if enable_partials:
             print("\n", file=sys.stderr)
 
-    api.add_event_handler(
-        ServerMessageType.AddPartialTranscript, partial_transcript_handler
-    )
-    api.add_event_handler(
-        ServerMessageType.AddTranscript, transcript_handler)
+    def json_handler(message):
+        return print(json.dumps(message))
+
+    if json_output:
+        api.add_event_handler(
+            ServerMessageType.AddPartialTranscript, json_handler)
+        api.add_event_handler(ServerMessageType.AddTranscript, json_handler)
+    else:
+        api.add_event_handler(
+            ServerMessageType.AddPartialTranscript, partial_transcript_handler
+        )
+        api.add_event_handler(
+            ServerMessageType.AddTranscript, transcript_handler)
+
     api.add_event_handler(
         ServerMessageType.EndOfTranscript, end_of_transcript_handler)
 
@@ -379,8 +424,8 @@ def main(args=None):
         )
     if args["url"].lower().startswith("wss://") and args["ssl_mode"] == "none":
         raise SystemExit(
-            f"ssl_mode 'none' is incompatible with protocol 'wss'. "
-            f"Use 'ws' instead."
+            "ssl_mode 'none' is incompatible with protocol 'wss'. "
+            "Use 'ws' instead."
         )
 
     transcripts = Transcripts(text="", json=[])
@@ -391,6 +436,8 @@ def main(args=None):
         debug_handlers_too=args["debug"],
         speaker_change_token=args["speaker_change_token"],
         language=args["lang"],
+        json_output=args["json"],
+        filter_profanity=args["filter_profanity"]
     )
 
     def run(stream):
@@ -480,6 +527,18 @@ def parse_args(args=None):
     transcribe_subparser.add_argument(
         "--lang", type=str, default="en",
         help="Language (ISO code, e.g. en, fr, de)"
+    )
+    transcribe_subparser.add_argument(
+        "--json",
+        default=False,
+        action="store_true",
+        help="Outputs transcript in the native JSON v2 format."
+    )
+    transcribe_subparser.add_argument(
+        "--filter-profanity",
+        default=False,
+        action="store_true",
+        help="Obfuscates words containing profanity with asteriks (*)."
     )
     transcribe_subparser.add_argument(
         "--output-locale",

@@ -2,6 +2,7 @@ import argparse
 import collections
 import copy
 import logging
+import json
 import os
 
 import pytest
@@ -392,16 +393,13 @@ TRANSCRIPT_WITH_SC = {
 }
 
 
-def check_printing_handlers(
-        mocker, capsys, transcript, expected_transcript_txt,
-        speaker_change_token
-):
+def check_printing_handlers(mocker, capsys, transcript,
+                            expected_transcript_txt, only_check_stdout=False,
+                            **kwargs):
     api = mocker.MagicMock()
     transcripts = cli.Transcripts(text="", json=[])
 
-    cli.add_printing_handlers(
-        api, transcripts, speaker_change_token=speaker_change_token
-    )
+    cli.add_printing_handlers(api, transcripts, **kwargs)
     assert not transcripts.text
     assert not transcripts.json
     out, err = capsys.readouterr()
@@ -417,8 +415,9 @@ def check_printing_handlers(
     transcript_handler_cb_func = call_args_dict[finals_msg_type]
 
     transcript_handler_cb_func(transcript)
-    assert transcripts.text == expected_transcript_txt
-    assert transcripts.json == [transcript]
+    if not only_check_stdout:
+        assert transcripts.text == expected_transcript_txt
+        assert transcripts.json == [transcript]
     out, err = capsys.readouterr()
     assert out == expected_transcript_txt + "\n"
     assert not err
@@ -443,4 +442,89 @@ def test_add_printing_handlers_with_speaker_change_no_token(mocker, capsys):
         TRANSCRIPT_WITH_SC,
         expected_transcript,
         speaker_change_token=False,
+    )
+
+
+TRANSCRIPT_WITH_PROFANITY = {
+    "message": "AddTranscript",
+    "results": [
+        {
+            "type": "word",
+            "start_time": 0.08999999612569809,
+            "end_time": 0.29999998211860657,
+            "alternatives": [
+                {"confidence": 1.0, "content": "Not", "language": "en"}
+            ],
+        },
+        {
+            "type": "word",
+            "start_time": 0.08999999612569809,
+            "end_time": 0.29999998211860657,
+            "alternatives": [
+                {"confidence": 1.0, "content": "profanity",
+                 "language": "en", "tags": ["profanity"]}
+            ],
+        },
+    ],
+    "metadata": {
+        "start_time": 58.920005798339844,
+        "end_time": 60.0000057220459,
+        "transcript": "Not profanity",
+    },
+    "format": "2.4",
+}
+
+
+def test_add_printing_handlers_without_profanity_filter(mocker, capsys):
+    expected_transcript = "Not profanity"
+    check_printing_handlers(
+        mocker,
+        capsys,
+        TRANSCRIPT_WITH_PROFANITY,
+        expected_transcript,
+        filter_profanity=False
+    )
+
+
+def test_add_printing_handlers_with_profanity_filter(mocker, capsys):
+    expected_transcript = "Not p*******y"
+    check_printing_handlers(
+        mocker,
+        capsys,
+        TRANSCRIPT_WITH_PROFANITY,
+        expected_transcript,
+        filter_profanity=True
+    )
+
+
+BASIC_TRANSCRIPT = {
+    "message": "AddTranscript",
+    "results": [
+        {
+            "type": "word",
+            "start_time": 0.08999999612569809,
+            "end_time": 0.29999998211860657,
+            "alternatives": [
+                {"confidence": 1.0, "content": "Hello", "language": "en"}
+            ],
+        }
+    ],
+    "metadata": {
+        "start_time": 58.920005798339844,
+        "end_time": 60.0000057220459,
+        "transcript": "Hello",
+    },
+    "format": "2.4",
+}
+
+
+def test_add_printing_handlers_json_output(mocker, capsys):
+    expected_transcript = json.dumps(BASIC_TRANSCRIPT)
+    check_printing_handlers(
+        mocker,
+        capsys,
+        BASIC_TRANSCRIPT,
+        expected_transcript,
+        only_check_stdout=True,
+        json_output=True
     )
