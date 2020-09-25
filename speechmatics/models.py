@@ -95,6 +95,9 @@ class ConnectionSettings:
     ping_timeout_seconds: float = 60
     """Ping-pong timeout in seconds."""
 
+    auth_token: str = None
+    """auth token to authenticate customer"""
+
 
 class ClientMessageType(str, Enum):
     """Defines various messages sent from client to server."""

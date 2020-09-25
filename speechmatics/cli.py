@@ -173,6 +173,8 @@ def get_connection_settings(args):
     elif args["ssl_mode"] == "none":
         settings.ssl_context = None
 
+    settings.auth_token = args["auth-token"]
+
     return settings
 
 
@@ -566,6 +568,16 @@ def parse_args(args=None):
     transcribe_subparser.add_argument(
         "files", metavar="FILEPATHS", type=str, nargs="+",
         help="File(s) to process"
+    )
+
+    transcribe_subparser.add_argument(
+        "--auth-token",
+        type=str,
+        help=(
+            "Pre shared bearer authentication token to authorize the client "
+            "to use the RT services."
+            "eg. Bearer xyz=="
+        )
     )
 
     return parser.parse_args(args=args)
