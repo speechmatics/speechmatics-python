@@ -173,7 +173,7 @@ def get_connection_settings(args):
     elif args["ssl_mode"] == "none":
         settings.ssl_context = None
 
-    settings.auth_token = args["auth-token"]
+    settings.auth_token = args["auth_token"]
 
     return settings
 
@@ -574,7 +574,7 @@ def parse_args(args=None):
         "--auth-token",
         type=str,
         help=(
-            "Pre shared bearer authentication token to authorize the client "
+            "Pre shared bearerauthentication token to authorize the client "
             "to use the RT services."
             "eg. Bearer xyz=="
         )
