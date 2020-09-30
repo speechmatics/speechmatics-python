@@ -576,7 +576,7 @@ def parse_args(args=None):
         help=(
             "Pre-shared authentication token to authorize the client "
             "to use the RT services."
-            "eg. Bearer xyz=="
+            "eg. xyz=="
         )
     )
 
