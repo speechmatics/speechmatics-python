@@ -323,7 +323,8 @@ class WebsocketClient:
 
         extra_headers = dict()
         if self.connection_settings.auth_token is not None:
-            extra_headers["Authorization"] = self.connection_settings.auth_token
+            token = "Bearer " + self.connection_settings.auth_token
+            extra_headers["Authorization"] = token
 
         try:
             websocket = await websockets.connect(

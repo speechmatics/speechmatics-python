@@ -574,7 +574,7 @@ def parse_args(args=None):
         "--auth-token",
         type=str,
         help=(
-            "Pre shared bearerauthentication token to authorize the client "
+            "Pre-shared authentication token to authorize the client "
             "to use the RT services."
             "eg. Bearer xyz=="
         )
