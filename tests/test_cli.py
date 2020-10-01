@@ -235,7 +235,7 @@ def test_main_with_all_options(mock_server, tmp_path):
         "5.0",
         "--chunk-size",
         str(chunk_size),
-        "--auth-token=xyzabc"
+        "--auth-token=xyzabc",
         audio_path,
     ]
 
