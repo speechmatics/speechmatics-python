@@ -59,7 +59,7 @@ the handler will be added for every event.</p>
 <p>For example, a simple handler that just prints out the
 <a class="reference internal" href="models.html#speechmatics.models.ServerMessageType.AddTranscript" title="speechmatics.models.ServerMessageType.AddTranscript"><code class="xref py py-attr docutils literal notranslate"><span class="pre">speechmatics.models.ServerMessageType.AddTranscript</span></code></a>
 messages received:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">client</span> <span class="o">=</span> <span class="n">WebsocketClient</span><span class="p">(</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">client</span> <span class="o">=</span> <span class="n">WebsocketClient</span><span class="p">(</span>
 <span class="go">        ConnectionSettings(url=&quot;wss://localhost:9000&quot;))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">handler</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">msg</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">add_event_handler</span><span class="p">(</span><span class="n">ServerMessageType</span><span class="o">.</span><span class="n">AddTranscript</span><span class="p">,</span> <span class="n">handler</span><span class="p">)</span>
@@ -247,7 +247,7 @@ This results in a SetRecognitionConfig message sent to the server.</p>
       &copy;2020, Cantab Research Ltd..
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.2</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.3.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

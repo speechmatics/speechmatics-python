@@ -92,12 +92,25 @@ receipt by sending an <a class="reference internal" href="#speechmatics.models.S
 
 <dl class="class">
 <dt id="speechmatics.models.ConnectionSettings">
-<em class="property">class </em><code class="sig-prename descclassname">speechmatics.models.</code><code class="sig-name descname">ConnectionSettings</code><span class="sig-paren">(</span><em class="sig-param">url: str</em>, <em class="sig-param">message_buffer_size: int = 512</em>, <em class="sig-param">ssl_context: ssl.SSLContext = &lt;factory&gt;</em>, <em class="sig-param">semaphore_timeout_seconds: float = 120</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/speechmatics/models.html#ConnectionSettings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#speechmatics.models.ConnectionSettings" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">speechmatics.models.</code><code class="sig-name descname">ConnectionSettings</code><span class="sig-paren">(</span><em class="sig-param">url: str</em>, <em class="sig-param">message_buffer_size: int = 512</em>, <em class="sig-param">ssl_context: ssl.SSLContext = &lt;factory&gt;</em>, <em class="sig-param">semaphore_timeout_seconds: float = 120</em>, <em class="sig-param">ping_timeout_seconds: float = 60</em>, <em class="sig-param">auth_token: str = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/speechmatics/models.html#ConnectionSettings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#speechmatics.models.ConnectionSettings" title="Permalink to this definition">¶</a></dt>
 <dd><p>Defines connection parameters.</p>
+<dl class="attribute">
+<dt id="speechmatics.models.ConnectionSettings.auth_token">
+<code class="sig-name descname">auth_token</code><em class="property"> = None</em><a class="headerlink" href="#speechmatics.models.ConnectionSettings.auth_token" title="Permalink to this definition">¶</a></dt>
+<dd><p>auth token to authenticate a customer.
+This auth token is only applicable for RT-SaaS.</p>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="speechmatics.models.ConnectionSettings.message_buffer_size">
 <code class="sig-name descname">message_buffer_size</code><em class="property"> = 512</em><a class="headerlink" href="#speechmatics.models.ConnectionSettings.message_buffer_size" title="Permalink to this definition">¶</a></dt>
 <dd><p>Message buffer size in bytes.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="speechmatics.models.ConnectionSettings.ping_timeout_seconds">
+<code class="sig-name descname">ping_timeout_seconds</code><em class="property"> = 60</em><a class="headerlink" href="#speechmatics.models.ConnectionSettings.ping_timeout_seconds" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ping-pong timeout in seconds.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -326,7 +339,7 @@ immediately, is enabled.</p>
       &copy;2020, Cantab Research Ltd..
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.2</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.3.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

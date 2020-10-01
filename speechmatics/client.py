@@ -321,6 +321,11 @@ class WebsocketClient:
         self.transcription_config = transcription_config
         await self._init_synchronization_primitives()
 
+        extra_headers = dict()
+        if self.connection_settings.auth_token is not None:
+            token = f"Bearer {self.connection_settings.auth_token}"
+            extra_headers["Authorization"] = token
+
         try:
             websocket = await websockets.connect(
                 self.connection_settings.url,
@@ -328,6 +333,7 @@ class WebsocketClient:
                 ping_timeout=self.connection_settings.ping_timeout_seconds,
                 # Don't artificially limit the max. size of incoming messages
                 max_size=None,
+                extra_headers=extra_headers,
             )
         except ConnectionResetError:
             traceback.print_exc()

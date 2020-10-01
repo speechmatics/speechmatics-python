@@ -291,8 +291,8 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">event_handlers</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event_handler</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">event_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">event_handlers</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Unknown event name: </span><span class="si">{event_name!r}</span><span class="s2">, expected to be &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;&#39;all&#39; or one of {list(self.event_handlers.keys())}.&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Unknown event name: </span><span class="si">{</span><span class="n">event_name</span><span class="si">!r}</span><span class="s2">, expected to be &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;&#39;all&#39; or one of </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">event_handlers</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s2">.&quot;</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">event_handlers</span><span class="p">[</span><span class="n">event_name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event_handler</span><span class="p">)</span></div>
@@ -325,8 +325,8 @@
         <span class="k">elif</span> <span class="n">event_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">middlewares</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Unknown event name: </span><span class="si">{event_name}</span><span class="s2">, expected to be &#39;all&#39;&quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;or one of {list(self.middlewares.keys())}.&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;Unknown event name: </span><span class="si">{</span><span class="n">event_name</span><span class="si">}</span><span class="s2">, expected to be &#39;all&#39;&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;or one of </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">middlewares</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s2">.&quot;</span>
                 <span class="p">)</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -354,10 +354,19 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">transcription_config</span> <span class="o">=</span> <span class="n">transcription_config</span>
         <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_init_synchronization_primitives</span><span class="p">()</span>
 
+        <span class="n">extra_headers</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection_settings</span><span class="o">.</span><span class="n">auth_token</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">token</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Bearer </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">connection_settings</span><span class="o">.</span><span class="n">auth_token</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">extra_headers</span><span class="p">[</span><span class="s2">&quot;Authorization&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">token</span>
+
         <span class="k">try</span><span class="p">:</span>
             <span class="n">websocket</span> <span class="o">=</span> <span class="k">await</span> <span class="n">websockets</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">connection_settings</span><span class="o">.</span><span class="n">url</span><span class="p">,</span>
-                <span class="n">ssl</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">connection_settings</span><span class="o">.</span><span class="n">ssl_context</span>
+                <span class="n">ssl</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">connection_settings</span><span class="o">.</span><span class="n">ssl_context</span><span class="p">,</span>
+                <span class="n">ping_timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">connection_settings</span><span class="o">.</span><span class="n">ping_timeout_seconds</span><span class="p">,</span>
+                <span class="c1"># Don&#39;t artificially limit the max. size of incoming messages</span>
+                <span class="n">max_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="n">extra_headers</span><span class="o">=</span><span class="n">extra_headers</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">except</span> <span class="ne">ConnectionResetError</span><span class="p">:</span>
             <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">()</span>
@@ -498,7 +507,7 @@
       &copy;2020, Cantab Research Ltd..
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.2</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.3.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>
