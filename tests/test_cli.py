@@ -61,7 +61,7 @@ from tests.utils import path_to_test_resource
             {"speaker_change_token": True}
         ),
         (["transcribe", "--n-best-limit=5"], {"n_best_limit": 5}),
-        (["transcribe", "--auth-token"], {"auth_token": "xyz=="})
+        (["transcribe", "--auth-token=xyz=="], {"auth_token": "xyz=="}),
     ],
 )
 def test_cli_arg_parse(args, values):
