@@ -96,7 +96,8 @@ class ConnectionSettings:
     """Ping-pong timeout in seconds."""
 
     auth_token: str = None
-    """auth token to authenticate customer"""
+    """auth token to authenticate a customer.
+    This auth token is only applicable for RT-SaaS."""
 
 
 class ClientMessageType(str, Enum):

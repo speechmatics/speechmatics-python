@@ -575,7 +575,8 @@ def parse_args(args=None):
         type=str,
         help=(
             "Pre-shared authentication token to authorize the client "
-            "to use the RT services."
+            "to use the realtime transcription services and this only "
+            "applies for RT-SaaS"
             "eg. xyz=="
         )
     )
