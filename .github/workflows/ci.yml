@@ -1,0 +1,13 @@
+on: [push]
+jobs:
+  test:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+          architecture: 'x64'
+      - run: pip3 install -r requirements.txt -r requirements-dev.txt
+      - run: make lint unittest
+      - run: codecov
