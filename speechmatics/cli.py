@@ -52,11 +52,11 @@ def parse_additional_vocab(additional_vocab_filepath):
     with open(additional_vocab_filepath) as additional_vocab_file:
         try:
             additional_vocab = json.load(additional_vocab_file)
-        except json.JSONDecodeError:
+        except json.JSONDecodeError as exc:
             raise SystemExit(
                 f"Provided additional vocab at: {additional_vocab_filepath} "
                 f"is not valid json."
-            )
+            ) from exc
 
         if not isinstance(additional_vocab, list):
             raise SystemExit(
@@ -144,7 +144,7 @@ def get_log_level(verbosity):
         raise SystemExit(
             f"Only supports 2 log levels eg. -vv, you are asking for "
             f"-{'v' * key}"
-        )
+        ) from error
 
 
 @dataclass
@@ -381,8 +381,8 @@ def main(args=None):
         )
     if args["url"].lower().startswith("wss://") and args["ssl_mode"] == "none":
         raise SystemExit(
-            f"ssl_mode 'none' is incompatible with protocol 'wss'. "
-            f"Use 'ws' instead."
+            "ssl_mode 'none' is incompatible with protocol 'wss'. "
+            "Use 'ws' instead."
         )
 
     transcripts = Transcripts(text="", json=[])
