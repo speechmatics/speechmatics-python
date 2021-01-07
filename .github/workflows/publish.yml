@@ -24,7 +24,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install setuptools wheel twine
 
-    - name: Build and publish to PyPI
+    - name: Build and publish to PyPI test
       env:
         TWINE_USERNAME: '__token__'
         TWINE_PASSWORD: ${{ secrets.TEST_PYPI_ORG_TOKEN }}
