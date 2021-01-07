@@ -1,4 +1,4 @@
-# speechmatics-python &ensp; [![Build Status](https://travis-ci.org/speechmatics/speechmatics-python.svg?branch=master)](https://travis-ci.org/speechmatics/speechmatics-python) [![License](https://img.shields.io/badge/license-MIT-yellow.svg)](https://github.com/speechmatics/speechmatics-python/blob/master/LICENSE.txt) [![codecov](https://codecov.io/gh/speechmatics/speechmatics-python/branch/master/graph/badge.svg)](https://codecov.io/gh/speechmatics/speechmatics-python)
+# speechmatics-python &ensp; ![Tests](https://github.com/speechmatics/speechmatics-python/workflows/Tests/badge.svg) [![codecov](https://codecov.io/gh/speechmatics/speechmatics-python/branch/master/graph/badge.svg)](https://codecov.io/gh/speechmatics/speechmatics-python) [![License](https://img.shields.io/badge/license-MIT-yellow.svg)](https://github.com/speechmatics/speechmatics-python/blob/master/LICENSE.txt)
 
 Python client library and CLI for Speechmatics Realtime ASR v2 API.
 
@@ -16,10 +16,14 @@ To install from source:
 
     $ git clone https://github.com/speechmatics/speechmatics-python
     $ cd speechmatics-python && python setup.py install
-    
-or
+
+or with pip:
 
     $ pip install -e git+https://github.com/speechmatics/speechmatics-python#egg=speechmatics-python
+
+This can be added to `requirements.txt` like so (eg. v0.0.11):
+
+    git+https://github.com/speechmatics/speechmatics-python@0.0.11#egg=speechmatics-python
 
 
 ### Requirements
@@ -50,7 +54,7 @@ or
    $ cat example_audio.wav | speechmatics transcribe --ssl-mode none --url $URL --lang en -
    ```
 
-- Pipe audio directly from the microphone (example uses MacOS with [ffmpeg](https://ffmpeg.org/ffmpeg-devices.html#avfoundation)) 
+- Pipe audio directly from the microphone (example uses MacOS with [ffmpeg](https://ffmpeg.org/ffmpeg-devices.html#avfoundation))
 
   List available input devices with
 
