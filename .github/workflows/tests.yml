@@ -3,7 +3,7 @@
 
 name: Lint and unittest
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
   build:
