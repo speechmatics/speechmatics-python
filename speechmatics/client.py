@@ -319,6 +319,7 @@ class WebsocketClient:
             consumer/producer tasks.
         """
         self.transcription_config = transcription_config
+        self.seq_no = 0
         await self._init_synchronization_primitives()
 
         extra_headers = dict()

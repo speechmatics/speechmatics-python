@@ -8,6 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## [0.0.12] - 2021-02-10
+
+### Fixed
+
+- Fix seq_no persisting across sessions
+
+
 ## [0.0.11] - 2020-10-18
 
 ### Changed
