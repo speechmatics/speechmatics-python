@@ -19,6 +19,9 @@ class TranscriptionConfig:
     language: str
     """ISO 639-1 language code. eg. `en`"""
 
+    operating_point: str = None
+    """Specifies which acoustic model to use and how to configure it."""
+
     output_locale: str = None
     """RFC-5646 language code for transcript output. eg. `en-AU`"""
 
