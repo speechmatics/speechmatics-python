@@ -486,7 +486,7 @@ def parse_args(args=None):
     )
     transcribe_subparser.add_argument(
         "--operating-point", type=str,
-        help="Specifies which acoustic model to use and how to configure it."
+        help="[Not implemented yet]. Specifies which acoustic model to use and how to configure it."
     )
     transcribe_subparser.add_argument(
         "--output-locale",
