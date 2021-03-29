@@ -20,7 +20,8 @@ class TranscriptionConfig:
     """ISO 639-1 language code. eg. `en`"""
 
     operating_point: str = None
-    """[Not implemented yet] Specifies which acoustic model to use and how to configure it."""
+    """[Not implemented yet] Specifies which acoustic model to use and
+    how to configure it."""
 
     output_locale: str = None
     """RFC-5646 language code for transcript output. eg. `en-AU`"""
