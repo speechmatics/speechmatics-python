@@ -191,6 +191,7 @@ def get_transcription_config(args):
     """
     config = TranscriptionConfig(
         args["lang"],
+        operating_point=args["operating_point"],
         enable_partials=True if args["enable_partials"] else None,
         output_locale=args["output_locale"],
         max_delay=args["max_delay"],
@@ -482,6 +483,13 @@ def parse_args(args=None):
     transcribe_subparser.add_argument(
         "--lang", type=str, default="en",
         help="Language (ISO code, e.g. en, fr, de)"
+    )
+    transcribe_subparser.add_argument(
+        "--operating-point", type=str,
+        help=(
+            "[Not implemented yet]. Specifies which acoustic model to use and "
+            "how to configure it."
+        ),
     )
     transcribe_subparser.add_argument(
         "--output-locale",
