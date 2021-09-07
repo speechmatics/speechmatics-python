@@ -482,13 +482,16 @@ def parse_args(args=None):
     )
     transcribe_subparser.add_argument(
         "--lang", type=str, default="en",
-        help="Language (ISO code, e.g. en, fr, de)"
+        help="Language (ISO 639-1 code, e.g. en, fr, de)"
     )
     transcribe_subparser.add_argument(
-        "--operating-point", type=str,
+        "--operating-point",
+        default="standard",
+        choices=["standard", "enhanced"],
         help=(
-            "[Not implemented yet]. Specifies which acoustic model to use and "
-            "how to configure it."
+            'Selects the acoustic model configuration. '
+            '"enhanced" is more computationally expensive than "standard" but '
+            'should result in a more accurate transcript.'
         ),
     )
     transcribe_subparser.add_argument(
@@ -584,8 +587,7 @@ def parse_args(args=None):
         help=(
             "Pre-shared authentication token to authorize the client "
             "to use the realtime transcription services and this only "
-            "applies for RT-SaaS"
-            "eg. xyz=="
+            "applies for RT-SaaS, e.g. xyz=="
         )
     )
 
