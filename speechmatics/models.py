@@ -5,6 +5,7 @@ Data models and message types used by the library.
 
 import ssl
 
+from typing import List
 from dataclasses import asdict, dataclass, field
 from enum import Enum
 
@@ -46,6 +47,9 @@ class TranscriptionConfig:
 
     n_best_limit: int = None
     """Specifies the number of best matches to be returned for an uttarance."""
+
+    channel_diarization_labels: List[str] = None
+    """The names to apply to channels when channel diarization is used"""
 
     def asdict(self):
         dictionary = asdict(self)
