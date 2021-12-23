@@ -41,6 +41,9 @@ class TranscriptionConfig:
     """Indicates if partial transcription, where words are produced
     immediately, is enabled. """
 
+    enable_entities: bool = None
+    """Indicates if inverse text normalization entity output is enabled."""
+
     punctuation_overrides: dict = None
     """Permitted puctuation marks for advanced punctuation."""
 
