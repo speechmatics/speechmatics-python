@@ -527,7 +527,11 @@ def parse_args(args=None):
     transcribe_subparser.add_argument(
         "--enable-entities",
         default=False,
-        action="store_true"
+        action="store_true",
+        help=(
+            "Whether to enable the output of ITN entities in the transcript. "
+            "Currently unsupported in Speechmatics products."
+        ),
     )
     transcribe_subparser.add_argument(
         "--punctuation-permitted-marks",
