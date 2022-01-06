@@ -56,6 +56,7 @@ from tests.utils import path_to_test_resource
             {"punctuation_permitted_marks": ""}
         ),
         (["transcribe", "--enable-partials"], {"enable_partials": True}),
+        (["transcribe", "--enable-entities"], {"enable_entities": True}),
         (
             ["transcribe", "--speaker-change-token"],
             {"speaker_change_token": True}

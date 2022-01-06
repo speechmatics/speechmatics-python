@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.15] - 2021-12-23
+
+### Added
+
+- Support for enabling inverse text normalization (ITN) entities via `enable_entities` in transcription config.
+
 
 ## [0.0.14] - 2021-09-07
 

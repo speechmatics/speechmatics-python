@@ -193,6 +193,7 @@ def get_transcription_config(args):
         args["lang"],
         operating_point=args["operating_point"],
         enable_partials=True if args["enable_partials"] else None,
+        enable_entities=True if args["enable_entities"] else None,
         output_locale=args["output_locale"],
         max_delay=args["max_delay"],
         diarization=args["diarization"],
@@ -522,6 +523,15 @@ def parse_args(args=None):
         "--enable-partials",
         default=False,
         action="store_true"
+    )
+    transcribe_subparser.add_argument(
+        "--enable-entities",
+        default=False,
+        action="store_true",
+        help=(
+            "Whether to enable the output of ITN entities in the transcript. "
+            "Currently unsupported in Speechmatics products."
+        ),
     )
     transcribe_subparser.add_argument(
         "--punctuation-permitted-marks",
