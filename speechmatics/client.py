@@ -328,7 +328,7 @@ class WebsocketClient:
             extra_headers["Authorization"] = token
 
         try:
-            websocket = await websockets.connect(
+            websocket = await websockets.connect(  # pylint: disable=no-member
                 self.connection_settings.url,
                 ssl=self.connection_settings.ssl_context,
                 ping_timeout=self.connection_settings.ping_timeout_seconds,
