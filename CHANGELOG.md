@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.16] - 2022-1-18
+
+### Added
+
+- bump `websockets` dependency to 9.1 to get the fix for an issue it has with Python 3.10
+
 ## [0.0.15] - 2021-12-23
 
 ### Added
