@@ -11,7 +11,7 @@ import logging
 import sys
 import traceback
 
-import websockets
+from websockets.client import connect
 
 from speechmatics.exceptions import EndOfTranscriptException, \
     TranscriptionError
@@ -328,7 +328,7 @@ class WebsocketClient:
             extra_headers["Authorization"] = token
 
         try:
-            websocket = await websockets.client.connect(
+            websocket = await connect(
                 self.connection_settings.url,
                 ssl=self.connection_settings.ssl_context,
                 ping_timeout=self.connection_settings.ping_timeout_seconds,
