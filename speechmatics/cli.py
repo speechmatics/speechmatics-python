@@ -232,11 +232,6 @@ def get_transcription_config(args):
             config.punctuation_overrides["sensitivity"] = args[
                 "punctuation_sensitivity"
             ]
-
-    #if args["max_delay_mode"]:
-#        if not config.max_delay_mode:
-    #   config.max_delay_mode = args["max_delay_mode"]              
-
     return config
 
 

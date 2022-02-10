@@ -243,7 +243,7 @@ def test_main_with_all_options(mock_server, tmp_path):
         "--max-delay",
         "5.0",
         "--max-delay-mode",
-        "fixed",        
+        "fixed",
         "--chunk-size",
         str(chunk_size),
         "--auth-token=xyz",

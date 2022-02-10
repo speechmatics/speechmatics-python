@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.18] - 2022-10-02
+
+### Added
+
+- Support for enabling flexible enpointing via `max_delay_mode` in transcription config.
+
 ## [0.0.17] - 2022-1-19
 
 ### Added
