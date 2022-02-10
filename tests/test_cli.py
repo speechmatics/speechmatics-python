@@ -242,6 +242,8 @@ def test_main_with_all_options(mock_server, tmp_path):
         "--speaker-change-token",
         "--max-delay",
         "5.0",
+        "--max-delay-mode",
+        "fixed",        
         "--chunk-size",
         str(chunk_size),
         "--auth-token=xyz",
@@ -281,6 +283,7 @@ def test_main_with_all_options(mock_server, tmp_path):
     assert msg["transcription_config"]["punctuation_overrides"]["sensitivity"] == 0.1  # noqa
     assert msg["transcription_config"]["diarization"] == "none"
     assert msg["transcription_config"]["max_delay"] == 5.0
+    assert msg["transcription_config"]["max_delay_mode"] == "fixed"
     assert msg["transcription_config"]["speaker_change_sensitivity"] == 0.8
 
     # Check that the chunk size argument is respected

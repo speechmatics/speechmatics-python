@@ -34,6 +34,9 @@ class TranscriptionConfig:
     max_delay: float = None
     """Maximum acceptable delay."""
 
+    max_delay_mode: str = None
+    """Indicates if we will use max_delay or flexible enpointing."""    
+
     speaker_change_sensitivity: float = None
     """Sensitivity level for speaker change."""
 
