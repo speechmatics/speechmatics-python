@@ -196,6 +196,7 @@ def get_transcription_config(args):
         enable_entities=True if args["enable_entities"] else None,
         output_locale=args["output_locale"],
         max_delay=args["max_delay"],
+        max_delay_mode=args["max_delay_mode"],
         diarization=args["diarization"],
         speaker_change_sensitivity=args["speaker_change_sensitivity"],
         n_best_limit=args["n_best_limit"],
@@ -231,7 +232,6 @@ def get_transcription_config(args):
             config.punctuation_overrides["sensitivity"] = args[
                 "punctuation_sensitivity"
             ]
-
     return config
 
 
@@ -564,6 +564,7 @@ def parse_args(args=None):
         help="Shows a <sc> token where a speaker change was detected.",
     )
     transcribe_subparser.add_argument("--max-delay", type=float)
+    transcribe_subparser.add_argument("--max-delay-mode", type=str)
     transcribe_subparser.add_argument(
         "--raw",
         metavar="ENCODING",
