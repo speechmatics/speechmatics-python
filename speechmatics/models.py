@@ -35,7 +35,9 @@ class TranscriptionConfig:
     """Maximum acceptable delay."""
 
     max_delay_mode: str = None
-    """Indicates if we will use max_delay or flexible enpointing."""
+    """Determines whether the threshold specified in max_delay can be exceeded if a potential entity is detected. 
+    Flexible means if a potential entity is detected, then the max_delay can be overriden until the end of that entity. 
+    Fixed means that max_delay specified ignores any potential entity that would not be completed within that threshold."""
 
     speaker_change_sensitivity: float = None
     """Sensitivity level for speaker change."""
