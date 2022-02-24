@@ -529,8 +529,8 @@ def parse_args(args=None):
         default=False,
         action="store_true",
         help=(
-            "Whether to enable the output of ITN entities in the transcript. "
-            "Currently unsupported in Speechmatics products."
+            "Whether to output additional information about "
+            "recognised entity classes (JSON output only)."
         ),
     )
     transcribe_subparser.add_argument(
@@ -563,8 +563,21 @@ def parse_args(args=None):
         action="store_true",
         help="Shows a <sc> token where a speaker change was detected.",
     )
-    transcribe_subparser.add_argument("--max-delay", type=float)
-    transcribe_subparser.add_argument("--max-delay-mode", type=str)
+    transcribe_subparser.add_argument(
+        "--max-delay",
+        type=float,
+        help="Maximum acceptable delay before sending a piece of transcript.",
+    )
+    transcribe_subparser.add_argument(
+        "--max-delay-mode",
+        default="flexible",
+        choices=["fixed", "flexible"],
+        type=str,
+        help=(
+            "How to interpret the max-delay size if speech is in the middle "
+            "of an unbreakable entity like a number."
+        ),
+    )
     transcribe_subparser.add_argument(
         "--raw",
         metavar="ENCODING",

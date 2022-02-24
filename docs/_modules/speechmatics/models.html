@@ -52,6 +52,9 @@
     <span class="n">language</span><span class="p">:</span> <span class="nb">str</span>
     <span class="sd">&quot;&quot;&quot;ISO 639-1 language code. eg. `en`&quot;&quot;&quot;</span>
 
+    <span class="n">operating_point</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;Specifies which acoustic model to use.&quot;&quot;&quot;</span>
+
     <span class="n">output_locale</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="sd">&quot;&quot;&quot;RFC-5646 language code for transcript output. eg. `en-AU`&quot;&quot;&quot;</span>
 
@@ -64,12 +67,22 @@
     <span class="n">max_delay</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="sd">&quot;&quot;&quot;Maximum acceptable delay.&quot;&quot;&quot;</span>
 
+    <span class="n">max_delay_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;Determines whether the threshold specified in max_delay can be exceeded</span>
+<span class="sd">    if a potential entity is detected. Flexible means if a potential entity</span>
+<span class="sd">    is detected, then the max_delay can be overriden until the end of that</span>
+<span class="sd">    entity. Fixed means that max_delay specified ignores any potential</span>
+<span class="sd">    entity that would not be completed within that threshold.&quot;&quot;&quot;</span>
+
     <span class="n">speaker_change_sensitivity</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="sd">&quot;&quot;&quot;Sensitivity level for speaker change.&quot;&quot;&quot;</span>
 
     <span class="n">enable_partials</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="sd">&quot;&quot;&quot;Indicates if partial transcription, where words are produced</span>
 <span class="sd">    immediately, is enabled. &quot;&quot;&quot;</span>
+
+    <span class="n">enable_entities</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;Indicates if inverse text normalization entity output is enabled.&quot;&quot;&quot;</span>
 
     <span class="n">punctuation_overrides</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="sd">&quot;&quot;&quot;Permitted puctuation marks for advanced punctuation.&quot;&quot;&quot;</span>
