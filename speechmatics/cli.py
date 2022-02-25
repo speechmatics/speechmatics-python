@@ -522,7 +522,11 @@ def parse_args(args=None):
     transcribe_subparser.add_argument(
         "--enable-partials",
         default=False,
-        action="store_true"
+        action="store_true",
+        help=(
+            "Whether to return partial transcripts which can be updated "
+            "by later, final transcripts."
+        ),
     )
     transcribe_subparser.add_argument(
         "--enable-entities",
@@ -588,9 +592,21 @@ def parse_args(args=None):
         ),
     )
     transcribe_subparser.add_argument(
-        "--sample-rate", type=int, default=44_100)
+        "--sample-rate",
+        type=int,
+        default=44_100,
+        help="The sample rate in Hz of the input audio, if in raw format.",
+    )
     transcribe_subparser.add_argument(
-        "--chunk-size", type=int, default=1024*4)
+        "--chunk-size",
+        type=int,
+        default=1024*4,
+        help=(
+            "How much audio data, in bytes, to send to the server in each "
+            "websocket message. Larger values can increase latency, but "
+            "values which are too small create unnecessary overhead."
+        ),
+    )
     transcribe_subparser.add_argument(
         "--n-best-limit",
         type=int,
