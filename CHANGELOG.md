@@ -7,11 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0] - 2022-03-23
+
+- Publish to pypi.org not test.pypi.org.
+
 ## [0.0.19] - 2022-02-24
 
 ### Added
 
- - Update helper text for enable-entities, max-delay, and max-delay-mode
+- Update helper text for enable-entities, max-delay, and max-delay-mode
 
 ## [0.0.18] - 2022-02-10
 
