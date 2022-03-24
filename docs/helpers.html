@@ -3,7 +3,8 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta charset="utf-8" />
+    <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
     <title>speechmatics.helpers &#8212; speechmatics-python  documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -32,7 +33,7 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="module-speechmatics.helpers">
+  <section id="module-speechmatics.helpers">
 <span id="speechmatics-helpers"></span><h1>speechmatics.helpers<a class="headerlink" href="#module-speechmatics.helpers" title="Permalink to this headline">¶</a></h1>
 <p>Helper functions used by the library.</p>
 <dl class="function">
@@ -41,13 +42,13 @@
 <dd><p>Recursively delete from the dictionary all entries which values are None.
 This function changes the input parameter in place.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>dictionary</strong> (<em>dict</em>) – input dictionary</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>output dictionary</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>dict</p>
 </dd>
 </dl>
@@ -64,26 +65,26 @@ This function changes the input parameter in place.</p>
 <code class="sig-prename descclassname">speechmatics.helpers.</code><code class="sig-name descname">read_in_chunks</code><span class="sig-paren">(</span><em class="sig-param">stream</em>, <em class="sig-param">chunk_size</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/speechmatics/helpers.html#read_in_chunks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#speechmatics.helpers.read_in_chunks" title="Permalink to this definition">¶</a></dt>
 <dd><p>Utility method for reading in and yielding chunks</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>stream</strong> (<em>io.IOBase</em>) – file-like object to read audio from</p></li>
 <li><p><strong>chunk_size</strong> (<em>int</em>) – maximum chunk size in bytes</p></li>
 </ul>
 </dd>
-<dt class="field-even">Raises</dt>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>ValueError</strong> – if no data was read from the stream</p>
 </dd>
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>a sequence of chunks of data where the length in bytes of each
 chunk is &lt;= max_sample_size and a multiple of max_sample_size</p>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>collections.AsyncIterable</p>
 </dd>
 </dl>
 </dd></dl>
 
-</div>
+</section>
 
 
           </div>

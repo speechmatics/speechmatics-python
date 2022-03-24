@@ -3,7 +3,8 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta charset="utf-8" />
+    <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
     <title>speechmatics.models &#8212; speechmatics-python  documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -31,7 +32,7 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="module-speechmatics.models">
+  <section id="module-speechmatics.models">
 <span id="speechmatics-models"></span><h1>speechmatics.models<a class="headerlink" href="#module-speechmatics.models" title="Permalink to this headline">¶</a></h1>
 <p>Data models and message types used by the library.</p>
 <dl class="class">
@@ -194,7 +195,7 @@ acknowledging that a recognition session has started.</p>
 
 <dl class="class">
 <dt id="speechmatics.models.TranscriptionConfig">
-<em class="property">class </em><code class="sig-prename descclassname">speechmatics.models.</code><code class="sig-name descname">TranscriptionConfig</code><span class="sig-paren">(</span><em class="sig-param">language: str</em>, <em class="sig-param">output_locale: str = None</em>, <em class="sig-param">additional_vocab: dict = None</em>, <em class="sig-param">diarization: str = None</em>, <em class="sig-param">max_delay: float = None</em>, <em class="sig-param">speaker_change_sensitivity: float = None</em>, <em class="sig-param">enable_partials: bool = None</em>, <em class="sig-param">punctuation_overrides: dict = None</em>, <em class="sig-param">n_best_limit: int = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/speechmatics/models.html#TranscriptionConfig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#speechmatics.models.TranscriptionConfig" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">speechmatics.models.</code><code class="sig-name descname">TranscriptionConfig</code><span class="sig-paren">(</span><em class="sig-param">language: str</em>, <em class="sig-param">operating_point: str = None</em>, <em class="sig-param">output_locale: str = None</em>, <em class="sig-param">additional_vocab: dict = None</em>, <em class="sig-param">diarization: str = None</em>, <em class="sig-param">max_delay: float = None</em>, <em class="sig-param">max_delay_mode: str = None</em>, <em class="sig-param">speaker_change_sensitivity: float = None</em>, <em class="sig-param">enable_partials: bool = None</em>, <em class="sig-param">enable_entities: bool = None</em>, <em class="sig-param">punctuation_overrides: dict = None</em>, <em class="sig-param">n_best_limit: int = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/speechmatics/models.html#TranscriptionConfig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#speechmatics.models.TranscriptionConfig" title="Permalink to this definition">¶</a></dt>
 <dd><p>Defines transcription parameters.</p>
 <dl class="attribute">
 <dt id="speechmatics.models.TranscriptionConfig.additional_vocab">
@@ -206,6 +207,12 @@ acknowledging that a recognition session has started.</p>
 <dt id="speechmatics.models.TranscriptionConfig.diarization">
 <code class="sig-name descname">diarization</code><em class="property"> = None</em><a class="headerlink" href="#speechmatics.models.TranscriptionConfig.diarization" title="Permalink to this definition">¶</a></dt>
 <dd><p>Indicates type of diarization to use, if any.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="speechmatics.models.TranscriptionConfig.enable_entities">
+<code class="sig-name descname">enable_entities</code><em class="property"> = None</em><a class="headerlink" href="#speechmatics.models.TranscriptionConfig.enable_entities" title="Permalink to this definition">¶</a></dt>
+<dd><p>Indicates if inverse text normalization entity output is enabled.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -228,9 +235,25 @@ immediately, is enabled.</p>
 </dd></dl>
 
 <dl class="attribute">
+<dt id="speechmatics.models.TranscriptionConfig.max_delay_mode">
+<code class="sig-name descname">max_delay_mode</code><em class="property"> = None</em><a class="headerlink" href="#speechmatics.models.TranscriptionConfig.max_delay_mode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines whether the threshold specified in max_delay can be exceeded
+if a potential entity is detected. Flexible means if a potential entity
+is detected, then the max_delay can be overriden until the end of that
+entity. Fixed means that max_delay specified ignores any potential
+entity that would not be completed within that threshold.</p>
+</dd></dl>
+
+<dl class="attribute">
 <dt id="speechmatics.models.TranscriptionConfig.n_best_limit">
 <code class="sig-name descname">n_best_limit</code><em class="property"> = None</em><a class="headerlink" href="#speechmatics.models.TranscriptionConfig.n_best_limit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Specifies the number of best matches to be returned for an uttarance.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="speechmatics.models.TranscriptionConfig.operating_point">
+<code class="sig-name descname">operating_point</code><em class="property"> = None</em><a class="headerlink" href="#speechmatics.models.TranscriptionConfig.operating_point" title="Permalink to this definition">¶</a></dt>
+<dd><p>Specifies which acoustic model to use.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -253,7 +276,7 @@ immediately, is enabled.</p>
 
 </dd></dl>
 
-</div>
+</section>
 
 
           </div>

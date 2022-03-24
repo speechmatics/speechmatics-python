@@ -3,7 +3,8 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta charset="utf-8" />
+    <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
     <title>speechmatics.client &#8212; speechmatics-python  documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -32,7 +33,7 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="module-speechmatics.client">
+  <section id="module-speechmatics.client">
 <span id="speechmatics-client"></span><h1>speechmatics.client<a class="headerlink" href="#module-speechmatics.client" title="Permalink to this headline">¶</a></h1>
 <p>Wrapper library to interface with Real-time ASR v2 API.
 Based on <a class="reference external" href="http://asyncio.readthedocs.io/en/latest/producer_consumer.html">http://asyncio.readthedocs.io/en/latest/producer_consumer.html</a></p>
@@ -44,7 +45,7 @@ Based on <a class="reference external" href="http://asyncio.readthedocs.io/en/la
 and then add a set of handlers to it. Handlers respond to particular types
 of messages received from the server.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>connection_settings</strong> (<a class="reference internal" href="models.html#speechmatics.models.ConnectionSettings" title="speechmatics.models.ConnectionSettings"><em>speechmatics.models.ConnectionSettings</em></a>) – Settings for the WebSocket connection,
 including the URL of the server.</p>
 </dd>
@@ -66,7 +67,7 @@ messages received:</p>
 </pre></div>
 </div>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>event_name</strong> (<em>str</em>) – The name of the message for which a handler is
 being added. Refer to
@@ -76,7 +77,7 @@ of the possible message types.</p></li>
 given type is received.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Raises</dt>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>ValueError</strong> – If the given event name is not valid.</p>
 </dd>
 </dl>
@@ -91,7 +92,7 @@ they may alter.
 If <cite>event_name</cite> is set to ‘all’ then the handler will be added for
 every event.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>event_name</strong> (<em>str</em>) – The name of the message for which a middleware is
 being added. Refer to the V2 API docs for a list of the possible
@@ -103,7 +104,7 @@ whether or not the message is binary data (which implies it is an
 AddAudio message).</p></li>
 </ul>
 </dd>
-<dt class="field-even">Raises</dt>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>ValueError</strong> – If the given event name is not valid.</p>
 </dd>
 </dl>
@@ -117,14 +118,14 @@ This will run asynchronously. Most callers may prefer to use
 <a class="reference internal" href="#speechmatics.client.WebsocketClient.run_synchronously" title="speechmatics.client.WebsocketClient.run_synchronously"><code class="xref py py-meth docutils literal notranslate"><span class="pre">run_synchronously()</span></code></a> which will block until the session is
 finished.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>stream</strong> (<em>io.IOBase</em>) – File-like object which an audio stream can be read from.</p></li>
 <li><p><strong>transcription_config</strong> (<a class="reference internal" href="models.html#speechmatics.models.TranscriptionConfig" title="speechmatics.models.TranscriptionConfig"><em>speechmatics.models.TranscriptionConfig</em></a>) – Configuration for the transcription.</p></li>
 <li><p><strong>audio_settings</strong> (<a class="reference internal" href="models.html#speechmatics.models.AudioSettings" title="speechmatics.models.AudioSettings"><em>speechmatics.models.AudioSettings</em></a>) – Configuration for the audio stream.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Raises</dt>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>Exception</strong> – Can raise any exception returned by the
 consumer/producer tasks.</p>
 </dd>
@@ -152,7 +153,7 @@ You probably don’t need to call this if you’re running the client via
 <dd><p>Updates the transcription config used for the session.
 This results in a SetRecognitionConfig message sent to the server.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>new_transcription_config</strong> (<a class="reference internal" href="models.html#speechmatics.models.TranscriptionConfig" title="speechmatics.models.TranscriptionConfig"><em>speechmatics.models.TranscriptionConfig</em></a>) – The new config object.</p>
 </dd>
 </dl>
@@ -160,7 +161,7 @@ This results in a SetRecognitionConfig message sent to the server.</p>
 
 </dd></dl>
 
-</div>
+</section>
 
 
           </div>

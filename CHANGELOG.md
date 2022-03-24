@@ -7,19 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.0.18] - 2022-10-02
+## [0.0.19] - 2022-02-24
+
+### Added
+
+ - Update helper text for enable-entities, max-delay, and max-delay-mode
+
+## [0.0.18] - 2022-02-10
 
 ### Added
 
 - Support for choosing mode of operation for max_delay via `max_delay_mode` in transcription config.
 
-## [0.0.17] - 2022-1-19
+## [0.0.17] - 2022-01-19
 
 ### Added
 
 - bump `websockets` dependency to 10.1 to get the fix for an issue it has with Python 3.10
 
-## [0.0.16] - 2022-1-18
+## [0.0.16] - 2022-01-18
 
 ### Added
 
