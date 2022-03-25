@@ -11,9 +11,9 @@ from enum import Enum
 from speechmatics.helpers import del_none
 
 
-# pylint: disable=too-many-instance-attributes
 @dataclass
 class TranscriptionConfig:
+    # pylint: disable=too-many-instance-attributes
     """Defines transcription parameters."""
 
     language: str
@@ -114,6 +114,7 @@ class ConnectionSettings:
 
 
 class ClientMessageType(str, Enum):
+    # pylint: disable=invalid-name
     """Defines various messages sent from client to server."""
 
     StartRecognition = "StartRecognition"
@@ -131,6 +132,7 @@ class ClientMessageType(str, Enum):
 
 
 class ServerMessageType(str, Enum):
+    # pylint: disable=invalid-name
     """Defines various message types sent from server to client."""
 
     RecognitionStarted = "RecognitionStarted"

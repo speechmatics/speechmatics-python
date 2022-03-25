@@ -49,12 +49,15 @@ def parse_additional_vocab(additional_vocab_filepath):
     :raises SystemExit: If the file is not valid JSON.
     """
     additional_vocab = []
-    with open(additional_vocab_filepath) as additional_vocab_file:
+    with open(
+        additional_vocab_filepath,
+        encoding='utf-8'
+    ) as additional_vocab_file:
         try:
             additional_vocab = json.load(additional_vocab_file)
         except json.JSONDecodeError as exc:
             raise SystemExit(
-                f"Provided additional vocab at: {additional_vocab_filepath} "
+                f"Additional vocab at: {additional_vocab_filepath} "
                 f"is not valid json."
             ) from exc
 
@@ -100,7 +103,7 @@ def additional_vocab_item(to_parse):
     content = parts[0]
     if not content:
         raise argparse.ArgumentTypeError(
-            f"Additional vocab must at least have content in: {to_parse}"
+            f"Additional vocab must have content in: {to_parse}"
         )
 
     if len(parts) == 1:
@@ -318,8 +321,7 @@ def add_printing_handlers(
                     (word["content"] for word in alternative["words"]),
                     language=language,
                 )
-                print("* [{:.4f}] {}".format(
-                    alternative["confidence"], words_joined))
+                print(f'* [{alternative["confidence"]:.4f}] {words_joined}')
             print()
 
     def end_of_transcript_handler(_):

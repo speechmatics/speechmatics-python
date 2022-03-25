@@ -1,4 +1,4 @@
-import speechmatics.models as models
+from speechmatics import models
 
 
 def test_del_none():
