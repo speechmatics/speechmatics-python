@@ -20,9 +20,8 @@ def read(fname):
         str: file content
     """
     fpath = os.path.join(os.path.dirname(os.path.abspath(__file__)), fname)
-    retval = open(fpath).read()
-
-    return retval
+    with open(fpath, encoding='utf-8') as path:
+        return path.read()
 
 
 def read_list(fname):

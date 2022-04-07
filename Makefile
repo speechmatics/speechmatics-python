@@ -7,7 +7,6 @@ all: lint test docs
 .PHONY: lint
 lint:
 	pylint $(SOURCES)
-	flake8 $(SOURCES)
 	pycodestyle $(SOURCES)
 
 .PHONY: test

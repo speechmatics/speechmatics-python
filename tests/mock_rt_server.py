@@ -199,7 +199,7 @@ class MockRealtimeServer(WebSocket):
             elif msg_name == "SetRecognitionConfig":
                 pass
             else:
-                raise ValueError("Unrecognized message: {}".format(message))
+                raise ValueError(f"Unrecognized message: {message}")
 
         return responses
 

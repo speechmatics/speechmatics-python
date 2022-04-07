@@ -8,7 +8,7 @@ from unittest.mock import patch, MagicMock
 import asynctest
 import pytest
 
-import speechmatics.client as client
+from speechmatics import client
 from speechmatics.models import (
     ConnectionSettings,
     ServerMessageType,

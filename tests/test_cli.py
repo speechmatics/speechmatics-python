@@ -6,7 +6,7 @@ import os
 
 import pytest
 
-import speechmatics.cli as cli
+from speechmatics import cli
 from tests.utils import path_to_test_resource
 
 
@@ -97,15 +97,14 @@ def test_parse_additional_vocab(tmp_path, mocker):
     vocab_file.write_text("[")
     with pytest.raises(SystemExit) as ex:
         cli.parse_additional_vocab(vocab_file)
-    exp_msg = ('Provided additional vocab at: {} is not valid json.'
-               .format(vocab_file))
+    exp_msg = (f'Additional vocab at: {vocab_file} is not valid json.')
     assert ex.value.code == exp_msg
 
     vocab_file.write_text('{"content": "gnocchi"}')
     with pytest.raises(SystemExit) as ex:
         cli.parse_additional_vocab(vocab_file)
-    exp_msg = ('Additional vocab file at: {} should be a list of '
-               'objects/strings.'.format(vocab_file))
+    exp_msg = (f'Additional vocab file at: {vocab_file} should be a list of '
+               'objects/strings.')
     assert ex.value.code == exp_msg
 
     vocab_file.write_text('[]')
@@ -114,7 +113,7 @@ def test_parse_additional_vocab(tmp_path, mocker):
     mock_logger_warning_str_list = [x[0][0] % x[0][1:] for x in
                                     mock_logger.warning.call_args_list]
     assert (
-        'Provided additional vocab at: {} is an empty list.'.format(vocab_file)
+        f'Provided additional vocab at: {vocab_file} is an empty list.'
     ) in mock_logger_warning_str_list
     assert len(mock_logger.mock_calls) == 1
 

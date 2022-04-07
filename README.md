@@ -5,31 +5,18 @@ Python client library and CLI for Speechmatics Realtime ASR v2 API.
 
 ## Getting started
 
-<!--
 To install from PyPI:
 
     $ pip install speechmatics-python
-
--->
 
 To install from source:
 
     $ git clone https://github.com/speechmatics/speechmatics-python
     $ cd speechmatics-python && python setup.py install
 
-or with pip:
-
-    $ pip install -e git+https://github.com/speechmatics/speechmatics-python#egg=speechmatics-python
-
-This can be added to `requirements.txt` like so (eg. v0.0.11):
-
-    git+https://github.com/speechmatics/speechmatics-python@0.0.11#egg=speechmatics-python
-
-
 ### Requirements
 
 - Python 3.7+
-
 
 ## Example command-line usage
 

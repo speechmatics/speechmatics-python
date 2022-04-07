@@ -322,7 +322,7 @@ class WebsocketClient:
         self.seq_no = 0
         await self._init_synchronization_primitives()
 
-        extra_headers = dict()
+        extra_headers = {}
         if self.connection_settings.auth_token is not None:
             token = f"Bearer {self.connection_settings.auth_token}"
             extra_headers["Authorization"] = token
