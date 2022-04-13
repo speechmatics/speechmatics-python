@@ -1,5 +1,6 @@
 import asyncio
 import copy
+import contextlib
 import io
 import json
 from collections import Counter
@@ -269,8 +270,10 @@ def test_helpful_error_message_received_on_connection_reset_error():
     """
     ws_client, _, _ = default_ws_client_setup("wss://this-url-wont-be-used:1")
 
+    @contextlib.asynccontextmanager
     async def mock_connect(*args, **kwargs):
         raise ConnectionResetError("foo")
+        yield None
 
     mock_logger_error_method = MagicMock()
 
