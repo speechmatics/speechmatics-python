@@ -1,18 +1,18 @@
 
 <!DOCTYPE html>
 
-<html>
+<html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
     <title>speechmatics.client &#8212; speechmatics-python  documentation</title>
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
-    <script src="_static/doctools.js"></script>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="speechmatics.exceptions" href="exceptions.html" />
@@ -37,22 +37,22 @@
 <span id="speechmatics-client"></span><h1>speechmatics.client<a class="headerlink" href="#module-speechmatics.client" title="Permalink to this headline">¶</a></h1>
 <p>Wrapper library to interface with Real-time ASR v2 API.
 Based on <a class="reference external" href="http://asyncio.readthedocs.io/en/latest/producer_consumer.html">http://asyncio.readthedocs.io/en/latest/producer_consumer.html</a></p>
-<dl class="py class">
-<dt class="sig sig-object py" id="speechmatics.client.WebsocketClient">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">speechmatics.client.</span></span><span class="sig-name descname"><span class="pre">WebsocketClient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">connection_settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/speechmatics/client.html#WebsocketClient"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#speechmatics.client.WebsocketClient" title="Permalink to this definition">¶</a></dt>
+<dl class="class">
+<dt id="speechmatics.client.WebsocketClient">
+<em class="property">class </em><code class="sig-prename descclassname">speechmatics.client.</code><code class="sig-name descname">WebsocketClient</code><span class="sig-paren">(</span><em class="sig-param">connection_settings</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/speechmatics/client.html#WebsocketClient"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#speechmatics.client.WebsocketClient" title="Permalink to this definition">¶</a></dt>
 <dd><p>Manage a transcription session with the server.</p>
 <p>The best way to interact with this library is to instantiate this client
 and then add a set of handlers to it. Handlers respond to particular types
 of messages received from the server.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>connection_settings</strong> (<a class="reference internal" href="models.html#speechmatics.models.ConnectionSettings" title="speechmatics.models.ConnectionSettings"><em>speechmatics.models.ConnectionSettings</em></a>) – Settings for the WebSocket connection,
 including the URL of the server.</p>
 </dd>
 </dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="speechmatics.client.WebsocketClient.add_event_handler">
-<span class="sig-name descname"><span class="pre">add_event_handler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_handler</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/speechmatics/client.html#WebsocketClient.add_event_handler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#speechmatics.client.WebsocketClient.add_event_handler" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="speechmatics.client.WebsocketClient.add_event_handler">
+<code class="sig-name descname">add_event_handler</code><span class="sig-paren">(</span><em class="sig-param">event_name</em>, <em class="sig-param">event_handler</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/speechmatics/client.html#WebsocketClient.add_event_handler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#speechmatics.client.WebsocketClient.add_event_handler" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add an event handler (callback function) to handle an incoming
 message from the server. Event handlers are passed a copy of the
 incoming message from the server. If <cite>event_name</cite> is set to ‘all’ then
@@ -60,14 +60,14 @@ the handler will be added for every event.</p>
 <p>For example, a simple handler that just prints out the
 <a class="reference internal" href="models.html#speechmatics.models.ServerMessageType.AddTranscript" title="speechmatics.models.ServerMessageType.AddTranscript"><code class="xref py py-attr docutils literal notranslate"><span class="pre">speechmatics.models.ServerMessageType.AddTranscript</span></code></a>
 messages received:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">client</span> <span class="o">=</span> <span class="n">WebsocketClient</span><span class="p">(</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">client</span> <span class="o">=</span> <span class="n">WebsocketClient</span><span class="p">(</span>
 <span class="go">        ConnectionSettings(url=&quot;wss://localhost:9000&quot;))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">handler</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">msg</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">add_event_handler</span><span class="p">(</span><span class="n">ServerMessageType</span><span class="o">.</span><span class="n">AddTranscript</span><span class="p">,</span> <span class="n">handler</span><span class="p">)</span>
 </pre></div>
 </div>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>event_name</strong> (<em>str</em>) – The name of the message for which a handler is
 being added. Refer to
@@ -77,22 +77,22 @@ of the possible message types.</p></li>
 given type is received.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Raises</dt>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>ValueError</strong> – If the given event name is not valid.</p>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="speechmatics.client.WebsocketClient.add_middleware">
-<span class="sig-name descname"><span class="pre">add_middleware</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">middleware</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/speechmatics/client.html#WebsocketClient.add_middleware"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#speechmatics.client.WebsocketClient.add_middleware" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="speechmatics.client.WebsocketClient.add_middleware">
+<code class="sig-name descname">add_middleware</code><span class="sig-paren">(</span><em class="sig-param">event_name</em>, <em class="sig-param">middleware</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/speechmatics/client.html#WebsocketClient.add_middleware"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#speechmatics.client.WebsocketClient.add_middleware" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a middleware to handle outgoing messages sent to the server.
 Middlewares are passed a reference to the outgoing message, which
 they may alter.
 If <cite>event_name</cite> is set to ‘all’ then the handler will be added for
 every event.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>event_name</strong> (<em>str</em>) – The name of the message for which a middleware is
 being added. Refer to the V2 API docs for a list of the possible
@@ -104,56 +104,56 @@ whether or not the message is binary data (which implies it is an
 AddAudio message).</p></li>
 </ul>
 </dd>
-<dt class="field-even">Raises</dt>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>ValueError</strong> – If the given event name is not valid.</p>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="speechmatics.client.WebsocketClient.run">
-<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stream</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transcription_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">audio_settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/speechmatics/client.html#WebsocketClient.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#speechmatics.client.WebsocketClient.run" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="speechmatics.client.WebsocketClient.run">
+<em class="property">async </em><code class="sig-name descname">run</code><span class="sig-paren">(</span><em class="sig-param">stream</em>, <em class="sig-param">transcription_config</em>, <em class="sig-param">audio_settings</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/speechmatics/client.html#WebsocketClient.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#speechmatics.client.WebsocketClient.run" title="Permalink to this definition">¶</a></dt>
 <dd><p>Begin a new recognition session.
 This will run asynchronously. Most callers may prefer to use
 <a class="reference internal" href="#speechmatics.client.WebsocketClient.run_synchronously" title="speechmatics.client.WebsocketClient.run_synchronously"><code class="xref py py-meth docutils literal notranslate"><span class="pre">run_synchronously()</span></code></a> which will block until the session is
 finished.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>stream</strong> (<em>io.IOBase</em>) – File-like object which an audio stream can be read from.</p></li>
 <li><p><strong>transcription_config</strong> (<a class="reference internal" href="models.html#speechmatics.models.TranscriptionConfig" title="speechmatics.models.TranscriptionConfig"><em>speechmatics.models.TranscriptionConfig</em></a>) – Configuration for the transcription.</p></li>
 <li><p><strong>audio_settings</strong> (<a class="reference internal" href="models.html#speechmatics.models.AudioSettings" title="speechmatics.models.AudioSettings"><em>speechmatics.models.AudioSettings</em></a>) – Configuration for the audio stream.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Raises</dt>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>Exception</strong> – Can raise any exception returned by the
 consumer/producer tasks.</p>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="speechmatics.client.WebsocketClient.run_synchronously">
-<span class="sig-name descname"><span class="pre">run_synchronously</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/speechmatics/client.html#WebsocketClient.run_synchronously"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#speechmatics.client.WebsocketClient.run_synchronously" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="speechmatics.client.WebsocketClient.run_synchronously">
+<code class="sig-name descname">run_synchronously</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">timeout=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/speechmatics/client.html#WebsocketClient.run_synchronously"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#speechmatics.client.WebsocketClient.run_synchronously" title="Permalink to this definition">¶</a></dt>
 <dd><p>Run the transcription synchronously.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="speechmatics.client.WebsocketClient.stop">
-<span class="sig-name descname"><span class="pre">stop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/speechmatics/client.html#WebsocketClient.stop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#speechmatics.client.WebsocketClient.stop" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="speechmatics.client.WebsocketClient.stop">
+<code class="sig-name descname">stop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/speechmatics/client.html#WebsocketClient.stop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#speechmatics.client.WebsocketClient.stop" title="Permalink to this definition">¶</a></dt>
 <dd><p>Indicates that the recognition session should be forcefully stopped.
 Only used in conjunction with <cite>run</cite>.
 You probably don’t need to call this if you’re running the client via
 <a class="reference internal" href="#speechmatics.client.WebsocketClient.run_synchronously" title="speechmatics.client.WebsocketClient.run_synchronously"><code class="xref py py-meth docutils literal notranslate"><span class="pre">run_synchronously()</span></code></a>.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="speechmatics.client.WebsocketClient.update_transcription_config">
-<span class="sig-name descname"><span class="pre">update_transcription_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_transcription_config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/speechmatics/client.html#WebsocketClient.update_transcription_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#speechmatics.client.WebsocketClient.update_transcription_config" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="speechmatics.client.WebsocketClient.update_transcription_config">
+<code class="sig-name descname">update_transcription_config</code><span class="sig-paren">(</span><em class="sig-param">new_transcription_config</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/speechmatics/client.html#WebsocketClient.update_transcription_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#speechmatics.client.WebsocketClient.update_transcription_config" title="Permalink to this definition">¶</a></dt>
 <dd><p>Updates the transcription config used for the session.
 This results in a SetRecognitionConfig message sent to the server.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>new_transcription_config</strong> (<a class="reference internal" href="models.html#speechmatics.models.TranscriptionConfig" title="speechmatics.models.TranscriptionConfig"><em>speechmatics.models.TranscriptionConfig</em></a>) – The new config object.</p>
 </dd>
 </dl>
@@ -214,12 +214,12 @@ This results in a SetRecognitionConfig message sent to the server.</p>
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script type="text/javascript">$('#searchbox').show(0);</script>
 
 
 
@@ -236,7 +236,7 @@ This results in a SetRecognitionConfig message sent to the server.</p>
       &copy;2022, Cantab Research Ltd..
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.4.0</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
