@@ -180,7 +180,18 @@ def test_force_end_session_from_event_handler(mock_server):
     assert len(events) == 1
 
 
-def test_force_end_session_from_start_recognition_middleware(mock_server):
+@pytest.mark.parametrize(
+    "client_message_type, expect_received_count, expect_sent_count",
+    [
+        pytest.param(ClientMessageType.StartRecognition, 0, 1,
+                     id="StartRecognition"),
+        pytest.param(ClientMessageType.AddAudio, 1, 2,
+                     id="AddAudio"),
+    ]
+)
+def test_force_end_session_from_middleware(
+        mock_server, client_message_type,
+        expect_received_count, expect_sent_count):
     ws_client, transcription_config, audio_settings = default_ws_client_setup(
         mock_server.url
     )
@@ -188,10 +199,10 @@ def test_force_end_session_from_start_recognition_middleware(mock_server):
     def session_ender(event, _):
         raise ForceEndSession
 
-    events = []
+    sent_messages = []
     ws_client.add_middleware("all",
-                             lambda event, _: events.append(event))
-    ws_client.add_middleware(ClientMessageType.StartRecognition,
+                             lambda msg, _: sent_messages.append(msg))
+    ws_client.add_middleware(client_message_type,
                              session_ender)
 
     with open(path_to_test_resource("ch.wav"), "rb") as audio_stream:
@@ -199,35 +210,8 @@ def test_force_end_session_from_start_recognition_middleware(mock_server):
             audio_stream, transcription_config, audio_settings)
     mock_server.wait_for_clean_disconnects()
 
-    assert len(mock_server.messages_received) == 0
-    assert not events
-
-
-def test_force_end_session_from_add_audio_middleware(mock_server):
-    ws_client, transcription_config, audio_settings = default_ws_client_setup(
-        mock_server.url
-    )
-
-    def session_ender(event, _):
-        raise ForceEndSession
-
-    events = []
-    ws_client.add_middleware("all",
-                             lambda event, _: events.append(event))
-    ws_client.add_middleware(ClientMessageType.AddAudio,
-                             session_ender)
-
-    with open(path_to_test_resource("ch.wav"), "rb") as audio_stream:
-        ws_client.run_synchronously(
-            audio_stream, transcription_config, audio_settings)
-    mock_server.wait_for_clean_disconnects()
-
-    # Only StartRecognition should have been sent
-    assert len(mock_server.messages_received) == 1
-
-    # The first AddAudio should have been recorded client-side
-    # but not received by the server
-    assert len(events) == 2
+    assert len(mock_server.messages_received) == expect_received_count
+    assert len(sent_messages) == expect_sent_count
 
 
 def test_update_transcription_config_sends_set_recognition_config(mock_server):
