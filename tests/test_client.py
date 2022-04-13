@@ -273,6 +273,9 @@ def test_helpful_error_message_received_on_connection_reset_error():
     @contextlib.asynccontextmanager
     async def mock_connect(*_, **__):
         raise ConnectionResetError("foo")
+        # We need a yield here for this to be a valid context manager,
+        # even though the code is unreachable. Without it we get an error
+        # about a missing __anext__ attribute.
         yield None  # pylint: disable=unreachable
 
     mock_logger_error_method = MagicMock()
