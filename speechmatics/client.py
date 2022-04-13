@@ -317,6 +317,36 @@ class WebsocketClient:
         else:
             self.middlewares[event_name].append(middleware)
 
+    async def _communicate(self, stream, audio_settings):
+        """
+        Create a producer/consumer for transcription messages and
+        communicate with the server.
+        Internal method called from _run.
+        """
+        try:
+            start_recognition_msg = self._start_recognition(audio_settings)
+        except ForceEndSession:
+            return
+        await self.websocket.send(start_recognition_msg)
+
+        consumer_task = asyncio.create_task(self._consumer_handler())
+        producer_task = asyncio.create_task(
+            self._producer_handler(stream, audio_settings.chunk_size)
+        )
+        (done, pending) = await asyncio.wait(
+            [consumer_task, producer_task], return_when=asyncio.FIRST_EXCEPTION
+        )
+
+        # If a task is pending the other one threw an exception, so tidy up
+        for task in pending:
+            task.cancel()
+
+        for task in done:
+            exc = task.exception()
+            if exc and not isinstance(exc, (EndOfTranscriptException,
+                                            ForceEndSession)):
+                raise exc
+
     async def run(self, stream, transcription_config, audio_settings):
         """
         Begin a new recognition session.
@@ -346,14 +376,15 @@ class WebsocketClient:
             extra_headers["Authorization"] = token
 
         try:
-            websocket = await websockets.connect(  # pylint: disable=no-member
-                self.connection_settings.url,
-                ssl=self.connection_settings.ssl_context,
-                ping_timeout=self.connection_settings.ping_timeout_seconds,
-                # Don't artificially limit the max. size of incoming messages
-                max_size=None,
-                extra_headers=extra_headers,
-            )
+            async with websockets.connect(  # pylint: disable=no-member
+                    self.connection_settings.url,
+                    ssl=self.connection_settings.ssl_context,
+                    ping_timeout=self.connection_settings.ping_timeout_seconds,
+                    # Don't limit the max. size of incoming messages
+                    max_size=None,
+                    extra_headers=extra_headers,
+                    ) as self.websocket:
+                await self._communicate(stream, audio_settings)
         except ConnectionResetError:
             traceback.print_exc()
             LOGGER.error(
@@ -364,37 +395,10 @@ class WebsocketClient:
                 "--ssl-mode=none"
             )
             sys.exit(1)
-
-        self.websocket = websocket
-        try:
-            start_recognition_msg = self._start_recognition(audio_settings)
-        except ForceEndSession:
-            return
-        await self.websocket.send(start_recognition_msg)
-
-        consumer_task = asyncio.create_task(self._consumer_handler())
-        producer_task = asyncio.create_task(
-            self._producer_handler(stream, audio_settings.chunk_size)
-        )
-        (done, pending) = await asyncio.wait(
-            [consumer_task, producer_task], return_when=asyncio.FIRST_EXCEPTION
-        )
-
-        # If a task is pending the other one threw an exception, so tidy up
-        for task in pending:
-            task.cancel()
-
-        for task in done:
-            exc = task.exception()
-            if exc and not isinstance(exc, (EndOfTranscriptException,
-                                            ForceEndSession)):
-                raise exc
-
-        await websocket.close()
-
-        self.session_running = False
-        self._session_needs_closing = False
-        self.websocket = None
+        finally:
+            self.session_running = False
+            self._session_needs_closing = False
+            self.websocket = None
 
     def stop(self):
         """
