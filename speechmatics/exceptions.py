@@ -14,3 +14,10 @@ class EndOfTranscriptException(Exception):
     """
     Indicates that the transcription session has finished.
     """
+
+
+class ForceEndSession(Exception):
+    """
+    Can be raised by the user from a middleware or event handler
+    in order to force the transcription session to end early.
+    """

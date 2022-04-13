@@ -65,8 +65,3 @@ async def read_in_chunks(stream, chunk_size):
             break
         yield audio_chunk
         count += 1
-
-
-def call_middleware(middlewares, event_name, *args):
-    for middleware in middlewares[event_name]:
-        middleware(*args)

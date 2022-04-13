@@ -7,8 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.1] - 2022-04-13
+
 - Use later version of sphinx to generate docs (supports Python 3.10)
 - Update Speechmatics logo
+- Allow user to raise ForceEndSession from an event handler or middleware in order to
+  forcefully end the transcription session early.
 
 ## [1.0.0] - 2022-03-23
 
