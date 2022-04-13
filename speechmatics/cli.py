@@ -489,12 +489,12 @@ def parse_args(args=None):
     )
     transcribe_subparser.add_argument(
         "--operating-point",
-        #default="standard",
         choices=["standard", "enhanced"],
         help=(
             'Selects the acoustic model configuration. '
             '"enhanced" is more computationally expensive than "standard" but '
-            'should result in a more accurate transcript. Default is standard'
+            'should result in a more accurate transcript. '
+            'Default choice is standard.'
         ),
     )
     transcribe_subparser.add_argument(
@@ -576,12 +576,12 @@ def parse_args(args=None):
     )
     transcribe_subparser.add_argument(
         "--max-delay-mode",
-        #default="flexible",
         choices=["fixed", "flexible"],
         type=str,
         help=(
             "How to interpret the max-delay size if speech is in the middle "
-            "of an unbreakable entity like a number. Default is flexible"
+            "of an unbreakable entity like a number."
+            "Default choice is flexible."
         ),
     )
     transcribe_subparser.add_argument(
