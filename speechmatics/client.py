@@ -14,9 +14,9 @@ import traceback
 import websockets
 
 from speechmatics.exceptions import EndOfTranscriptException, \
-    TranscriptionError
+    ForceEndSession, TranscriptionError
 from speechmatics.models import ClientMessageType, ServerMessageType
-from speechmatics.helpers import json_utf8, read_in_chunks, call_middleware
+from speechmatics.helpers import json_utf8, read_in_chunks
 
 
 LOGGER = logging.getLogger(__name__)
@@ -93,9 +93,8 @@ class WebsocketClient:
             "message": ClientMessageType.SetRecognitionConfig,
             "transcription_config": self.transcription_config.asdict(),
         }
-        call_middleware(
-            self.middlewares, ClientMessageType.SetRecognitionConfig,
-            msg, False
+        self._call_middleware(
+            ClientMessageType.SetRecognitionConfig, msg, False
         )
         return msg
 
@@ -116,8 +115,8 @@ class WebsocketClient:
             "transcription_config": self.transcription_config.asdict(),
         }
         self.session_running = True
-        call_middleware(
-            self.middlewares, ClientMessageType.StartRecognition, msg, False
+        self._call_middleware(
+            ClientMessageType.StartRecognition, msg, False
         )
         LOGGER.debug(msg)
         return msg
@@ -133,8 +132,7 @@ class WebsocketClient:
             "message": ClientMessageType.EndOfStream,
             "last_seq_no": self.seq_no
         }
-        call_middleware(
-            self.middlewares, ClientMessageType.EndOfStream, msg, False)
+        self._call_middleware(ClientMessageType.EndOfStream, msg, False)
         LOGGER.debug(msg)
         return msg
 
@@ -148,13 +146,20 @@ class WebsocketClient:
         :raises TranscriptionError: on an error message received from the
             server.
         :raises EndOfTranscriptException: on EndOfTranscription message.
+        :raises ForceEndSession: If this was raised by the user's event
+            handler.
         """
         LOGGER.debug(message)
         message = json.loads(message)
         message_type = message["message"]
 
         for handler in self.event_handlers[message_type]:
-            handler(copy.deepcopy(message))
+            try:
+                handler(copy.deepcopy(message))
+            except ForceEndSession:
+                LOGGER.warning("Session was ended forcefully by an event "
+                               "handler")
+                raise
 
         if message_type == ServerMessageType.RecognitionStarted:
             self._flag_recognition_started()
@@ -190,8 +195,8 @@ class WebsocketClient:
                 timeout=self.connection_settings.semaphore_timeout_seconds,
             )
             self.seq_no += 1
-            call_middleware(
-                self.middlewares, ClientMessageType.AddAudio, audio_chunk, True
+            self._call_middleware(
+                ClientMessageType.AddAudio, audio_chunk, True
             )
             yield audio_chunk
 
@@ -212,6 +217,19 @@ class WebsocketClient:
         await self._recognition_started.wait()
         async for message in self._producer(stream, audio_chunk_size):
             await self.websocket.send(message)
+
+    def _call_middleware(self, event_name, *args):
+        """
+        Call the middlewares attached to the client for the given event name.
+
+        :raises ForceEndSession: If this was raised by the user's middleware.
+        """
+        for middleware in self.middlewares[event_name]:
+            try:
+                middleware(*args)
+            except ForceEndSession:
+                LOGGER.warning("Session was ended forcefully by a middleware")
+                raise
 
     def update_transcription_config(self, new_transcription_config):
         """
@@ -348,8 +366,12 @@ class WebsocketClient:
             sys.exit(1)
 
         self.websocket = websocket
-        start_recognition_msg = self._start_recognition(audio_settings)
+        try:
+            start_recognition_msg = self._start_recognition(audio_settings)
+        except ForceEndSession:
+            return
         await self.websocket.send(start_recognition_msg)
+
         consumer_task = asyncio.create_task(self._consumer_handler())
         producer_task = asyncio.create_task(
             self._producer_handler(stream, audio_settings.chunk_size)
@@ -364,7 +386,8 @@ class WebsocketClient:
 
         for task in done:
             exc = task.exception()
-            if exc and not isinstance(exc, EndOfTranscriptException):
+            if exc and not isinstance(exc, (EndOfTranscriptException,
+                                            ForceEndSession)):
                 raise exc
 
         await websocket.close()

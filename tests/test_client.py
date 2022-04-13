@@ -9,6 +9,7 @@ import asynctest
 import pytest
 
 from speechmatics import client
+from speechmatics.exceptions import ForceEndSession
 from speechmatics.models import (
     ConnectionSettings,
     ServerMessageType,
@@ -149,6 +150,84 @@ def test_middlewares_called(mock_server, mocker):
     )
     # The 'all' handler should have been called for every message.
     assert all_handler.call_count == len(mock_server.messages_received)
+
+
+def test_force_end_session_from_event_handler(mock_server):
+    ws_client, transcription_config, audio_settings = default_ws_client_setup(
+        mock_server.url
+    )
+
+    def session_ender(event):
+        raise ForceEndSession
+
+    events = []
+    ws_client.add_event_handler("all", events.append)
+    ws_client.add_event_handler(ServerMessageType.RecognitionStarted,
+                                session_ender)
+
+    with open(path_to_test_resource("ch.wav"), "rb") as audio_stream:
+        ws_client.run_synchronously(
+            audio_stream, transcription_config, audio_settings)
+    mock_server.wait_for_clean_disconnects()
+
+    # Only one message should have been sent from the server
+    # (which is RecognitionStarted) before the session was
+    # forcefully ended.
+    assert len(mock_server.messages_sent) == 1
+    assert mock_server.messages_sent[0]["message"] == "RecognitionStarted"
+
+    # The client should only have recorded one event.
+    assert len(events) == 1
+
+
+def test_force_end_session_from_start_recognition_middleware(mock_server):
+    ws_client, transcription_config, audio_settings = default_ws_client_setup(
+        mock_server.url
+    )
+
+    def session_ender(event, _):
+        raise ForceEndSession
+
+    events = []
+    ws_client.add_middleware("all",
+                             lambda event, _: events.append(event))
+    ws_client.add_middleware(ClientMessageType.StartRecognition,
+                             session_ender)
+
+    with open(path_to_test_resource("ch.wav"), "rb") as audio_stream:
+        ws_client.run_synchronously(
+            audio_stream, transcription_config, audio_settings)
+    mock_server.wait_for_clean_disconnects()
+
+    assert len(mock_server.messages_received) == 0
+    assert not events
+
+
+def test_force_end_session_from_add_audio_middleware(mock_server):
+    ws_client, transcription_config, audio_settings = default_ws_client_setup(
+        mock_server.url
+    )
+
+    def session_ender(event, _):
+        raise ForceEndSession
+
+    events = []
+    ws_client.add_middleware("all",
+                             lambda event, _: events.append(event))
+    ws_client.add_middleware(ClientMessageType.AddAudio,
+                             session_ender)
+
+    with open(path_to_test_resource("ch.wav"), "rb") as audio_stream:
+        ws_client.run_synchronously(
+            audio_stream, transcription_config, audio_settings)
+    mock_server.wait_for_clean_disconnects()
+
+    # Only StartRecognition should have been sent
+    assert len(mock_server.messages_received) == 1
+
+    # The first AddAudio should have been recorded client-side
+    # but not received by the server
+    assert len(events) == 2
 
 
 def test_update_transcription_config_sends_set_recognition_config(mock_server):
