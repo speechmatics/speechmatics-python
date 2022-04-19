@@ -493,7 +493,7 @@ def parse_args(args=None):
         help=(
             'Selects the acoustic model configuration. '
             '"enhanced" is more computationally expensive than "standard" but '
-            'should result in a more accurate transcript. '
+            'should result in a more accurate transcript.'
         ),
     )
     transcribe_subparser.add_argument(
@@ -575,7 +575,7 @@ def parse_args(args=None):
     )
     transcribe_subparser.add_argument(
         "--max-delay-mode",
-        choices=["fixed", "flexible"],
+        choices=["flexible", "fixed"],
         type=str,
         help=(
             "How to interpret the max-delay size if speech is in the middle "
