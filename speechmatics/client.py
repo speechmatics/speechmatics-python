@@ -210,6 +210,7 @@ class WebsocketClient:
             try:
                 message = await self.websocket.recv()
             except websockets.exceptions.ConnectionClosedOK:
+                # Can occur if a timeout has closed the connection.
                 LOGGER.warning("Cannot receive from closed websocket.")
                 return
             self._consumer(message)
