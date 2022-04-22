@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.3] - 2022-04-22
+
+- Fix an issue with an unhandled task exception when using run_synchronously with a timeout.
+
 ## [1.0.2] - 2022-04-14
 
 - Remove default values from args parser for max-delay-mode and operating-point for 
