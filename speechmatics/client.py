@@ -207,7 +207,12 @@ class WebsocketClient:
         Controls the consumer loop for handling messages from the server.
         """
         while self.session_running:
-            message = await self.websocket.recv()
+            try:
+                message = await self.websocket.recv()
+            except websockets.exceptions.ConnectionClosedOK:
+                # Can occur if a timeout has closed the connection.
+                LOGGER.warning("Cannot receive from closed websocket.")
+                return
             self._consumer(message)
 
     async def _producer_handler(self, stream, audio_chunk_size):
@@ -412,6 +417,7 @@ class WebsocketClient:
     def run_synchronously(self, *args, timeout=None, **kwargs):
         """
         Run the transcription synchronously.
+        :raises asyncio.TimeoutError: If the given timeout is exceeded.
         """
         # pylint: disable=no-value-for-parameter
         asyncio.run(

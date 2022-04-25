@@ -181,6 +181,21 @@ def test_force_end_session_from_event_handler(mock_server):
     assert len(events) == 1
 
 
+def test_run_synchronously_with_timeout(mock_server):
+    """
+    Tests that an asyncio.TimeoutError is raised if using run_synchronously
+    with a very short timeout.
+    """
+    ws_client, transcription_config, audio_settings = default_ws_client_setup(
+        mock_server.url
+    )
+    with open(path_to_test_resource("ch.wav"), "rb") as audio_stream:
+        with pytest.raises(asyncio.TimeoutError):
+            ws_client.run_synchronously(
+                audio_stream, transcription_config,
+                audio_settings, timeout=0.0001)
+
+
 @pytest.mark.parametrize(
     "client_message_type, expect_received_count, expect_sent_count",
     [
