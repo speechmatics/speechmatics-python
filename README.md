@@ -20,7 +20,7 @@ To install from source:
 
 ## Example command-line usage
 
-- A normal real time session using a .wav file as the input audio
+- A normal real time session using a .wav file as the input audio:
 
    ```shell
    # Point URL to the local instance of Speechmatics
@@ -29,13 +29,14 @@ To install from source:
    $ speechmatics transcribe --url $URL --lang en --ssl-mode none example_audio.wav
    ```
 
-- Show the messages that are going over the websocket connection
+- Show the messages that are going over the websocket connection:
 
    ```shell
    $ speechmatics -v transcribe --url $URL --lang en --ssl-mode none example_audio.wav
    ```
 
-- The CLI also accepts an audio stream on standard input; transcribe the piped input audio
+- The CLI also accepts an audio stream on standard input.
+  Transcribe the piped input audio:
 
    ```shell
    $ cat example_audio.wav | speechmatics transcribe --ssl-mode none --url $URL --lang en -
@@ -43,7 +44,7 @@ To install from source:
 
 - Pipe audio directly from the microphone (example uses MacOS with [ffmpeg](https://ffmpeg.org/ffmpeg-devices.html#avfoundation))
 
-  List available input devices with
+  List available input devices:
 
   ```shell
   $ ffmpeg -f avfoundation -list_devices true -i ""
@@ -62,13 +63,13 @@ To install from source:
 - Transcribe in real-time with partials (example uses Ubuntu with ALSA).
   In this mode, the transcription engine produces words instantly, which may get updated as additional context becomes available.
 
-  List available input devices with
+  List available input devices:
 
   ```shell
   $ cat /proc/asound/cards
   ```
 
-  Record microphone audio and pipe to transcriber.
+  Record microphone audio and pipe to transcriber:
 
   ```shell
   $ ffmpeg -loglevel quiet -f alsa -i hw:0 -f f32le -acodec pcm_f32le -ar 44100 - \
