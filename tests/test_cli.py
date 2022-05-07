@@ -202,7 +202,7 @@ def test_main_with_basic_options(mock_server):
     assert mock_server.clients_disconnected_count == 1
     assert mock_server.messages_received
     assert mock_server.messages_sent
-    assert mock_server.connection_request.path == "/v2"
+    assert mock_server.path == "/v2"
 
 
 def test_main_with_all_options(mock_server, tmp_path):
