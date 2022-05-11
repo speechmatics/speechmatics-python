@@ -26,9 +26,6 @@ jobs:
 
     - name: Build and publish to PyPI
       env:
-        TWINE_USERNAME: '__token__'
-        TWINE_PASSWORD: ${{ secrets.PYPI_ORG_TOKEN }}
       run: |
         make build
-        twine upload dist/*
 
