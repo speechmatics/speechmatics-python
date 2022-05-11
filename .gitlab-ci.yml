@@ -1,9 +1,36 @@
 stages:
   - test
+  - delivery-build
+  - publish
 
-dummy_test:
+# Setup script for each image
+.python_before_script:
+  before_script:
+    - apk add make gcc linux-headers musl-dev
+    - pip3 install -r requirements.txt -r requirements-dev.txt
+
+source:
+  extends: 
+    - .python_before_script
   image: python:3.8-alpine
   stage: test
   script:
-    - echo Pass
+    - make lint
+    - make test
+
+build:
+  extends: 
+    - .python_before_script
+  image: python:3.8-alpine
+  stage: delivery-build
+  script:
+    - make build
+
+docs:
+  extends: 
+    - .python_before_script
+  image: python:3.8-alpine
+  stage: delivery-build
+  script:
+    - make docs
 
