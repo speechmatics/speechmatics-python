@@ -1,9 +1,24 @@
+variables:
+  GITHUB_REPO: "git@github.com:speechmatics/speechmatics-python.git"
+
 stages:
   - test
+  - delivery-build
+  - publish
 
-dummy_test:
-  image: python:3.8-alpine
-  stage: test
+push_to_github:
+  image: alpine
+  stage: publish
+  before_script:
+    - apk add git git-lfs openssh-client
   script:
-    - echo Pass
+    - REPO_SRC="$(git remote get-url origin)"
+    - if [[ -z "$(git branch --contains tags/${CI_COMMIT_TAG} | grep ${CI_DEFAULT_BRANCH})" ]]; then echo "Tag is not on
+      Master." ; fi
+    - git show HEAD
+  rules:
+    # Tagging contains no infotmation of the branch
+    - if: $CI_COMMIT_TAG && $CI_COMMIT_TAG !~/.*rc.*/
+      when: on_success
+    - when: manual
 
