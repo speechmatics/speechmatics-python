@@ -1,3 +1,10 @@
+# List all Python versions
+.all-pythons:
+  parallel:
+    matrix:
+      - PYTHON_VER: ["3.7", "3.8", "3.9", "3.10"]
+        PYTHON_OS:  ["slim", "alpine"]
+
 stages:
   - test
   - delivery-build
@@ -6,13 +13,15 @@ stages:
 # Setup script for each image
 .python_before_script:
   before_script:
-    - apk add make gcc linux-headers musl-dev
+    - if [ "${PYTHON_OS}" = "alpine" ]; then apk add make gcc linux-headers musl-dev; fi
+    - if [ "${PYTHON_OS}" = "slim" ]; then apt update && apt install -y gcc musl-dev make; fi
     - pip3 install -r requirements.txt -r requirements-dev.txt
 
 source:
   extends: 
+    - .all-pythons
     - .python_before_script
-  image: python:3.8-alpine
+  image: python:${PYTHON_VER}-${PYTHON_OS}
   stage: test
   script:
     - make lint
@@ -20,16 +29,20 @@ source:
 
 build:
   extends: 
+    - .all-pythons
     - .python_before_script
-  image: python:3.8-alpine
+  image: python:${PYTHON_VER}-${PYTHON_OS}
   stage: delivery-build
   script:
     - make build
 
 docs:
+  variables:
+    PYTHON_VER: "3.7"
+    PYTHON_OS: "alpine"
   extends: 
     - .python_before_script
-  image: python:3.8-alpine
+  image: python:${PYTHON_VER}-${PYTHON_OS}
   stage: delivery-build
   script:
     - make docs
