@@ -12,10 +12,26 @@ push_to_github:
   before_script:
     - apk add git git-lfs openssh-client
   script:
-    - REPO_SRC="$(git remote get-url origin)"
+    # Exit if the Tag is not on the default branch.
     - if [[ -z "$(git branch --contains tags/${CI_COMMIT_TAG} | grep ${CI_DEFAULT_BRANCH})" ]]; then echo "Tag is not on
-      Master." ; fi
+      master." ; fi
+    
     - git show HEAD
+    
+    # Clone a fresh copy of master
+    - REPO_SRC="$(git remote get-url origin)"
+    - cd $(mktemp -d -t git-clone-XXXXXXXXXX)
+    - git clone -b "$CI_DEFAULT_BRANCH" "$REPO_SRC" . 
+    - git lfs fetch
+    # SSH Credential for GitHub
+    - eval $(ssh-agent -s)
+    - echo "${GITHUB_BOT_SSH_PRIVATE_KEY}" | ssh-add -
+    - export GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=no" 
+    # Push to GitHub
+    - git remote add github "${GITHUB_REPO}"
+    - git push -n github "${CI_COMMIT_SHA}:${CI_DEFAULT_BRANCH}" # Push Commits
+    - git push -n github "${CI_COMMIT_TAG}" # Push Tags
+
   rules:
     # Tagging contains no infotmation of the branch
     - if: $CI_COMMIT_TAG && $CI_COMMIT_TAG !~/.*rc.*/
