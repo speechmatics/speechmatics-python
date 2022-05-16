@@ -221,7 +221,7 @@ def test_main_with_all_options(mock_server, tmp_path):
         "--buffer-size=256",
         "--debug",
         "--url",
-        "wss://127.0.0.1:8765/v2",
+        mock_server.url,
         "--lang=en",
         "--output-locale=en-US",
         "--additional-vocab",
