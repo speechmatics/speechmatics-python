@@ -70,4 +70,3 @@ def mock_server(unused_tcp_port):
     # Kill the server gracefully.
     server_thread_future.cancel()
     loop_thread.join()
-

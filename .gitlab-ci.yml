@@ -64,6 +64,7 @@ push_to_github:
     - REPO_SRC="$(git remote get-url origin)"
     - cd $(mktemp -d -t git-clone-XXXXXXXXXX)
     - git clone -b "$CI_DEFAULT_BRANCH" "$REPO_SRC" . 
+    - git lfs install
     - git lfs fetch
 
     # SSH Credential for GitHub
