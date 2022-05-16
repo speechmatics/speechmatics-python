@@ -1,10 +1,13 @@
 import ssl
 import threading
+import asyncio
+import time
+import functools
 
+import websockets
 import pytest
-from SimpleWebSocketServer import SimpleSSLWebSocketServer
 
-from .mock_rt_server import MockRealtimeLogbook, MockRealtimeServer
+from .mock_rt_server import MockRealtimeLogbook, mock_server_handler
 from .utils import path_to_test_resource
 
 
@@ -23,7 +26,7 @@ def server_ssl_context():
 
 
 @pytest.fixture()
-def mock_server():
+def mock_server(unused_tcp_port):
     """
     Fixture for creating a mock RT server. The server is designed
     to behave very similarly to the actual RT server, but returns
@@ -36,26 +39,35 @@ def mock_server():
         tests.mock_rt_server.MockRealtimeLogbook: An object used to record
         information about the messages received and sent by the mock server.
     """
+    port = unused_tcp_port
     logbook = MockRealtimeLogbook()
-    logbook.url = "wss://127.0.0.1:8765/v2"
-    MockRealtimeServer.logbook = logbook
-    server = SimpleSSLWebSocketServer(
-        "127.0.0.1", 8765, MockRealtimeServer, ssl_context=server_ssl_context()
+    logbook.url = f"wss://127.0.0.1:{port}/v2"
+    mock_server_handler_with_logbook = functools.partial(
+        mock_server_handler, logbook=logbook
     )
-    server_should_stop = False
 
-    def server_runner():
-        while not server_should_stop:
-            server.serveonce()
+    async def server_thread(handler):
+        try:
+            async with websockets.serve(  # pylint: disable=no-member
+                handler, host="127.0.0.1", port=port, ssl=server_ssl_context()
+            ) as logbook.server:
+                await asyncio.Future()
+        except asyncio.CancelledError:
+            asyncio.get_event_loop().stop()
 
-    thread = threading.Thread(name="server_runner", target=server_runner)
-    thread.daemon = True
-    thread.start()
+    # Start extra event loop and start a mock server
+    event_loop = asyncio.new_event_loop()
+    loop_thread = threading.Thread(target=event_loop.run_forever)
+    server_thread_future = asyncio.run_coroutine_threadsafe(
+        server_thread(mock_server_handler_with_logbook), event_loop
+    )
+    loop_thread.start()
+    # Wait until the thread is ready.
+    time.sleep(0.5)
 
     yield logbook
 
-    server_should_stop = True
-    thread.join(timeout=60.0)
-    assert (
-        not thread.is_alive()
-    )  # check if the join timed out (this should never happen)
+    # Kill the server gracefully.
+    server_thread_future.cancel()
+    loop_thread.join()
+

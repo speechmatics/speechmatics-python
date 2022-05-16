@@ -211,7 +211,10 @@ class WebsocketClient:
                 message = await self.websocket.recv()
             except websockets.exceptions.ConnectionClosedOK:
                 # Can occur if a timeout has closed the connection.
-                LOGGER.warning("Cannot receive from closed websocket.")
+                LOGGER.info("Cannot receive from closed websocket.")
+                return
+            except websockets.exceptions.ConnectionClosedError:
+                LOGGER.info("Disconnected while waiting for recv().")
                 return
             self._consumer(message)
 
@@ -221,7 +224,15 @@ class WebsocketClient:
         """
         await self._recognition_started.wait()
         async for message in self._producer(stream, audio_chunk_size):
-            await self.websocket.send(message)
+            try:
+                await self.websocket.send(message)
+            except websockets.exceptions.ConnectionClosedOK:
+                # Can occur if a timeout has closed the connection.
+                LOGGER.info("Cannot send from a closed websocket.")
+                return
+            except websockets.exceptions.ConnectionClosedError:
+                LOGGER.info("Disconnected while sending a message().")
+                return
 
     def _call_middleware(self, event_name, *args):
         """

@@ -1,8 +1,7 @@
 import json
 import logging
 import time
-
-from SimpleWebSocketServer import WebSocket
+import websockets
 
 
 class MockRealtimeLogbook:
@@ -105,105 +104,6 @@ class MockRealtimeLogbook:
                 )
 
 
-class MockRealtimeServer(WebSocket):
-    """
-    A mock implementation of the Speechmatics Realtime ASR server,
-    which returns dummy responses to most messages.
-    """
-
-    logbook = None
-
-    def __init__(self, *args, **kwargs):
-        self.next_audio_seq_no = 1
-        super().__init__(*args, **kwargs)
-
-    def handleMessage(self):
-        """Deal with a message received from the client."""
-        try:
-            # This whole block is wrapped in a try/except because the default
-            # behaviour of the SimpleWebSocketServer library is to silently
-            # discard any exceptions raised by these handlers. This is very
-            # unhelpful. A workaround is to catch and log any exceptions
-            # explicitly here.
-            logging.debug("%s %s", self.address, "incoming message")
-            is_binary = not isinstance(self.data, str)
-            if is_binary:
-                message = self.data
-            else:
-                message = json.loads(self.data)
-
-            self.logbook.messages_received.append(message)
-            for response in self.get_responses(message, is_binary=is_binary):
-                self.logbook.messages_sent.append(response)
-                self.sendMessage(json.dumps(response).encode("utf-8"))
-        except Exception as exc:  # pylint: disable=broad-except
-            logging.exception(str(exc))
-            self.close(status=1011, reason="Internal server error")
-
-    def handleConnected(self):
-        """Called when a new client connects to the server."""
-        logging.info("%s %s", self.address, "connected")
-        self.logbook.connection_request = self.request
-        self.logbook.clients_connected_count += 1
-
-    def handleClose(self):
-        """Called when a client disconnects from the server."""
-        logging.info("%s %s", self.address, "closed")
-        self.logbook.clients_disconnected_count += 1
-
-    def get_responses(self, message, is_binary=False):
-        """
-        Optionally creates a response to the given message from the client.
-        Either returns a dictionary with the response message or `None` if no
-        response should be sent.
-
-        Args:
-            message (Union[dict, bytearray]): The message received from the
-                client. Assumes that if the message is a standard JSON message
-                it has already been parsed into a dictionary. AddAudio messages
-                are expected to be binary bytearrays.
-            is_binary (boolean, optional): Whether or not the message
-                is binary, implying that the message is an AddAudio message.
-
-        Raises:
-            ValueError: If the message is invalid or has an unrecognized type.
-
-        Returns:
-            List[dict]: List of responses to the message.
-        """
-        responses = []
-        if is_binary:
-            # AddAudio is the only binary message, so we can assume it's that.
-            responses.append(
-                {"message": "AudioAdded", "seq_no": self.next_audio_seq_no}
-            )
-            self.next_audio_seq_no += 1
-
-            # Answer immediately with a partial and a final.
-            responses.append(dummy_add_partial_transcript())
-            responses.append(dummy_add_transcript())
-        else:
-            msg_name = message.get("message")
-            if not msg_name:
-                raise ValueError(message)
-
-            if msg_name == "StartRecognition":
-                responses.append(
-                    {
-                        "message": "RecognitionStarted",
-                        "id": "7c3003ae-fa23-45dc-a5cd-5b86bf56817b",
-                    }
-                )
-            elif msg_name == "EndOfStream":
-                responses.append({"message": "EndOfTranscript"})
-            elif msg_name == "SetRecognitionConfig":
-                pass
-            else:
-                raise ValueError(f"Unrecognized message: {message}")
-
-        return responses
-
-
 def dummy_add_partial_transcript():
     """Returns a dummy AddPartialTranscript message."""
     return {
@@ -261,3 +161,97 @@ def dummy_add_transcript():
             },
         ],
     }
+
+
+async def mock_server_handler(websocket, logbook):
+    mock_server_handler.next_audio_seq_no = 1
+    address, _ = websocket.remote_address
+    logbook.connection_request = websocket.request_headers
+    logbook.path = websocket.path
+
+    # Begin a connection
+    logging.info("%s %s", address, "connected")
+    logbook.clients_connected_count += 1
+
+    def get_responses(message, is_binary=False):
+        """
+        Optionally creates a response to the given message from the client.
+        Either returns a dictionary with the response message or `None` if no
+        response should be sent.
+
+        Args:
+            message (Union[dict, bytearray]): The message received from the
+                client. Assumes that if the message is a standard JSON message
+                it has already been parsed into a dictionary. AddAudio messages
+                are expected to be binary bytearrays.
+            is_binary (boolean, optional): Whether or not the message
+                is binary, implying that the message is an AddAudio message.
+
+        Raises:
+            ValueError: If the message is invalid or has an unrecognized type.
+
+        Returns:
+            List[dict]: List of responses to the message.
+        """
+        responses = []
+        if is_binary:
+            # AddAudio is the only binary message, so we can assume it's that.
+            responses.append(
+                {"message": "AudioAdded",
+                 "seq_no": mock_server_handler.next_audio_seq_no
+                 }
+            )
+            mock_server_handler.next_audio_seq_no += 1
+
+            # Answer immediately with a partial and a final.
+            responses.append(dummy_add_partial_transcript())
+            responses.append(dummy_add_transcript())
+        else:
+            msg_name = message.get("message")
+            if not msg_name:
+                raise ValueError(message)
+
+            if msg_name == "StartRecognition":
+                responses.append(
+                    {
+                        "message": "RecognitionStarted",
+                        "id": "7c3003ae-fa23-45dc-a5cd-5b86bf56817b",
+                    }
+                )
+            elif msg_name == "EndOfStream":
+                responses.append({"message": "EndOfTranscript"})
+            elif msg_name == "SetRecognitionConfig":
+                pass
+            else:
+                raise ValueError(f"Unrecognized message: {message}")
+
+        return responses
+
+    def is_str(data_in):
+        return isinstance(data_in, str)
+
+    def build_payload(data_in):
+        return data_in.encode('utf-8') if is_str(data_in) else data_in
+
+    try:
+        async for data in websocket:
+            logging.debug("%s %s", address, "incoming message")
+            is_binary = not isinstance(data, str)
+            if is_binary:
+                msg = data
+            else:
+                msg = json.loads(data)
+            logbook.messages_received.append(msg)
+            for response in get_responses(msg, is_binary=is_binary):
+                logbook.messages_sent.append(response)
+                payload = build_payload(json.dumps(response).encode("utf-8"))
+                await websocket.send(payload)
+
+    except websockets.ConnectionClosedOK:  # pylint: disable=no-member
+        logging.info("%s %s", address, "closed with close code")
+    except websockets.ConnectionClosedError:  # pylint: disable=no-member
+        logging.info("%s %s", address, "closed brutally")
+
+    # Connection closed
+    logging.info("%s %s", address, "closed")
+    logbook.clients_disconnected_count += 1
