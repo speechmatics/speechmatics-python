@@ -1,0 +1,9 @@
+stages:
+  - test
+
+dummy_test:
+  image: python:3.8-alpine
+  stage: test
+  script:
+    - echo Pass
+
