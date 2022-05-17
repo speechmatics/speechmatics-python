@@ -1,9 +1,85 @@
+variables:
+  GITHUB_REPO: "git@github.com:speechmatics/speechmatics-python.git"
+
+# List all Python versions
+.all-pythons:
+  parallel:
+    matrix:
+      - PYTHON_VER: ["3.7", "3.8", "3.9", "3.10"]
+        PYTHON_OS:  ["slim", "alpine"]
+
 stages:
   - test
+  - delivery-build
+  - publish
 
-dummy_test:
-  image: python:3.8-alpine
+# Setup script for each image
+.python_before_script:
+  before_script:
+    - if [ "${PYTHON_OS}" = "alpine" ]; then apk add make gcc linux-headers musl-dev; fi
+    - if [ "${PYTHON_OS}" = "slim" ]; then apt update && apt install -y gcc musl-dev make; fi
+    - pip3 install -r requirements.txt -r requirements-dev.txt
+
+source:
+  extends: 
+    - .all-pythons
+    - .python_before_script
+  image: python:${PYTHON_VER}-${PYTHON_OS}
   stage: test
   script:
-    - echo Pass
+    - make lint
+    - make test
+
+build:
+  extends: 
+    - .all-pythons
+    - .python_before_script
+  image: python:${PYTHON_VER}-${PYTHON_OS}
+  stage: delivery-build
+  script:
+    - make build
+
+docs:
+  variables:
+    PYTHON_VER: "3.7"
+    PYTHON_OS: "alpine"
+  extends: 
+    - .python_before_script
+  image: python:${PYTHON_VER}-${PYTHON_OS}
+  stage: delivery-build
+  script:
+    - make docs
+
+push_to_github:
+  image: alpine
+  stage: publish
+  before_script:
+    - apk add git git-lfs openssh-client
+  script:
+    # Exit if the Tag is not on the default branch.
+    - if [[ -z "$(git branch --contains tags/${CI_COMMIT_TAG} | grep ${CI_DEFAULT_BRANCH})" ]]; then echo "Tag is not on
+      master." ; exit 1;  fi
+    
+    # Clone a fresh copy of master
+    - REPO_SRC="$(git remote get-url origin)"
+    - cd $(mktemp -d -t git-clone-XXXXXXXXXX)
+    - git clone -b "$CI_DEFAULT_BRANCH" "$REPO_SRC" . 
+    - git lfs install
+    - git lfs fetch
+
+    # SSH Credential for GitHub
+    - eval $(ssh-agent -s)
+    - echo "${GITHUB_BOT_SSH_PRIVATE_KEY}" | ssh-add -
+    - export GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=no" 
+
+    # Push to GitHub
+    - git remote add github "${GITHUB_REPO}"
+    - git push github "${CI_COMMIT_SHA}:${CI_DEFAULT_BRANCH}" # Push Commits
+    - git push github "${CI_COMMIT_TAG}" # Push Tags
+
+  rules:
+    # Tagging contains no infotmation of the branch
+    - if: $CI_COMMIT_TAG && $CI_COMMIT_TAG !~/.*rc.*/
+      when: on_success
+    - when: never
 
