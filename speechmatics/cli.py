@@ -194,6 +194,7 @@ def get_transcription_config(args):
     """
     config = TranscriptionConfig(
         args["lang"],
+        domain=args["domain"],
         operating_point=args["operating_point"],
         enable_partials=True if args["enable_partials"] else None,
         enable_entities=True if args["enable_entities"] else None,
@@ -486,6 +487,10 @@ def parse_args(args=None):
     transcribe_subparser.add_argument(
         "--lang", type=str, default="en",
         help="Language (ISO 639-1 code, e.g. en, fr, de)"
+    )
+    transcribe_subparser.add_argument(
+        "--domain", type=str, default=None,
+        help="Optionally request a specialized language pack, e.g. 'finance'"
     )
     transcribe_subparser.add_argument(
         "--operating-point",

@@ -19,6 +19,10 @@ class TranscriptionConfig:
     language: str
     """ISO 639-1 language code. eg. `en`"""
 
+    domain: str = None
+    """Optionally request a language pack optimized for a specific domain,
+    e.g. 'finance'"""
+
     operating_point: str = None
     """Specifies which acoustic model to use."""
 
