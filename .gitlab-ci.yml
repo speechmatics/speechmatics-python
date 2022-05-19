@@ -57,7 +57,9 @@ push_to_github:
     - apk add git git-lfs openssh-client
   script:
     # Exit if the Tag is not on the default branch.
-    - if [[ -z "$(git branch --contains tags/${CI_COMMIT_TAG} | grep ${CI_DEFAULT_BRANCH})" ]]; then echo "Tag is not on
+    # Fetch all tags and remote branches first
+    - git fetch --all --tags
+    - if [[ -z "$(git branch --all --contains tags/${CI_COMMIT_TAG} | grep ${CI_DEFAULT_BRANCH})" ]]; then echo "Tag is not on
       master." ; exit 1;  fi
     
     # Clone a fresh copy of master
