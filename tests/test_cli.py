@@ -71,6 +71,10 @@ from tests.utils import path_to_test_resource
             ["transcribe", "--operating-point=enhanced"],
             {"operating_point": "enhanced"},
         ),
+        (
+            ["transcribe", "--domain=finance"],
+            {"domain": "finance"},
+        ),
     ],
 )
 def test_cli_arg_parse(args, values):
