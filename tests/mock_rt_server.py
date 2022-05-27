@@ -59,8 +59,7 @@ class MockRealtimeLogbook:
         Returns:
             List[bytearray]: The matching list of messages.
         """
-        return [
-            msg for msg in self.messages_received if not isinstance(msg, dict)]
+        return [msg for msg in self.messages_received if not isinstance(msg, dict)]
 
     def find_start_recognition_message(self):
         """
@@ -99,9 +98,7 @@ class MockRealtimeLogbook:
             if time.time() - start < timeout:
                 time.sleep(0.2)
             else:
-                raise TimeoutError(
-                    "Timed out while waiting for client disconnects."
-                )
+                raise TimeoutError("Timed out while waiting for client disconnects.")
 
 
 def dummy_add_partial_transcript():
@@ -128,8 +125,7 @@ def dummy_add_transcript():
     return {
         "message": "AddTranscript",
         "format": "2.1",
-        "metadata": {
-            "start_time": 0.0, "end_time": 2.0, "transcript": "Foo\nBar."},
+        "metadata": {"start_time": 0.0, "end_time": 2.0, "transcript": "Foo\nBar."},
         "results": [
             {
                 "type": "word",
@@ -197,9 +193,10 @@ async def mock_server_handler(websocket, logbook):
         if is_binary:
             # AddAudio is the only binary message, so we can assume it's that.
             responses.append(
-                {"message": "AudioAdded",
-                 "seq_no": mock_server_handler.next_audio_seq_no
-                 }
+                {
+                    "message": "AudioAdded",
+                    "seq_no": mock_server_handler.next_audio_seq_no,
+                }
             )
             mock_server_handler.next_audio_seq_no += 1
 
@@ -231,7 +228,7 @@ async def mock_server_handler(websocket, logbook):
         return isinstance(data_in, str)
 
     def build_payload(data_in):
-        return data_in.encode('utf-8') if is_str(data_in) else data_in
+        return data_in.encode("utf-8") if is_str(data_in) else data_in
 
     try:
         async for data in websocket:

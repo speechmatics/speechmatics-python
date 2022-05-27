@@ -14,24 +14,54 @@ from tests.utils import path_to_test_resource
     "args, values",
     [
         (
-            ["transcribe"],
+            ["rt", "transcribe"],
             {
+                "mode": "rt",
+                "command": "transcribe",
                 "ssl_mode": "regular",
-                "enable_partials": False,
                 "punctuation_permitted_marks": None,
+                "enable_partials": False,
             },
         ),
-        (["-v", "transcribe"], {"verbose": 1}),
-        (["-vv", "transcribe"], {"verbose": 2}),
-        (["transcribe", "--ssl-mode=insecure"], {"ssl_mode": "insecure"}),
-        (["transcribe", "--ssl-mode=none"], {"ssl_mode": "none"}),
-        (["transcribe", "--additional-vocab"], {"additional_vocab": []}),
         (
-            ["transcribe", "--additional-vocab", "Speechmatics", "gnocchi"],
+            ["batch", "transcribe"],
+            {
+                "mode": "batch",
+                "command": "transcribe",
+                "ssl_mode": "regular",
+                "punctuation_permitted_marks": None,
+                "output_format": "txt",
+            },
+        ),
+        (["-v", "rt", "transcribe"], {"verbose": 1}),
+        (["-vv", "batch", "transcribe"], {"verbose": 2}),
+        (
+            ["rt", "transcribe", "--language", "fr"],
+            {"language": "fr"},
+        ),
+        (
+            ["batch", "transcribe", "--language", "fr"],
+            {"language": "fr"},
+        ),
+        (
+            ["rt", "transcribe", "--output-locale", "en-GB"],
+            {"language": "en", "output_locale": "en-GB"},
+        ),
+        (
+            ["batch", "transcribe", "--output-locale", "en-GB"],
+            {"language": "en", "output_locale": "en-GB"},
+        ),
+        (
+            ["rt", "transcribe", "--additional-vocab", "Speechmatics", "gnocchi"],
+            {"additional_vocab": ["Speechmatics", "gnocchi"]},
+        ),
+        (
+            ["batch", "transcribe", "--additional-vocab", "Speechmatics", "gnocchi"],
             {"additional_vocab": ["Speechmatics", "gnocchi"]},
         ),
         (
             [
+                "rt",
                 "transcribe",
                 "--additional-vocab",
                 "gnocchi:nokey,nochi",
@@ -40,45 +70,161 @@ from tests.utils import path_to_test_resource
             {
                 "additional_vocab": [
                     {"content": "gnocchi", "sounds_like": ["nokey", "nochi"]},
-                    {
-                        "content": "Speechmatics",
-                        "sounds_like": ["speechmadticks"]
-                    },
+                    {"content": "Speechmatics", "sounds_like": ["speechmadticks"]},
                 ]
             },
         ),
         (
-            ["transcribe", "--punctuation-permitted-marks", ", ? ."],
+            [
+                "batch",
+                "transcribe",
+                "--additional-vocab",
+                "gnocchi:nokey,nochi",
+                "Speechmatics:speechmadticks",
+            ],
+            {
+                "additional_vocab": [
+                    {"content": "gnocchi", "sounds_like": ["nokey", "nochi"]},
+                    {"content": "Speechmatics", "sounds_like": ["speechmadticks"]},
+                ]
+            },
+        ),
+        (
+            ["rt", "transcribe", "--punctuation-permitted-marks", ", ? ."],
             {"punctuation_permitted_marks": ", ? ."},
         ),
         (
-            ["transcribe", "--punctuation-permitted-marks", ""],
-            {"punctuation_permitted_marks": ""}
+            ["batch", "transcribe", "--punctuation-permitted-marks", ", ? ."],
+            {"punctuation_permitted_marks": ", ? ."},
         ),
-        (["transcribe", "--enable-partials"], {"enable_partials": True}),
-        (["transcribe", "--enable-entities"], {"enable_entities": True}),
         (
-            ["transcribe", "--speaker-change-token"],
-            {"speaker_change_token": True}
+            ["rt", "transcribe", "--punctuation-permitted-marks", ""],
+            {"punctuation_permitted_marks": ""},
         ),
-        (["transcribe", "--n-best-limit=5"], {"n_best_limit": 5}),
-        (["transcribe", "--auth-token=xyz"], {"auth_token": "xyz"}),
         (
-            ["transcribe", "--operating-point=standard"],
+            ["batch", "transcribe", "--punctuation-permitted-marks", ""],
+            {"punctuation_permitted_marks": ""},
+        ),
+        (
+            ["rt", "transcribe", "--operating-point=standard"],
             {"operating_point": "standard"},
         ),
         (
-            ["transcribe", "--operating-point=enhanced"],
+            ["batch", "transcribe", "--operating-point=standard"],
+            {"operating_point": "standard"},
+        ),
+        (
+            ["rt", "transcribe", "--operating-point=enhanced"],
             {"operating_point": "enhanced"},
         ),
         (
-            ["transcribe", "--domain=finance"],
+            ["batch", "transcribe", "--operating-point=enhanced"],
+            {"operating_point": "enhanced"},
+        ),
+        (["rt", "transcribe", "--ssl-mode=insecure"], {"ssl_mode": "insecure"}),
+        (["rt", "transcribe", "--ssl-mode=none"], {"ssl_mode": "none"}),
+        (["rt", "transcribe", "--enable-partials"], {"enable_partials": True}),
+        (["rt", "transcribe", "--enable-entities"], {"enable_entities": True}),
+        (
+            ["rt", "transcribe", "--speaker-change-token"],
+            {"speaker_change_token": True},
+        ),
+        (["rt", "transcribe", "--auth-token=xyz"], {"auth_token": "xyz"}),
+        (["rt", "transcribe", "--n-best-limit=5"], {"n_best_limit": 5}),
+        (
+            ["batch", "transcribe", "--domain=finance"],
             {"domain": "finance"},
+        ),
+        (
+            ["rt", "transcribe", "--domain=finance"],
+            {"domain": "finance"},
+        ),
+        (
+            ["batch", "transcribe", "--output-format=json-v2"],
+            {"output_format": "json-v2"},
+        ),
+        (
+            ["batch", "transcribe", "--diarization=speaker_and_channel"],
+            {"diarization": "speaker_and_channel"},
+        ),
+        (["batch", "submit"], {"command": "submit"}),
+    ],
+)
+def test_cli_arg_parse_with_file(args, values):
+    connection_args = ["--url=example", "--auth-token=xyz"]
+    test_args = args + connection_args + ["fake_file.wav"]
+    actual_values = vars(cli.parse_args(args=test_args))
+
+    for (key, val) in values.items():
+        assert actual_values[key] == val
+
+
+@pytest.mark.parametrize(
+    "args, values",
+    [
+        (
+            ["transcribe", "--url", "ws://127.0.0.1"],
+            {"mode": "rt", "command": "transcribe"},
+        ),
+        (
+            ["transcribe", "--url", "wss://127.0.0.1:9000"],
+            {"mode": "rt", "command": "transcribe"},
+        ),
+        (
+            ["transcribe", "--url", "http://127.0.0.1"],
+            {"mode": "batch", "command": "transcribe"},
+        ),
+        (
+            ["transcribe", "--url", "HTTPS://127.0.0.1"],
+            {"mode": "batch", "command": "transcribe"},
         ),
     ],
 )
-def test_cli_arg_parse(args, values):
-    required_args = ["--url=example", "file"]
+def test_cli_arg_parse_transcribe_url(args, values):
+    connection_args = ["--auth-token=xyz"]
+    test_args = args + connection_args + ["fake_file.wav"]
+    actual_values = vars(cli.parse_args(args=test_args))
+
+    for (key, val) in values.items():
+        assert actual_values[key] == val
+
+
+@pytest.mark.parametrize(
+    "args, values",
+    [
+        (
+            ["batch", "list-jobs"],
+            {"mode": "batch", "command": "list-jobs"},
+        ),
+        (
+            ["batch", "get-results", "--job-id=abc123"],
+            {"mode": "batch", "command": "get-results", "job_id": "abc123"},
+        ),
+        (
+            ["batch", "get-results", "--job-id=abc123", "--output-format=srt"],
+            {"output_format": "srt"},
+        ),
+        (
+            ["batch", "delete", "--job-id=abc123"],
+            {"mode": "batch", "command": "delete", "job_id": "abc123"},
+        ),
+        (
+            ["batch", "delete", "--job-id=abc123", "--force"],
+            {
+                "mode": "batch",
+                "command": "delete",
+                "job_id": "abc123",
+                "force_delete": True,
+            },
+        ),
+        (
+            ["batch", "job-status", "--job-id=abc123"],
+            {"mode": "batch", "command": "job-status", "job_id": "abc123"},
+        ),
+    ],
+)
+def test_cli_list_arg_parse_without_file(args, values):
+    required_args = ["--url=example", "--auth-token=xyz"]
     test_args = args + required_args
     actual_values = vars(cli.parse_args(args=test_args))
 
@@ -89,9 +235,7 @@ def test_cli_arg_parse(args, values):
 def test_parse_additional_vocab(tmp_path, mocker):
     vocab_file = tmp_path / "vocab.json"
     vocab_file.write_text('["Speechmatics", "gnocchi"]')
-    assert cli.parse_additional_vocab(vocab_file) == (
-        ["Speechmatics", "gnocchi"]
-    )
+    assert cli.parse_additional_vocab(vocab_file) == (["Speechmatics", "gnocchi"])
 
     vocab_file.write_text('[{"content": "gnocchi", "sounds_like": ["nokey"]}]')
     assert cli.parse_additional_vocab(vocab_file) == (
@@ -101,24 +245,28 @@ def test_parse_additional_vocab(tmp_path, mocker):
     vocab_file.write_text("[")
     with pytest.raises(SystemExit) as ex:
         cli.parse_additional_vocab(vocab_file)
-    exp_msg = (f'Additional vocab at: {vocab_file} is not valid json.')
+    exp_msg = f"Additional vocab at: {vocab_file} is not valid json."
     assert ex.value.code == exp_msg
 
     vocab_file.write_text('{"content": "gnocchi"}')
     with pytest.raises(SystemExit) as ex:
         cli.parse_additional_vocab(vocab_file)
-    exp_msg = (f'Additional vocab file at: {vocab_file} should be a list of '
-               'objects/strings.')
+    exp_msg = (
+        f"Additional vocab file at: {vocab_file} should be a list of "
+        "objects/strings."
+    )
     assert ex.value.code == exp_msg
 
-    vocab_file.write_text('[]')
-    mock_logger = mocker.patch('speechmatics.cli.LOGGER', autospec=True)
+    vocab_file.write_text("[]")
+    mock_logger = mocker.patch("speechmatics.cli.LOGGER", autospec=True)
     assert cli.parse_additional_vocab(vocab_file) == []
-    mock_logger_warning_str_list = [x[0][0] % x[0][1:] for x in
-                                    mock_logger.warning.call_args_list]
+    mock_logger_warning_str_list = [
+        x[0][0] % x[0][1:] for x in mock_logger.warning.call_args_list
+    ]
     assert (
-        f'Provided additional vocab at: {vocab_file} is an empty list.'
-    ) in mock_logger_warning_str_list
+        f"Provided additional vocab at: {vocab_file} is an empty list."
+        in mock_logger_warning_str_list
+    )
     assert len(mock_logger.mock_calls) == 1
 
 
@@ -139,10 +287,11 @@ def test_parse_additional_vocab(tmp_path, mocker):
         ("  .  ! ", {"permitted_marks": [".", "!"]}),
     ],
 )
-def test_get_transcription_config_punctuation_permitted_marks(
-        punctuation_permitted_marks, exp_value
+def test_get_rt_transcription_config_punctuation_permitted_marks(
+    punctuation_permitted_marks, exp_value
 ):
     args = collections.defaultdict(str)
+    args["mode"] = "rt"
     args["punctuation_permitted_marks"] = punctuation_permitted_marks
     config = cli.get_transcription_config(args)
     assert config.punctuation_overrides == exp_value
@@ -162,6 +311,7 @@ def test_get_transcription_config_punctuation_permitted_marks(
 )
 def test_get_transcription_config_enable_partials(enable_partials, exp_value):
     args = collections.defaultdict(str)
+    args["mode"] = "rt"
     args["enable_partials"] = enable_partials
     config = cli.get_transcription_config(args)
     assert config.enable_partials == exp_value
@@ -186,13 +336,14 @@ def test_get_log_level():
     for unsupported_log_level in 3, 5:
         with pytest.raises(SystemExit) as ex:
             cli.get_log_level(unsupported_log_level)
-        exp_msg = 'Only supports 2 log levels eg. -vv, you are asking for -'
-        assert ex.value.code == exp_msg + 'v' * unsupported_log_level
+        exp_msg = "Only supports 2 log levels eg. -vv, you are asking for -"
+        assert ex.value.code == exp_msg + "v" * unsupported_log_level
 
 
-def test_main_with_basic_options(mock_server):
+def test_rt_main_with_basic_options(mock_server):
     args = [
         "-vv",
+        "rt",
         "transcribe",
         "--ssl-mode=insecure",
         "--url",
@@ -209,7 +360,7 @@ def test_main_with_basic_options(mock_server):
     assert mock_server.path == "/v2"
 
 
-def test_main_with_all_options(mock_server, tmp_path):
+def test_rt_main_with_all_options(mock_server, tmp_path):
     vocab_file = tmp_path / "vocab.json"
     vocab_file.write_text(
         '["jabberwock", {"content": "brillig", "sounds_like": ["brillick"]}]'
@@ -220,10 +371,11 @@ def test_main_with_all_options(mock_server, tmp_path):
 
     args = [
         "-v",
+        "--debug",
+        "rt",
         "transcribe",
         "--ssl-mode=insecure",
         "--buffer-size=256",
-        "--debug",
         "--url",
         mock_server.url,
         "--lang=en",
@@ -263,7 +415,7 @@ def test_main_with_all_options(mock_server, tmp_path):
 
     # Check that the StartRecognition message contains the correct fields
     msg = mock_server.find_start_recognition_message()
-    print(msg)
+
     assert msg["audio_format"]["type"] == "file"
     assert len(msg["audio_format"]) == 1
     assert msg["transcription_config"]["language"] == "en"
@@ -272,18 +424,17 @@ def test_main_with_all_options(mock_server, tmp_path):
         [
             "jabberwock",
             {"content": "brillig", "sounds_like": ["brillick"]},
-            "tumtum", {
-                "content": "borogoves", "sounds_like": [
-                    "boreohgofes", "borrowgoafs"
-                ]
-            },
+            "tumtum",
+            {"content": "borogoves", "sounds_like": ["boreohgofes", "borrowgoafs"]},
         ]
     )
     assert mock_server.find_sent_messages_by_type("AddPartialTranscript")
-    assert msg["transcription_config"]["punctuation_overrides"]["permitted_marks"] == [  # noqa
+    assert msg["transcription_config"]["punctuation_overrides"]["permitted_marks"] == [
         "all"
-    ]
-    assert msg["transcription_config"]["punctuation_overrides"]["sensitivity"] == 0.1  # noqa
+    ]  # noqa
+    assert (
+        msg["transcription_config"]["punctuation_overrides"]["sensitivity"] == 0.1
+    )  # noqa
     assert msg["transcription_config"]["diarization"] == "none"
     assert msg["transcription_config"]["max_delay"] == 5.0
     assert msg["transcription_config"]["max_delay_mode"] == "fixed"
@@ -307,9 +458,7 @@ def test_add_printing_handlers_transcript_handler(mocker, capsys):
     assert not out
     assert not err
     assert api.add_event_handler.called
-    call_args_dict = {
-        i[0][0]: i[0][1] for i in api.add_event_handler.call_args_list
-    }
+    call_args_dict = {i[0][0]: i[0][1] for i in api.add_event_handler.call_args_list}
 
     finals_msg_type = "AddTranscript"
     assert finals_msg_type in call_args_dict
@@ -342,17 +491,13 @@ def test_add_printing_handlers_transcript_handler(mocker, capsys):
             "start_time": 0.08999999612569809,
             "end_time": 0.29999998211860657,
             "alternatives": [
-                {
-                    "confidence": 1.0, "content": transcript.strip(),
-                    "language": "en"
-                }
+                {"confidence": 1.0, "content": transcript.strip(), "language": "en"}
             ],
         }
     )
     transcript_handler_cb_func(msg_single_word_transcript)
     assert transcripts.text == transcript
-    assert transcripts.json == \
-        [msg_empty_transcript, msg_single_word_transcript]
+    assert transcripts.json == [msg_empty_transcript, msg_single_word_transcript]
     out, err = capsys.readouterr()
     assert out == transcript + "\n"
     assert not err
@@ -381,9 +526,7 @@ TRANSCRIPT_WITH_SC = {
             "type": "word",
             "start_time": 0.08999999612569809,
             "end_time": 0.29999998211860657,
-            "alternatives": [
-                {"confidence": 1.0, "content": "Hey", "language": "en"}
-            ],
+            "alternatives": [{"confidence": 1.0, "content": "Hey", "language": "en"}],
         },
         {
             "type": "speaker_change",
@@ -395,9 +538,7 @@ TRANSCRIPT_WITH_SC = {
             "type": "word",
             "start_time": 0.08999999612569809,
             "end_time": 0.29999998211860657,
-            "alternatives": [
-                {"confidence": 1.0, "content": "Hello", "language": "en"}
-            ],
+            "alternatives": [{"confidence": 1.0, "content": "Hello", "language": "en"}],
         },
     ],
     "metadata": {
@@ -410,8 +551,7 @@ TRANSCRIPT_WITH_SC = {
 
 
 def check_printing_handlers(
-        mocker, capsys, transcript, expected_transcript_txt,
-        speaker_change_token
+    mocker, capsys, transcript, expected_transcript_txt, speaker_change_token
 ):
     api = mocker.MagicMock()
     transcripts = cli.Transcripts(text="", json=[])
@@ -425,9 +565,7 @@ def check_printing_handlers(
     assert not out
     assert not err
     assert api.add_event_handler.called
-    call_args_dict = {
-        i[0][0]: i[0][1] for i in api.add_event_handler.call_args_list
-    }
+    call_args_dict = {i[0][0]: i[0][1] for i in api.add_event_handler.call_args_list}
 
     finals_msg_type = "AddTranscript"
     assert finals_msg_type in call_args_dict

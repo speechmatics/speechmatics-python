@@ -1,6 +1,6 @@
 # speechmatics-python &ensp; ![Tests](https://github.com/speechmatics/speechmatics-python/workflows/Tests/badge.svg) [![codecov](https://codecov.io/gh/speechmatics/speechmatics-python/branch/master/graph/badge.svg)](https://codecov.io/gh/speechmatics/speechmatics-python) [![License](https://img.shields.io/badge/license-MIT-yellow.svg)](https://github.com/speechmatics/speechmatics-python/blob/master/LICENSE.txt)
 
-Python client library and CLI for Speechmatics Realtime ASR v2 API.
+Python client library and CLI for Speechmatics Realtime and Batch ASR v2 APIs.
 
 
 ## Getting started
@@ -20,6 +20,8 @@ To install from source:
 
 ## Example command-line usage
 
+
+### Realtime ASR
 - A normal real time session using a .wav file as the input audio:
 
    ```shell
@@ -75,6 +77,37 @@ To install from source:
   $ ffmpeg -loglevel quiet -f alsa -i hw:0 -f f32le -acodec pcm_f32le -ar 44100 - \
       | speechmatics transcribe --ssl-mode none --url $URL --enable-partials --raw pcm_f32le --sample-rate 44100 --lang en -
   ```
+
+  ### Batch ASR
+- Submit a .wav file for batch ASR processing
+
+   ```shell
+   # Point URL to Speechmatics SaaS (Batch Virtual Appliance is also supported)
+   $ URL=https://asr.api.speechmatics.com/v2/
+   $ AUTH_TOKEN='abcd01234'
+
+   $ speechmatics batch transcribe --url $URL --auth-token $AUTH_TOKEN --lang en example_audio.wav
+   ```
+
+- Files may be submitted for asynchronous processing
+
+    ```shell
+   $ speechmatics batch submit --url $URL --auth-token $AUTH_TOKEN --lang en example_audio.wav
+    ```
+
+- Check processing status of a job
+
+    ```shell
+   # $JOB_ID is from the submit command output
+   $ speechmatics batch job-status --url $URL --auth-token $AUTH_TOKEN --job-id $JOB_ID
+    ```
+
+- Retrieve completed transcription
+
+    ```shell
+   # $JOB_ID is from the submit command output
+   $ speechmatics batch get-results --url $URL --auth-token $AUTH_TOKEN --job-id $JOB_ID
+    ```
 
 
 ## API documentation

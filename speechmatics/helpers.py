@@ -27,10 +27,10 @@ def del_none(dictionary):
 
 
 def json_utf8(func):
-    """ A decorator to turn a function's return value into JSON """
+    """A decorator to turn a function's return value into JSON"""
 
     def wrapper(*args, **kwargs):
-        """ wrapper """
+        """wrapper"""
         return json.dumps(func(*args, **kwargs))
 
     return wrapper

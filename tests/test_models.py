@@ -1,13 +1,6 @@
 from speechmatics import models
 
 
-def test_del_none():
-    test_dict = {"a": None, "b": "stuff", "c": 0, "d": None, "e": False}
-    got = models.del_none(test_dict)
-    want = {"b": "stuff", "c": 0, "e": False}
-    assert got == want
-
-
 def test_audio_settings_asdict_when_encoding_none():
     audio_settings = models.AudioSettings()
     audio_settings.encoding = None
@@ -25,4 +18,23 @@ def test_audio_settings_asdict_when_encoding_set():
         "encoding": audio_settings.encoding,
         "sample_rate": audio_settings.sample_rate,
     }
+    assert got == want
+
+
+def test_transcriptionconfig_excludes_nones():
+    config = models.TranscriptionConfig()
+    config_dict = config.asdict()
+    assert None not in config_dict.values()
+
+
+def test_batchtranscriptionconfig_excludes_nones():
+    config = models.BatchTranscriptionConfig()
+    config_dict = config.asdict()
+    assert None not in config_dict.values()
+
+
+def test_batchtranscriptionconfig_json_simple():
+    config = models.BatchTranscriptionConfig()
+    got = config.as_config()
+    want = '{"type": "transcription", "transcription_config": {"language": "en"}}'
     assert got == want
