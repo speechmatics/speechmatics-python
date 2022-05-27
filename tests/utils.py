@@ -2,8 +2,7 @@ import os
 import ssl
 
 from speechmatics.client import WebsocketClient
-from speechmatics.models import AudioSettings, ConnectionSettings, \
-    TranscriptionConfig
+from speechmatics.models import AudioSettings, ConnectionSettings, TranscriptionConfig
 
 
 def path_to_test_resource(file_name):
@@ -40,11 +39,10 @@ def default_ws_client_setup(mock_server_url):
     ssl_context.check_hostname = False
     ssl_context.verify_mode = ssl.CERT_NONE
 
-    conn_settings = ConnectionSettings(
-        url=mock_server_url, ssl_context=ssl_context)
+    conn_settings = ConnectionSettings(url=mock_server_url, ssl_context=ssl_context)
     ws_client = WebsocketClient(conn_settings)
 
-    transcription_config = TranscriptionConfig("en")
+    transcription_config = TranscriptionConfig()
     audio_settings = AudioSettings()
 
     return ws_client, transcription_config, audio_settings

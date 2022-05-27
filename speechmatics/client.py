@@ -13,8 +13,11 @@ import traceback
 
 import websockets
 
-from speechmatics.exceptions import EndOfTranscriptException, \
-    ForceEndSession, TranscriptionError
+from speechmatics.exceptions import (
+    EndOfTranscriptException,
+    ForceEndSession,
+    TranscriptionError,
+)
 from speechmatics.models import ClientMessageType, ServerMessageType
 from speechmatics.helpers import json_utf8, read_in_chunks
 
@@ -93,9 +96,7 @@ class WebsocketClient:
             "message": ClientMessageType.SetRecognitionConfig,
             "transcription_config": self.transcription_config.asdict(),
         }
-        self._call_middleware(
-            ClientMessageType.SetRecognitionConfig, msg, False
-        )
+        self._call_middleware(ClientMessageType.SetRecognitionConfig, msg, False)
         return msg
 
     @json_utf8
@@ -115,9 +116,7 @@ class WebsocketClient:
             "transcription_config": self.transcription_config.asdict(),
         }
         self.session_running = True
-        self._call_middleware(
-            ClientMessageType.StartRecognition, msg, False
-        )
+        self._call_middleware(ClientMessageType.StartRecognition, msg, False)
         LOGGER.debug(msg)
         return msg
 
@@ -128,10 +127,7 @@ class WebsocketClient:
         :py:attr:`speechmatics.models.ClientMessageType.EndOfStream`
         message.
         """
-        msg = {
-            "message": ClientMessageType.EndOfStream,
-            "last_seq_no": self.seq_no
-        }
+        msg = {"message": ClientMessageType.EndOfStream, "last_seq_no": self.seq_no}
         self._call_middleware(ClientMessageType.EndOfStream, msg, False)
         LOGGER.debug(msg)
         return msg
@@ -157,8 +153,7 @@ class WebsocketClient:
             try:
                 handler(copy.deepcopy(message))
             except ForceEndSession:
-                LOGGER.warning("Session was ended forcefully by an event "
-                               "handler")
+                LOGGER.warning("Session was ended forcefully by an event handler")
                 raise
 
         if message_type == ServerMessageType.RecognitionStarted:
@@ -195,9 +190,7 @@ class WebsocketClient:
                 timeout=self.connection_settings.semaphore_timeout_seconds,
             )
             self.seq_no += 1
-            self._call_middleware(
-                ClientMessageType.AddAudio, audio_chunk, True
-            )
+            self._call_middleware(ClientMessageType.AddAudio, audio_chunk, True)
             yield audio_chunk
 
         yield self._end_of_stream()
@@ -359,8 +352,7 @@ class WebsocketClient:
 
         for task in done:
             exc = task.exception()
-            if exc and not isinstance(exc, (EndOfTranscriptException,
-                                            ForceEndSession)):
+            if exc and not isinstance(exc, (EndOfTranscriptException, ForceEndSession)):
                 raise exc
 
     async def run(self, stream, transcription_config, audio_settings):
@@ -393,13 +385,13 @@ class WebsocketClient:
 
         try:
             async with websockets.connect(  # pylint: disable=no-member
-                    self.connection_settings.url,
-                    ssl=self.connection_settings.ssl_context,
-                    ping_timeout=self.connection_settings.ping_timeout_seconds,
-                    # Don't limit the max. size of incoming messages
-                    max_size=None,
-                    extra_headers=extra_headers,
-                    ) as self.websocket:
+                self.connection_settings.url,
+                ssl=self.connection_settings.ssl_context,
+                ping_timeout=self.connection_settings.ping_timeout_seconds,
+                # Don't limit the max. size of incoming messages
+                max_size=None,
+                extra_headers=extra_headers,
+            ) as self.websocket:
                 await self._communicate(stream, audio_settings)
         except ConnectionResetError:
             traceback.print_exc()
@@ -431,5 +423,4 @@ class WebsocketClient:
         :raises asyncio.TimeoutError: If the given timeout is exceeded.
         """
         # pylint: disable=no-value-for-parameter
-        asyncio.run(
-            asyncio.wait_for(self.run(*args, **kwargs), timeout=timeout))
+        asyncio.run(asyncio.wait_for(self.run(*args, **kwargs), timeout=timeout))
