@@ -45,9 +45,6 @@ class BatchClient:
 
     """
 
-    with open("VERSION", "rt", encoding="utf-8") as version_file:
-        CLIENT_VERSION = version_file.read().strip()
-
     def __init__(self, connection_settings: ConnectionSettings):
         """Constructor method.
 
@@ -63,7 +60,6 @@ class BatchClient:
         self.default_headers = {
             "Authorization": f"Bearer {self.connection_settings.auth_token}",
             "Accept-Charset": "utf-8",
-            "User-Agent": f"Speechmatics-Python-Client/{self.CLIENT_VERSION}",
         }
         self.api_client = None
 
