@@ -36,20 +36,91 @@
 <span class="sd">Data models and message types used by the library.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
+<span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">ssl</span>
 
-<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">asdict</span><span class="p">,</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">asdict</span><span class="p">,</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">fields</span>
 <span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
 
-<span class="kn">from</span> <span class="nn">speechmatics.helpers</span> <span class="kn">import</span> <span class="n">del_none</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span>
 
 
-<span class="c1"># pylint: disable=too-many-instance-attributes</span>
-<div class="viewcode-block" id="TranscriptionConfig"><a class="viewcode-back" href="../../models.html#speechmatics.models.TranscriptionConfig">[docs]</a><span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">TranscriptionConfig</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Defines transcription parameters.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="FetchData"><a class="viewcode-back" href="../../models.html#speechmatics.models.FetchData">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">FetchData</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Batch: Optional configuration for fetching file for transcription.&quot;&quot;&quot;</span>
 
-    <span class="n">language</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">url</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="sd">&quot;&quot;&quot;URL to fetch&quot;&quot;&quot;</span>
+
+    <span class="n">auth_headers</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A list of additional headers to be added to the input fetch request</span>
+<span class="sd">    when using http or https. This is intended to support authentication or</span>
+<span class="sd">    authorization, for example by supplying an OAuth2 bearer token</span>
+<span class="sd">    &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="NotificationConfig"><a class="viewcode-back" href="../../models.html#speechmatics.models.NotificationConfig">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">NotificationConfig</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Batch: Optional configuration for callback notification.&quot;&quot;&quot;</span>
+
+    <span class="n">url</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="sd">&quot;&quot;&quot;URL for notification. The `id` and `status` query parameters will be added.&quot;&quot;&quot;</span>
+
+    <span class="n">contents</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Specifies a list of items to be attached to the notification message.</span>
+<span class="sd">    When multiple items are requested, they are included as named file</span>
+<span class="sd">    attachments.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;post&quot;</span>
+    <span class="sd">&quot;&quot;&quot;The HTTP(S) method to be used. Only `post` and `put` are supported.&quot;&quot;&quot;</span>
+
+    <span class="n">auth_headers</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A list of additional headers to be added to the notification request</span>
+<span class="sd">    when using http or https. This is intended to support authentication or</span>
+<span class="sd">    authorization, for example by supplying an OAuth2 bearer token</span>
+<span class="sd">    &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="SRTOverrides"><a class="viewcode-back" href="../../models.html#speechmatics.models.SRTOverrides">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">SRTOverrides</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Batch: Optional configuration for SRT output.&quot;&quot;&quot;</span>
+
+    <span class="n">max_line_length</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">37</span>
+    <span class="sd">&quot;&quot;&quot;Maximum count of characters per subtitle line including white space&quot;&quot;&quot;</span>
+
+    <span class="n">max_lines</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="sd">&quot;&quot;&quot;Sets maximum count of lines in a subtitle section&quot;&quot;&quot;</span></div>
+
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">_TranscriptionConfig</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Base model for defining transcription parameters.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Ignores values which are not dataclass members when initalising.</span>
+<span class="sd">        This allows **kwargs to contain fields which are not in the model,</span>
+<span class="sd">        which is useful for reusing code to build RT and batch configs.</span>
+<span class="sd">        See cli.get_transcription_config() for an example.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="c1"># pylint: disable=consider-using-set-comprehension</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">f</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">(</span><span class="bp">self</span><span class="p">)])</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Returns model as a dict while excluding None values recursively.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">asdict</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">dict_factory</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="n">x</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">}</span>
+        <span class="p">)</span>
+
+    <span class="n">language</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;en&quot;</span>
     <span class="sd">&quot;&quot;&quot;ISO 639-1 language code. eg. `en`&quot;&quot;&quot;</span>
 
     <span class="n">operating_point</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
@@ -58,11 +129,23 @@
     <span class="n">output_locale</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="sd">&quot;&quot;&quot;RFC-5646 language code for transcript output. eg. `en-AU`&quot;&quot;&quot;</span>
 
+    <span class="n">diarization</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;Indicates type of diarization to use, if any.&quot;&quot;&quot;</span>
+
     <span class="n">additional_vocab</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="sd">&quot;&quot;&quot;Additional vocabulary that is not part of the standard language.&quot;&quot;&quot;</span>
 
-    <span class="n">diarization</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="sd">&quot;&quot;&quot;Indicates type of diarization to use, if any.&quot;&quot;&quot;</span>
+    <span class="n">punctuation_overrides</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;Permitted puctuation marks for advanced punctuation.&quot;&quot;&quot;</span>
+
+    <span class="n">domain</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;Optionally request a language pack optimized for a specific domain,</span>
+<span class="sd">    e.g. &#39;finance&#39;&quot;&quot;&quot;</span>
+
+
+<div class="viewcode-block" id="TranscriptionConfig"><a class="viewcode-back" href="../../models.html#speechmatics.models.TranscriptionConfig">[docs]</a><span class="nd">@dataclass</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">TranscriptionConfig</span><span class="p">(</span><span class="n">_TranscriptionConfig</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Real-time: Defines transcription parameters.&quot;&quot;&quot;</span>
 
     <span class="n">max_delay</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="sd">&quot;&quot;&quot;Maximum acceptable delay.&quot;&quot;&quot;</span>
@@ -84,21 +167,50 @@
     <span class="n">enable_entities</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="sd">&quot;&quot;&quot;Indicates if inverse text normalization entity output is enabled.&quot;&quot;&quot;</span>
 
-    <span class="n">punctuation_overrides</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="sd">&quot;&quot;&quot;Permitted puctuation marks for advanced punctuation.&quot;&quot;&quot;</span>
-
     <span class="n">n_best_limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="sd">&quot;&quot;&quot;Specifies the number of best matches to be returned for an uttarance.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Specifies the number of best matches to be returned for an uttarance.&quot;&quot;&quot;</span></div>
 
-    <span class="k">def</span> <span class="nf">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">dictionary</span> <span class="o">=</span> <span class="n">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-        <span class="n">d_without_nones</span> <span class="o">=</span> <span class="n">del_none</span><span class="p">(</span><span class="n">dictionary</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">d_without_nones</span></div>
+
+<div class="viewcode-block" id="BatchTranscriptionConfig"><a class="viewcode-back" href="../../models.html#speechmatics.models.BatchTranscriptionConfig">[docs]</a><span class="nd">@dataclass</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">BatchTranscriptionConfig</span><span class="p">(</span><span class="n">_TranscriptionConfig</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Batch: Defines transcription parameters for batch requests.</span>
+<span class="sd">    The `.as_config()` method will return it wrapped into a Speechmatics json config.&quot;&quot;&quot;</span>
+
+    <span class="n">fetch_data</span><span class="p">:</span> <span class="n">FetchData</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;Optional configuration for fetching file for transcription.&quot;&quot;&quot;</span>
+
+    <span class="n">notification_config</span><span class="p">:</span> <span class="n">NotificationConfig</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;Optional configuration for callback notification.&quot;&quot;&quot;</span>
+
+    <span class="n">srt_overrides</span><span class="p">:</span> <span class="n">SRTOverrides</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;Optional configuration for SRT output.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">as_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">dictionary</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">asdict</span><span class="p">()</span>
+
+        <span class="n">fetch_data</span> <span class="o">=</span> <span class="n">dictionary</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;fetch_data&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">notification_config</span> <span class="o">=</span> <span class="n">dictionary</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;notification_config&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">srt_overrides</span> <span class="o">=</span> <span class="n">dictionary</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;srt_overrides&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="n">config</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;transcription&quot;</span><span class="p">,</span> <span class="s2">&quot;transcription_config&quot;</span><span class="p">:</span> <span class="n">dictionary</span><span class="p">}</span>
+
+        <span class="k">if</span> <span class="n">fetch_data</span><span class="p">:</span>
+            <span class="n">config</span><span class="p">[</span><span class="s2">&quot;fetch_data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fetch_data</span>
+
+        <span class="k">if</span> <span class="n">notification_config</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">notification_config</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="n">notification_config</span> <span class="o">=</span> <span class="p">[</span><span class="n">notification_config</span><span class="p">]</span>
+            <span class="n">config</span><span class="p">[</span><span class="s2">&quot;notification_config&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">notification_config</span>
+
+        <span class="k">if</span> <span class="n">srt_overrides</span><span class="p">:</span>
+            <span class="n">config</span><span class="p">[</span><span class="s2">&quot;output_config&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;srt_overrides&quot;</span><span class="p">:</span> <span class="n">srt_overrides</span><span class="p">}</span>
+
+        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">config</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="AudioSettings"><a class="viewcode-back" href="../../models.html#speechmatics.models.AudioSettings">[docs]</a><span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">AudioSettings</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Defines audio parameters.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Real-time: Defines audio parameters.&quot;&quot;&quot;</span>
 
     <span class="n">encoding</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="sd">&quot;&quot;&quot;Encoding format when raw audio is used. Allowed values are</span>
@@ -131,8 +243,7 @@
     <span class="n">message_buffer_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">512</span>
     <span class="sd">&quot;&quot;&quot;Message buffer size in bytes.&quot;&quot;&quot;</span>
 
-    <span class="n">ssl_context</span><span class="p">:</span> <span class="n">ssl</span><span class="o">.</span><span class="n">SSLContext</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
-        <span class="n">default_factory</span><span class="o">=</span><span class="n">ssl</span><span class="o">.</span><span class="n">create_default_context</span><span class="p">)</span>
+    <span class="n">ssl_context</span><span class="p">:</span> <span class="n">ssl</span><span class="o">.</span><span class="n">SSLContext</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">ssl</span><span class="o">.</span><span class="n">create_default_context</span><span class="p">)</span>
     <span class="sd">&quot;&quot;&quot;SSL context.&quot;&quot;&quot;</span>
 
     <span class="n">semaphore_timeout_seconds</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">120</span>
@@ -147,7 +258,8 @@
 
 
 <div class="viewcode-block" id="ClientMessageType"><a class="viewcode-back" href="../../models.html#speechmatics.models.ClientMessageType">[docs]</a><span class="k">class</span> <span class="nc">ClientMessageType</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Defines various messages sent from client to server.&quot;&quot;&quot;</span>
+    <span class="c1"># pylint: disable=invalid-name</span>
+    <span class="sd">&quot;&quot;&quot;Real-time: Defines various messages sent from client to server.&quot;&quot;&quot;</span>
 
     <span class="n">StartRecognition</span> <span class="o">=</span> <span class="s2">&quot;StartRecognition&quot;</span>
     <span class="sd">&quot;&quot;&quot;Initiates a recognition job based on configuration set previously.&quot;&quot;&quot;</span>
@@ -164,7 +276,8 @@
 
 
 <div class="viewcode-block" id="ServerMessageType"><a class="viewcode-back" href="../../models.html#speechmatics.models.ServerMessageType">[docs]</a><span class="k">class</span> <span class="nc">ServerMessageType</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Defines various message types sent from server to client.&quot;&quot;&quot;</span>
+    <span class="c1"># pylint: disable=invalid-name</span>
+    <span class="sd">&quot;&quot;&quot;Real-time: Defines various message types sent from server to client.&quot;&quot;&quot;</span>
 
     <span class="n">RecognitionStarted</span> <span class="o">=</span> <span class="s2">&quot;RecognitionStarted&quot;</span>
     <span class="sd">&quot;&quot;&quot;Server response to :py:attr:`ClientMessageType.StartRecognition`,</span>
@@ -229,6 +342,7 @@
 <h3>Navigation</h3>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../client.html">speechmatics.client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../batch_client.html">speechmatics.batch_client</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../exceptions.html">speechmatics.exceptions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../helpers.html">speechmatics.helpers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../models.html">speechmatics.models</a></li>
