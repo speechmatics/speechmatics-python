@@ -6,13 +6,13 @@
 speechmatics-python
 ===================
 
-speechmatics-python provides API wrapper and CLI to access the Speechmatics Realtime API v2.
+speechmatics-python provides API wrapper and CLI to access the Speechmatics Realtime and Batch API v2.
 
 
 Example library usage
 ---------------------
 
-The example below illustrates a waveform audio file being opened and transcribed. ::
+The example below illustrates a waveform audio file being opened and transcribed with Realtime. ::
 
     import speechmatics
 
@@ -61,6 +61,7 @@ Reference
    :maxdepth: 2
 
    client
+   batch_client
    exceptions
    helpers
    models

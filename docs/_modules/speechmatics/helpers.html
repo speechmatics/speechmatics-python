@@ -60,10 +60,10 @@
 
 
 <div class="viewcode-block" id="json_utf8"><a class="viewcode-back" href="../../helpers.html#speechmatics.helpers.json_utf8">[docs]</a><span class="k">def</span> <span class="nf">json_utf8</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; A decorator to turn a function&#39;s return value into JSON &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;A decorator to turn a function&#39;s return value into JSON&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; wrapper &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;wrapper&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
 
     <span class="k">return</span> <span class="n">wrapper</span></div>
@@ -98,11 +98,6 @@
             <span class="k">break</span>
         <span class="k">yield</span> <span class="n">audio_chunk</span>
         <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span></div>
-
-
-<span class="k">def</span> <span class="nf">call_middleware</span><span class="p">(</span><span class="n">middlewares</span><span class="p">,</span> <span class="n">event_name</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
-    <span class="k">for</span> <span class="n">middleware</span> <span class="ow">in</span> <span class="n">middlewares</span><span class="p">[</span><span class="n">event_name</span><span class="p">]:</span>
-        <span class="n">middleware</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
 </pre></div>
 
           </div>
@@ -137,6 +132,7 @@
 <h3>Navigation</h3>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../client.html">speechmatics.client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../batch_client.html">speechmatics.batch_client</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../exceptions.html">speechmatics.exceptions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../helpers.html">speechmatics.helpers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../models.html">speechmatics.models</a></li>
