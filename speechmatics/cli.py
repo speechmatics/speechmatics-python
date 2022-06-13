@@ -200,7 +200,6 @@ def get_transcription_config(args):
         max_delay_mode=args.get("max_delay_mode"),
         diarization=args.get("diarization"),
         speaker_change_sensitivity=args.get("speaker_change_sensitivity"),
-        n_best_limit=args.get("n_best_limit"),
     )
 
     if args.get("additional_vocab_file"):
@@ -266,7 +265,6 @@ def add_printing_handlers(
     enable_partials=False,
     debug_handlers_too=False,
     speaker_change_token=False,
-    language="en",
 ):
     """
     Adds a set of handlers to the websocket client which print out transcripts
@@ -283,8 +281,6 @@ def add_printing_handlers(
         speaker_change_token (bool, optional): Whether to explicitly include a
             speaker change token '<sc>' in the output to indicate speaker
             changes.
-        language (string, optional): The language code of the model being used.
-            This is needed to configure language-specific text formatting.
     """
     if debug_handlers_too:
         api.add_event_handler(
@@ -312,17 +308,6 @@ def add_printing_handlers(
                 transcript_to_print = transcript_with_sc_token
             transcripts.text += transcript_to_print
             print(transcript_to_print)
-
-        n_best_results = message.get("n_best_results", [])
-        if n_best_results:
-            n_best_list = n_best_results[0]["n_best_list"]
-            for alternative in n_best_list:
-                words_joined = join_words(
-                    (word["content"] for word in alternative["words"]),
-                    language=language,
-                )
-                print(f'* [{alternative["confidence"]:.4f}] {words_joined}')
-            print()
 
     def end_of_transcript_handler(_):
         if enable_partials:
@@ -442,7 +427,6 @@ def rt_main(args):
         enable_partials=args["enable_partials"],
         debug_handlers_too=args["debug"],
         speaker_change_token=args["speaker_change_token"],
-        language=args["language"],
     )
 
     def run(stream):
@@ -734,15 +718,6 @@ def parse_args(args=None):
             "websocket message. Larger values can increase latency, but "
             "values which are too small create unnecessary overhead."
         ),
-    )
-    rt_transcribe_command_parser.add_argument(
-        "--n-best-limit",
-        type=int,
-        default=None,
-        help="Upper bound on the number of N-best alternatives to return for "
-        "each final. If not specified, N-best output is disabled."
-        "Be aware that this option is not supported for all Speechmatics"
-        " products.",
     )
 
     rt_transcribe_command_parser.add_argument(
