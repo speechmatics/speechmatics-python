@@ -134,9 +134,6 @@ class TranscriptionConfig(_TranscriptionConfig):
     enable_entities: bool = None
     """Indicates if inverse text normalization entity output is enabled."""
 
-    n_best_limit: int = None
-    """Specifies the number of best matches to be returned for an uttarance."""
-
 
 @dataclass(init=False)
 class BatchTranscriptionConfig(_TranscriptionConfig):

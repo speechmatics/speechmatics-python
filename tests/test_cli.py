@@ -130,7 +130,6 @@ from tests.utils import path_to_test_resource
             {"speaker_change_token": True},
         ),
         (["rt", "transcribe", "--auth-token=xyz"], {"auth_token": "xyz"}),
-        (["rt", "transcribe", "--n-best-limit=5"], {"n_best_limit": 5}),
         (
             ["batch", "transcribe", "--domain=finance"],
             {"domain": "finance"},
