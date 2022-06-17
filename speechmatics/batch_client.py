@@ -70,6 +70,7 @@ class BatchClient:
             timeout=None,
             headers=self.default_headers,
             http2=True,
+            verify=self.connection_settings.ssl_context,
         )
         return self
 
