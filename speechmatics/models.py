@@ -110,6 +110,14 @@ class _TranscriptionConfig:
     e.g. 'finance'"""
 
 
+@dataclass
+class RTSpeakerDiarizationConfig:
+    """Real-time: Speaker diarization config."""
+
+    max_speakers: int = None
+    """This enforces the maximum number of speakers allowed in a single audio stream."""
+
+
 @dataclass(init=False)
 class TranscriptionConfig(_TranscriptionConfig):
     """Real-time: Defines transcription parameters."""
@@ -123,6 +131,9 @@ class TranscriptionConfig(_TranscriptionConfig):
     is detected, then the max_delay can be overriden until the end of that
     entity. Fixed means that max_delay specified ignores any potential
     entity that would not be completed within that threshold."""
+
+    speaker_diarization_config: RTSpeakerDiarizationConfig = None
+    """Configuration for speaker diarization."""
 
     speaker_change_sensitivity: float = None
     """Sensitivity level for speaker change."""
