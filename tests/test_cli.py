@@ -129,6 +129,15 @@ from tests.utils import path_to_test_resource
             ["rt", "transcribe", "--speaker-change-token"],
             {"speaker_change_token": True},
         ),
+        (
+            [
+                "rt",
+                "transcribe",
+                "--diarization=speaker",
+                "--speaker-diarization-max-speakers=3",
+            ],
+            {"diarization": "speaker", "speaker_diarization_max_speakers": 3},
+        ),
         (["rt", "transcribe", "--auth-token=xyz"], {"auth_token": "xyz"}),
         (
             ["batch", "transcribe", "--domain=finance"],

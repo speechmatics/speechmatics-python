@@ -15,6 +15,7 @@ from speechmatics.models import (
     ConnectionSettings,
     ServerMessageType,
     ClientMessageType,
+    RTSpeakerDiarizationConfig,
 )
 from tests.utils import path_to_test_resource, default_ws_client_setup
 
@@ -241,6 +242,28 @@ def test_update_transcription_config_sends_set_recognition_config(mock_server):
     assert len(set_recognition_config_msgs) == 1
     assert (
         set_recognition_config_msgs[0]["transcription_config"]["language"] == "ja"
+    )  # noqa
+
+
+def test_start_recognition_sends_speaker_diarization_config(mock_server):
+    ws_client, transcription_config, audio_settings = default_ws_client_setup(
+        mock_server.url
+    )
+    transcription_config.speaker_diarization_config = RTSpeakerDiarizationConfig(
+        max_speakers=5
+    )
+
+    with open(path_to_test_resource("ch.wav"), "rb") as audio_stream:
+        ws_client.run_synchronously(audio_stream, transcription_config, audio_settings)
+    mock_server.wait_for_clean_disconnects()
+
+    start_recognition_msgs = mock_server.find_messages_by_type("StartRecognition")
+    assert len(start_recognition_msgs) == 1
+    assert (
+        start_recognition_msgs[0]["transcription_config"]["speaker_diarization_config"][
+            "max_speakers"
+        ]
+        == 5
     )  # noqa
 
 

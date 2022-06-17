@@ -24,6 +24,7 @@ from speechmatics.models import (
     ServerMessageType,
     ConnectionSettings,
     BatchTranscriptionConfig,
+    RTSpeakerDiarizationConfig,
 )
 
 LOGGER = logging.getLogger(__name__)
@@ -231,6 +232,13 @@ def get_transcription_config(args):
             config["punctuation_overrides"]["sensitivity"] = args[
                 "punctuation_sensitivity"
             ]
+
+    if args.get("speaker_diarization_max_speakers") is not None:
+        max_speakers = args.get("speaker_diarization_max_speakers")
+        config["speaker_diarization_config"] = RTSpeakerDiarizationConfig(
+            max_speakers=max_speakers
+        )
+
     if args["mode"] == "rt":
         # pylint: disable=unexpected-keyword-arg
         return TranscriptionConfig(**config)
@@ -669,6 +677,11 @@ def parse_args(args=None):
         help="Sensitivity level for advanced punctuation.",
     )
     rt_transcribe_command_parser.add_argument(
+        "--speaker-diarization-max-speakers",
+        type=int,
+        help="Enforces the maximum number of speakers allowed in a single audio stream. Min: 2, Max: 20, Default: 20.",
+    )
+    rt_transcribe_command_parser.add_argument(
         "--speaker-change-sensitivity",
         type=float,
         help="Sensitivity level for speaker change.",
@@ -748,7 +761,7 @@ def parse_args(args=None):
     )
     rt_transcribe_parser.add_argument(
         "--diarization",
-        choices=["none", "speaker_change"],
+        choices=["none", "speaker", "speaker_change"],
         help="Which type of diarization to use.",
     )
 
