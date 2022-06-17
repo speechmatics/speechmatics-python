@@ -143,6 +143,14 @@
 <span class="sd">    e.g. &#39;finance&#39;&quot;&quot;&quot;</span>
 
 
+<div class="viewcode-block" id="RTSpeakerDiarizationConfig"><a class="viewcode-back" href="../../models.html#speechmatics.models.RTSpeakerDiarizationConfig">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">RTSpeakerDiarizationConfig</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Real-time: Speaker diarization config.&quot;&quot;&quot;</span>
+
+    <span class="n">max_speakers</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;This enforces the maximum number of speakers allowed in a single audio stream.&quot;&quot;&quot;</span></div>
+
+
 <div class="viewcode-block" id="TranscriptionConfig"><a class="viewcode-back" href="../../models.html#speechmatics.models.TranscriptionConfig">[docs]</a><span class="nd">@dataclass</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">TranscriptionConfig</span><span class="p">(</span><span class="n">_TranscriptionConfig</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Real-time: Defines transcription parameters.&quot;&quot;&quot;</span>
@@ -156,6 +164,9 @@
 <span class="sd">    is detected, then the max_delay can be overriden until the end of that</span>
 <span class="sd">    entity. Fixed means that max_delay specified ignores any potential</span>
 <span class="sd">    entity that would not be completed within that threshold.&quot;&quot;&quot;</span>
+
+    <span class="n">speaker_diarization_config</span><span class="p">:</span> <span class="n">RTSpeakerDiarizationConfig</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;Configuration for speaker diarization.&quot;&quot;&quot;</span>
 
     <span class="n">speaker_change_sensitivity</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="sd">&quot;&quot;&quot;Sensitivity level for speaker change.&quot;&quot;&quot;</span>
