@@ -258,12 +258,12 @@ class BatchClient:
             # If we got a 404, we can assume the job doesn't exist
             # or was previously deleted.
             if response.status_code == 404:
-                return "Job not found"
+                return f"Job {job_id} not found"
 
             return (
-                "Job deleted successfully"
+                f"Job {job_id} deleted"
                 if (response.json())["job"]["status"] == "deleted"
-                else "Job was not deleted"
+                else f"Job {job_id} was not deleted. Error {response.json()}"
             )
 
         except KeyError:
