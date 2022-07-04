@@ -260,7 +260,11 @@ class BatchClient:
             if response.status_code == 404:
                 return "Job not found"
 
-            return str((response.json())["job"]["status"] == "deleted")
+            return (
+                "Job deleted successfully"
+                if (response.json())["job"]["status"] == "deleted"
+                else "Job was not deleted"
+            )
 
         except KeyError:
             return False
