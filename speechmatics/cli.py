@@ -381,7 +381,7 @@ def submit_job_and_wait(
     """
     with BatchClient(connection_settings) as client:
         job_id = client.submit_job(audio, transcription_config)
-        print(f"Job submission successful. ID: {job_id}. Waiting for completion")
+        print(f"Job submission successful. ID: {job_id} . Waiting for completion")
         return client.wait_for_completion(job_id, transcription_format)
 
 
