@@ -480,10 +480,10 @@ def batch_main(args):
                     filename, get_transcription_config(args)
                 )
                 print(f"Submitted {filename} successfully, job ID: {job_id}")
-        elif command == "get-result":
+        elif command == "get-results":
             print(
                 batch_client.get_job_result(
-                    job_id=args["job_id"], transcription_format=args["format"]
+                    job_id=args["job_id"], transcription_format=args["output_format"]
                 )
             )
         elif command == "list-jobs":

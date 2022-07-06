@@ -212,7 +212,7 @@ class BatchClient:
         :rtype: bool | str | Dict[str, Any]
         """
         transcription_format = transcription_format.lower()
-        if (transcription_format) not in ["json-v2", "json_v2", "json", "txt", "srt"]:
+        if transcription_format not in ["json-v2", "json_v2", "json", "txt", "srt"]:
             raise TranscriptionError(
                 'Invalid transcription format. Valid formats are : "json-v2",'
                 '"json_v2", "json", "txt", "srt "'
@@ -226,9 +226,8 @@ class BatchClient:
             "/".join(["jobs", job_id, "transcript"]),
             params={"format": transcription_format},
         )
-
         if response.status_code == 404:
-            return False
+            return f"Job {job_id} not found"
         if transcription_format == "json-v2":
             return response.json()
         return response.text
