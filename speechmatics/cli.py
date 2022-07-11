@@ -403,11 +403,19 @@ def main(args=None):
     LOGGER.info("Args: %s", args)
 
     if mode == "rt":
+        if not args['command']:
+            LOGGER.error("No command specified")
+            args = vars(parse_args([mode, "-h"]))
         rt_main(args)
     elif mode == "batch":
+        if not args['command']:
+            LOGGER.error("No command specified")
+            args = vars(parse_args([mode, "-h"]))
         batch_main(args)
     else:
-        raise SystemExit(f"Unknown mode: {mode}")
+        # Not clear which help to show, so let's exit, but list the valid modes.
+        LOGGER.error("Usage: speechmatics [rt|batch] [command]")
+        raise SystemExit(f"Unknown mode: {mode}, mode must be one of 'rt' (realtime) or 'batch'")
 
 
 def rt_main(args):
