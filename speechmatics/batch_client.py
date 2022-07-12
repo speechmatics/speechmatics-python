@@ -52,6 +52,8 @@ class BatchClient:
         :type connection_settings: speechmatics.models.ConnectionSettings.
         """
         if not connection_settings.url.endswith("/v2"):
+            if connection_settings.url[-1] == "/":
+                connection_settings.url = connection_settings.url[:-1]
             connection_settings.url = "/".join([connection_settings.url, "v2"])
 
         self.connection_settings = connection_settings
@@ -127,7 +129,7 @@ class BatchClient:
 
         except httpx.HTTPError as exc:
             LOGGER.error(
-                "Error response %s while requesting %s \nDetails: %s",
+                "Error response %s while requesting %s . Details: %s",
                 exc.response.status_code,
                 exc.request.url,
                 exc.response.text,  # response.json()['detail'] Which would be nicer, crashes on 401.

@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Fix client crashing if 'url' parameter is omitted and now outputting informative message (DEL-4231)
 - Changed diarization option <speaker_and_channel> to <channel_and_speaker_change> as that's what SaaS expects.
 - Fix get-results to fetch the transcript  (DEL-4235)
 - Update batch delete job to return meaningful response (DEL-4234)
