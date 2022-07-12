@@ -165,10 +165,12 @@ def get_connection_settings(args):
     :return: Settings for the WebSocket connection.
     :rtype: speechmatics.models.ConnectionSettings
     """
+
     settings = ConnectionSettings(
         url=args["url"], message_buffer_size=args.get("buffer_size")
     )
-    if args["ssl_mode"] == "insecure":
+
+    if args.get("ssl_mode") == "insecure":
         settings.ssl_context.check_hostname = False
         settings.ssl_context.verify_mode = ssl.CERT_NONE
     elif args["ssl_mode"] == "none":
@@ -409,19 +411,21 @@ def main(args=None):
     LOGGER.info("Args: %s", args)
 
     if mode == "rt":
-        if not args['command']:
+        if not args["command"]:
             LOGGER.error("No command specified")
             args = vars(parse_args([mode, "-h"]))
         rt_main(args)
     elif mode == "batch":
-        if not args['command']:
+        if not args["command"]:
             LOGGER.error("No command specified")
             args = vars(parse_args([mode, "-h"]))
         batch_main(args)
     else:
         # Not clear which help to show, so let's exit, but list the valid modes.
         LOGGER.error("Usage: speechmatics [rt|batch] [command]")
-        raise SystemExit(f"Unknown mode: {mode}, mode must be one of 'rt' (realtime) or 'batch'")
+        raise SystemExit(
+            f"Unknown mode: {mode}, mode must be one of 'rt' (realtime) or 'batch'"
+        )
 
 
 def rt_main(args):
@@ -879,6 +883,7 @@ def parse_args(args=None):
     )
 
     parsed_args = parser.parse_args(args=args)
+
     # Fix up args for transcribe command
     if parsed_args.mode == "transcribe":
         parsed_args.command = "transcribe"
