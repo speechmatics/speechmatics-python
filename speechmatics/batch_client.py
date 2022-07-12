@@ -127,9 +127,10 @@ class BatchClient:
 
         except httpx.HTTPError as exc:
             LOGGER.error(
-                "Error response %s while requesting %s",
+                "Error response %s while requesting %s \nDetails: %s",
                 exc.response.status_code,
                 exc.request.url,
+                exc.response.text,  # response.json()['detail'] Which would be nicer, crashes on 401.
             )
             raise httpx.RequestError(exc)
 

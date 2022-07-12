@@ -197,10 +197,12 @@ def get_transcription_config(args):
         output_locale=args.get("output_locale"),
         operating_point=args.get("operating_point", "standard"),
         enable_partials=True if args.get("enable_partials", False) else None,
+        enable_entities=True if args.get("enable_entities", False) else None,
         max_delay=args.get("max_delay"),
         max_delay_mode=args.get("max_delay_mode"),
         diarization=args.get("diarization"),
         speaker_change_sensitivity=args.get("speaker_change_sensitivity"),
+        speaker_diarization_sensitivity=args.get("speaker_diarization_sensitivity"),
     )
 
     if args.get("additional_vocab_file"):
@@ -238,6 +240,10 @@ def get_transcription_config(args):
         config["speaker_diarization_config"] = RTSpeakerDiarizationConfig(
             max_speakers=max_speakers
         )
+
+    if args.get("channel_diarization_labels") is not None:
+        labels_str = args.get("channel_diarization_labels")
+        config["channel_diarization_labels"] = labels_str
 
     if args["mode"] == "rt":
         # pylint: disable=unexpected-keyword-arg
@@ -635,6 +641,15 @@ def parse_args(args=None):
             "Space separated list of permitted punctuation marks for advanced punctuation."
         ),
     )
+    config_parser.add_argument(
+        "--enable-entities",
+        default=False,
+        action="store_true",
+        help=(
+            "Whether to output additional information about recognised"
+            "entity classes (JSON output only)."
+        ),
+    )
 
     # Parent parser for output type
     output_format_parser = argparse.ArgumentParser(add_help=False)
@@ -650,9 +665,23 @@ def parse_args(args=None):
     # Parent parser for batch diarization argument
     batch_diarization_parser = argparse.ArgumentParser(add_help=False)
     batch_diarization_parser.add_argument(
+        "--speaker-diarization-sensitivity",
+        type=float,
+        help="The sensitivity of the speaker detection. Default is 0.5 .",
+    )
+    batch_diarization_parser.add_argument(
         "--diarization",
-        choices=["none", "speaker", "channel", "speaker_and_channel"],
+        choices=["none", "speaker", "channel", "channel_and_speaker_change"],
         help="Which type of diarization to use.",
+    )
+
+    batch_diarization_parser.add_argument(
+        "--channel-diarization-labels",
+        nargs="+",
+        help=(
+            "Add your own speaker or channel labels to the transcript. "
+            "Example usage: --channel-diarization-labels label1 label2"
+        ),
     )
 
     # Parent parser for job_id argument
@@ -670,15 +699,7 @@ def parse_args(args=None):
             "final transcripts."
         ),
     )
-    rt_transcribe_command_parser.add_argument(
-        "--enable-entities",
-        default=False,
-        action="store_true",
-        help=(
-            "Whether to output additional information about recognised"
-            "entity classes (JSON output only)."
-        ),
-    )
+
     rt_transcribe_command_parser.add_argument(
         "--punctuation-sensitivity",
         type=float,
@@ -804,7 +825,7 @@ def parse_args(args=None):
     batch_subparsers.add_parser(
         "list-jobs",
         parents=[connection_parser],
-        help="Retrieve json of last 100 jobs submitted within the last 7 days for the SaaS"
+        help="Retrieve json of last 100 jobs submitted within the last 7 days for the SaaS "
         "or all of the jobs for the batch appliance",
     )
 
@@ -847,7 +868,13 @@ def parse_args(args=None):
     )
     transcribe_parser.add_argument(
         "--diarization",
-        choices=["none", "speaker", "channel", "speaker_and_channel", "speaker_change"],
+        choices=[
+            "none",
+            "speaker",
+            "channel",
+            "channel_and_speaker_change",
+            "speaker_change",
+        ],
         help="Which type of diarization to use.",
     )
 

@@ -9,7 +9,7 @@ import ssl
 from dataclasses import asdict, dataclass, field, fields
 from enum import Enum
 
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 
 @dataclass
@@ -64,7 +64,7 @@ class SRTOverrides:
 
 
 @dataclass
-class _TranscriptionConfig:
+class _TranscriptionConfig:  # pylint: disable=too-many-instance-attributes
     """Base model for defining transcription parameters."""
 
     def __init__(self, **kwargs):
@@ -109,6 +109,9 @@ class _TranscriptionConfig:
     """Optionally request a language pack optimized for a specific domain,
     e.g. 'finance'"""
 
+    enable_entities: bool = None
+    """Indicates if inverse text normalization entity output is enabled."""
+
 
 @dataclass
 class RTSpeakerDiarizationConfig:
@@ -142,9 +145,6 @@ class TranscriptionConfig(_TranscriptionConfig):
     """Indicates if partial transcription, where words are produced
     immediately, is enabled. """
 
-    enable_entities: bool = None
-    """Indicates if inverse text normalization entity output is enabled."""
-
 
 @dataclass(init=False)
 class BatchTranscriptionConfig(_TranscriptionConfig):
@@ -160,12 +160,26 @@ class BatchTranscriptionConfig(_TranscriptionConfig):
     srt_overrides: SRTOverrides = None
     """Optional configuration for SRT output."""
 
+    speaker_diarization_sensitivity: float = None
+    """The sensitivity of the speaker detection."""
+
+    channel_diarization_labels: List[str] = None
+    """Add your own speaker or channel labels to the transcript"""
+
     def as_config(self):
         dictionary = self.asdict()
 
         fetch_data = dictionary.pop("fetch_data", None)
         notification_config = dictionary.pop("notification_config", None)
         srt_overrides = dictionary.pop("srt_overrides", None)
+        speaker_diarization_sensitivity = dictionary.pop(
+            "speaker_diarization_sensitivity", None
+        )
+
+        if speaker_diarization_sensitivity:
+            dictionary["speaker_diarization_config"] = {
+                "speaker_sensitivity": speaker_diarization_sensitivity
+            }
 
         config = {"type": "transcription", "transcription_config": dictionary}
 

@@ -125,6 +125,11 @@ from tests.utils import path_to_test_resource
         (["rt", "transcribe", "--ssl-mode=none"], {"ssl_mode": "none"}),
         (["rt", "transcribe", "--enable-partials"], {"enable_partials": True}),
         (["rt", "transcribe", "--enable-entities"], {"enable_entities": True}),
+        (["batch", "transcribe", "--enable-entities"], {"enable_entities": True}),
+        (
+            ["batch", "transcribe", "--speaker-diarization-sensitivity=0.7"],
+            {"speaker_diarization_sensitivity": 0.7},
+        ),
         (
             ["rt", "transcribe", "--speaker-change-token"],
             {"speaker_change_token": True},
@@ -137,6 +142,30 @@ from tests.utils import path_to_test_resource
                 "--speaker-diarization-max-speakers=3",
             ],
             {"diarization": "speaker", "speaker_diarization_max_speakers": 3},
+        ),
+        (
+            [
+                "batch",
+                "transcribe",
+                "--diarization=channel",
+                "--channel-diarization-labels=label5 label4 label3",
+            ],
+            {
+                "diarization": "channel",
+                "channel_diarization_labels": ["label5 label4 label3"],
+            },
+        ),
+        (
+            [
+                "batch",
+                "transcribe",
+                "--diarization=channel_and_speaker_change",
+                "--channel-diarization-labels=label1 label2",
+            ],
+            {
+                "diarization": "channel_and_speaker_change",
+                "channel_diarization_labels": ["label1 label2"],
+            },
         ),
         (["rt", "transcribe", "--auth-token=xyz"], {"auth_token": "xyz"}),
         (
@@ -152,8 +181,8 @@ from tests.utils import path_to_test_resource
             {"output_format": "json-v2"},
         ),
         (
-            ["batch", "transcribe", "--diarization=speaker_and_channel"],
-            {"diarization": "speaker_and_channel"},
+            ["batch", "transcribe", "--diarization=channel_and_speaker_change"],
+            {"diarization": "channel_and_speaker_change"},
         ),
         (["batch", "submit"], {"command": "submit"}),
     ],
