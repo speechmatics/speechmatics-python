@@ -8,15 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Support for enable entities, speaker diarization sensitivity, channel diarization labels in batch (DEL-4233)
+- Support for enable entities, speaker diarization sensitivity, channel diarization labels in batch
 
 ### Changed
 
-- Transformed <trascribe> command to follow the pattern of RT only for legacy compatibility (DEL-4651)
-- Fix client crashing if 'url' parameter is omitted and now outputting informative message (DEL-4231)
+- Transformed <trascribe> command to follow the pattern of RT only for legacy compatibility
+- Fix client crashing if 'url' parameter is omitted and now outputting informative message
 - Changed diarization option <speaker_and_channel> to <channel_and_speaker_change> as that's what SaaS expects.
-- Fix get-results to fetch the transcript  (DEL-4235)
-- Update batch delete job to return meaningful response (DEL-4234)
+- Fix get-results to fetch the transcript
+- Update batch delete job to return meaningful response
 
 ## [1.2.1] - 2022-06-17
 - Update documentation for RT speaker diarization.
