@@ -85,6 +85,8 @@
 <span class="sd">        :type connection_settings: speechmatics.models.ConnectionSettings.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">connection_settings</span><span class="o">.</span><span class="n">url</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;/v2&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">connection_settings</span><span class="o">.</span><span class="n">url</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;/&quot;</span><span class="p">:</span>
+                <span class="n">connection_settings</span><span class="o">.</span><span class="n">url</span> <span class="o">=</span> <span class="n">connection_settings</span><span class="o">.</span><span class="n">url</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
             <span class="n">connection_settings</span><span class="o">.</span><span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;/&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">connection_settings</span><span class="o">.</span><span class="n">url</span><span class="p">,</span> <span class="s2">&quot;v2&quot;</span><span class="p">])</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">connection_settings</span> <span class="o">=</span> <span class="n">connection_settings</span>
@@ -103,6 +105,7 @@
             <span class="n">timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">headers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">default_headers</span><span class="p">,</span>
             <span class="n">http2</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">verify</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">connection_settings</span><span class="o">.</span><span class="n">ssl_context</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span></div>
 
@@ -159,9 +162,10 @@
 
         <span class="k">except</span> <span class="n">httpx</span><span class="o">.</span><span class="n">HTTPError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                <span class="s2">&quot;Error response </span><span class="si">%s</span><span class="s2"> while requesting </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Error response </span><span class="si">%s</span><span class="s2"> while requesting </span><span class="si">%s</span><span class="s2"> . Details: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
                 <span class="n">exc</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="p">,</span>
                 <span class="n">exc</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">url</span><span class="p">,</span>
+                <span class="n">exc</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">,</span>  <span class="c1"># response.json()[&#39;detail&#39;] Which would be nicer, crashes on 401.</span>
             <span class="p">)</span>
             <span class="k">raise</span> <span class="n">httpx</span><span class="o">.</span><span class="n">RequestError</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span></div>
 
@@ -244,7 +248,7 @@
 <span class="sd">        :rtype: bool | str | Dict[str, Any]</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">transcription_format</span> <span class="o">=</span> <span class="n">transcription_format</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">transcription_format</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;json-v2&quot;</span><span class="p">,</span> <span class="s2">&quot;json_v2&quot;</span><span class="p">,</span> <span class="s2">&quot;json&quot;</span><span class="p">,</span> <span class="s2">&quot;txt&quot;</span><span class="p">,</span> <span class="s2">&quot;srt&quot;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">transcription_format</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;json-v2&quot;</span><span class="p">,</span> <span class="s2">&quot;json_v2&quot;</span><span class="p">,</span> <span class="s2">&quot;json&quot;</span><span class="p">,</span> <span class="s2">&quot;txt&quot;</span><span class="p">,</span> <span class="s2">&quot;srt&quot;</span><span class="p">]:</span>
             <span class="k">raise</span> <span class="n">TranscriptionError</span><span class="p">(</span>
                 <span class="s1">&#39;Invalid transcription format. Valid formats are : &quot;json-v2&quot;,&#39;</span>
                 <span class="s1">&#39;&quot;json_v2&quot;, &quot;json&quot;, &quot;txt&quot;, &quot;srt &quot;&#39;</span>
@@ -258,9 +262,8 @@
             <span class="s2">&quot;/&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;jobs&quot;</span><span class="p">,</span> <span class="n">job_id</span><span class="p">,</span> <span class="s2">&quot;transcript&quot;</span><span class="p">]),</span>
             <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;format&quot;</span><span class="p">:</span> <span class="n">transcription_format</span><span class="p">},</span>
         <span class="p">)</span>
-
         <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">404</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Job </span><span class="si">{</span><span class="n">job_id</span><span class="si">}</span><span class="s2"> not found&quot;</span>
         <span class="k">if</span> <span class="n">transcription_format</span> <span class="o">==</span> <span class="s2">&quot;json-v2&quot;</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span></div>
@@ -290,9 +293,13 @@
             <span class="c1"># If we got a 404, we can assume the job doesn&#39;t exist</span>
             <span class="c1"># or was previously deleted.</span>
             <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">404</span><span class="p">:</span>
-                <span class="k">return</span> <span class="s2">&quot;Job not found&quot;</span>
+                <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Job </span><span class="si">{</span><span class="n">job_id</span><span class="si">}</span><span class="s2"> not found&quot;</span>
 
-            <span class="k">return</span> <span class="nb">str</span><span class="p">((</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">())[</span><span class="s2">&quot;job&quot;</span><span class="p">][</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;deleted&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Job </span><span class="si">{</span><span class="n">job_id</span><span class="si">}</span><span class="s2"> deleted&quot;</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">())[</span><span class="s2">&quot;job&quot;</span><span class="p">][</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;deleted&quot;</span>
+                <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;Job </span><span class="si">{</span><span class="n">job_id</span><span class="si">}</span><span class="s2"> was not deleted. Error </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
 
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span></div>

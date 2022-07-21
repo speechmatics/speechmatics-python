@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-## [Unreleased]
+## [1.2.2] - 2022-07-20
 
 ### Added
 
@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Transformed <trascribe> command to follow the pattern of RT only for legacy compatibility (DEL-4651)
 - Fix client crashing if 'url' parameter is omitted and now outputting informative message (DEL-4231)
 - Changed diarization option <speaker_and_channel> to <channel_and_speaker_change> as that's what SaaS expects.
 - Fix get-results to fetch the transcript  (DEL-4235)
