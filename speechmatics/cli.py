@@ -562,8 +562,8 @@ def parse_args(args=None):
         type=str,
         required=True,
         help=(
-            "Websocket or batch API URL (e.g. wss://192.168.8.12:9000/ "
-            "or https://trial.asr.api.speechmatics.com/v2)."
+            "Websocket for RT or for batch API URL (e.g. wss://192.168.8.12:9000/ "
+            "or https://trial.asr.api.speechmatics.com/v2 respectively)."
         ),
     )
     connection_parser.add_argument(
@@ -776,6 +776,12 @@ def parse_args(args=None):
         ),
     )
 
+    rt_transcribe_command_parser.add_argument(
+        "--diarization",
+        choices=["none", "speaker", "speaker_change"],
+        help="Which type of diarization to use.",
+    )
+
     # Build our actual parsers.
     mode_subparsers = parser.add_subparsers(title="Mode", dest="mode")
 
@@ -783,7 +789,7 @@ def parse_args(args=None):
 
     rt_parser = mode_subparsers.add_parser("rt", help="Real-time commands")
     rt_subparsers = rt_parser.add_subparsers(title="Commands", dest="command")
-    rt_transcribe_parser = rt_subparsers.add_parser(
+    rt_subparsers.add_parser(
         "transcribe",
         parents=[
             rt_transcribe_command_parser,
@@ -791,11 +797,6 @@ def parse_args(args=None):
             connection_parser,
             config_parser,
         ],
-    )
-    rt_transcribe_parser.add_argument(
-        "--diarization",
-        choices=["none", "speaker", "speaker_change"],
-        help="Which type of diarization to use.",
     )
 
     # Parsers specific to batch mode commands
@@ -858,28 +859,16 @@ def parse_args(args=None):
         help="Retrieve status of a transcription job.",
     )
 
-    # Parser for the "transcribe" command -- decides to use batch or rt by URL scheme.
-    transcribe_parser = mode_subparsers.add_parser(
+    # Parser for the "transcribe" command uses only RT.
+    mode_subparsers.add_parser(
         "transcribe",
         parents=[
             rt_transcribe_command_parser,
             file_parser,
             connection_parser,
             config_parser,
-            output_format_parser,
         ],
-        help="Transcribe one or more audio files automatically.",
-    )
-    transcribe_parser.add_argument(
-        "--diarization",
-        choices=[
-            "none",
-            "speaker",
-            "channel",
-            "channel_and_speaker_change",
-            "speaker_change",
-        ],
-        help="Which type of diarization to use.",
+        help="Real-time commands. RETAINED FOR LEGACY COMPATIBILITY.",
     )
 
     parsed_args = parser.parse_args(args=args)
@@ -891,7 +880,10 @@ def parse_args(args=None):
         if urlparse(parsed_args.url).scheme in ["ws", "wss"]:
             parsed_args.mode = "rt"
         else:
-            parsed_args.mode = "batch"
+            LOGGER.error(
+                "speechmatics [transcribe] mode is used only with RT for legacy compatibility, not batch."
+            )
+            args = vars(parse_args(["batch", "-h"]))
 
     return parsed_args
 

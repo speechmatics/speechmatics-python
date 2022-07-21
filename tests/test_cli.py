@@ -207,14 +207,6 @@ def test_cli_arg_parse_with_file(args, values):
             ["transcribe", "--url", "wss://127.0.0.1:9000"],
             {"mode": "rt", "command": "transcribe"},
         ),
-        (
-            ["transcribe", "--url", "http://127.0.0.1"],
-            {"mode": "batch", "command": "transcribe"},
-        ),
-        (
-            ["transcribe", "--url", "HTTPS://127.0.0.1"],
-            {"mode": "batch", "command": "transcribe"},
-        ),
     ],
 )
 def test_cli_arg_parse_transcribe_url(args, values):

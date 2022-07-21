@@ -20,7 +20,7 @@ def read(fname):
         str: file content
     """
     fpath = os.path.join(os.path.dirname(os.path.abspath(__file__)), fname)
-    with open(fpath, encoding='utf-8') as path:
+    with open(fpath, encoding="utf-8") as path:
         return path.read()
 
 
@@ -36,7 +36,7 @@ def read_list(fname):
                    characters stripped off and empty lines filtered out
     """
     content = read(fname)
-    retval = list(filter(None, content.split('\n')))
+    retval = list(filter(None, content.split("\n")))
 
     return retval
 
@@ -57,26 +57,22 @@ def get_version(fname):
 logging.basicConfig(level=logging.INFO)
 
 setup(
-    name='speechmatics-python',
-    version=os.getenv('VERSION', get_version('VERSION')),
-    packages=['speechmatics'],
-    url='https://github.com/speechmatics/speechmatics-python/',
-    license='MIT',
-    author='Speechmatics',
-    author_email='support@speechmatics.com',
-    description='Python library and CLI for Speechmatics',
-    long_description=read('README.md'),
-    long_description_content_type='text/markdown',
-    install_requires=read_list('requirements.txt'),
-    tests_require=read_list('requirements-dev.txt'),
-    entry_points={
-        'console_scripts': [
-            'speechmatics = speechmatics.cli:main'
-        ]
-    },
+    name="speechmatics-python",
+    version=os.getenv("VERSION", get_version("VERSION")),
+    packages=["speechmatics"],
+    url="https://github.com/speechmatics/speechmatics-python/",
+    license="MIT",
+    author="Speechmatics",
+    author_email="support@speechmatics.com",
+    description="Python library and CLI for Speechmatics",
+    long_description=read("README.md"),
+    long_description_content_type="text/markdown",
+    install_requires=read_list("requirements.txt"),
+    tests_require=read_list("requirements-dev.txt"),
+    entry_points={"console_scripts": ["speechmatics = speechmatics.cli:main"]},
     project_urls={
-        'Documentation': 'https://speechmatics.github.io/speechmatics-python/',
-        'Source Code': 'https://github.com/speechmatics/speechmatics-python/',
+        "Documentation": "https://speechmatics.github.io/speechmatics-python/",
+        "Source Code": "https://github.com/speechmatics/speechmatics-python/",
     },
     classifiers=[
         "Environment :: Console",
@@ -90,5 +86,5 @@ setup(
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
     include_package_data=True,
-    python_requires='>=3.7',
+    python_requires=">=3.7",
 )
