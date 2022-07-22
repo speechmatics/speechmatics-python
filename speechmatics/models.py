@@ -67,7 +67,7 @@ class SRTOverrides:
 class _TranscriptionConfig:  # pylint: disable=too-many-instance-attributes
     """Base model for defining transcription parameters."""
 
-    def __init__(self, **kwargs):
+    def __init__(self, language=None, **kwargs):
         """
         Ignores values which are not dataclass members when initalising.
         This allows **kwargs to contain fields which are not in the model,
@@ -75,6 +75,10 @@ class _TranscriptionConfig:  # pylint: disable=too-many-instance-attributes
         See cli.get_transcription_config() for an example.
         """
         super().__init__()
+        # the language attribute is a special case, as it's a positional parameter
+        if language is not None:
+            self.language=language
+
         # pylint: disable=consider-using-set-comprehension
         names = set([f.name for f in fields(self)])
         for key, value in kwargs.items():
