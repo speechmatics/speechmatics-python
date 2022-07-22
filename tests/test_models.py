@@ -27,6 +27,11 @@ def test_transcriptionconfig_excludes_nones():
     assert None not in config_dict.values()
 
 
+def test_transcriptionconfig_positional_arg():
+    config = models.TranscriptionConfig("de")
+    assert config.language == "de"
+
+
 def test_batchtranscriptionconfig_excludes_nones():
     config = models.BatchTranscriptionConfig()
     config_dict = config.asdict()
