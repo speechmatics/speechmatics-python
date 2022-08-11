@@ -213,6 +213,11 @@ async def mock_server_handler(websocket, logbook):
                     {
                         "message": "RecognitionStarted",
                         "id": "7c3003ae-fa23-45dc-a5cd-5b86bf56817b",
+                        "language_pack_info": {
+                            "language_code": "en",
+                            "word_delimiter": " ",
+                            "sentence_delimiter": ".",
+                        },
                     }
                 )
             elif msg_name == "EndOfStream":

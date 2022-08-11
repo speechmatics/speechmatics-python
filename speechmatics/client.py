@@ -55,6 +55,7 @@ class WebsocketClient:
 
         self.seq_no = 0
         self.session_running = False
+        self._language_pack_info = None
         self._transcription_config_needs_update = False
         self._session_needs_closing = False
 
@@ -84,6 +85,24 @@ class WebsocketClient:
         as started meaning, AddAudio is now allowed.
         """
         self._recognition_started.set()
+
+    def _set_language_pack_info(self, language_pack_info: dict):
+        """
+        Update the `language_pack_info` which is a subset of information from the
+        manifest in the language pack which we expose to end users via the
+        RecognitionStarted message.
+        """
+        self._language_pack_info = language_pack_info
+
+    def get_language_pack_info(self) -> dict:
+        """
+        Get the `language_pack_info` which is a subset of information from the
+        manifest in the language pack which we expose to end users.
+
+        Can be None if this field has not yet been set - i.e. if the RecognitionStarted
+        message has not been received yet.
+        """
+        return self._language_pack_info
 
     @json_utf8
     def _set_recognition_config(self):
@@ -158,6 +177,8 @@ class WebsocketClient:
 
         if message_type == ServerMessageType.RecognitionStarted:
             self._flag_recognition_started()
+            if "language_pack_info" in message:
+                self._set_language_pack_info(message["language_pack_info"])
         elif message_type == ServerMessageType.AudioAdded:
             self._buffer_semaphore.release()
         elif message_type == ServerMessageType.EndOfTranscript:
@@ -376,6 +397,7 @@ class WebsocketClient:
         """
         self.transcription_config = transcription_config
         self.seq_no = 0
+        self._language_pack_info = None
         await self._init_synchronization_primitives()
 
         extra_headers = {}

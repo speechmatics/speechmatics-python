@@ -1,0 +1,51 @@
+{
+    "message": "AddTranscript",
+    "format": "2.7",
+    "results": [
+        {
+            "alternatives": [
+                {
+                    "confidence": 1.0,
+                    "content": "That's",
+                    "language": "en",
+                    "speaker": "S1"
+                }
+            ],
+            "end_time": 0.26999998092651367,
+            "start_time": 0.029999999329447746,
+            "type": "word"
+        },
+        {
+            "alternatives": [
+                {
+                    "confidence": 1.0,
+                    "content": "amazing",
+                    "language": "en",
+                    "speaker": "S1"
+                }
+            ],
+            "end_time": 2.0399999618530273,
+            "start_time": 1.559999942779541,
+            "type": "word"
+        },
+        {
+            "alternatives": [
+                {
+                    "confidence": 1.0,
+                    "content": ".",
+                    "language": "en",
+                    "speaker": "S1"
+                }
+            ],
+            "end_time": 2.0399999618530273,
+            "is_eos": true,
+            "start_time": 2.0399999618530273,
+            "type": "punctuation"
+        }
+    ],
+    "metadata": {
+        "end_time": 2.34,
+        "start_time": 0.0,
+        "transcript": "That's amazing."
+    }
+}

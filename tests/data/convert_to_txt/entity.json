@@ -1,0 +1,108 @@
+{
+    "message": "AddTranscript",
+    "format": "2.7",
+    "results": [
+        {
+            "alternatives": [
+                {
+                    "confidence": 0.9904544034947094,
+                    "content": "$2.05",
+                    "language": "en",
+                    "speaker": "S1"
+                }
+            ],
+            "end_time": 10.169486045837402,
+            "entity_class": "money",
+            "spoken_form": [
+                {
+                    "alternatives": [
+                        {
+                            "confidence": 0.9908108711242676,
+                            "content": "Two",
+                            "language": "en",
+                            "speaker": "S1"
+                        }
+                    ],
+                    "end_time": 8.760000228881836,
+                    "start_time": 8.44150447845459,
+                    "type": "word"
+                },
+                {
+                    "alternatives": [
+                        {
+                            "confidence": 1.0,
+                            "content": "dollars",
+                            "language": "en",
+                            "speaker": "S1"
+                        }
+                    ],
+                    "end_time": 9.300000190734863,
+                    "start_time": 8.760000228881836,
+                    "type": "word"
+                },
+                {
+                    "alternatives": [
+                        {
+                            "confidence": 0.9996402263641357,
+                            "content": "five",
+                            "language": "en",
+                            "speaker": "S1"
+                        }
+                    ],
+                    "end_time": 9.65999984741211,
+                    "start_time": 9.300000190734863,
+                    "type": "word"
+                },
+                {
+                    "alternatives": [
+                        {
+                            "confidence": 1.0,
+                            "content": "cents",
+                            "language": "en",
+                            "speaker": "S1"
+                        }
+                    ],
+                    "end_time": 10.169486045837402,
+                    "start_time": 9.660021781921387,
+                    "type": "word"
+                }
+            ],
+            "start_time": 8.44150447845459,
+            "type": "entity",
+            "written_form": [
+                {
+                    "alternatives": [
+                        {
+                            "confidence": 0.9904544034947094,
+                            "content": "$2.05",
+                            "language": "en",
+                            "speaker": "S1"
+                        }
+                    ],
+                    "end_time": 10.169486045837402,
+                    "start_time": 8.44150447845459,
+                    "type": "word"
+                }
+            ]
+        },
+        {
+            "alternatives": [
+                {
+                    "confidence": 1.0,
+                    "content": ".",
+                    "language": "en",
+                    "speaker": "S1"
+                }
+            ],
+            "end_time": 10.169486045837402,
+            "is_eos": true,
+            "start_time": 10.169486045837402,
+            "type": "punctuation"
+        }
+    ],
+    "metadata": {
+        "end_time": 11.04,
+        "start_time": 8.44150447845459,
+        "transcript": "$2.05. "
+    }
+}

@@ -530,6 +530,21 @@ async def test__producer_semaphore_timeout(mocker):
     assert len(msgs) == buffer_size
 
 
+def test_language_pack_info_is_stored(mock_server):
+    """
+    Tests that `language_pack_info` from the `RecognitionStarted` message is stored by the client.
+    """
+    ws_client, transcription_config, audio_settings = default_ws_client_setup(
+        mock_server.url
+    )
+    with open(path_to_test_resource("ch.wav"), "rb") as audio_stream:
+        ws_client.run_synchronously(audio_stream, transcription_config, audio_settings)
+
+    info = ws_client.get_language_pack_info()
+    assert info is not None
+    assert info["language_code"] == "en"
+
+
 def deepcopy_state(obj):
     """
     Return a deepcopy of the __dict__ (or state) of an object but ignore

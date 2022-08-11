@@ -15,6 +15,7 @@ from dataclasses import dataclass
 from typing import List, Dict, Union, Tuple, Any
 from urllib.parse import urlparse
 
+import speechmatics.adapters
 from speechmatics.client import WebsocketClient
 from speechmatics.batch_client import BatchClient
 from speechmatics.models import (
@@ -24,6 +25,7 @@ from speechmatics.models import (
     ServerMessageType,
     ConnectionSettings,
     BatchTranscriptionConfig,
+    BatchSpeakerDiarizationConfig,
     RTSpeakerDiarizationConfig,
 )
 
@@ -243,6 +245,12 @@ def get_transcription_config(args):
             max_speakers=max_speakers
         )
 
+    if args.get("speaker_diarization_sensitivity") is not None:
+        speaker_sensitivity = args.get("speaker_diarization_sensitivity")
+        config["speaker_diarization_config"] = BatchSpeakerDiarizationConfig(
+            speaker_sensitivity=speaker_sensitivity
+        )
+
     if args.get("channel_diarization_labels") is not None:
         labels_str = args.get("channel_diarization_labels")
         config["channel_diarization_labels"] = labels_str
@@ -281,6 +289,7 @@ def add_printing_handlers(
     enable_partials=False,
     debug_handlers_too=False,
     speaker_change_token=False,
+    print_json=False,
 ):
     """
     Adds a set of handlers to the websocket client which print out transcripts
@@ -312,18 +321,34 @@ def add_printing_handlers(
 
     def partial_transcript_handler(message):
         # "\n" does not appear in partial transcripts
-        print(f'{message["metadata"]["transcript"]}', end="\r", file=sys.stderr)
+        if print_json:
+            print(json.dumps(message))
+            return
+        plaintext = speechmatics.adapters.convert_to_txt(
+            message["results"],
+            api.transcription_config.language,
+            language_pack_info=api.get_language_pack_info(),
+            speaker_labels=True,
+            speaker_change_token=speaker_change_token,
+        )
+        if plaintext:
+            print(plaintext, end="\r", file=sys.stderr)
 
     def transcript_handler(message):
         transcripts.json.append(message)
-        transcript = message["metadata"]["transcript"]
-        if transcript:
-            transcript_to_print = transcript
-            if speaker_change_token:
-                transcript_with_sc_token = transcript.replace("\n", "\n<sc>\n")
-                transcript_to_print = transcript_with_sc_token
-            transcripts.text += transcript_to_print
-            print(transcript_to_print)
+        if print_json:
+            print(json.dumps(message))
+            return
+        plaintext = speechmatics.adapters.convert_to_txt(
+            message["results"],
+            api.transcription_config.language,
+            language_pack_info=api.get_language_pack_info(),
+            speaker_labels=True,
+            speaker_change_token=speaker_change_token,
+        )
+        if plaintext:
+            print(plaintext)
+        transcripts.text += plaintext
 
     def end_of_transcript_handler(_):
         if enable_partials:
@@ -453,6 +478,7 @@ def rt_main(args):
         enable_partials=args["enable_partials"],
         debug_handlers_too=args["debug"],
         speaker_change_token=args["speaker_change_token"],
+        print_json=args["print_json"],
     )
 
     def run(stream):
@@ -765,7 +791,6 @@ def parse_args(args=None):
             "values which are too small create unnecessary overhead."
         ),
     )
-
     rt_transcribe_command_parser.add_argument(
         "--buffer-size",
         default=512,
@@ -773,6 +798,15 @@ def parse_args(args=None):
         help=(
             "Maximum number of messages to send before waiting for"
             "acknowledgements from the server."
+        ),
+    )
+    rt_transcribe_command_parser.add_argument(
+        "--print-json",
+        default=False,
+        action="store_true",
+        help=(
+            "Print the JSON partial & final transcripts received rather than "
+            "plaintext messages."
         ),
     )
 
