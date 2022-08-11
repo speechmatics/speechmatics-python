@@ -478,6 +478,7 @@ def test_rt_main_with_all_options(mock_server, tmp_path):
 
 def test_add_printing_handlers_transcript_handler(mocker, capsys):
     api = mocker.MagicMock()
+    api.get_language_pack_info = mocker.MagicMock(return_value={"word_delimiter": " "})
     transcripts = cli.Transcripts(text="", json=[])
 
     cli.add_printing_handlers(api, transcripts)
@@ -511,7 +512,7 @@ def test_add_printing_handlers_transcript_handler(mocker, capsys):
     assert not out, "Don't print a newline when the transcript is empty"
     assert not err
 
-    transcript = "Howdy "
+    transcript = "Howdy"
     msg_single_word_transcript = copy.deepcopy(msg_empty_transcript)
     msg_single_word_transcript["metadata"]["transcript"] = transcript
     msg_single_word_transcript["results"].append(
@@ -583,6 +584,7 @@ def check_printing_handlers(
     mocker, capsys, transcript, expected_transcript_txt, speaker_change_token
 ):
     api = mocker.MagicMock()
+    api.get_language_pack_info = mocker.MagicMock(return_value={"word_delimiter": " "})
     transcripts = cli.Transcripts(text="", json=[])
 
     cli.add_printing_handlers(

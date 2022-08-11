@@ -119,10 +119,18 @@ class _TranscriptionConfig:  # pylint: disable=too-many-instance-attributes
 
 @dataclass
 class RTSpeakerDiarizationConfig:
-    """Real-time: Speaker diarization config."""
+    """Real-time mode: Speaker diarization config."""
 
     max_speakers: int = None
     """This enforces the maximum number of speakers allowed in a single audio stream."""
+
+
+@dataclass
+class BatchSpeakerDiarizationConfig:
+    """Batch mode: Speaker diarization config."""
+
+    speaker_sensitivity: int = None
+    """The sensitivity of the speaker detection."""
 
 
 @dataclass(init=False)
@@ -164,7 +172,7 @@ class BatchTranscriptionConfig(_TranscriptionConfig):
     srt_overrides: SRTOverrides = None
     """Optional configuration for SRT output."""
 
-    speaker_diarization_sensitivity: float = None
+    speaker_diarization_config: BatchSpeakerDiarizationConfig = None
     """The sensitivity of the speaker detection."""
 
     channel_diarization_labels: List[str] = None
@@ -176,14 +184,6 @@ class BatchTranscriptionConfig(_TranscriptionConfig):
         fetch_data = dictionary.pop("fetch_data", None)
         notification_config = dictionary.pop("notification_config", None)
         srt_overrides = dictionary.pop("srt_overrides", None)
-        speaker_diarization_sensitivity = dictionary.pop(
-            "speaker_diarization_sensitivity", None
-        )
-
-        if speaker_diarization_sensitivity:
-            dictionary["speaker_diarization_config"] = {
-                "speaker_sensitivity": speaker_diarization_sensitivity
-            }
 
         config = {"type": "transcription", "transcription_config": dictionary}
 

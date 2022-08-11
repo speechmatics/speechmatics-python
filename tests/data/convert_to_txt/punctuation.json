@@ -1,0 +1,122 @@
+{
+    "message": "AddTranscript",
+    "format": "2.7",
+    "results": [
+        {
+            "alternatives": [
+                {
+                    "confidence": 1.0,
+                    "content": "Yes",
+                    "language": "en"
+                }
+            ],
+            "end_time": 0.1,
+            "start_time": 0.0,
+            "type": "word"
+        },
+        {
+            "alternatives": [
+                {
+                    "confidence": 1.0,
+                    "content": ",",
+                    "language": "en"
+                }
+            ],
+            "end_time": 0.2,
+            "start_time": 0.1,
+            "type": "punctuation"
+        },
+        {
+            "alternatives": [
+                {
+                    "confidence": 1.0,
+                    "content": "*",
+                    "language": "en"
+                }
+            ],
+            "end_time": 0.3,
+            "start_time": 0.2,
+            "type": "punctuation",
+            "attaches_to": "next"
+        },
+        {
+            "alternatives": [
+                {
+                    "confidence": 1.0,
+                    "content": "great",
+                    "language": "en"
+                }
+            ],
+            "end_time": 0.4,
+            "start_time": 0.3,
+            "type": "word"
+        },
+        {
+            "alternatives": [
+                {
+                    "confidence": 1.0,
+                    "content": "for",
+                    "language": "en"
+                }
+            ],
+            "end_time": 0.5,
+            "start_time": 0.4,
+            "type": "word"
+        },
+        {
+            "alternatives": [
+                {
+                    "confidence": 1.0,
+                    "content": "-",
+                    "language": "en"
+                }
+            ],
+            "end_time": 0.6,
+            "start_time": 0.5,
+            "type": "punctuation",
+            "attaches_to": "both"
+        },
+        {
+            "alternatives": [
+                {
+                    "confidence": 1.0,
+                    "content": "sure",
+                    "language": "en"
+                }
+            ],
+            "end_time": 0.7,
+            "start_time": 0.6,
+            "type": "word"
+        },
+        {
+            "alternatives": [
+                {
+                    "confidence": 1.0,
+                    "content": "&",
+                    "language": "en"
+                }
+            ],
+            "end_time": 0.7,
+            "start_time": 0.6,
+            "type": "punctuation",
+            "attaches_to": "none"
+        },
+        {
+            "alternatives": [
+                {
+                    "confidence": 1.0,
+                    "content": "stuff",
+                    "language": "en"
+                }
+            ],
+            "end_time": 0.8,
+            "start_time": 0.7,
+            "type": "word"
+        }
+    ],
+    "metadata": {
+        "end_time": 5.0,
+        "start_time": 0.0,
+        "transcript": "Yes, *great for-sure & stuff"
+    }
+}

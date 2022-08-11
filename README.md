@@ -78,6 +78,8 @@ To install from source:
       | speechmatics transcribe --ssl-mode none --url $URL --enable-partials --raw pcm_f32le --sample-rate 44100 --lang en -
   ```
 
+  Add the `--print-json` argument to see the raw JSON transcript messages being sent rather than just the plaintext transcript.
+
   ### Batch ASR
 - Submit a .wav file for batch ASR processing
 
