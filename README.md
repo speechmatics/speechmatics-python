@@ -22,10 +22,25 @@ To install from source:
 
 
 ### Realtime ASR
-- A normal real time session using a .wav file as the input audio:
+- Starting a real-time session for SaaS customers using a .wav file as the input audio:
 
    ```shell
-   # Point URL to the local instance of Speechmatics
+   # Point URL to the SaaS self-service runtime
+   $ URL=wss://neu3.rt.speechmatics.com/v2/en
+
+   $ speechmatics transcribe --url $URL --ssl-mode none --auth-token $AUTH_TOKEN --generate-temp-token example_audio.wav
+   ```
+
+- Starting a real-time session for enterprise SaaS customers using a .wav file as the input audio:
+
+   ```shell
+   $ speechmatics transcribe --url $URL --ssl-mode none --auth-token $AUTH_TOKEN example_audio.wav
+   ```
+
+- Starting a real-time session for on-prem customers using a .wav file as the input audio:
+
+   ```shell
+   # Point URL to the local instance of the realtime appliance
    $ URL=ws://realtimeappliance.yourcompany:9000/v2
 
    $ speechmatics transcribe --url $URL --lang en --ssl-mode none example_audio.wav

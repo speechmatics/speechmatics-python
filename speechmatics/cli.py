@@ -167,18 +167,20 @@ def get_connection_settings(args):
     :return: Settings for the WebSocket connection.
     :rtype: speechmatics.models.ConnectionSettings
     """
-
     settings = ConnectionSettings(
-        url=args["url"], message_buffer_size=args.get("buffer_size")
+        url=args.get("url"),
+        auth_token=args.get("auth_token"),
+        generate_temp_token=True if args.get("generate_temp_token", False) else None,
     )
+
+    if args.get("buffer_size") is not None:
+        settings.message_buffer_size = args["buffer_size"]
 
     if args.get("ssl_mode") == "insecure":
         settings.ssl_context.check_hostname = False
         settings.ssl_context.verify_mode = ssl.CERT_NONE
-    elif args["ssl_mode"] == "none":
+    elif args.get("ssl_mode") == "none":
         settings.ssl_context = None
-
-    settings.auth_token = args["auth_token"]
 
     return settings
 
@@ -609,6 +611,16 @@ def parse_args(args=None):
             "mode a valid certificate is expected. With `insecure` mode"
             " a self signed certificate is allowed."
             " With `none` then SSL is not used."
+        ),
+    )
+    connection_parser.add_argument(
+        "--generate-temp-token",
+        default=None,
+        action="store_true",
+        help=(
+            "Automatically generate a temporary token for authentication."
+            "Non-enterprise customers must set this to True."
+            "Enterprise customers should set this to False."
         ),
     )
 

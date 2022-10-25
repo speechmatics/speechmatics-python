@@ -308,8 +308,12 @@ def test_helpful_error_message_received_on_connection_reset_error():
 
     with patch("websockets.connect", mock_connect):
         with patch.object(client.LOGGER, "error", mock_logger_error_method):
-            with pytest.raises(SystemExit) as ex:
+            try:
                 ws_client.run_synchronously(MagicMock(), MagicMock(), MagicMock())
+            except ConnectionResetError as exc:
+                assert exc is not None
+            else:
+                assert False # we should not reach else
             mock_logger_error_method.assert_called_once()
             # pylint: disable=unsubscriptable-object
             assert (
@@ -319,7 +323,6 @@ def test_helpful_error_message_received_on_connection_reset_error():
                 # function, pylint doesn't like this.
                 in mock_logger_error_method.call_args[0][0]
             )
-            assert ex.value.code == 1
 
 
 @pytest.mark.asyncio

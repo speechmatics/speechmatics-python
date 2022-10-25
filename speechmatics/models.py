@@ -9,7 +9,7 @@ import ssl
 from dataclasses import asdict, dataclass, field, fields
 from enum import Enum
 
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 
 @dataclass
@@ -248,6 +248,10 @@ class ConnectionSettings:
     auth_token: str = None
     """auth token to authenticate a customer.
     This auth token is only applicable for RT-SaaS."""
+
+    generate_temp_token: Optional[bool] = False
+    """Automatically generate a temporary token for authentication.
+    Non-enterprise customers must set this to True. Enterprise customers should set this to False."""
 
 
 class ClientMessageType(str, Enum):

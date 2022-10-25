@@ -389,6 +389,27 @@ def test_rt_main_with_basic_options(mock_server):
     assert mock_server.path == "/v2"
 
 
+def test_rt_main_with_temp_token_option(mock_server):
+    args = [
+        "-vv",
+        "rt",
+        "transcribe",
+        "--ssl-mode=insecure",
+        "--url",
+        mock_server.url,
+        "--generate-temp-token",
+        path_to_test_resource("ch.wav"),
+    ]
+    cli.main(vars(cli.parse_args(args)))
+    mock_server.wait_for_clean_disconnects()
+
+    assert mock_server.clients_connected_count == 1
+    assert mock_server.clients_disconnected_count == 1
+    assert mock_server.messages_received
+    assert mock_server.messages_sent
+    assert mock_server.path == "/v2"
+
+
 def test_rt_main_with_all_options(mock_server, tmp_path):
     vocab_file = tmp_path / "vocab.json"
     vocab_file.write_text(
