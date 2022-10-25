@@ -8,10 +8,14 @@ import asyncio
 import copy
 import json
 import logging
-import sys
 import traceback
 
 import websockets
+import httpx
+
+from websockets.exceptions import (
+    WebSocketException,
+)
 
 from speechmatics.exceptions import (
     EndOfTranscriptException,
@@ -399,10 +403,20 @@ class WebsocketClient:
         self.seq_no = 0
         self._language_pack_info = None
         await self._init_synchronization_primitives()
-
         extra_headers = {}
-        if self.connection_settings.auth_token is not None:
+        if (
+            not self.connection_settings.generate_temp_token
+            and self.connection_settings.auth_token is not None
+        ):
             token = f"Bearer {self.connection_settings.auth_token}"
+            extra_headers["Authorization"] = token
+
+        if (
+            self.connection_settings.generate_temp_token
+            and self.connection_settings.auth_token is not None
+        ):
+            temp_token = await _get_temp_token(self.connection_settings.auth_token)
+            token = f"Bearer {temp_token}"
             extra_headers["Authorization"] = token
 
         try:
@@ -424,7 +438,14 @@ class WebsocketClient:
                 "support SSL. If this is the case then try using "
                 "--ssl-mode=none"
             )
-            sys.exit(1)
+            raise
+        except WebSocketException:
+            traceback.print_exc()
+            LOGGER.error(
+                "Caught WebSocketException when attempting to connect to "
+                "server."
+            )
+            raise
         finally:
             self.session_running = False
             self._session_needs_closing = False
@@ -446,3 +467,30 @@ class WebsocketClient:
         """
         # pylint: disable=no-value-for-parameter
         asyncio.run(asyncio.wait_for(self.run(*args, **kwargs), timeout=timeout))
+
+
+async def _get_temp_token(api_key):
+    """
+    Used to get a temporary token from management platform api for SaaS users
+    """
+    mp_api_url = "https://mp.speechmatics.com"
+    endpoint = mp_api_url + "/v1/api_keys"
+    params = {"type": "rt"}
+    body = {"ttl": 60}
+    headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
+    # pylint: disable=no-member
+    try:
+        response = httpx.post(endpoint, json=body, params=params, headers=headers)
+        response.read()
+        response.raise_for_status()
+        key_object = response.json()
+        return key_object["key_value"]
+    except httpx.HTTPError as exc:
+        traceback.print_exc()
+        LOGGER.error(
+            "Error response %s while generating temporary token from %s. Details: %s",
+            exc.response.status_code,
+            exc.request.url,
+            exc.response.text,
+        )
+        raise exc
