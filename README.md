@@ -26,7 +26,7 @@ To install from source:
 
    ```shell
    # Point URL to the SaaS self-service runtime
-   $ URL=wss://neu3.rt.speechmatics.com/v2/en
+   $ URL=wss://eu2.rt.speechmatics.com/v2/en
 
    $ speechmatics transcribe --url $URL --ssl-mode none --auth-token $AUTH_TOKEN --generate-temp-token example_audio.wav
    ```
