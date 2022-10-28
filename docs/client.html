@@ -111,6 +111,15 @@ AddAudio message).</p></li>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="speechmatics.client.WebsocketClient.get_language_pack_info">
+<span class="sig-name descname"><span class="pre">get_language_pack_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/speechmatics/client.html#WebsocketClient.get_language_pack_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#speechmatics.client.WebsocketClient.get_language_pack_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the <cite>language_pack_info</cite> which is a subset of information from the
+manifest in the language pack which we expose to end users.</p>
+<p>Can be None if this field has not yet been set - i.e. if the RecognitionStarted
+message has not been received yet.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="speechmatics.client.WebsocketClient.run">
 <em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stream</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transcription_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">audio_settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/speechmatics/client.html#WebsocketClient.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#speechmatics.client.WebsocketClient.run" title="Permalink to this definition">¶</a></dt>
 <dd><p>Begin a new recognition session.
