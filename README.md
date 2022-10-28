@@ -28,13 +28,13 @@ To install from source:
    # Point URL to the SaaS self-service runtime
    $ URL=wss://eu2.rt.speechmatics.com/v2/en
 
-   $ speechmatics transcribe --url $URL --ssl-mode none --auth-token $AUTH_TOKEN --generate-temp-token example_audio.wav
+   $ speechmatics transcribe --url $URL --ssl-mode regular --auth-token $AUTH_TOKEN --generate-temp-token example_audio.wav
    ```
 
 - Starting a real-time session for enterprise SaaS customers using a .wav file as the input audio:
 
    ```shell
-   $ speechmatics transcribe --url $URL --ssl-mode none --auth-token $AUTH_TOKEN example_audio.wav
+   $ speechmatics transcribe --url $URL --ssl-mode regular --auth-token $AUTH_TOKEN example_audio.wav
    ```
 
 - Starting a real-time session for on-prem customers using a .wav file as the input audio:
