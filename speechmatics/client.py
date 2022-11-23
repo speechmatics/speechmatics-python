@@ -442,8 +442,7 @@ class WebsocketClient:
         except WebSocketException:
             traceback.print_exc()
             LOGGER.error(
-                "Caught WebSocketException when attempting to connect to "
-                "server."
+                "Caught WebSocketException when attempting to connect to server."
             )
             raise
         finally:

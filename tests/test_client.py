@@ -313,7 +313,7 @@ def test_helpful_error_message_received_on_connection_reset_error():
             except ConnectionResetError as exc:
                 assert exc is not None
             else:
-                assert False # we should not reach else
+                assert False  # we should not reach else
             mock_logger_error_method.assert_called_once()
             # pylint: disable=unsubscriptable-object
             assert (

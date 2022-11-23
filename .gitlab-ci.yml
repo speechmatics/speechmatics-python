@@ -16,8 +16,8 @@ stages:
 # Setup script for each image
 .python_before_script:
   before_script:
-    - if [ "${PYTHON_OS}" = "alpine" ]; then apk add make gcc linux-headers musl-dev; fi
-    - if [ "${PYTHON_OS}" = "slim" ]; then apt update && apt install -y gcc musl-dev make; fi
+    - if [ "${PYTHON_OS}" = "alpine" ]; then apk add make gcc linux-headers musl-dev git; fi
+    - if [ "${PYTHON_OS}" = "slim" ]; then apt update && apt install -y gcc musl-dev make git; fi
     - pip3 install -r requirements.txt -r requirements-dev.txt
 
 source:

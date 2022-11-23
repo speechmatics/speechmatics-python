@@ -6,9 +6,9 @@ all: lint test docs
 
 .PHONY: lint
 lint:
-	black $(SOURCES)
+	black --check --diff $(SOURCES)
 	pylint $(SOURCES)
-	pycodestyle $(SOURCES) 
+	pycodestyle $(SOURCES)
 
 .PHONY: test
 test: unittest

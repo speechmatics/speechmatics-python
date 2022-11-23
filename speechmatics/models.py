@@ -77,7 +77,7 @@ class _TranscriptionConfig:  # pylint: disable=too-many-instance-attributes
         super().__init__()
         # the language attribute is a special case, as it's a positional parameter
         if language is not None:
-            self.language=language
+            self.language = language
 
         # pylint: disable=consider-using-set-comprehension
         names = set([f.name for f in fields(self)])

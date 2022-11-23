@@ -69,7 +69,11 @@ def test_convert_to_txt(
 
     assert (
         adapters.convert_to_txt(
-            data["results"], "en", language_pack_info, speaker_labels, speaker_change_token
+            data["results"],
+            "en",
+            language_pack_info,
+            speaker_labels,
+            speaker_change_token,
         )
         == txt
     )
