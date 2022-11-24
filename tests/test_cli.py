@@ -45,11 +45,11 @@ from tests.utils import path_to_test_resource
         ),
         (
             ["rt", "transcribe", "--output-locale", "en-GB"],
-            {"language": "en", "output_locale": "en-GB"},
+            {"output_locale": "en-GB"},
         ),
         (
             ["batch", "transcribe", "--output-locale", "en-GB"],
-            {"language": "en", "output_locale": "en-GB"},
+            {"output_locale": "en-GB"},
         ),
         (
             ["rt", "transcribe", "--additional-vocab", "Speechmatics", "gnocchi"],
@@ -185,6 +185,10 @@ from tests.utils import path_to_test_resource
             {"diarization": "channel_and_speaker_change"},
         ),
         (["batch", "submit"], {"command": "submit"}),
+        (
+            ["rt", "transcribe", "--config-file=data/transcription_config.json"],
+            {"config_file": "data/transcription_config.json"},
+        ),
     ],
 )
 def test_cli_arg_parse_with_file(args, values):
@@ -193,7 +197,7 @@ def test_cli_arg_parse_with_file(args, values):
     actual_values = vars(cli.parse_args(args=test_args))
 
     for (key, val) in values.items():
-        assert actual_values[key] == val
+        assert actual_values[key] == val, f"Expected {actual_values} to match {values}"
 
 
 @pytest.mark.parametrize(
@@ -489,12 +493,91 @@ def test_rt_main_with_all_options(mock_server, tmp_path):
     assert msg["transcription_config"]["max_delay"] == 5.0
     assert msg["transcription_config"]["max_delay_mode"] == "fixed"
     assert msg["transcription_config"]["speaker_change_sensitivity"] == 0.8
+    assert msg["transcription_config"].get("operating_point") is None
 
     # Check that the chunk size argument is respected
     add_audio_messages = mock_server.find_add_audio_messages()
     size_of_audio_file = os.stat(audio_path).st_size
     expected_num_messages = size_of_audio_file / chunk_size
     assert -1 <= (len(add_audio_messages) - expected_num_messages) <= 1
+
+
+def test_rt_main_with_config_file(mock_server):
+    audio_path = path_to_test_resource("ch.wav")
+    config_path = path_to_test_resource("transcription_config.json")
+
+    args = [
+        "rt",
+        "transcribe",
+        "--ssl-mode=insecure",
+        "--url",
+        mock_server.url,
+        "--config-file",
+        config_path,
+        "--auth-token=xyz",
+        audio_path,
+    ]
+
+    cli.main(vars(cli.parse_args(args)))
+    mock_server.wait_for_clean_disconnects()
+
+    assert mock_server.clients_connected_count == 1
+    assert mock_server.clients_disconnected_count == 1
+    assert mock_server.messages_received
+    assert mock_server.messages_sent
+
+    # Check that the StartRecognition message contains the correct fields
+    msg = mock_server.find_start_recognition_message()
+
+    assert msg["audio_format"]["type"] == "file"
+    assert len(msg["audio_format"]) == 1
+    assert msg["transcription_config"]["language"] == "xy"
+    assert msg["transcription_config"]["domain"] == "fake"
+    assert msg["transcription_config"]["enable_entities"] is True
+    assert msg["transcription_config"].get("operating_point") is None
+
+
+def test_rt_main_with_config_file_cmdline_override(mock_server):
+    audio_path = path_to_test_resource("ch.wav")
+    config_path = path_to_test_resource("transcription_config.json")
+
+    args = [
+        "rt",
+        "transcribe",
+        "--ssl-mode=insecure",
+        "--url",
+        mock_server.url,
+        "--config-file",
+        config_path,
+        "--auth-token=xyz",
+        "--lang=yz",
+        "--output-locale=en-US",
+        "--domain=different",
+        "--operating-point=enhanced",
+        "--speaker-change-sensitivity",
+        "0.8",
+        audio_path,
+    ]
+
+    cli.main(vars(cli.parse_args(args)))
+    mock_server.wait_for_clean_disconnects()
+
+    assert mock_server.clients_connected_count == 1
+    assert mock_server.clients_disconnected_count == 1
+    assert mock_server.messages_received
+    assert mock_server.messages_sent
+
+    # Check that the StartRecognition message contains the correct fields
+    msg = mock_server.find_start_recognition_message()
+
+    assert msg["audio_format"]["type"] == "file"
+    assert len(msg["audio_format"]) == 1
+    assert msg["transcription_config"]["language"] == "yz"
+    assert msg["transcription_config"]["domain"] == "different"
+    assert msg["transcription_config"]["enable_entities"] is True
+    assert msg["transcription_config"]["output_locale"] == "en-US"
+    assert msg["transcription_config"]["speaker_change_sensitivity"] == 0.8
+    assert msg["transcription_config"]["operating_point"] == "enhanced"
 
 
 def test_add_printing_handlers_transcript_handler(mocker, capsys):
