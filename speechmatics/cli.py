@@ -185,7 +185,7 @@ def get_connection_settings(args):
     return settings
 
 
-def get_transcription_config(args):
+def get_transcription_config(args):  # pylint: disable=too-many-branches
     """
     Helper function which returns a TranscriptionConfig object based on the
     command line options given to the program.
@@ -197,19 +197,34 @@ def get_transcription_config(args):
     :rtype: speechmatics.models.TranscriptionConfig |
     speechmatics.models.BatchTranscriptionConfig
     """
-    config = dict(
-        language=args.get("language", "en"),
-        domain=args.get("domain"),
-        output_locale=args.get("output_locale"),
-        operating_point=args.get("operating_point", "standard"),
-        enable_partials=True if args.get("enable_partials", False) else None,
-        enable_entities=True if args.get("enable_entities", False) else None,
-        max_delay=args.get("max_delay"),
-        max_delay_mode=args.get("max_delay_mode"),
-        diarization=args.get("diarization"),
-        speaker_change_sensitivity=args.get("speaker_change_sensitivity"),
-        speaker_diarization_sensitivity=args.get("speaker_diarization_sensitivity"),
-    )
+    # First get configuration from a config file if one is provided.
+    if args.get("config_file"):
+        with open(args["config_file"], encoding="utf-8") as config_file:
+            config = json.load(config_file)
+    else:
+        # Ensure "en" is the default language as to not break existing API behavior.
+        config = {"language": "en"}
+
+    # Explicit command line arguments override values from config file.
+    for option in [
+        "language",
+        "domain",
+        "output_locale",
+        "operating_point",
+        "max_delay",
+        "max_delay_mode",
+        "diarization",
+        "channel_diarization_labels",
+        "speaker_change_sensitivity",
+        "speaker_diarization_sensitivity",
+    ]:
+        if args.get(option) is not None:
+            config[option] = args[option]
+    for option in [
+        "enable_partials",
+        "enable_entities",
+    ]:
+        config[option] = True if args.get(option) else config.get(option)
 
     if args.get("additional_vocab_file"):
         additional_vocab = parse_additional_vocab(args["additional_vocab_file"])
@@ -252,10 +267,6 @@ def get_transcription_config(args):
         config["speaker_diarization_config"] = BatchSpeakerDiarizationConfig(
             speaker_sensitivity=speaker_sensitivity
         )
-
-    if args.get("channel_diarization_labels") is not None:
-        labels_str = args.get("channel_diarization_labels")
-        config["channel_diarization_labels"] = labels_str
 
     if args["mode"] == "rt":
         # pylint: disable=unexpected-keyword-arg
@@ -626,12 +637,22 @@ def parse_args(args=None):
 
     # Parent parser for shared params related to building a job config
     config_parser = argparse.ArgumentParser(add_help=False)
+
+    config_parser.add_argument(
+        "--config-file",
+        dest="config_file",
+        type=str,
+        default=None,
+        help="Read the transcription config from a file."
+        " If you provide this, all other config options work as overrides.",
+    )
+
     config_parser.add_argument(
         "--lang",
         "--language",
         dest="language",
         type=str,
-        default="en",
+        default=None,
         help="Language (ISO 639-1 code, e.g. en, fr, de).",
     )
     config_parser.add_argument(

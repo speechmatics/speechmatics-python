@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## Unreleased
 
+## [1.4.3] - 2022-11-24
+
+# Added
+
+- Add --config-file CLI argument to allow passing a whole TranscriptionConfig JSON file to the transcriber
+
 ## [1.4.1] - 2022-10-28
 
 ### Updated
