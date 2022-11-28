@@ -125,6 +125,19 @@ To install from source:
    # $JOB_ID is from the submit command output
    $ speechmatics batch get-results --url $URL --auth-token $AUTH_TOKEN --job-id $JOB_ID
     ```
+  
+  ### Custom Transcription Config File
+- Instead of passing all the transcription options via the commandline you can also pass a transcription config file.
+  The config file is a JSON file that contains the transcription options.
+  The config file can be passed to the CLI using the `--config-file` option.
+
+    ```shell
+  $ speechmatics transcribe --config-file transcription_config.json example_audio.wav
+    ```
+- The format of this JSON file is described in detail in the 
+  [Batch API documentation](https://docs.speechmatics.com/jobsapi#tag/TranscriptionConfig)
+  and [RT API documentation](https://docs.speechmatics.com/rt-api-ref#transcription-config).
+
 
 
 ## API documentation
