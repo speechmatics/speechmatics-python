@@ -127,7 +127,7 @@ To install from source:
     ```
   
   ### Custom Transcription Config File
-+- Instead of passing all the transcription options via the command line you can also pass a transcription config file.
+- Instead of passing all the transcription options via the command line you can also pass a transcription config file.
   The config file is a JSON file that contains the transcription options.
   The config file can be passed to the CLI using the `--config-file` option.
 
