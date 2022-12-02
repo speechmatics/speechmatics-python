@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## Unreleased
 
+### Added
+- Check for error in submit job response
+
+### Fixed
+- Url ending in '/v2/' does not return 404 error anymore
+
 ## [1.4.3] - 2022-11-24
 
 # Added
@@ -23,7 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 # Added
 
 - Add --generate-temp-token CLI argument to rt websocket setup to get temp token for rt authentication
-- Add generate_temp_token optional boolean kwarg to connection setttings, defaults to False
+- Add generate_temp_token optional boolean kwarg to connection settings, defaults to False
 - Add new RT self-service runtime URL for eu2
 
 ## [1.3.0] - 2022-08-05

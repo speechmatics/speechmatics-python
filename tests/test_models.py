@@ -1,4 +1,7 @@
+import pytest
+
 from speechmatics import models
+from speechmatics.batch_client import BatchClient
 
 
 def test_audio_settings_asdict_when_encoding_none():
@@ -42,4 +45,20 @@ def test_batchtranscriptionconfig_json_simple():
     config = models.BatchTranscriptionConfig()
     got = config.as_config()
     want = '{"type": "transcription", "transcription_config": {"language": "en"}}'
+    assert got == want
+
+
+@pytest.mark.parametrize(
+    "url, want",
+    [
+        ("example.com/v2", "example.com/v2"),
+        ("example.com/v2/", "example.com/v2"),
+        ("example.com/", "example.com/v2"),
+        ("example.com", "example.com/v2"),
+    ],
+)
+def test_connection_settings_url(url, want):
+    connection_settings = models.ConnectionSettings(url=url)
+    batch_client = BatchClient(connection_settings)
+    got = batch_client.connection_settings.url
     assert got == want
