@@ -51,9 +51,10 @@ class BatchClient:
         :param connection_settings: Connection settings for API
         :type connection_settings: speechmatics.models.ConnectionSettings.
         """
+        if connection_settings.url[-1] == "/":
+            connection_settings.url = connection_settings.url[:-1]
+
         if not connection_settings.url.endswith("/v2"):
-            if connection_settings.url[-1] == "/":
-                connection_settings.url = connection_settings.url[:-1]
             connection_settings.url = "/".join([connection_settings.url, "v2"])
 
         self.connection_settings = connection_settings
@@ -189,10 +190,10 @@ class BatchClient:
             )
         audio_file = {"data_file": audio_data}
 
-        request = self.send_request(
-            "POST", "jobs", data=config_data, files=audio_file
-        ).json()
-        return request["id"]
+        response = self.send_request("POST", "jobs", data=config_data, files=audio_file)
+        if response.status_code == 404:
+            raise httpx.HTTPError(f"{response.json()}")
+        return response.json()["id"]
 
     def get_job_result(
         self,
@@ -345,7 +346,7 @@ class BatchClient:
     def _from_file(
         self, path: Union[str, os.PathLike], filetype: str
     ) -> Union[Dict[Any, Any], Tuple[str, bytes]]:
-        """Retreive data from a file.
+        """Retrieve data from a file.
         For filetype=="json", returns a dict
         For filetype=="binary", returns a tuple of (filename, data)
         """
