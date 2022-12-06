@@ -36,6 +36,8 @@
 <span class="sd">Helper functions used by the library.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
+<span class="kn">import</span> <span class="nn">asyncio</span>
+<span class="kn">import</span> <span class="nn">concurrent.futures</span>
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">inspect</span>
 
@@ -86,18 +88,20 @@
 <span class="sd">    :rtype: collections.AsyncIterable</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
         <span class="c1"># Work with both async and synchronous file readers.</span>
         <span class="k">if</span> <span class="n">inspect</span><span class="o">.</span><span class="n">iscoroutinefunction</span><span class="p">(</span><span class="n">stream</span><span class="o">.</span><span class="n">read</span><span class="p">):</span>
             <span class="n">audio_chunk</span> <span class="o">=</span> <span class="k">await</span> <span class="n">stream</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">chunk_size</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">audio_chunk</span> <span class="o">=</span> <span class="n">stream</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">chunk_size</span><span class="p">)</span>
+            <span class="c1"># Run the read() operation in a separate thread to avoid blocking the event loop.</span>
+            <span class="k">with</span> <span class="n">concurrent</span><span class="o">.</span><span class="n">futures</span><span class="o">.</span><span class="n">ThreadPoolExecutor</span><span class="p">()</span> <span class="k">as</span> <span class="n">executor</span><span class="p">:</span>
+                <span class="n">audio_chunk</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_event_loop</span><span class="p">()</span><span class="o">.</span><span class="n">run_in_executor</span><span class="p">(</span>
+                    <span class="n">executor</span><span class="p">,</span> <span class="n">stream</span><span class="o">.</span><span class="n">read</span><span class="p">,</span> <span class="n">chunk_size</span>
+                <span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">audio_chunk</span><span class="p">:</span>
             <span class="k">break</span>
-        <span class="k">yield</span> <span class="n">audio_chunk</span>
-        <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span></div>
+        <span class="k">yield</span> <span class="n">audio_chunk</span></div>
 </pre></div>
 
           </div>
