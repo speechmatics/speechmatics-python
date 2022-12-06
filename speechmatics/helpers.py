@@ -3,6 +3,8 @@
 Helper functions used by the library.
 """
 
+import asyncio
+import concurrent.futures
 import json
 import inspect
 
@@ -53,15 +55,17 @@ async def read_in_chunks(stream, chunk_size):
     :rtype: collections.AsyncIterable
 
     """
-    count = 0
     while True:
         # Work with both async and synchronous file readers.
         if inspect.iscoroutinefunction(stream.read):
             audio_chunk = await stream.read(chunk_size)
         else:
-            audio_chunk = stream.read(chunk_size)
+            # Run the read() operation in a separate thread to avoid blocking the event loop.
+            with concurrent.futures.ThreadPoolExecutor() as executor:
+                audio_chunk = await asyncio.get_event_loop().run_in_executor(
+                    executor, stream.read, chunk_size
+                )
 
         if not audio_chunk:
             break
         yield audio_chunk
-        count += 1
