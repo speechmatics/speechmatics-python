@@ -4,17 +4,21 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
 ## Unreleased
 
 ### Added
+
 - Check for error in submit job response
 
 ### Fixed
+
 - Url ending in '/v2/' does not return 404 error anymore
+- Perform non-blocking reads when reading chunks from a synchronous stream
 
 ## [1.4.3] - 2022-11-24
 
-# Added
+### Added
 
 - Add --config-file CLI argument to allow passing a whole TranscriptionConfig JSON file to the transcriber
 
@@ -26,7 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.4.0] - 2022-10-27
 
-# Added
+### Added
 
 - Add --generate-temp-token CLI argument to rt websocket setup to get temp token for rt authentication
 - Add generate_temp_token optional boolean kwarg to connection settings, defaults to False
@@ -34,7 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.3.0] - 2022-08-05
 
-# Added
+### Added
 - Add --print-json CLI argument to enable printing transcripts as JSON rather than text
 - Add `speechmatics.adapters` module with support for performing JSON to text conversion
 - Add support for `language_pack_info` in the `RecognitionStarted` message
