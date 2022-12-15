@@ -8,6 +8,7 @@ import asyncio
 import copy
 import json
 import logging
+import os
 import traceback
 
 import websockets
@@ -472,7 +473,7 @@ async def _get_temp_token(api_key):
     """
     Used to get a temporary token from management platform api for SaaS users
     """
-    mp_api_url = "https://mp.speechmatics.com"
+    mp_api_url = os.getenv("SM_MANAGEMENT_PLATFORM_URL", "https://mp.speechmatics.com")
     endpoint = mp_api_url + "/v1/api_keys"
     params = {"type": "rt"}
     body = {"ttl": 60}
