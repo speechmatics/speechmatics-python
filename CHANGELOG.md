@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
-- Updated MP API URL to fetch point to value in environment variables before defaulting to production (DEL-9069)
+- Updated MP API URL to use environment variable SM_MANAGEMENT_PLATFORM_URL before defaulting to production (DEL-9069)
 
 ## [1.4.4] - 2022-12-06
 
