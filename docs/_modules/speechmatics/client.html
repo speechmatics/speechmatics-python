@@ -41,14 +41,10 @@
 <span class="kn">import</span> <span class="nn">copy</span>
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">traceback</span>
+<span class="kn">import</span> <span class="nn">os</span>
 
 <span class="kn">import</span> <span class="nn">websockets</span>
 <span class="kn">import</span> <span class="nn">httpx</span>
-
-<span class="kn">from</span> <span class="nn">websockets.exceptions</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">WebSocketException</span><span class="p">,</span>
-<span class="p">)</span>
 
 <span class="kn">from</span> <span class="nn">speechmatics.exceptions</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">EndOfTranscriptException</span><span class="p">,</span>
@@ -462,22 +458,6 @@
                 <span class="n">extra_headers</span><span class="o">=</span><span class="n">extra_headers</span><span class="p">,</span>
             <span class="p">)</span> <span class="k">as</span> <span class="bp">self</span><span class="o">.</span><span class="n">websocket</span><span class="p">:</span>
                 <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_communicate</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">audio_settings</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">ConnectionResetError</span><span class="p">:</span>
-            <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">()</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                <span class="s2">&quot;Caught ConnectionResetError when attempting to connect to &quot;</span>
-                <span class="s2">&quot;server. The most likely reason for this is that the client &quot;</span>
-                <span class="s2">&quot;has been configured to use SSL but the server does not &quot;</span>
-                <span class="s2">&quot;support SSL. If this is the case then try using &quot;</span>
-                <span class="s2">&quot;--ssl-mode=none&quot;</span>
-            <span class="p">)</span>
-            <span class="k">raise</span>
-        <span class="k">except</span> <span class="n">WebSocketException</span><span class="p">:</span>
-            <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">()</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                <span class="s2">&quot;Caught WebSocketException when attempting to connect to server.&quot;</span>
-            <span class="p">)</span>
-            <span class="k">raise</span>
         <span class="k">finally</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">session_running</span> <span class="o">=</span> <span class="kc">False</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_session_needs_closing</span> <span class="o">=</span> <span class="kc">False</span>
@@ -505,27 +485,17 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Used to get a temporary token from management platform api for SaaS users</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">mp_api_url</span> <span class="o">=</span> <span class="s2">&quot;https://mp.speechmatics.com&quot;</span>
+    <span class="n">mp_api_url</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;SM_MANAGEMENT_PLATFORM_URL&quot;</span><span class="p">,</span> <span class="s2">&quot;https://mp.speechmatics.com&quot;</span><span class="p">)</span>
     <span class="n">endpoint</span> <span class="o">=</span> <span class="n">mp_api_url</span> <span class="o">+</span> <span class="s2">&quot;/v1/api_keys&quot;</span>
     <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;rt&quot;</span><span class="p">}</span>
     <span class="n">body</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;ttl&quot;</span><span class="p">:</span> <span class="mi">60</span><span class="p">}</span>
     <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Authorization&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Bearer </span><span class="si">{</span><span class="n">api_key</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;Content-Type&quot;</span><span class="p">:</span> <span class="s2">&quot;application/json&quot;</span><span class="p">}</span>
     <span class="c1"># pylint: disable=no-member</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">response</span> <span class="o">=</span> <span class="n">httpx</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">body</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">)</span>
-        <span class="n">response</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
-        <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
-        <span class="n">key_object</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">key_object</span><span class="p">[</span><span class="s2">&quot;key_value&quot;</span><span class="p">]</span>
-    <span class="k">except</span> <span class="n">httpx</span><span class="o">.</span><span class="n">HTTPError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-        <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">()</span>
-        <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-            <span class="s2">&quot;Error response </span><span class="si">%s</span><span class="s2"> while generating temporary token from </span><span class="si">%s</span><span class="s2">. Details: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
-            <span class="n">exc</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="p">,</span>
-            <span class="n">exc</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">url</span><span class="p">,</span>
-            <span class="n">exc</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="k">raise</span> <span class="n">exc</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">httpx</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">body</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">)</span>
+    <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+    <span class="n">response</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+    <span class="n">key_object</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">key_object</span><span class="p">[</span><span class="s2">&quot;key_value&quot;</span><span class="p">]</span>
 </pre></div>
 
           </div>

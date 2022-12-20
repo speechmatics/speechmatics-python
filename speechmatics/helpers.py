@@ -7,6 +7,7 @@ import asyncio
 import concurrent.futures
 import json
 import inspect
+import sys
 
 
 def del_none(dictionary):
@@ -69,3 +70,37 @@ async def read_in_chunks(stream, chunk_size):
         if not audio_chunk:
             break
         yield audio_chunk
+
+
+def _process_status_errors(error):
+    """
+    Takes an httpx.HTTPSStatusError and prints in a useful format for CLI
+
+    :param error: the status error produced by the server for a request
+    :type error: httpx.HTTPStatusError
+
+    :raises SystemExit: for all cases
+    """
+
+    error_string = f"{error.request.method} request to {error.request.url} returned {error.response.status_code}"
+    if error.response.status_code == 401:
+        sys.exit(
+            f"Unauthorized: {error_string}. \n Make sure you're using a valid API key or JWT."
+        )
+    if error.response.status_code == 404:
+        sys.exit(
+            f"NotFound: {error_string}. Make sure the url and resource id are correct."
+        )
+    if error.response.status_code == 429:
+        sys.exit(
+            f"TooManyRequests: {error_string}. "
+            + "In order to ensure a good service to all our users, we rate limit requests. "
+            + "Consider redesigning your code to reduce the number of requests or spread your requests over time."
+        )
+    if error.response.status_code in [400, 422]:
+        sys.exit(
+            f"BadOrUnprocessableRequest: {error_string}.\n\nresponse: {error.response.text}\n"
+            + "Make sure the config you've submitted has a valid structure, and that the values are allowed.\n"
+            + "(e.g. --lang abc is invalid)."
+        )
+    sys.exit(f"httpx.HTTPStatusError: {error}")

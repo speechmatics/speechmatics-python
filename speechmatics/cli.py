@@ -10,14 +10,23 @@ import logging
 import os
 import ssl
 import sys
+from socket import gaierror
 
 from dataclasses import dataclass
 from typing import List, Dict, Union, Tuple, Any
 from urllib.parse import urlparse
 
+import httpx
+from websockets.exceptions import WebSocketException
+
 import speechmatics.adapters
+from speechmatics.helpers import _process_status_errors
 from speechmatics.client import WebsocketClient
 from speechmatics.batch_client import BatchClient
+from speechmatics.exceptions import (
+    TranscriptionError,
+    JobNotFoundException,
+)
 from speechmatics.models import (
     TranscriptionConfig,
     AudioSettings,
@@ -431,6 +440,7 @@ def submit_job_and_wait(
         return client.wait_for_completion(job_id, transcription_format)
 
 
+# pylint: disable=too-many-branches
 def main(args=None):
     """
     Main entrypoint.
@@ -448,21 +458,57 @@ def main(args=None):
     logging.basicConfig(level=get_log_level(args["verbose"]))
     LOGGER.info("Args: %s", args)
 
-    if mode == "rt":
-        if not args["command"]:
-            LOGGER.error("No command specified")
-            args = vars(parse_args([mode, "-h"]))
-        rt_main(args)
-    elif mode == "batch":
-        if not args["command"]:
-            LOGGER.error("No command specified")
-            args = vars(parse_args([mode, "-h"]))
-        batch_main(args)
-    else:
-        # Not clear which help to show, so let's exit, but list the valid modes.
-        LOGGER.error("Usage: speechmatics [rt|batch] [command]")
-        raise SystemExit(
-            f"Unknown mode: {mode}, mode must be one of 'rt' (realtime) or 'batch'"
+    try:
+        if mode == "rt":
+            if not args["command"]:
+                LOGGER.error("No command specified")
+                args = vars(parse_args([mode, "-h"]))
+            rt_main(args)
+        elif mode == "batch":
+            if not args["command"]:
+                LOGGER.error("No command specified")
+                args = vars(parse_args([mode, "-h"]))
+            batch_main(args)
+        else:
+            # Not clear which help to show, so let's exit, but list the valid modes.
+            LOGGER.error("Usage: speechmatics [rt|batch] [command]")
+            raise SystemExit(
+                f"Unknown mode: {mode}, mode must be one of 'rt' (realtime) or 'batch'"
+            )
+    except (KeyboardInterrupt, ValueError, TranscriptionError) as error:
+        LOGGER.info(error, exc_info=True)
+        sys.exit(f"{type(error).__name__}: {error}")
+    except FileNotFoundError as error:
+        LOGGER.info(error, exc_info=True)
+        sys.exit(
+            f"FileNotFoundError: {error.strerror}: '{error.filename}'."
+            + " Check to make sure the filename is spelled correctly, and that the file exists."
+        )
+    except JobNotFoundException as error:
+        LOGGER.info(error, exc_info=True)
+        sys.exit(
+            "JobNotFoundException: "
+            + f"{error}. Make sure the job id you've entered is correct, and that the url is set correctly."
+        )
+    except httpx.HTTPStatusError as error:
+        LOGGER.info(error, exc_info=True)
+        _process_status_errors(error)
+    except httpx.HTTPError as error:
+        LOGGER.info(error, exc_info=True)
+        sys.exit(f"httpx.HTTPError: An unexpected http error occurred. {error}")
+    except ConnectionResetError as error:
+        LOGGER.info(error, exc_info=True)
+        sys.exit(
+            f"ConnectionResetError: {error}.\n\nThe most likely reason for this is that the client "
+            + "has been configured to use SSL but the server does not support SSL. "
+            + "If this is the case then try using --ssl-mode=none"
+        )
+    except (WebSocketException, gaierror) as error:
+        LOGGER.info(error, exc_info=True)
+        sys.exit(
+            f"WebSocketError: An unexpected error occurred in the websocket: {error}.\n\n"
+            + "Check that the url and config provided is valid, "
+            + "and that the language in the url matches the config.\n"
         )
 
 
@@ -646,7 +692,6 @@ def parse_args(args=None):
         help="Read the transcription config from a file."
         " If you provide this, all other config options work as overrides.",
     )
-
     config_parser.add_argument(
         "--lang",
         "--language",
@@ -664,14 +709,12 @@ def parse_args(args=None):
             "should result in a more accurate transcript."
         ),
     )
-
     config_parser.add_argument(
         "--domain",
         type=str,
         default=None,
         help="Optionally request a specialized language pack, e.g. 'finance'",
     )
-
     config_parser.add_argument(
         "--output-locale",
         metavar="LOCALE",
@@ -737,7 +780,6 @@ def parse_args(args=None):
         choices=["none", "speaker", "channel", "channel_and_speaker_change"],
         help="Which type of diarization to use.",
     )
-
     batch_diarization_parser.add_argument(
         "--channel-diarization-labels",
         nargs="+",
@@ -762,7 +804,6 @@ def parse_args(args=None):
             "final transcripts."
         ),
     )
-
     rt_transcribe_command_parser.add_argument(
         "--punctuation-sensitivity",
         type=float,
