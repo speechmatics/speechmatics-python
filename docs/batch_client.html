@@ -69,6 +69,12 @@ closing the connection for you, e.g.:</p>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Dict[str, Any]</p>
 </dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference internal" href="exceptions.html#speechmatics.exceptions.JobNotFoundException" title="speechmatics.exceptions.JobNotFoundException"><strong>JobNotFoundException</strong></a> – When a job_id is not found.</p></li>
+<li><p><strong>httpx.HTTPError</strong> – For any request other than 404, httpx exceptions are raised.</p></li>
+</ul>
+</dd>
 </dl>
 </dd></dl>
 
@@ -134,6 +140,9 @@ transcription in requested format</p>
 <dd class="field-odd"><p>bool | str | Dict[str, Any]</p>
 </dd>
 </dl>
+<p>:raises JobNotFoundException : When a job_id is not found.
+:raises httpx.HTTPError: For any request other than 404, httpx exceptions are raised.
+:raises TranscriptionError: When the transcription format is invalid.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -170,6 +179,9 @@ or all of the jobs for the batch appliance.</p>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>httpx.Response</p>
 </dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>httpx.HTTPError</strong> – When a request fails, raises an HTTPError</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -189,6 +201,9 @@ or all of the jobs for the batch appliance.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>str</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>httpx.HTTPError</strong> – For any request errors, httpx exceptions are raised.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -214,7 +229,8 @@ alias for json-v2.</p></li>
 <dd class="field-odd"><p>Union[str, Dict[str, Any]]</p>
 </dd>
 </dl>
-<p>:raises JobNotFoundException : When a job_id is not found.</p>
+<p>:raises JobNotFoundException : When a job_id is not found.
+:raises httpx.HTTPError: For any request other than 404, httpx exceptions are raised.</p>
 </dd></dl>
 
 </dd></dl>

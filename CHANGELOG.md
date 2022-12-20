@@ -7,7 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
-- Updated MP API URL to use environment variable SM_MANAGEMENT_PLATFORM_URL before defaulting to production (DEL-9069)
+### Updated
+
+- Improved error types in HTTP requests to capture errors more clearly
+- Remove excess logging on errors and allow developer to catch errors
+- Use environment variable SM_MANAGEMENT_PLATFORM_URL before defaulting to production MP API URL
+
+### Added
+
+- Human-readable error outputs in the CLI
 
 ## [1.4.4] - 2022-12-06
 

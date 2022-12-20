@@ -12,7 +12,10 @@ from typing import Any, Dict, Tuple, Union, List
 import httpx
 from polling2 import poll
 
-from speechmatics.exceptions import TranscriptionError, JobNotFoundException
+from speechmatics.exceptions import (
+    TranscriptionError,
+    JobNotFoundException,
+)
 from speechmatics.models import ConnectionSettings, BatchTranscriptionConfig
 
 LOGGER = logging.getLogger(__name__)
@@ -109,33 +112,14 @@ class BatchClient:
 
         :returns: httpx Response object
         :rtype: httpx.Response
+
+        :raises httpx.HTTPError: When a request fails, raises an HTTPError
         """
         # pylint: disable=no-member
-        try:
-            with self.api_client.stream(method, path, **kwargs) as response:
-                response.read()
-                if response.status_code in [404, 423]:
-                    # The API returns 404 when:
-                    #  - checking status of a non-existent job id
-                    #  - attempting to retrieve the transcript of an incomplete job
-                    #  - attempting to delete a non-existent job
-                    # The API returns 423 when:
-                    #  - attempting to delete a running job without force=true
-                    # parameter.
-                    # These cases are handled in their corresponding functions.
-                    return response
-
-                response.raise_for_status()
-                return response
-
-        except httpx.HTTPError as exc:
-            LOGGER.error(
-                "Error response %s while requesting %s . Details: %s",
-                exc.response.status_code,
-                exc.request.url,
-                exc.response.text,  # response.json()['detail'] Which would be nicer, crashes on 401.
-            )
-            raise httpx.RequestError(exc)
+        with self.api_client.stream(method, path, **kwargs) as response:
+            response.read()
+            response.raise_for_status()
+            return response
 
     def list_jobs(self) -> List[Dict[str, Any]]:
         """
@@ -166,6 +150,8 @@ class BatchClient:
 
         :returns: Job ID
         :rtype: str
+
+        :raises httpx.HTTPError: For any request errors, httpx exceptions are raised.
         """
         if isinstance(transcription_config, (str or os.PathLike)):
             config_json = json.dumps(self._from_file(transcription_config, "json"))
@@ -191,8 +177,6 @@ class BatchClient:
         audio_file = {"data_file": audio_data}
 
         response = self.send_request("POST", "jobs", data=config_data, files=audio_file)
-        if response.status_code == 404:
-            raise httpx.HTTPError(f"{response.json()}")
         return response.json()["id"]
 
     def get_job_result(
@@ -214,6 +198,10 @@ class BatchClient:
         :returns: False if job is still running or does not exist, or
             transcription in requested format
         :rtype: bool | str | Dict[str, Any]
+
+        :raises JobNotFoundException : When a job_id is not found.
+        :raises httpx.HTTPError: For any request other than 404, httpx exceptions are raised.
+        :raises TranscriptionError: When the transcription format is invalid.
         """
         transcription_format = transcription_format.lower()
         if transcription_format not in ["json-v2", "json_v2", "json", "txt", "srt"]:
@@ -224,14 +212,17 @@ class BatchClient:
 
         if transcription_format in ["json-v2", "json", "json_v2"]:
             transcription_format = "json-v2"
+        try:
+            response = self.send_request(
+                "GET",
+                "/".join(["jobs", job_id, "transcript"]),
+                params={"format": transcription_format},
+            )
+        except httpx.HTTPStatusError as exc:
+            if exc.response.status_code == 404:
+                raise JobNotFoundException(f"Could not find job {job_id}") from exc
+            raise exc
 
-        response = self.send_request(
-            "GET",
-            "/".join(["jobs", job_id, "transcript"]),
-            params={"format": transcription_format},
-        )
-        if response.status_code == 404:
-            return f"Job {job_id} not found"
         if transcription_format == "json-v2":
             return response.json()
         return response.text
@@ -251,24 +242,22 @@ class BatchClient:
         :return: Deletion status
         :rtype: str
         """
-        response = self.send_request(
-            "DELETE",
-            "/".join(["jobs", job_id]),
-            params={"force": str(force).lower()},
-        )
 
         try:
-            # If we got a 404, we can assume the job doesn't exist
-            # or was previously deleted.
-            if response.status_code == 404:
-                return f"Job {job_id} not found"
-
+            response = self.send_request(
+                "DELETE",
+                "/".join(["jobs", job_id]),
+                params={"force": str(force).lower()},
+            )
             return (
                 f"Job {job_id} deleted"
                 if (response.json())["job"]["status"] == "deleted"
                 else f"Job {job_id} was not deleted. Error {response.json()}"
             )
-
+        except httpx.HTTPStatusError as exc:
+            if exc.response.status_code == 404:
+                raise JobNotFoundException(f"Could not find job {job_id}") from exc
+            raise exc
         except KeyError:
             return False
 
@@ -281,8 +270,17 @@ class BatchClient:
 
         :return: Job status
         :rtype: Dict[str, Any]
+
+        :raises JobNotFoundException: When a job_id is not found.
+        :raises httpx.HTTPError: For any request other than 404, httpx exceptions are raised.
         """
-        return self.send_request("GET", "/".join(["jobs", job_id])).json()
+        try:
+            response = self.send_request("GET", "/".join(["jobs", job_id]))
+        except httpx.HTTPStatusError as error:
+            if error.response.status_code == 404:
+                raise JobNotFoundException(f"Job {job_id} not found") from error
+            raise error
+        return response.json()
 
     def wait_for_completion(
         self, job_id: str, transcription_format: str = "txt"
@@ -303,14 +301,10 @@ class BatchClient:
         :rtype: Union[str, Dict[str, Any]]
 
         :raises JobNotFoundException : When a job_id is not found.
+        :raises httpx.HTTPError: For any request other than 404, httpx exceptions are raised.
         """
 
         def _poll_for_status() -> bool:
-            if self.check_job_status(job_id).get("job") is None:
-                raise JobNotFoundException(
-                    f"Job ID {job_id} is not found and might have been"
-                    "deleted externally."
-                )
 
             job_status = self.check_job_status(job_id)["job"]["status"]
             if job_status == "done":

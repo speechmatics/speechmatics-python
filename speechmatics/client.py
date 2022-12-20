@@ -9,14 +9,9 @@ import copy
 import json
 import logging
 import os
-import traceback
 
 import websockets
 import httpx
-
-from websockets.exceptions import (
-    WebSocketException,
-)
 
 from speechmatics.exceptions import (
     EndOfTranscriptException,
@@ -430,22 +425,6 @@ class WebsocketClient:
                 extra_headers=extra_headers,
             ) as self.websocket:
                 await self._communicate(stream, audio_settings)
-        except ConnectionResetError:
-            traceback.print_exc()
-            LOGGER.error(
-                "Caught ConnectionResetError when attempting to connect to "
-                "server. The most likely reason for this is that the client "
-                "has been configured to use SSL but the server does not "
-                "support SSL. If this is the case then try using "
-                "--ssl-mode=none"
-            )
-            raise
-        except WebSocketException:
-            traceback.print_exc()
-            LOGGER.error(
-                "Caught WebSocketException when attempting to connect to server."
-            )
-            raise
         finally:
             self.session_running = False
             self._session_needs_closing = False
@@ -479,18 +458,8 @@ async def _get_temp_token(api_key):
     body = {"ttl": 60}
     headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
     # pylint: disable=no-member
-    try:
-        response = httpx.post(endpoint, json=body, params=params, headers=headers)
-        response.read()
-        response.raise_for_status()
-        key_object = response.json()
-        return key_object["key_value"]
-    except httpx.HTTPError as exc:
-        traceback.print_exc()
-        LOGGER.error(
-            "Error response %s while generating temporary token from %s. Details: %s",
-            exc.response.status_code,
-            exc.request.url,
-            exc.response.text,
-        )
-        raise exc
+    response = httpx.post(endpoint, json=body, params=params, headers=headers)
+    response.raise_for_status()
+    response.read()
+    key_object = response.json()
+    return key_object["key_value"]

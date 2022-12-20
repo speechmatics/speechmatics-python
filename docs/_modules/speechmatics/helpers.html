@@ -40,6 +40,7 @@
 <span class="kn">import</span> <span class="nn">concurrent.futures</span>
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">inspect</span>
+<span class="kn">import</span> <span class="nn">sys</span>
 
 
 <div class="viewcode-block" id="del_none"><a class="viewcode-back" href="../../helpers.html#speechmatics.helpers.del_none">[docs]</a><span class="k">def</span> <span class="nf">del_none</span><span class="p">(</span><span class="n">dictionary</span><span class="p">):</span>
@@ -102,6 +103,40 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">audio_chunk</span><span class="p">:</span>
             <span class="k">break</span>
         <span class="k">yield</span> <span class="n">audio_chunk</span></div>
+
+
+<span class="k">def</span> <span class="nf">_process_status_errors</span><span class="p">(</span><span class="n">error</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Takes an httpx.HTTPSStatusError and prints in a useful format for CLI</span>
+
+<span class="sd">    :param error: the status error produced by the server for a request</span>
+<span class="sd">    :type error: httpx.HTTPStatusError</span>
+
+<span class="sd">    :raises SystemExit: for all cases</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">error_string</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">error</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">method</span><span class="si">}</span><span class="s2"> request to </span><span class="si">{</span><span class="n">error</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">url</span><span class="si">}</span><span class="s2"> returned </span><span class="si">{</span><span class="n">error</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">if</span> <span class="n">error</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">401</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Unauthorized: </span><span class="si">{</span><span class="n">error_string</span><span class="si">}</span><span class="s2">. </span><span class="se">\n</span><span class="s2"> Make sure you&#39;re using a valid API key or JWT.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">error</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">404</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;NotFound: </span><span class="si">{</span><span class="n">error_string</span><span class="si">}</span><span class="s2">. Make sure the url and resource id are correct.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">error</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">429</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;TooManyRequests: </span><span class="si">{</span><span class="n">error_string</span><span class="si">}</span><span class="s2">. &quot;</span>
+            <span class="o">+</span> <span class="s2">&quot;In order to ensure a good service to all our users, we rate limit requests. &quot;</span>
+            <span class="o">+</span> <span class="s2">&quot;Consider redesigning your code to reduce the number of requests or spread your requests over time.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">error</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">400</span><span class="p">,</span> <span class="mi">422</span><span class="p">]:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;BadOrUnprocessableRequest: </span><span class="si">{</span><span class="n">error_string</span><span class="si">}</span><span class="s2">.</span><span class="se">\n\n</span><span class="s2">response: </span><span class="si">{</span><span class="n">error</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="o">+</span> <span class="s2">&quot;Make sure the config you&#39;ve submitted has a valid structure, and that the values are allowed.</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="o">+</span> <span class="s2">&quot;(e.g. --lang abc is invalid).&quot;</span>
+        <span class="p">)</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;httpx.HTTPStatusError: </span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 
           </div>
