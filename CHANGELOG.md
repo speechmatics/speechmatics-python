@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Added
+
+- Documentation for base transcription config class `_TranscriptionConfig`
+
 ### Updated
 
 - Improved error types in HTTP requests to capture errors more clearly
