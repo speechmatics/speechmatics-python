@@ -36,6 +36,67 @@
 <span id="speechmatics-models"></span><h1>speechmatics.models<a class="headerlink" href="#module-speechmatics.models" title="Permalink to this headline">¶</a></h1>
 <p>Data models and message types used by the library.</p>
 <dl class="py class">
+<dt class="sig sig-object py" id="speechmatics.models._TranscriptionConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">speechmatics.models.</span></span><span class="sig-name descname"><span class="pre">_TranscriptionConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">language</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/speechmatics/models.html#_TranscriptionConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#speechmatics.models._TranscriptionConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base model for defining transcription parameters.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="speechmatics.models._TranscriptionConfig.additional_vocab">
+<span class="sig-name descname"><span class="pre">additional_vocab</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#speechmatics.models._TranscriptionConfig.additional_vocab" title="Permalink to this definition">¶</a></dt>
+<dd><p>Additional vocabulary that is not part of the standard language.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="speechmatics.models._TranscriptionConfig.asdict">
+<span class="sig-name descname"><span class="pre">asdict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/speechmatics/models.html#_TranscriptionConfig.asdict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#speechmatics.models._TranscriptionConfig.asdict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns model as a dict while excluding None values recursively.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="speechmatics.models._TranscriptionConfig.diarization">
+<span class="sig-name descname"><span class="pre">diarization</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#speechmatics.models._TranscriptionConfig.diarization" title="Permalink to this definition">¶</a></dt>
+<dd><p>Indicates type of diarization to use, if any.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="speechmatics.models._TranscriptionConfig.domain">
+<span class="sig-name descname"><span class="pre">domain</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#speechmatics.models._TranscriptionConfig.domain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optionally request a language pack optimized for a specific domain,
+e.g. ‘finance’</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="speechmatics.models._TranscriptionConfig.enable_entities">
+<span class="sig-name descname"><span class="pre">enable_entities</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#speechmatics.models._TranscriptionConfig.enable_entities" title="Permalink to this definition">¶</a></dt>
+<dd><p>Indicates if inverse text normalization entity output is enabled.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="speechmatics.models._TranscriptionConfig.language">
+<span class="sig-name descname"><span class="pre">language</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'en'</span></em><a class="headerlink" href="#speechmatics.models._TranscriptionConfig.language" title="Permalink to this definition">¶</a></dt>
+<dd><p>ISO 639-1 language code. eg. <cite>en</cite></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="speechmatics.models._TranscriptionConfig.operating_point">
+<span class="sig-name descname"><span class="pre">operating_point</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#speechmatics.models._TranscriptionConfig.operating_point" title="Permalink to this definition">¶</a></dt>
+<dd><p>Specifies which acoustic model to use.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="speechmatics.models._TranscriptionConfig.output_locale">
+<span class="sig-name descname"><span class="pre">output_locale</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#speechmatics.models._TranscriptionConfig.output_locale" title="Permalink to this definition">¶</a></dt>
+<dd><p>RFC-5646 language code for transcript output. eg. <cite>en-AU</cite></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="speechmatics.models._TranscriptionConfig.punctuation_overrides">
+<span class="sig-name descname"><span class="pre">punctuation_overrides</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#speechmatics.models._TranscriptionConfig.punctuation_overrides" title="Permalink to this definition">¶</a></dt>
+<dd><p>Permitted puctuation marks for advanced punctuation.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="speechmatics.models.AudioSettings">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">speechmatics.models.</span></span><span class="sig-name descname"><span class="pre">AudioSettings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">encoding</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_rate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">44100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chunk_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4096</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/speechmatics/models.html#AudioSettings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#speechmatics.models.AudioSettings" title="Permalink to this definition">¶</a></dt>
 <dd><p>Real-time: Defines audio parameters.</p>
