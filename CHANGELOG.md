@@ -5,7 +5,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## [Unreleased]
+
+## [1.4.5] - 2022-01-03
 
 ### Added
 
@@ -183,7 +185,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added authentication token support for RT-SaaS [@rakeshv247](https://github.com/rakeshv247).
 
-
-[Unreleased]: https://github.com/speechmatics/speechmatics-python/compare/v0.0.11...HEAD
-[0.0.11]: https://github.com/speechmatics/speechmatics-python/releases/tag/v0.0.11
-[0.0.10]: https://github.com/speechmatics/speechmatics-python/releases/tag/v0.0.10
+[Unreleased]: https://github.com/speechmatics/speechmatics-python/compare/v1.4.5...HEAD
+[1.4.5]: https://github.com/speechmatics/speechmatics-python/releases/tag/1.4.5
+[1.4.4]: https://github.com/speechmatics/speechmatics-python/releases/tag/1.4.4
