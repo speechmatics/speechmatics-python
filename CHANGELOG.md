@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Documentation for base transcription config class `_TranscriptionConfig`
+- Human-readable error outputs in the CLI
 
 ### Updated
 
@@ -19,9 +20,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Remove excess logging on errors and allow developer to catch errors
 - Use environment variable SM_MANAGEMENT_PLATFORM_URL before defaulting to production MP API URL
 
-### Added
-
-- Human-readable error outputs in the CLI
 
 ## [1.4.4] - 2022-12-06
 

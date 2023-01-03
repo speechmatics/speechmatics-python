@@ -7,6 +7,7 @@ import os
 import pytest
 
 from speechmatics import cli
+from speechmatics import cli_parser
 from tests.utils import path_to_test_resource
 
 
@@ -351,16 +352,16 @@ def test_get_transcription_config_enable_partials(enable_partials, exp_value):
 
 
 def test_additional_vocab_item():
-    assert cli.additional_vocab_item("a") == "a"
-    assert cli.additional_vocab_item("a:") == {"content": "a"}
-    assert cli.additional_vocab_item("a:b,c") == {
+    assert cli_parser.additional_vocab_item("a") == "a"
+    assert cli_parser.additional_vocab_item("a:") == {"content": "a"}
+    assert cli_parser.additional_vocab_item("a:b,c") == {
         "content": "a",
         "sounds_like": ["b", "c"],
     }
     with pytest.raises(argparse.ArgumentTypeError):
-        cli.additional_vocab_item("")
+        cli_parser.additional_vocab_item("")
     with pytest.raises(argparse.ArgumentTypeError):
-        cli.additional_vocab_item("a:b:c")
+        cli_parser.additional_vocab_item("a:b:c")
 
 
 def test_get_log_level():
