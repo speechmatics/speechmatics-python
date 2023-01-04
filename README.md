@@ -14,18 +14,28 @@ To install from source:
     $ git clone https://github.com/speechmatics/speechmatics-python
     $ cd speechmatics-python && python setup.py install
 
+Windows users may need to run the install command with an extra flag:
+
+    $ python setup.py install --user
+
 ### Requirements
 
 - Python 3.7+
 
+## API documentation
+
+Please see https://speechmatics.github.io/speechmatics-python/.
+
+The core Speechmatics documentation can be found at https://docs.speechmatics.com.
+
 ## Example command-line usage
 
   ### Configuring Auth Tokens
-- Setting an auth_token for CLI authentication:
+- Setting an auth token for CLI authentication:
    ```shell
    $ speechmatics config set --auth-token $AUTH_TOKEN
    ```
-  auth_tokens are stored in toml config at HOME_DIR/.speechmatics/config.
+  Auth tokens are stored in toml config at HOME_DIR/.speechmatics/config.
   You may also set the auth_token for each CLI command using the --auth-token flag.
   The --auth-token flag overrides the value stored in the config file, e.g.
    ```shell
@@ -43,13 +53,13 @@ To install from source:
    # Point URL to the SaaS self-service runtime
    $ URL=wss://eu2.rt.speechmatics.com/v2/en
 
-   $ speechmatics transcribe --url $URL --ssl-mode regular --generate-temp-token example_audio.wav
+   $ speechmatics transcribe --url $URL --lang en --generate-temp-token example_audio.wav
    ```
 
 - Starting a real-time session for enterprise SaaS customers using a .wav file as the input audio:
 
    ```shell
-   $ speechmatics transcribe --url $URL --ssl-mode regular example_audio.wav
+   $ speechmatics transcribe --url $URL example_audio.wav
    ```
 
 - Starting a real-time session for on-prem customers using a .wav file as the input audio:
@@ -61,17 +71,17 @@ To install from source:
    $ speechmatics transcribe --url $URL --lang en --ssl-mode none example_audio.wav
    ```
 
-- Show the messages that are going over the websocket connection:
+- Show the messages that are going over the websocket connection using verbose output:
 
    ```shell
-   $ speechmatics -v transcribe --url $URL --lang en --ssl-mode none example_audio.wav
+   $ speechmatics -v transcribe --url $URL --ssl-mode none example_audio.wav
    ```
 
 - The CLI also accepts an audio stream on standard input.
   Transcribe the piped input audio:
 
    ```shell
-   $ cat example_audio.wav | speechmatics transcribe --ssl-mode none --url $URL --lang en -
+   $ cat example_audio.wav | speechmatics transcribe --url $URL --ssl-mode none -
    ```
 
 - Pipe audio directly from the microphone (example uses MacOS with [ffmpeg](https://ffmpeg.org/ffmpeg-devices.html#avfoundation))
@@ -89,7 +99,7 @@ To install from source:
 
   ```shell
   $ ffmpeg -loglevel quiet -f avfoundation -i ":default" -f f32le -acodec pcm_f32le -ar 44100 - \
-  >   | speechmatics transcribe --ssl-mode none --url $URL --raw pcm_f32le --sample-rate 44100 --lang en -
+  >   | speechmatics transcribe --url $URL --ssl-mode none --raw pcm_f32le --sample-rate 44100 -
   ```
 
 - Transcribe in real-time with partials (example uses Ubuntu with ALSA).
@@ -105,7 +115,7 @@ To install from source:
 
   ```shell
   $ ffmpeg -loglevel quiet -f alsa -i hw:0 -f f32le -acodec pcm_f32le -ar 44100 - \
-      | speechmatics transcribe --ssl-mode none --url $URL --enable-partials --raw pcm_f32le --sample-rate 44100 --lang en -
+      | speechmatics transcribe --url $URL --ssl-mode none --enable-partials --raw pcm_f32le --sample-rate 44100 -
   ```
 
   Add the `--print-json` argument to see the raw JSON transcript messages being sent rather than just the plaintext transcript.
@@ -123,7 +133,7 @@ To install from source:
 - Files may be submitted for asynchronous processing
 
     ```shell
-   $ speechmatics batch submit --url $URL --lang en example_audio.wav
+   $ speechmatics batch submit --url $URL example_audio.wav
     ```
 
 - Check processing status of a job
@@ -151,12 +161,6 @@ To install from source:
 - The format of this JSON file is described in detail in the 
   [Batch API documentation](https://docs.speechmatics.com/jobsapi#tag/TranscriptionConfig)
   and [RT API documentation](https://docs.speechmatics.com/rt-api-ref#transcription-config).
-
-
-
-## API documentation
-
-Please see https://speechmatics.github.io/speechmatics-python/.
 
 
 ## Testing

@@ -16,35 +16,53 @@ The example below illustrates a waveform audio file being opened and transcribed
 
     import speechmatics
 
-    # Define connection parameters
-    conn = speechmatics.models.ConnectionSettings(
-        url="ws://localhost:9000/v2",
-        ssl_context=None,
-    )
+    LANGUAGE = "en"
+    AUDIO_FILE_PATH = "/path/to/file"
+    CONNECTION_URL = f"wss://eu2.rt.speechmatics.com/v2/{LANGUAGE}"
+    AUTH_TOKEN = "add token here"
 
     # Create a transcription client
-    ws = speechmatics.client.WebsocketClient(conn)
-
-    # Define transcription parameters
-    conf = speechmatics.models.TranscriptionConfig(
-        language='en',
+    ws = speechmatics.client.WebsocketClient(
+        speechmatics.models.ConnectionSettings(
+            url=CONNECTION_URL,
+            auth_token=AUTH_TOKEN,
+            generate_temp_token=True, # Enterprise customers don't need to provide this parameter
+        )
     )
 
-    # Define an event handler to print the transcript
-    def print_transcript(msg):
-        print(msg['metadata']['transcript'])
 
-    # Register the event handler
+    # Define an event handler to print the partial transcript
+    def print_partial_transcript(msg):
+        print(f"(PART) {msg['metadata']['transcript']}")
+
+
+    # Define an event handler to print the full transcript
+    def print_transcript(msg):
+        print(f"(FULL) {msg['metadata']['transcript']}")
+
+
+    # Register the event handler for partial transcript
+    ws.add_event_handler(
+        event_name=speechmatics.models.ServerMessageType.AddPartialTranscript,
+        event_handler=print_partial_transcript,
+    )
+
+    # Register the event handler for full transcript
     ws.add_event_handler(
         event_name=speechmatics.models.ServerMessageType.AddTranscript,
         event_handler=print_transcript,
     )
 
-    # Open the audio file
-    f = open('sample.wav', 'rb')
+    settings = speechmatics.models.AudioSettings()
 
-    # Initiate transcription
-    ws.run_synchronously(f, conf, speechmatics.models.AudioSettings())
+    # Define transcription parameters
+    conf = speechmatics.models.TranscriptionConfig(
+        language=LANGUAGE,
+        enable_partials=True,
+    )
+
+    with open("example.wav", 'rb') as file:
+        ws.run_synchronously(file, conf, settings)
 
 
 Command-line usage
