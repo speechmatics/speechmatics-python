@@ -5,6 +5,7 @@ import logging
 import os
 
 import pytest
+import toml
 
 from speechmatics import cli
 from speechmatics import cli_parser
@@ -415,6 +416,32 @@ def test_rt_main_with_temp_token_option(mock_server):
     assert mock_server.path == "/v2"
 
 
+def test_rt_main_with_toml_config(mock_server):
+    args = [
+        "config",
+        "set",
+        "--auth-token=faketoken",
+    ]
+    cli.main(vars(cli.parse_args(args)))
+
+    args = [
+        "rt",
+        "transcribe",
+        "--ssl-mode=insecure",
+        "--url",
+        mock_server.url,
+        path_to_test_resource("ch.wav"),
+    ]
+    cli.main(vars(cli.parse_args(args)))
+    mock_server.wait_for_clean_disconnects()
+    print(mock_server.messages_received)
+    assert mock_server.clients_connected_count == 1
+    assert mock_server.clients_disconnected_count == 1
+    assert mock_server.messages_received
+    assert mock_server.messages_sent
+    assert mock_server.path == "/v2"
+
+
 def test_rt_main_with_all_options(mock_server, tmp_path):
     vocab_file = tmp_path / "vocab.json"
     vocab_file.write_text(
@@ -735,3 +762,38 @@ def test_add_printing_handlers_with_speaker_change_no_token(mocker, capsys):
         expected_transcript,
         speaker_change_token=False,
     )
+
+
+def test_cli_argparse_config():
+    args = [
+        "config",
+        "set",
+        "--auth-token=faketoken",
+    ]
+    values = {
+        "auth_token": "faketoken",
+    }
+
+    actual_values = vars(cli.parse_args(args=args))
+
+    for (key, val) in values.items():
+        assert actual_values[key] == val
+
+
+def test_config_set_toml():
+    args = {
+        "command": "set",
+        "auth_token": "faketoken",
+    }
+    try:
+        cli.config_main(args)
+    except Exception:  # pylint: disable=broad-except
+        assert False
+    home_dir = os.path.expanduser("~")
+    cli_config = {"default": {}}
+    with open(f"{home_dir}/.speechmatics/config", "r", encoding="UTF-8") as file:
+        cli_config = toml.load(file)
+
+    del args["command"]
+    for (key, val) in args.items():
+        assert cli_config["default"][key] == val

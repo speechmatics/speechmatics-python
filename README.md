@@ -20,21 +20,36 @@ To install from source:
 
 ## Example command-line usage
 
+  ### Configuring Auth Tokens
+- Setting an auth_token for CLI authentication:
+   ```shell
+   $ speechmatics config set --auth-token $AUTH_TOKEN
+   ```
+  auth_tokens are stored in toml config at HOME_DIR/.speechmatics/config.
+  You may also set the auth_token for each CLI command using the --auth-token flag.
+  The --auth-token flag overrides the value stored in the config file, e.g.
+   ```shell
+   # Point URL to the SaaS self-service runtime
+   $ URL=wss://eu2.rt.speechmatics.com/v2/en
 
-### Realtime ASR
+   $ speechmatics transcribe --url $URL --auth-token $AUTH_TOKEN example_audio.wav
+   ```
+
+
+  ### Realtime ASR
 - Starting a real-time session for SaaS customers using a .wav file as the input audio:
 
    ```shell
    # Point URL to the SaaS self-service runtime
    $ URL=wss://eu2.rt.speechmatics.com/v2/en
 
-   $ speechmatics transcribe --url $URL --ssl-mode regular --auth-token $AUTH_TOKEN --generate-temp-token example_audio.wav
+   $ speechmatics transcribe --url $URL --ssl-mode regular --generate-temp-token example_audio.wav
    ```
 
 - Starting a real-time session for enterprise SaaS customers using a .wav file as the input audio:
 
    ```shell
-   $ speechmatics transcribe --url $URL --ssl-mode regular --auth-token $AUTH_TOKEN example_audio.wav
+   $ speechmatics transcribe --url $URL --ssl-mode regular example_audio.wav
    ```
 
 - Starting a real-time session for on-prem customers using a .wav file as the input audio:
@@ -101,29 +116,28 @@ To install from source:
    ```shell
    # Point URL to Speechmatics SaaS (Batch Virtual Appliance is also supported)
    $ URL=https://asr.api.speechmatics.com/v2/
-   $ AUTH_TOKEN='abcd01234'
 
-   $ speechmatics batch transcribe --url $URL --auth-token $AUTH_TOKEN --lang en example_audio.wav
+   $ speechmatics batch transcribe --url $URL --lang en example_audio.wav
    ```
 
 - Files may be submitted for asynchronous processing
 
     ```shell
-   $ speechmatics batch submit --url $URL --auth-token $AUTH_TOKEN --lang en example_audio.wav
+   $ speechmatics batch submit --url $URL --lang en example_audio.wav
     ```
 
 - Check processing status of a job
 
     ```shell
    # $JOB_ID is from the submit command output
-   $ speechmatics batch job-status --url $URL --auth-token $AUTH_TOKEN --job-id $JOB_ID
+   $ speechmatics batch job-status --url $URL --job-id $JOB_ID
     ```
 
 - Retrieve completed transcription
 
     ```shell
    # $JOB_ID is from the submit command output
-   $ speechmatics batch get-results --url $URL --auth-token $AUTH_TOKEN --job-id $JOB_ID
+   $ speechmatics batch get-results --url $URL --job-id $JOB_ID
     ```
   
   ### Custom Transcription Config File

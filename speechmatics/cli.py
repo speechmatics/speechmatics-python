@@ -14,6 +14,7 @@ from socket import gaierror
 from dataclasses import dataclass
 from typing import List, Dict, Union, Tuple, Any
 
+import toml
 import httpx
 from websockets.exceptions import WebSocketException
 
@@ -132,9 +133,21 @@ def get_connection_settings(args):
     :return: Settings for the WebSocket connection.
     :rtype: speechmatics.models.ConnectionSettings
     """
+    auth_token = args.get("auth_token")
+
+    home_directory = os.path.expanduser("~")
+    if os.path.exists(f"{home_directory}/.speechmatics/config"):
+        cli_config = {"default": {}}
+        with open(
+            f"{home_directory}/.speechmatics/config", "r", encoding="UTF-8"
+        ) as file:
+            cli_config = toml.load(file)
+        if cli_config["default"].get("auth_token") is not None and auth_token is None:
+            auth_token = cli_config["default"].get("auth_token", None)
+
     settings = ConnectionSettings(
         url=args.get("url"),
-        auth_token=args.get("auth_token"),
+        auth_token=auth_token,
         generate_temp_token=True if args.get("generate_temp_token", False) else None,
     )
 
@@ -397,6 +410,7 @@ def submit_job_and_wait(
 
 
 # pylint: disable=too-many-branches
+# pylint: disable=too-many-statements
 def main(args=None):
     """
     Main entrypoint.
@@ -425,11 +439,16 @@ def main(args=None):
                 LOGGER.error("No command specified")
                 args = vars(parse_args([mode, "-h"]))
             batch_main(args)
+        elif mode == "config":
+            if not args.get("command"):
+                LOGGER.error("No command specified")
+                args = vars(parse_args([mode, "-h"]))
+            config_main(args)
         else:
             # Not clear which help to show, so let's exit, but list the valid modes.
-            LOGGER.error("Usage: speechmatics [rt|batch] [command]")
+            LOGGER.error("Usage: speechmatics [rt|batch|config] [command]")
             raise SystemExit(
-                f"Unknown mode: {mode}, mode must be one of 'rt' (realtime) or 'batch'"
+                f"Unknown mode: {mode}, mode must be one of 'rt' (realtime), 'batch' or 'config'"
             )
     except (KeyboardInterrupt, ValueError, TranscriptionError) as error:
         LOGGER.info(error, exc_info=True)
@@ -551,6 +570,35 @@ def batch_main(args):
             print(batch_client.delete_job(args["job_id"], args["force_delete"]))
         elif command == "job-status":
             print(batch_client.check_job_status(args["job_id"]))
+
+
+def config_main(args):
+    """Main dispatch for "config" command set
+
+    :param args: arguments from parse_args()
+    :type args: argparse.Namespace
+    """
+    home_directory = os.path.expanduser("~")
+    command = args.get("command")
+    if command == "set":
+        cli_config = {"default": {}}
+        if os.path.exists(f"{home_directory}/.speechmatics"):
+            if os.path.exists(f"{home_directory}/.speechmatics/config"):
+                with open(
+                    f"{home_directory}/.speechmatics/config", "r", encoding="UTF-8"
+                ) as file:
+                    toml_string = file.read()
+                    cli_config = toml.loads(toml_string)
+        else:
+            os.makedirs(f"{home_directory}/.speechmatics")
+
+        if args.get("auth_token"):
+            cli_config["default"]["auth_token"] = args.get("auth_token")
+
+        with open(
+            f"{home_directory}/.speechmatics/config", "w", encoding="UTF-8"
+        ) as file:
+            toml.dump(cli_config, file)
 
 
 if __name__ == "__main__":
