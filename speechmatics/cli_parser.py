@@ -436,6 +436,21 @@ def parse_args(args=None):
         help="Real-time commands. RETAINED FOR LEGACY COMPATIBILITY.",
     )
 
+    # Parser for config processes setting toml config
+    cli_config_parser = mode_subparsers.add_parser(
+        "config",
+        help="Config commands. Used to handle local config.",
+    )
+    cli_config_subparsers = cli_config_parser.add_subparsers(
+        title="commands", dest="command"
+    )
+    cli_set_config_parser = cli_config_subparsers.add_parser(
+        "set", help="Set config for the local CLI environment."
+    )
+    cli_set_config_parser.add_argument(
+        "--auth-token", type=str, help="Auth token to use as default for all requests."
+    )
+
     parsed_args = parser.parse_args(args=args)
 
     # Fix up args for transcribe command
