@@ -134,6 +134,7 @@ def get_connection_settings(args):
     :rtype: speechmatics.models.ConnectionSettings
     """
     auth_token = args.get("auth_token")
+    generate_temp_token = args.get("generate_temp_token")
 
     home_directory = os.path.expanduser("~")
     if os.path.exists(f"{home_directory}/.speechmatics/config"):
@@ -144,11 +145,13 @@ def get_connection_settings(args):
             cli_config = toml.load(file)
         if cli_config["default"].get("auth_token") is not None and auth_token is None:
             auth_token = cli_config["default"].get("auth_token", None)
+        if generate_temp_token is None:
+            generate_temp_token = cli_config["default"].get("generate_temp_token")
 
     settings = ConnectionSettings(
         url=args.get("url"),
         auth_token=auth_token,
-        generate_temp_token=True if args.get("generate_temp_token", False) else None,
+        generate_temp_token=generate_temp_token,
     )
 
     if args.get("buffer_size") is not None:
@@ -594,6 +597,10 @@ def config_main(args):
 
         if args.get("auth_token"):
             cli_config["default"]["auth_token"] = args.get("auth_token")
+        if args.get("generate_temp_token", None) is not None:
+            cli_config["default"]["generate_temp_token"] = args.get(
+                "generate_temp_token"
+            )
 
         with open(
             f"{home_directory}/.speechmatics/config", "w", encoding="UTF-8"
@@ -613,6 +620,11 @@ def config_main(args):
 
                 if args.get("auth_token") and cli_config["default"].get("auth_token"):
                     cli_config["default"].pop("auth_token")
+                if (
+                    args.get("generate_temp_token")
+                    and cli_config["default"].get("generate_temp_token") is not None
+                ):
+                    cli_config["default"].pop("generate_temp_token")
 
                 with open(
                     f"{home_directory}/.speechmatics/config", "w", encoding="UTF-8"
