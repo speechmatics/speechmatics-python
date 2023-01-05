@@ -83,6 +83,7 @@ Reference
    exceptions
    helpers
    models
+   constants
 
 
 Indices and tables

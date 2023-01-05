@@ -39,6 +39,10 @@ from speechmatics.models import (
 from speechmatics.cli_parser import (
     parse_args,
 )
+from speechmatics.constants import (
+    BATCH_SELF_SERVICE_URL,
+    RT_SELF_SERVICE_URL,
+)
 
 LOGGER = logging.getLogger(__name__)
 
@@ -122,7 +126,7 @@ class Transcripts:
     json: List[dict]
 
 
-def get_connection_settings(args):
+def get_connection_settings(args, lang="en"):
     """
     Helper function which returns a ConnectionSettings object based on the
     command line options given to the program.
@@ -145,8 +149,15 @@ def get_connection_settings(args):
         if cli_config["default"].get("auth_token") is not None and auth_token is None:
             auth_token = cli_config["default"].get("auth_token", None)
 
+    url = args.get("url", None)
+    if url is None:
+        if args.get("mode") == "batch":
+            url = BATCH_SELF_SERVICE_URL
+        else:
+            url = f"{RT_SELF_SERVICE_URL}/{lang}"
+
     settings = ConnectionSettings(
-        url=args.get("url"),
+        url=url,
         auth_token=auth_token,
         generate_temp_token=True if args.get("generate_temp_token", False) else None,
     )
@@ -493,14 +504,16 @@ def rt_main(args):
     :param args: arguments from parse_args()
     :type args: argparse.Namespace
     """
-    api = WebsocketClient(get_connection_settings(args))
+    transcription_config = get_transcription_config(args)
+    settings = get_connection_settings(args, lang=transcription_config.language)
+    api = WebsocketClient(settings)
 
-    if args["url"].lower().startswith("ws://") and args["ssl_mode"] != "none":
+    if settings.url.lower().startswith("ws://") and args["ssl_mode"] != "none":
         raise SystemExit(
             f"ssl_mode '{args['ssl_mode']}' is incompatible with"
             "protocol 'ws'. Use 'wss' instead."
         )
-    if args["url"].lower().startswith("wss://") and args["ssl_mode"] == "none":
+    if settings.url.lower().startswith("wss://") and args["ssl_mode"] == "none":
         raise SystemExit(
             "ssl_mode 'none' is incompatible with protocol 'wss'." "Use 'ws' instead."
         )

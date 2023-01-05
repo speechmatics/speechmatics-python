@@ -102,10 +102,9 @@ def parse_args(args=None):
     connection_parser.add_argument(
         "--url",
         type=str,
-        required=True,
         help=(
             "Websocket for RT or for batch API URL (e.g. wss://192.168.8.12:9000/ "
-            "or https://trial.asr.api.speechmatics.com/v2 respectively)."
+            "or https://asr.api.speechmatics.com/v2 respectively)."
         ),
     )
     connection_parser.add_argument(
@@ -465,7 +464,7 @@ def parse_args(args=None):
     if parsed_args.mode == "transcribe":
         parsed_args.command = "transcribe"
 
-        if urlparse(parsed_args.url).scheme in ["ws", "wss"]:
+        if urlparse(parsed_args.url).scheme in ["ws", "wss"] or parsed_args.url is None:
             parsed_args.mode = "rt"
         else:
             LOGGER.error(
