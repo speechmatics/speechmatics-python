@@ -39,10 +39,7 @@ The core Speechmatics documentation can be found at https://docs.speechmatics.co
   You may also set the auth_token for each CLI command using the --auth-token flag.
   The --auth-token flag overrides the value stored in the config file, e.g.
    ```shell
-   # Point URL to the SaaS self-service runtime
-   $ URL=wss://eu2.rt.speechmatics.com/v2/en
-
-   $ speechmatics transcribe --url $URL --auth-token $AUTH_TOKEN example_audio.wav
+   $ speechmatics transcribe --auth-token $AUTH_TOKEN --generate-temp-token example_audio.wav
    ```
 
 - Removing an auth_token from the toml file:
@@ -51,18 +48,18 @@ The core Speechmatics documentation can be found at https://docs.speechmatics.co
    ```
 
   ### Realtime ASR
-- Starting a real-time session for SaaS customers using a .wav file as the input audio:
+- Starting a real-time session for self-service SaaS customers using a .wav file as the input audio:
 
    ```shell
-   # Point URL to the SaaS self-service runtime
-   $ URL=wss://eu2.rt.speechmatics.com/v2/en
-
-   $ speechmatics transcribe --url $URL --lang en --generate-temp-token example_audio.wav
+   $ speechmatics transcribe --lang en --generate-temp-token example_audio.wav
    ```
 
 - Starting a real-time session for enterprise SaaS customers using a .wav file as the input audio:
 
    ```shell
+   # Point URL to the a SaaS enterprise runtime
+   $ URL=wss://neu.rt.speechmatics.com/v2/en
+
    $ speechmatics transcribe --url $URL example_audio.wav
    ```
 
@@ -128,30 +125,36 @@ The core Speechmatics documentation can be found at https://docs.speechmatics.co
 - Submit a .wav file for batch ASR processing
 
    ```shell
-   # Point URL to Speechmatics SaaS (Batch Virtual Appliance is also supported)
-   $ URL=https://asr.api.speechmatics.com/v2/
-
-   $ speechmatics batch transcribe --url $URL --lang en example_audio.wav
+   $ speechmatics batch transcribe --lang en example_audio.wav
    ```
 
 - Files may be submitted for asynchronous processing
 
     ```shell
-   $ speechmatics batch submit --url $URL example_audio.wav
+   $ speechmatics batch submit example_audio.wav
     ```
+
+- Enterprise SaaS and on-prem customers can point to a custom runtime:
+
+   ```shell
+   # Point URL to a custom runtime (in this case, the trial runtime)
+   $ URL=https://trial.asr.api.speechmatics.com/v2/
+
+   $ speechmatics batch transcribe --url $URL example_audio.wav
+   ```
 
 - Check processing status of a job
 
     ```shell
    # $JOB_ID is from the submit command output
-   $ speechmatics batch job-status --url $URL --job-id $JOB_ID
+   $ speechmatics batch job-status --job-id $JOB_ID
     ```
 
 - Retrieve completed transcription
 
     ```shell
    # $JOB_ID is from the submit command output
-   $ speechmatics batch get-results --url $URL --job-id $JOB_ID
+   $ speechmatics batch get-results --job-id $JOB_ID
     ```
   
   ### Custom Transcription Config File

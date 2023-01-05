@@ -9,6 +9,10 @@ import toml
 
 from speechmatics import cli
 from speechmatics import cli_parser
+from speechmatics.constants import (
+    BATCH_SELF_SERVICE_URL,
+    RT_SELF_SERVICE_URL,
+)
 from tests.utils import path_to_test_resource
 
 
@@ -832,3 +836,13 @@ def test_config_set_and_remove_toml():
 
     for (key, val) in args.items():
         assert key not in cli_config["default"]
+
+
+def test_default_urls_connection_config():
+    rt_args = {"mode": "rt"}
+    settings = cli.get_connection_settings(rt_args, lang="es")
+    assert settings.url == f"{RT_SELF_SERVICE_URL}/es"
+
+    batch_args = {"mode": "batch"}
+    settings = cli.get_connection_settings(batch_args, lang="es")
+    assert settings.url == f"{BATCH_SELF_SERVICE_URL}"
