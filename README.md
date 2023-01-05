@@ -35,6 +35,10 @@ To install from source:
    $ speechmatics transcribe --url $URL --auth-token $AUTH_TOKEN example_audio.wav
    ```
 
+- Removing an auth_token from the toml file:
+   ```shell
+   $ speechmatics config unset --auth-token
+   ```
 
   ### Realtime ASR
 - Starting a real-time session for SaaS customers using a .wav file as the input audio:

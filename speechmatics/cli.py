@@ -450,7 +450,7 @@ def main(args=None):
             raise SystemExit(
                 f"Unknown mode: {mode}, mode must be one of 'rt' (realtime), 'batch' or 'config'"
             )
-    except (KeyboardInterrupt, ValueError, TranscriptionError) as error:
+    except (KeyboardInterrupt, ValueError, TranscriptionError, KeyError) as error:
         LOGGER.info(error, exc_info=True)
         sys.exit(f"{type(error).__name__}: {error}")
     except FileNotFoundError as error:
@@ -599,6 +599,30 @@ def config_main(args):
             f"{home_directory}/.speechmatics/config", "w", encoding="UTF-8"
         ) as file:
             toml.dump(cli_config, file)
+
+    if command == "unset":
+        cli_config = {"default": {}}
+
+        if os.path.exists(f"{home_directory}/.speechmatics"):
+            if os.path.exists(f"{home_directory}/.speechmatics/config"):
+                with open(
+                    f"{home_directory}/.speechmatics/config", "r", encoding="UTF-8"
+                ) as file:
+                    toml_string = file.read()
+                    cli_config = toml.loads(toml_string)
+
+                if args.get("auth_token") and cli_config["default"].get("auth_token"):
+                    cli_config["default"].pop("auth_token")
+
+                with open(
+                    f"{home_directory}/.speechmatics/config", "w", encoding="UTF-8"
+                ) as file:
+                    toml.dump(cli_config, file)
+                return
+
+        raise SystemExit(
+            f"Unable to remove config. No config file stored found at {home_directory}/.speechmatics/config"
+        )
 
 
 if __name__ == "__main__":
