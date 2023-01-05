@@ -450,6 +450,14 @@ def parse_args(args=None):
     cli_set_config_parser.add_argument(
         "--auth-token", type=str, help="Auth token to use as default for all requests."
     )
+    cli_set_config_parser = cli_config_subparsers.add_parser(
+        "unset", help="Remove specified config values from the local CLI config file."
+    )
+    cli_set_config_parser.add_argument(
+        "--auth-token",
+        action="store_true",
+        help="If flag is set, removes the auth token value from the config file.",
+    )
 
     parsed_args = parser.parse_args(args=args)
 

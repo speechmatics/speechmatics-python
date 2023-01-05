@@ -797,3 +797,38 @@ def test_config_set_toml():
     del args["command"]
     for (key, val) in args.items():
         assert cli_config["default"][key] == val
+
+
+def test_config_set_and_remove_toml():
+    args = {
+        "command": "set",
+        "auth_token": "faketoken",
+    }
+    try:
+        cli.config_main(args)
+    except Exception:  # pylint: disable=broad-except
+        assert False
+    home_dir = os.path.expanduser("~")
+    cli_config = {"default": {}}
+    with open(f"{home_dir}/.speechmatics/config", "r", encoding="UTF-8") as file:
+        cli_config = toml.load(file)
+
+    del args["command"]
+    for (key, val) in args.items():
+        assert cli_config["default"][key] == val
+
+    args = {
+        "command": "unset",
+        "auth_token": "faketoken",
+    }
+    try:
+        cli.config_main(args)
+    except Exception:  # pylint: disable=broad-except
+        assert False
+    home_dir = os.path.expanduser("~")
+    cli_config = {"default": {}}
+    with open(f"{home_dir}/.speechmatics/config", "r", encoding="UTF-8") as file:
+        cli_config = toml.load(file)
+
+    for (key, val) in args.items():
+        assert key not in cli_config["default"]
