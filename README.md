@@ -47,6 +47,16 @@ The core Speechmatics documentation can be found at https://docs.speechmatics.co
    $ speechmatics config unset --auth-token
    ```
 
+- Setting --generate-temp-token flag globally for CLI authentication:
+   ```shell
+   $ speechmatics config set --generate-temp-token
+   ```
+
+- Unsetting generate temp token globally for CLI authentication:
+   ```shell
+   $ speechmatics config unset --generate-temp-token
+   ```
+
   ### Realtime ASR
 - Starting a real-time session for self-service SaaS customers using a .wav file as the input audio:
 

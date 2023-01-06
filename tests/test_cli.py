@@ -198,8 +198,8 @@ from tests.utils import path_to_test_resource
     ],
 )
 def test_cli_arg_parse_with_file(args, values):
-    connection_args = ["--url=example", "--auth-token=xyz"]
-    test_args = args + connection_args + ["fake_file.wav"]
+    common_transcribe_args = ["--auth-token=xyz", "--url=example", "fake_file.wav"]
+    test_args = args + common_transcribe_args
     actual_values = vars(cli.parse_args(args=test_args))
 
     for (key, val) in values.items():
@@ -768,15 +768,20 @@ def test_add_printing_handlers_with_speaker_change_no_token(mocker, capsys):
     )
 
 
-def test_cli_argparse_config():
-    args = [
-        "config",
-        "set",
-        "--auth-token=faketoken",
-    ]
-    values = {
-        "auth_token": "faketoken",
-    }
+@pytest.mark.parametrize(
+    "args, values",
+    (
+        (
+            ["config", "set", "--auth-token=faketoken", "--generate-temp-token"],
+            {"auth_token": "faketoken", "generate_temp_token": True},
+        ),
+        (
+            ["config", "unset", "--auth-token", "--generate-temp-token"],
+            {"auth_token": True, "generate_temp_token": True},
+        ),
+    ),
+)
+def test_cli_argparse_config(args, values):
 
     actual_values = vars(cli.parse_args(args=args))
 
@@ -807,6 +812,7 @@ def test_config_set_and_remove_toml():
     args = {
         "command": "set",
         "auth_token": "faketoken",
+        "generate_temp_token": True,
     }
     try:
         cli.config_main(args)
@@ -823,7 +829,8 @@ def test_config_set_and_remove_toml():
 
     args = {
         "command": "unset",
-        "auth_token": "faketoken",
+        "auth_token": True,
+        "generate_temp_token": True,
     }
     try:
         cli.config_main(args)

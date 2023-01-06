@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Toml config file support to set the auth token
 - Command for removing properties from the toml file
+- Add --generate-temp-token option to the set config command and toml file
 
 ## [1.4.5] - 2022-01-03
 

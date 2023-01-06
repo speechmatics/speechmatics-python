@@ -449,13 +449,24 @@ def parse_args(args=None):
     cli_set_config_parser.add_argument(
         "--auth-token", type=str, help="Auth token to use as default for all requests."
     )
+    cli_set_config_parser.add_argument(
+        "--generate-temp-token",
+        action="store_true",
+        help="Sets generate_temp_token to true in the config file."
+        "This will set the --generate-temp-token to true globally wherever it is a valid command line flag.",
+    )
     cli_set_config_parser = cli_config_subparsers.add_parser(
-        "unset", help="Remove specified config values from the local CLI config file."
+        "unset", help="Remove specified config values from the CLI config file."
     )
     cli_set_config_parser.add_argument(
         "--auth-token",
         action="store_true",
         help="If flag is set, removes the auth token value from the config file.",
+    )
+    cli_set_config_parser.add_argument(
+        "--generate-temp-token",
+        action="store_true",
+        help="If flag is set, removes the generate temp token value from the config file.",
     )
 
     parsed_args = parser.parse_args(args=args)
