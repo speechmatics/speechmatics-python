@@ -292,7 +292,7 @@ class BatchClient:
         :param job_id: ID of previously submitted job.
         :type job_id: str
 
-        :param transcription_format: Format of transcript. Defaults to json.
+        :param transcription_format: Format of transcript. Defaults to txt.
             Valid options are json-v2, txt, srt. json is accepted as an
             alias for json-v2.
         :type format: str
