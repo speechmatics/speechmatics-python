@@ -808,14 +808,26 @@ def test_config_set_toml():
         assert cli_config["default"][key] == val
 
 
-def test_config_set_and_remove_toml():
-    args = {
-        "command": "set",
-        "auth_token": "faketoken",
-        "generate_temp_token": True,
-    }
+@pytest.mark.parametrize(
+    "args",
+    (
+        {
+            "auth_token": "faketoken",
+            "generate_temp_token": True,
+        },
+        {
+            "auth_token": "faketoken",
+        },
+        {
+            "generate_temp_token": True,
+        },
+    ),
+)
+def test_config_set_and_remove_toml(args):
+    set_args = {"command": "set"}
+    set_args = {**set_args, **args}
     try:
-        cli.config_main(args)
+        cli.config_main(set_args)
     except Exception:  # pylint: disable=broad-except
         assert False
     home_dir = os.path.expanduser("~")
@@ -823,17 +835,18 @@ def test_config_set_and_remove_toml():
     with open(f"{home_dir}/.speechmatics/config", "r", encoding="UTF-8") as file:
         cli_config = toml.load(file)
 
-    del args["command"]
     for (key, val) in args.items():
         assert cli_config["default"][key] == val
 
-    args = {
-        "command": "unset",
-        "auth_token": True,
-        "generate_temp_token": True,
-    }
+    unset_args = {"command": "unset"}
+    for key in ["auth_token", "generate_temp_token"]:
+        if key in args:
+            unset_args[key] = True
+        else:
+            unset_args[key] = False
+
     try:
-        cli.config_main(args)
+        cli.config_main(unset_args)
     except Exception:  # pylint: disable=broad-except
         assert False
     home_dir = os.path.expanduser("~")

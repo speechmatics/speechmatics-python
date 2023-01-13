@@ -610,10 +610,8 @@ def config_main(args):
 
         if args.get("auth_token"):
             cli_config["default"]["auth_token"] = args.get("auth_token")
-        if args.get("generate_temp_token", None) is not None:
-            cli_config["default"]["generate_temp_token"] = args.get(
-                "generate_temp_token"
-            )
+        if args.get("generate_temp_token"):
+            cli_config["default"]["generate_temp_token"] = True
 
         with open(
             f"{home_directory}/.speechmatics/config", "w", encoding="UTF-8"
