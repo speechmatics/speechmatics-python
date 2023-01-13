@@ -7,11 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.0] - 2022-01-13
+
 ### Added
 
-- Toml config file support to set the auth token
-- Command for removing properties from the toml file
-- Add --generate-temp-token option to the set config command and toml file
+- .toml config file support to set the auth token with CLI config set command
+- CLI config unset command for removing properties from the toml file
+- --generate-temp-token option to the set/unset config command and toml file
+- Default URLs for self-service Batch and RT in the CLI
 
 ## [1.4.5] - 2022-01-03
 
@@ -189,6 +192,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added authentication token support for RT-SaaS [@rakeshv247](https://github.com/rakeshv247).
 
-[Unreleased]: https://github.com/speechmatics/speechmatics-python/compare/v1.4.5...HEAD
+[Unreleased]: https://github.com/speechmatics/speechmatics-python/compare/v1.5.0...HEAD
+[1.5.0]: https://github.com/speechmatics/speechmatics-python/releases/tag/1.5.0
 [1.4.5]: https://github.com/speechmatics/speechmatics-python/releases/tag/1.4.5
 [1.4.4]: https://github.com/speechmatics/speechmatics-python/releases/tag/1.4.4
