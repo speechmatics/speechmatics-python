@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
-## [1.5.1] - 2022-01-17
+## [1.5.1] - 2023-01-17
 
 ### Added
 
@@ -18,7 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Update the docs / help texts for the CLI tool
 
-## [1.5.0] - 2022-01-13
+## [1.5.0] - 2023-01-13
 
 ### Added
 
@@ -27,7 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - --generate-temp-token option to the set/unset config command and toml file
 - Default URLs for self-service Batch and RT in the CLI
 
-## [1.4.5] - 2022-01-03
+## [1.4.5] - 2023-01-03
 
 ### Added
 
