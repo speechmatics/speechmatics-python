@@ -84,6 +84,7 @@ Reference
    helpers
    models
    constants
+   cli_parser
 
 
 Indices and tables

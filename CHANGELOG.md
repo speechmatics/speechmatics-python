@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Update the docs / help texts for the CLI tool
+- Add sphinx-argparse to docs build pipeline to auto-document the CLI tool
+
 ## [1.5.0] - 2022-01-13
 
 ### Added
