@@ -7,8 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-- Update the docs / help texts for the CLI tool
+
+## [1.5.1] - 2022-01-17
+
+### Added
+
 - Add sphinx-argparse to docs build pipeline to auto-document the CLI tool
+
+### Changed
+
+- Update the docs / help texts for the CLI tool
 
 ## [1.5.0] - 2022-01-13
 
@@ -195,7 +203,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added authentication token support for RT-SaaS [@rakeshv247](https://github.com/rakeshv247).
 
-[Unreleased]: https://github.com/speechmatics/speechmatics-python/compare/v1.5.0...HEAD
+[Unreleased]: https://github.com/speechmatics/speechmatics-python/compare/v1.5.1...HEAD
+[1.5.1]: https://github.com/speechmatics/speechmatics-python/releases/tag/1.5.1
 [1.5.0]: https://github.com/speechmatics/speechmatics-python/releases/tag/1.5.0
 [1.4.5]: https://github.com/speechmatics/speechmatics-python/releases/tag/1.4.5
 [1.4.4]: https://github.com/speechmatics/speechmatics-python/releases/tag/1.4.4
