@@ -56,17 +56,13 @@ def additional_vocab_item(to_parse):
 
 # pylint: disable=too-many-locals
 # pylint: disable=too-many-statements
-def parse_args(args=None):
+def get_arg_parser():
     """
-    Parses command-line arguments.
+    Creates a command-line argument parser objct
 
-    :param args: List of arguments to parse.
-    :type args: (List[str], optional)
-
-    :return: The set of arguments provided along with their values.
-    :rtype: Namespace
+    :return: The argparser object with all commands and subcommands.
+    :rtype: argparse.ArgumentParser
     """
-
     parser = argparse.ArgumentParser(description="CLI for Speechmatics products.")
     parser.add_argument(
         "-v",
@@ -361,6 +357,7 @@ def parse_args(args=None):
             connection_parser,
             config_parser,
         ],
+        help="Transcribe an audio file or stream in real time and output the results to the console.",
     )
 
     # Parsers specific to batch mode commands
@@ -468,6 +465,20 @@ def parse_args(args=None):
         action="store_true",
         help="If flag is set, removes the generate temp token value from the config file.",
     )
+    return parser
+
+
+def parse_args(args=None):
+    """
+    Parses command-line arguments.
+
+    :param args: List of arguments to parse.
+    :type args: (List[str], optional)
+
+    :return: The set of arguments provided along with their values.
+    :rtype: Namespace
+    """
+    parser = get_arg_parser()
 
     parsed_args = parser.parse_args(args=args)
 

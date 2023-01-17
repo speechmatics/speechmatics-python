@@ -22,13 +22,15 @@ Windows users may need to run the install command with an extra flag:
 
 - Python 3.7+
 
-## API documentation
+## Docs
 
-Please see https://speechmatics.github.io/speechmatics-python/.
+The speechmatics python SDK and CLI is documented at https://speechmatics.github.io/speechmatics-python/.
 
-The core Speechmatics documentation can be found at https://docs.speechmatics.com.
+The Speechmatics API and product documentation can be found at https://docs.speechmatics.com.
 
 ## Example command-line usage
+
+A complete list of commands and flags can be found in the SDK docs at https://speechmatics.github.io/speechmatics-python/.
 
   ### Configuring Auth Tokens
 - Setting an auth token for CLI authentication:

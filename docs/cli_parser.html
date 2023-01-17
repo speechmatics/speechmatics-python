@@ -1,0 +1,795 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>speechmatics.cli_parser &#8212; speechmatics-python  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="speechmatics.client" href="constants.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="speechmatics-cli-parser">
+<h1>speechmatics.cli_parser<a class="headerlink" href="#speechmatics-cli-parser" title="Permalink to this headline">¶</a></h1>
+<p><p>CLI for Speechmatics products.</p>
+</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">speechmatics</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">v</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">debug</span><span class="p">]</span> <span class="p">{</span><span class="n">rt</span><span class="p">,</span><span class="n">batch</span><span class="p">,</span><span class="n">transcribe</span><span class="p">,</span><span class="n">config</span><span class="p">}</span> <span class="o">...</span>
+</pre></div>
+</div>
+<section id="named-arguments">
+<h2>Named Arguments<a class="headerlink" href="#named-arguments" title="Permalink to this headline">¶</a></h2>
+<dl class="option-list">
+<dt><kbd>-v</kbd></dt>
+<dd><p>Set the log level for verbose logs. The number of flags indicate the level, eg. -v is INFO and -vv is DEBUG.</p>
+<p>Default: 0</p>
+</dd>
+<dt><kbd>--debug</kbd></dt>
+<dd><p>Prints useful symbols to represent the messages on the wire. Symbols are printed to STDERR, use only when STDOUT is redirected to a file.</p>
+<p>Default: False</p>
+</dd>
+</dl>
+</section>
+<section id="mode">
+<h2>Mode<a class="headerlink" href="#mode" title="Permalink to this headline">¶</a></h2>
+<dl class="option-list">
+<dt><kbd>mode</kbd></dt>
+<dd><p>Possible choices: rt, batch, transcribe, config</p>
+</dd>
+</dl>
+</section>
+<section id="Sub-commands">
+<h2>Sub-commands<a class="headerlink" href="#Sub-commands" title="Permalink to this headline">¶</a></h2>
+<section id="rt">
+<h3>rt<a class="headerlink" href="#rt" title="Permalink to this headline">¶</a></h3>
+<p>Real-time commands</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">speechmatics</span> <span class="n">rt</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">{</span><span class="n">transcribe</span><span class="p">}</span> <span class="o">...</span>
+</pre></div>
+</div>
+<section id="commands">
+<h4>Commands<a class="headerlink" href="#commands" title="Permalink to this headline">¶</a></h4>
+<dl class="option-list">
+<dt><kbd>command</kbd></dt>
+<dd><p>Possible choices: transcribe</p>
+</dd>
+</dl>
+</section>
+<section id="Sub-commands_repeat1">
+<h4>Sub-commands<a class="headerlink" href="#Sub-commands_repeat1" title="Permalink to this headline">¶</a></h4>
+<section id="transcribe">
+<h5>transcribe<a class="headerlink" href="#transcribe" title="Permalink to this headline">¶</a></h5>
+<p>Undocumented</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">speechmatics</span> <span class="n">rt</span> <span class="n">transcribe</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">enable</span><span class="o">-</span><span class="n">partials</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">punctuation</span><span class="o">-</span><span class="n">sensitivity</span> <span class="n">PUNCTUATION_SENSITIVITY</span><span class="p">]</span>
+                           <span class="p">[</span><span class="o">--</span><span class="n">speaker</span><span class="o">-</span><span class="n">diarization</span><span class="o">-</span><span class="nb">max</span><span class="o">-</span><span class="n">speakers</span> <span class="n">SPEAKER_DIARIZATION_MAX_SPEAKERS</span><span class="p">]</span>
+                           <span class="p">[</span><span class="o">--</span><span class="n">speaker</span><span class="o">-</span><span class="n">change</span><span class="o">-</span><span class="n">sensitivity</span> <span class="n">SPEAKER_CHANGE_SENSITIVITY</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">speaker</span><span class="o">-</span><span class="n">change</span><span class="o">-</span><span class="n">token</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="nb">max</span><span class="o">-</span><span class="n">delay</span> <span class="n">MAX_DELAY</span><span class="p">]</span>
+                           <span class="p">[</span><span class="o">--</span><span class="nb">max</span><span class="o">-</span><span class="n">delay</span><span class="o">-</span><span class="n">mode</span> <span class="p">{</span><span class="n">fixed</span><span class="p">,</span><span class="n">flexible</span><span class="p">}]</span> <span class="p">[</span><span class="o">--</span><span class="n">raw</span> <span class="n">ENCODING</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">sample</span><span class="o">-</span><span class="n">rate</span> <span class="n">SAMPLE_RATE</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">chunk</span><span class="o">-</span><span class="n">size</span> <span class="n">CHUNK_SIZE</span><span class="p">]</span>
+                           <span class="p">[</span><span class="o">--</span><span class="n">buffer</span><span class="o">-</span><span class="n">size</span> <span class="n">BUFFER_SIZE</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="nb">print</span><span class="o">-</span><span class="n">json</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">diarization</span> <span class="p">{</span><span class="n">none</span><span class="p">,</span><span class="n">speaker</span><span class="p">,</span><span class="n">speaker_change</span><span class="p">}]</span> <span class="p">[</span><span class="o">--</span><span class="n">url</span> <span class="n">URL</span><span class="p">]</span>
+                           <span class="p">[</span><span class="o">--</span><span class="n">auth</span><span class="o">-</span><span class="n">token</span> <span class="n">AUTH_TOKEN</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">ssl</span><span class="o">-</span><span class="n">mode</span> <span class="p">{</span><span class="n">regular</span><span class="p">,</span><span class="n">insecure</span><span class="p">,</span><span class="n">none</span><span class="p">}]</span> <span class="p">[</span><span class="o">--</span><span class="n">generate</span><span class="o">-</span><span class="n">temp</span><span class="o">-</span><span class="n">token</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">config</span><span class="o">-</span><span class="n">file</span> <span class="n">CONFIG_FILE</span><span class="p">]</span>
+                           <span class="p">[</span><span class="o">--</span><span class="n">lang</span> <span class="n">LANGUAGE</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">operating</span><span class="o">-</span><span class="n">point</span> <span class="p">{</span><span class="n">standard</span><span class="p">,</span><span class="n">enhanced</span><span class="p">}]</span> <span class="p">[</span><span class="o">--</span><span class="n">domain</span> <span class="n">DOMAIN</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">output</span><span class="o">-</span><span class="n">locale</span> <span class="n">LOCALE</span><span class="p">]</span>
+                           <span class="p">[</span><span class="o">--</span><span class="n">additional</span><span class="o">-</span><span class="n">vocab</span> <span class="p">[</span><span class="n">ADDITIONAL_VOCAB</span> <span class="p">[</span><span class="n">ADDITIONAL_VOCAB</span> <span class="o">...</span><span class="p">]]]</span> <span class="p">[</span><span class="o">--</span><span class="n">additional</span><span class="o">-</span><span class="n">vocab</span><span class="o">-</span><span class="n">file</span> <span class="n">VOCAB_FILEPATH</span><span class="p">]</span>
+                           <span class="p">[</span><span class="o">--</span><span class="n">punctuation</span><span class="o">-</span><span class="n">permitted</span><span class="o">-</span><span class="n">marks</span> <span class="n">PUNCTUATION_PERMITTED_MARKS</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">enable</span><span class="o">-</span><span class="n">entities</span><span class="p">]</span>
+                           <span class="n">FILEPATHS</span> <span class="p">[</span><span class="n">FILEPATHS</span> <span class="o">...</span><span class="p">]</span>
+</pre></div>
+</div>
+<section id="positional-arguments">
+<h6>Positional Arguments<a class="headerlink" href="#positional-arguments" title="Permalink to this headline">¶</a></h6>
+<dl class="option-list">
+<dt><kbd>FILEPATHS</kbd></dt>
+<dd><p>File(s) to process.</p>
+</dd>
+</dl>
+</section>
+<section id="named-arguments_repeat1">
+<h6>Named Arguments<a class="headerlink" href="#named-arguments_repeat1" title="Permalink to this headline">¶</a></h6>
+<dl class="option-list">
+<dt><kbd>--enable-partials</kbd></dt>
+<dd><p>Whether to return partial transcripts which can be updated by later,final transcripts.</p>
+<p>Default: False</p>
+</dd>
+<dt><kbd>--punctuation-sensitivity</kbd></dt>
+<dd><p>Sensitivity level for advanced punctuation.</p>
+</dd>
+<dt><kbd>--speaker-diarization-max-speakers</kbd></dt>
+<dd><p>Enforces the maximum number of speakers allowed in a single audio stream. Min: 2, Max: 20, Default: 20.</p>
+</dd>
+<dt><kbd>--speaker-change-sensitivity</kbd></dt>
+<dd><p>Sensitivity level for speaker change.</p>
+</dd>
+<dt><kbd>--speaker-change-token</kbd></dt>
+<dd><p>Shows a &lt;sc&gt; token where a speaker change was detected.</p>
+<p>Default: False</p>
+</dd>
+<dt><kbd>--max-delay</kbd></dt>
+<dd><p>Maximum acceptable delay before sending a piece of transcript.</p>
+</dd>
+<dt><kbd>--max-delay-mode</kbd></dt>
+<dd><p>Possible choices: fixed, flexible</p>
+<p>How to interpret the max-delay size if speech is inthe middle of an unbreakable entity like a number.</p>
+<p>Default: “flexible”</p>
+</dd>
+<dt><kbd>--raw</kbd></dt>
+<dd><p>Indicate that the input audio is raw, provide the encodingof this raw audio, eg. pcm_f32le.</p>
+</dd>
+<dt><kbd>--sample-rate</kbd></dt>
+<dd><p>The sample rate in Hz of the input audio, if in raw format.</p>
+<p>Default: 44100</p>
+</dd>
+<dt><kbd>--chunk-size</kbd></dt>
+<dd><p>How much audio data, in bytes, to send to the server in each websocket message. Larger values can increase latency, but values which are too small create unnecessary overhead.</p>
+<p>Default: 4096</p>
+</dd>
+<dt><kbd>--buffer-size</kbd></dt>
+<dd><p>Maximum number of messages to send before waiting foracknowledgements from the server.</p>
+<p>Default: 512</p>
+</dd>
+<dt><kbd>--print-json</kbd></dt>
+<dd><p>Print the JSON partial &amp; final transcripts received rather than plaintext messages.</p>
+<p>Default: False</p>
+</dd>
+<dt><kbd>--diarization</kbd></dt>
+<dd><p>Possible choices: none, speaker, speaker_change</p>
+<p>Which type of diarization to use.</p>
+</dd>
+<dt><kbd>--url</kbd></dt>
+<dd><p>Websocket for RT or for batch API URL (e.g. wss://192.168.8.12:9000/ or https://asr.api.speechmatics.com/v2 respectively).</p>
+</dd>
+<dt><kbd>--auth-token</kbd></dt>
+<dd><p>Pre-shared authentication token to authorize the client.Applies to Speechmatics SaaS products.</p>
+</dd>
+<dt><kbd>--ssl-mode</kbd></dt>
+<dd><p>Possible choices: regular, insecure, none</p>
+<p>Use a preset configuration for the SSL context. With <cite>regular</cite> mode a valid certificate is expected. With <cite>insecure</cite> mode a self signed certificate is allowed. With <cite>none</cite> then SSL is not used.</p>
+<p>Default: “regular”</p>
+</dd>
+<dt><kbd>--generate-temp-token</kbd></dt>
+<dd><p>Automatically generate a temporary token for authentication.Non-enterprise customers must set this to True.Enterprise customers should set this to False.</p>
+</dd>
+<dt><kbd>--config-file</kbd></dt>
+<dd><p>Read the transcription config from a file. If you provide this, all other config options work as overrides.</p>
+</dd>
+<dt><kbd>--lang, --language</kbd></dt>
+<dd><p>Language (ISO 639-1 code, e.g. en, fr, de).</p>
+</dd>
+<dt><kbd>--operating-point</kbd></dt>
+<dd><p>Possible choices: standard, enhanced</p>
+<p>Selects the acoustic model configuration. “enhanced” is more computationally expensive than “standard” but should result in a more accurate transcript.</p>
+</dd>
+<dt><kbd>--domain</kbd></dt>
+<dd><p>Optionally request a specialized language pack, e.g. ‘finance’</p>
+</dd>
+<dt><kbd>--output-locale</kbd></dt>
+<dd><p>Locale of the output of transcripts. eg. en-US.</p>
+</dd>
+<dt><kbd>--additional-vocab</kbd></dt>
+<dd><p>Space separated list of additional vocab. Expected format: &lt;content (required)&gt;:&lt;sounds like (optional)&gt;,&lt;anymore sounds like&gt; Simple vocab list example: ‘Speechmatics gnocchi’. Vocab list with sounds like example: ‘gnocchi:nokey,nochi’.</p>
+</dd>
+<dt><kbd>--additional-vocab-file</kbd></dt>
+<dd><p>File with additional vocab in JSON format.</p>
+</dd>
+<dt><kbd>--punctuation-permitted-marks</kbd></dt>
+<dd><p>Space separated list of permitted punctuation marks for advanced punctuation.</p>
+</dd>
+<dt><kbd>--enable-entities</kbd></dt>
+<dd><p>Whether to output additional information about recognisedentity classes (JSON output only).</p>
+<p>Default: False</p>
+</dd>
+</dl>
+</section>
+</section>
+</section>
+</section>
+<section id="batch">
+<h3>batch<a class="headerlink" href="#batch" title="Permalink to this headline">¶</a></h3>
+<p>Batch commands</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">speechmatics</span> <span class="n">batch</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">{</span><span class="n">transcribe</span><span class="p">,</span><span class="n">submit</span><span class="p">,</span><span class="nb">list</span><span class="o">-</span><span class="n">jobs</span><span class="p">,</span><span class="n">get</span><span class="o">-</span><span class="n">results</span><span class="p">,</span><span class="n">delete</span><span class="p">,</span><span class="n">job</span><span class="o">-</span><span class="n">status</span><span class="p">}</span> <span class="o">...</span>
+</pre></div>
+</div>
+<section id="commands_repeat1">
+<h4>Commands<a class="headerlink" href="#commands_repeat1" title="Permalink to this headline">¶</a></h4>
+<dl class="option-list">
+<dt><kbd>command</kbd></dt>
+<dd><p>Possible choices: transcribe, submit, list-jobs, get-results, delete, job-status</p>
+</dd>
+</dl>
+</section>
+<section id="Sub-commands_repeat2">
+<h4>Sub-commands<a class="headerlink" href="#Sub-commands_repeat2" title="Permalink to this headline">¶</a></h4>
+<section id="transcribe_repeat1">
+<h5>transcribe<a class="headerlink" href="#transcribe_repeat1" title="Permalink to this headline">¶</a></h5>
+<p>Transcribe one or more audio files using batch mode, while waiting for results.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">speechmatics</span> <span class="n">batch</span> <span class="n">transcribe</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">url</span> <span class="n">URL</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">auth</span><span class="o">-</span><span class="n">token</span> <span class="n">AUTH_TOKEN</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">ssl</span><span class="o">-</span><span class="n">mode</span> <span class="p">{</span><span class="n">regular</span><span class="p">,</span><span class="n">insecure</span><span class="p">,</span><span class="n">none</span><span class="p">}]</span> <span class="p">[</span><span class="o">--</span><span class="n">generate</span><span class="o">-</span><span class="n">temp</span><span class="o">-</span><span class="n">token</span><span class="p">]</span>
+                              <span class="p">[</span><span class="o">--</span><span class="n">config</span><span class="o">-</span><span class="n">file</span> <span class="n">CONFIG_FILE</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">lang</span> <span class="n">LANGUAGE</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">operating</span><span class="o">-</span><span class="n">point</span> <span class="p">{</span><span class="n">standard</span><span class="p">,</span><span class="n">enhanced</span><span class="p">}]</span> <span class="p">[</span><span class="o">--</span><span class="n">domain</span> <span class="n">DOMAIN</span><span class="p">]</span>
+                              <span class="p">[</span><span class="o">--</span><span class="n">output</span><span class="o">-</span><span class="n">locale</span> <span class="n">LOCALE</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">additional</span><span class="o">-</span><span class="n">vocab</span> <span class="p">[</span><span class="n">ADDITIONAL_VOCAB</span> <span class="p">[</span><span class="n">ADDITIONAL_VOCAB</span> <span class="o">...</span><span class="p">]]]</span>
+                              <span class="p">[</span><span class="o">--</span><span class="n">additional</span><span class="o">-</span><span class="n">vocab</span><span class="o">-</span><span class="n">file</span> <span class="n">VOCAB_FILEPATH</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">punctuation</span><span class="o">-</span><span class="n">permitted</span><span class="o">-</span><span class="n">marks</span> <span class="n">PUNCTUATION_PERMITTED_MARKS</span><span class="p">]</span>
+                              <span class="p">[</span><span class="o">--</span><span class="n">enable</span><span class="o">-</span><span class="n">entities</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">output</span><span class="o">-</span><span class="nb">format</span> <span class="p">{</span><span class="n">txt</span><span class="p">,</span><span class="n">json</span><span class="p">,</span><span class="n">json</span><span class="o">-</span><span class="n">v2</span><span class="p">,</span><span class="n">srt</span><span class="p">}]</span>
+                              <span class="p">[</span><span class="o">--</span><span class="n">speaker</span><span class="o">-</span><span class="n">diarization</span><span class="o">-</span><span class="n">sensitivity</span> <span class="n">SPEAKER_DIARIZATION_SENSITIVITY</span><span class="p">]</span>
+                              <span class="p">[</span><span class="o">--</span><span class="n">diarization</span> <span class="p">{</span><span class="n">none</span><span class="p">,</span><span class="n">speaker</span><span class="p">,</span><span class="n">channel</span><span class="p">,</span><span class="n">channel_and_speaker_change</span><span class="p">}]</span>
+                              <span class="p">[</span><span class="o">--</span><span class="n">channel</span><span class="o">-</span><span class="n">diarization</span><span class="o">-</span><span class="n">labels</span> <span class="n">CHANNEL_DIARIZATION_LABELS</span> <span class="p">[</span><span class="n">CHANNEL_DIARIZATION_LABELS</span> <span class="o">...</span><span class="p">]]</span>
+                              <span class="n">FILEPATHS</span> <span class="p">[</span><span class="n">FILEPATHS</span> <span class="o">...</span><span class="p">]</span>
+</pre></div>
+</div>
+<section id="positional-arguments_repeat1">
+<h6>Positional Arguments<a class="headerlink" href="#positional-arguments_repeat1" title="Permalink to this headline">¶</a></h6>
+<dl class="option-list">
+<dt><kbd>FILEPATHS</kbd></dt>
+<dd><p>File(s) to process.</p>
+</dd>
+</dl>
+</section>
+<section id="named-arguments_repeat2">
+<h6>Named Arguments<a class="headerlink" href="#named-arguments_repeat2" title="Permalink to this headline">¶</a></h6>
+<dl class="option-list">
+<dt><kbd>--url</kbd></dt>
+<dd><p>Websocket for RT or for batch API URL (e.g. wss://192.168.8.12:9000/ or https://asr.api.speechmatics.com/v2 respectively).</p>
+</dd>
+<dt><kbd>--auth-token</kbd></dt>
+<dd><p>Pre-shared authentication token to authorize the client.Applies to Speechmatics SaaS products.</p>
+</dd>
+<dt><kbd>--ssl-mode</kbd></dt>
+<dd><p>Possible choices: regular, insecure, none</p>
+<p>Use a preset configuration for the SSL context. With <cite>regular</cite> mode a valid certificate is expected. With <cite>insecure</cite> mode a self signed certificate is allowed. With <cite>none</cite> then SSL is not used.</p>
+<p>Default: “regular”</p>
+</dd>
+<dt><kbd>--generate-temp-token</kbd></dt>
+<dd><p>Automatically generate a temporary token for authentication.Non-enterprise customers must set this to True.Enterprise customers should set this to False.</p>
+</dd>
+<dt><kbd>--config-file</kbd></dt>
+<dd><p>Read the transcription config from a file. If you provide this, all other config options work as overrides.</p>
+</dd>
+<dt><kbd>--lang, --language</kbd></dt>
+<dd><p>Language (ISO 639-1 code, e.g. en, fr, de).</p>
+</dd>
+<dt><kbd>--operating-point</kbd></dt>
+<dd><p>Possible choices: standard, enhanced</p>
+<p>Selects the acoustic model configuration. “enhanced” is more computationally expensive than “standard” but should result in a more accurate transcript.</p>
+</dd>
+<dt><kbd>--domain</kbd></dt>
+<dd><p>Optionally request a specialized language pack, e.g. ‘finance’</p>
+</dd>
+<dt><kbd>--output-locale</kbd></dt>
+<dd><p>Locale of the output of transcripts. eg. en-US.</p>
+</dd>
+<dt><kbd>--additional-vocab</kbd></dt>
+<dd><p>Space separated list of additional vocab. Expected format: &lt;content (required)&gt;:&lt;sounds like (optional)&gt;,&lt;anymore sounds like&gt; Simple vocab list example: ‘Speechmatics gnocchi’. Vocab list with sounds like example: ‘gnocchi:nokey,nochi’.</p>
+</dd>
+<dt><kbd>--additional-vocab-file</kbd></dt>
+<dd><p>File with additional vocab in JSON format.</p>
+</dd>
+<dt><kbd>--punctuation-permitted-marks</kbd></dt>
+<dd><p>Space separated list of permitted punctuation marks for advanced punctuation.</p>
+</dd>
+<dt><kbd>--enable-entities</kbd></dt>
+<dd><p>Whether to output additional information about recognisedentity classes (JSON output only).</p>
+<p>Default: False</p>
+</dd>
+<dt><kbd>--output-format</kbd></dt>
+<dd><p>Possible choices: txt, json, json-v2, srt</p>
+<p>Transcript output format.</p>
+<p>Default: “txt”</p>
+</dd>
+<dt><kbd>--speaker-diarization-sensitivity</kbd></dt>
+<dd><p>The sensitivity of the speaker detection. Default is 0.5 .</p>
+</dd>
+<dt><kbd>--diarization</kbd></dt>
+<dd><p>Possible choices: none, speaker, channel, channel_and_speaker_change</p>
+<p>Which type of diarization to use.</p>
+</dd>
+<dt><kbd>--channel-diarization-labels</kbd></dt>
+<dd><p>Add your own speaker or channel labels to the transcript. Example usage: –channel-diarization-labels label1 label2</p>
+</dd>
+</dl>
+</section>
+</section>
+<section id="submit">
+<h5>submit<a class="headerlink" href="#submit" title="Permalink to this headline">¶</a></h5>
+<p>Submit one or more files for transcription.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">speechmatics</span> <span class="n">batch</span> <span class="n">submit</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">url</span> <span class="n">URL</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">auth</span><span class="o">-</span><span class="n">token</span> <span class="n">AUTH_TOKEN</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">ssl</span><span class="o">-</span><span class="n">mode</span> <span class="p">{</span><span class="n">regular</span><span class="p">,</span><span class="n">insecure</span><span class="p">,</span><span class="n">none</span><span class="p">}]</span> <span class="p">[</span><span class="o">--</span><span class="n">generate</span><span class="o">-</span><span class="n">temp</span><span class="o">-</span><span class="n">token</span><span class="p">]</span>
+                          <span class="p">[</span><span class="o">--</span><span class="n">config</span><span class="o">-</span><span class="n">file</span> <span class="n">CONFIG_FILE</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">lang</span> <span class="n">LANGUAGE</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">operating</span><span class="o">-</span><span class="n">point</span> <span class="p">{</span><span class="n">standard</span><span class="p">,</span><span class="n">enhanced</span><span class="p">}]</span> <span class="p">[</span><span class="o">--</span><span class="n">domain</span> <span class="n">DOMAIN</span><span class="p">]</span>
+                          <span class="p">[</span><span class="o">--</span><span class="n">output</span><span class="o">-</span><span class="n">locale</span> <span class="n">LOCALE</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">additional</span><span class="o">-</span><span class="n">vocab</span> <span class="p">[</span><span class="n">ADDITIONAL_VOCAB</span> <span class="p">[</span><span class="n">ADDITIONAL_VOCAB</span> <span class="o">...</span><span class="p">]]]</span>
+                          <span class="p">[</span><span class="o">--</span><span class="n">additional</span><span class="o">-</span><span class="n">vocab</span><span class="o">-</span><span class="n">file</span> <span class="n">VOCAB_FILEPATH</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">punctuation</span><span class="o">-</span><span class="n">permitted</span><span class="o">-</span><span class="n">marks</span> <span class="n">PUNCTUATION_PERMITTED_MARKS</span><span class="p">]</span>
+                          <span class="p">[</span><span class="o">--</span><span class="n">enable</span><span class="o">-</span><span class="n">entities</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">output</span><span class="o">-</span><span class="nb">format</span> <span class="p">{</span><span class="n">txt</span><span class="p">,</span><span class="n">json</span><span class="p">,</span><span class="n">json</span><span class="o">-</span><span class="n">v2</span><span class="p">,</span><span class="n">srt</span><span class="p">}]</span>
+                          <span class="p">[</span><span class="o">--</span><span class="n">speaker</span><span class="o">-</span><span class="n">diarization</span><span class="o">-</span><span class="n">sensitivity</span> <span class="n">SPEAKER_DIARIZATION_SENSITIVITY</span><span class="p">]</span>
+                          <span class="p">[</span><span class="o">--</span><span class="n">diarization</span> <span class="p">{</span><span class="n">none</span><span class="p">,</span><span class="n">speaker</span><span class="p">,</span><span class="n">channel</span><span class="p">,</span><span class="n">channel_and_speaker_change</span><span class="p">}]</span>
+                          <span class="p">[</span><span class="o">--</span><span class="n">channel</span><span class="o">-</span><span class="n">diarization</span><span class="o">-</span><span class="n">labels</span> <span class="n">CHANNEL_DIARIZATION_LABELS</span> <span class="p">[</span><span class="n">CHANNEL_DIARIZATION_LABELS</span> <span class="o">...</span><span class="p">]]</span>
+                          <span class="n">FILEPATHS</span> <span class="p">[</span><span class="n">FILEPATHS</span> <span class="o">...</span><span class="p">]</span>
+</pre></div>
+</div>
+<section id="positional-arguments_repeat2">
+<h6>Positional Arguments<a class="headerlink" href="#positional-arguments_repeat2" title="Permalink to this headline">¶</a></h6>
+<dl class="option-list">
+<dt><kbd>FILEPATHS</kbd></dt>
+<dd><p>File(s) to process.</p>
+</dd>
+</dl>
+</section>
+<section id="named-arguments_repeat3">
+<h6>Named Arguments<a class="headerlink" href="#named-arguments_repeat3" title="Permalink to this headline">¶</a></h6>
+<dl class="option-list">
+<dt><kbd>--url</kbd></dt>
+<dd><p>Websocket for RT or for batch API URL (e.g. wss://192.168.8.12:9000/ or https://asr.api.speechmatics.com/v2 respectively).</p>
+</dd>
+<dt><kbd>--auth-token</kbd></dt>
+<dd><p>Pre-shared authentication token to authorize the client.Applies to Speechmatics SaaS products.</p>
+</dd>
+<dt><kbd>--ssl-mode</kbd></dt>
+<dd><p>Possible choices: regular, insecure, none</p>
+<p>Use a preset configuration for the SSL context. With <cite>regular</cite> mode a valid certificate is expected. With <cite>insecure</cite> mode a self signed certificate is allowed. With <cite>none</cite> then SSL is not used.</p>
+<p>Default: “regular”</p>
+</dd>
+<dt><kbd>--generate-temp-token</kbd></dt>
+<dd><p>Automatically generate a temporary token for authentication.Non-enterprise customers must set this to True.Enterprise customers should set this to False.</p>
+</dd>
+<dt><kbd>--config-file</kbd></dt>
+<dd><p>Read the transcription config from a file. If you provide this, all other config options work as overrides.</p>
+</dd>
+<dt><kbd>--lang, --language</kbd></dt>
+<dd><p>Language (ISO 639-1 code, e.g. en, fr, de).</p>
+</dd>
+<dt><kbd>--operating-point</kbd></dt>
+<dd><p>Possible choices: standard, enhanced</p>
+<p>Selects the acoustic model configuration. “enhanced” is more computationally expensive than “standard” but should result in a more accurate transcript.</p>
+</dd>
+<dt><kbd>--domain</kbd></dt>
+<dd><p>Optionally request a specialized language pack, e.g. ‘finance’</p>
+</dd>
+<dt><kbd>--output-locale</kbd></dt>
+<dd><p>Locale of the output of transcripts. eg. en-US.</p>
+</dd>
+<dt><kbd>--additional-vocab</kbd></dt>
+<dd><p>Space separated list of additional vocab. Expected format: &lt;content (required)&gt;:&lt;sounds like (optional)&gt;,&lt;anymore sounds like&gt; Simple vocab list example: ‘Speechmatics gnocchi’. Vocab list with sounds like example: ‘gnocchi:nokey,nochi’.</p>
+</dd>
+<dt><kbd>--additional-vocab-file</kbd></dt>
+<dd><p>File with additional vocab in JSON format.</p>
+</dd>
+<dt><kbd>--punctuation-permitted-marks</kbd></dt>
+<dd><p>Space separated list of permitted punctuation marks for advanced punctuation.</p>
+</dd>
+<dt><kbd>--enable-entities</kbd></dt>
+<dd><p>Whether to output additional information about recognisedentity classes (JSON output only).</p>
+<p>Default: False</p>
+</dd>
+<dt><kbd>--output-format</kbd></dt>
+<dd><p>Possible choices: txt, json, json-v2, srt</p>
+<p>Transcript output format.</p>
+<p>Default: “txt”</p>
+</dd>
+<dt><kbd>--speaker-diarization-sensitivity</kbd></dt>
+<dd><p>The sensitivity of the speaker detection. Default is 0.5 .</p>
+</dd>
+<dt><kbd>--diarization</kbd></dt>
+<dd><p>Possible choices: none, speaker, channel, channel_and_speaker_change</p>
+<p>Which type of diarization to use.</p>
+</dd>
+<dt><kbd>--channel-diarization-labels</kbd></dt>
+<dd><p>Add your own speaker or channel labels to the transcript. Example usage: –channel-diarization-labels label1 label2</p>
+</dd>
+</dl>
+</section>
+</section>
+<section id="list-jobs">
+<h5>list-jobs<a class="headerlink" href="#list-jobs" title="Permalink to this headline">¶</a></h5>
+<p>Retrieve json of last 100 jobs submitted within the last 7 days for the SaaS or all of the jobs for the batch appliance</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">speechmatics</span> <span class="n">batch</span> <span class="nb">list</span><span class="o">-</span><span class="n">jobs</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">url</span> <span class="n">URL</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">auth</span><span class="o">-</span><span class="n">token</span> <span class="n">AUTH_TOKEN</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">ssl</span><span class="o">-</span><span class="n">mode</span> <span class="p">{</span><span class="n">regular</span><span class="p">,</span><span class="n">insecure</span><span class="p">,</span><span class="n">none</span><span class="p">}]</span> <span class="p">[</span><span class="o">--</span><span class="n">generate</span><span class="o">-</span><span class="n">temp</span><span class="o">-</span><span class="n">token</span><span class="p">]</span>
+</pre></div>
+</div>
+<section id="named-arguments_repeat4">
+<h6>Named Arguments<a class="headerlink" href="#named-arguments_repeat4" title="Permalink to this headline">¶</a></h6>
+<dl class="option-list">
+<dt><kbd>--url</kbd></dt>
+<dd><p>Websocket for RT or for batch API URL (e.g. wss://192.168.8.12:9000/ or https://asr.api.speechmatics.com/v2 respectively).</p>
+</dd>
+<dt><kbd>--auth-token</kbd></dt>
+<dd><p>Pre-shared authentication token to authorize the client.Applies to Speechmatics SaaS products.</p>
+</dd>
+<dt><kbd>--ssl-mode</kbd></dt>
+<dd><p>Possible choices: regular, insecure, none</p>
+<p>Use a preset configuration for the SSL context. With <cite>regular</cite> mode a valid certificate is expected. With <cite>insecure</cite> mode a self signed certificate is allowed. With <cite>none</cite> then SSL is not used.</p>
+<p>Default: “regular”</p>
+</dd>
+<dt><kbd>--generate-temp-token</kbd></dt>
+<dd><p>Automatically generate a temporary token for authentication.Non-enterprise customers must set this to True.Enterprise customers should set this to False.</p>
+</dd>
+</dl>
+</section>
+</section>
+<section id="get-results">
+<h5>get-results<a class="headerlink" href="#get-results" title="Permalink to this headline">¶</a></h5>
+<p>Retrieve results of a transcription job.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">speechmatics</span> <span class="n">batch</span> <span class="n">get</span><span class="o">-</span><span class="n">results</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">url</span> <span class="n">URL</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">auth</span><span class="o">-</span><span class="n">token</span> <span class="n">AUTH_TOKEN</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">ssl</span><span class="o">-</span><span class="n">mode</span> <span class="p">{</span><span class="n">regular</span><span class="p">,</span><span class="n">insecure</span><span class="p">,</span><span class="n">none</span><span class="p">}]</span> <span class="p">[</span><span class="o">--</span><span class="n">generate</span><span class="o">-</span><span class="n">temp</span><span class="o">-</span><span class="n">token</span><span class="p">]</span>
+                               <span class="p">[</span><span class="o">--</span><span class="n">output</span><span class="o">-</span><span class="nb">format</span> <span class="p">{</span><span class="n">txt</span><span class="p">,</span><span class="n">json</span><span class="p">,</span><span class="n">json</span><span class="o">-</span><span class="n">v2</span><span class="p">,</span><span class="n">srt</span><span class="p">}]</span> <span class="o">--</span><span class="n">job</span><span class="o">-</span><span class="nb">id</span> <span class="n">JOB_ID</span>
+</pre></div>
+</div>
+<section id="named-arguments_repeat5">
+<h6>Named Arguments<a class="headerlink" href="#named-arguments_repeat5" title="Permalink to this headline">¶</a></h6>
+<dl class="option-list">
+<dt><kbd>--url</kbd></dt>
+<dd><p>Websocket for RT or for batch API URL (e.g. wss://192.168.8.12:9000/ or https://asr.api.speechmatics.com/v2 respectively).</p>
+</dd>
+<dt><kbd>--auth-token</kbd></dt>
+<dd><p>Pre-shared authentication token to authorize the client.Applies to Speechmatics SaaS products.</p>
+</dd>
+<dt><kbd>--ssl-mode</kbd></dt>
+<dd><p>Possible choices: regular, insecure, none</p>
+<p>Use a preset configuration for the SSL context. With <cite>regular</cite> mode a valid certificate is expected. With <cite>insecure</cite> mode a self signed certificate is allowed. With <cite>none</cite> then SSL is not used.</p>
+<p>Default: “regular”</p>
+</dd>
+<dt><kbd>--generate-temp-token</kbd></dt>
+<dd><p>Automatically generate a temporary token for authentication.Non-enterprise customers must set this to True.Enterprise customers should set this to False.</p>
+</dd>
+<dt><kbd>--output-format</kbd></dt>
+<dd><p>Possible choices: txt, json, json-v2, srt</p>
+<p>Transcript output format.</p>
+<p>Default: “txt”</p>
+</dd>
+<dt><kbd>--job-id</kbd></dt>
+<dd><p>Job ID.</p>
+</dd>
+</dl>
+</section>
+</section>
+<section id="delete">
+<h5>delete<a class="headerlink" href="#delete" title="Permalink to this headline">¶</a></h5>
+<p>Delete the results of a transcription job.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">speechmatics</span> <span class="n">batch</span> <span class="n">delete</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">url</span> <span class="n">URL</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">auth</span><span class="o">-</span><span class="n">token</span> <span class="n">AUTH_TOKEN</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">ssl</span><span class="o">-</span><span class="n">mode</span> <span class="p">{</span><span class="n">regular</span><span class="p">,</span><span class="n">insecure</span><span class="p">,</span><span class="n">none</span><span class="p">}]</span> <span class="p">[</span><span class="o">--</span><span class="n">generate</span><span class="o">-</span><span class="n">temp</span><span class="o">-</span><span class="n">token</span><span class="p">]</span>
+                          <span class="p">[</span><span class="o">--</span><span class="n">output</span><span class="o">-</span><span class="nb">format</span> <span class="p">{</span><span class="n">txt</span><span class="p">,</span><span class="n">json</span><span class="p">,</span><span class="n">json</span><span class="o">-</span><span class="n">v2</span><span class="p">,</span><span class="n">srt</span><span class="p">}]</span> <span class="o">--</span><span class="n">job</span><span class="o">-</span><span class="nb">id</span> <span class="n">JOB_ID</span> <span class="p">[</span><span class="o">--</span><span class="n">force</span><span class="p">]</span>
+</pre></div>
+</div>
+<section id="named-arguments_repeat6">
+<h6>Named Arguments<a class="headerlink" href="#named-arguments_repeat6" title="Permalink to this headline">¶</a></h6>
+<dl class="option-list">
+<dt><kbd>--url</kbd></dt>
+<dd><p>Websocket for RT or for batch API URL (e.g. wss://192.168.8.12:9000/ or https://asr.api.speechmatics.com/v2 respectively).</p>
+</dd>
+<dt><kbd>--auth-token</kbd></dt>
+<dd><p>Pre-shared authentication token to authorize the client.Applies to Speechmatics SaaS products.</p>
+</dd>
+<dt><kbd>--ssl-mode</kbd></dt>
+<dd><p>Possible choices: regular, insecure, none</p>
+<p>Use a preset configuration for the SSL context. With <cite>regular</cite> mode a valid certificate is expected. With <cite>insecure</cite> mode a self signed certificate is allowed. With <cite>none</cite> then SSL is not used.</p>
+<p>Default: “regular”</p>
+</dd>
+<dt><kbd>--generate-temp-token</kbd></dt>
+<dd><p>Automatically generate a temporary token for authentication.Non-enterprise customers must set this to True.Enterprise customers should set this to False.</p>
+</dd>
+<dt><kbd>--output-format</kbd></dt>
+<dd><p>Possible choices: txt, json, json-v2, srt</p>
+<p>Transcript output format.</p>
+<p>Default: “txt”</p>
+</dd>
+<dt><kbd>--job-id</kbd></dt>
+<dd><p>Job ID.</p>
+</dd>
+<dt><kbd>--force</kbd></dt>
+<dd><p>Force deletion of a running job</p>
+<p>Default: False</p>
+</dd>
+</dl>
+</section>
+</section>
+<section id="job-status">
+<h5>job-status<a class="headerlink" href="#job-status" title="Permalink to this headline">¶</a></h5>
+<p>Retrieve status of a transcription job.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">speechmatics</span> <span class="n">batch</span> <span class="n">job</span><span class="o">-</span><span class="n">status</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">url</span> <span class="n">URL</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">auth</span><span class="o">-</span><span class="n">token</span> <span class="n">AUTH_TOKEN</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">ssl</span><span class="o">-</span><span class="n">mode</span> <span class="p">{</span><span class="n">regular</span><span class="p">,</span><span class="n">insecure</span><span class="p">,</span><span class="n">none</span><span class="p">}]</span> <span class="p">[</span><span class="o">--</span><span class="n">generate</span><span class="o">-</span><span class="n">temp</span><span class="o">-</span><span class="n">token</span><span class="p">]</span> <span class="o">--</span><span class="n">job</span><span class="o">-</span><span class="nb">id</span>
+                              <span class="n">JOB_ID</span>
+</pre></div>
+</div>
+<section id="named-arguments_repeat7">
+<h6>Named Arguments<a class="headerlink" href="#named-arguments_repeat7" title="Permalink to this headline">¶</a></h6>
+<dl class="option-list">
+<dt><kbd>--url</kbd></dt>
+<dd><p>Websocket for RT or for batch API URL (e.g. wss://192.168.8.12:9000/ or https://asr.api.speechmatics.com/v2 respectively).</p>
+</dd>
+<dt><kbd>--auth-token</kbd></dt>
+<dd><p>Pre-shared authentication token to authorize the client.Applies to Speechmatics SaaS products.</p>
+</dd>
+<dt><kbd>--ssl-mode</kbd></dt>
+<dd><p>Possible choices: regular, insecure, none</p>
+<p>Use a preset configuration for the SSL context. With <cite>regular</cite> mode a valid certificate is expected. With <cite>insecure</cite> mode a self signed certificate is allowed. With <cite>none</cite> then SSL is not used.</p>
+<p>Default: “regular”</p>
+</dd>
+<dt><kbd>--generate-temp-token</kbd></dt>
+<dd><p>Automatically generate a temporary token for authentication.Non-enterprise customers must set this to True.Enterprise customers should set this to False.</p>
+</dd>
+<dt><kbd>--job-id</kbd></dt>
+<dd><p>Job ID.</p>
+</dd>
+</dl>
+</section>
+</section>
+</section>
+</section>
+<section id="transcribe_repeat2">
+<h3>transcribe<a class="headerlink" href="#transcribe_repeat2" title="Permalink to this headline">¶</a></h3>
+<p>Real-time commands. RETAINED FOR LEGACY COMPATIBILITY.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">speechmatics</span> <span class="n">transcribe</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">enable</span><span class="o">-</span><span class="n">partials</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">punctuation</span><span class="o">-</span><span class="n">sensitivity</span> <span class="n">PUNCTUATION_SENSITIVITY</span><span class="p">]</span>
+                        <span class="p">[</span><span class="o">--</span><span class="n">speaker</span><span class="o">-</span><span class="n">diarization</span><span class="o">-</span><span class="nb">max</span><span class="o">-</span><span class="n">speakers</span> <span class="n">SPEAKER_DIARIZATION_MAX_SPEAKERS</span><span class="p">]</span>
+                        <span class="p">[</span><span class="o">--</span><span class="n">speaker</span><span class="o">-</span><span class="n">change</span><span class="o">-</span><span class="n">sensitivity</span> <span class="n">SPEAKER_CHANGE_SENSITIVITY</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">speaker</span><span class="o">-</span><span class="n">change</span><span class="o">-</span><span class="n">token</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="nb">max</span><span class="o">-</span><span class="n">delay</span> <span class="n">MAX_DELAY</span><span class="p">]</span>
+                        <span class="p">[</span><span class="o">--</span><span class="nb">max</span><span class="o">-</span><span class="n">delay</span><span class="o">-</span><span class="n">mode</span> <span class="p">{</span><span class="n">fixed</span><span class="p">,</span><span class="n">flexible</span><span class="p">}]</span> <span class="p">[</span><span class="o">--</span><span class="n">raw</span> <span class="n">ENCODING</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">sample</span><span class="o">-</span><span class="n">rate</span> <span class="n">SAMPLE_RATE</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">chunk</span><span class="o">-</span><span class="n">size</span> <span class="n">CHUNK_SIZE</span><span class="p">]</span>
+                        <span class="p">[</span><span class="o">--</span><span class="n">buffer</span><span class="o">-</span><span class="n">size</span> <span class="n">BUFFER_SIZE</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="nb">print</span><span class="o">-</span><span class="n">json</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">diarization</span> <span class="p">{</span><span class="n">none</span><span class="p">,</span><span class="n">speaker</span><span class="p">,</span><span class="n">speaker_change</span><span class="p">}]</span> <span class="p">[</span><span class="o">--</span><span class="n">url</span> <span class="n">URL</span><span class="p">]</span>
+                        <span class="p">[</span><span class="o">--</span><span class="n">auth</span><span class="o">-</span><span class="n">token</span> <span class="n">AUTH_TOKEN</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">ssl</span><span class="o">-</span><span class="n">mode</span> <span class="p">{</span><span class="n">regular</span><span class="p">,</span><span class="n">insecure</span><span class="p">,</span><span class="n">none</span><span class="p">}]</span> <span class="p">[</span><span class="o">--</span><span class="n">generate</span><span class="o">-</span><span class="n">temp</span><span class="o">-</span><span class="n">token</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">config</span><span class="o">-</span><span class="n">file</span> <span class="n">CONFIG_FILE</span><span class="p">]</span>
+                        <span class="p">[</span><span class="o">--</span><span class="n">lang</span> <span class="n">LANGUAGE</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">operating</span><span class="o">-</span><span class="n">point</span> <span class="p">{</span><span class="n">standard</span><span class="p">,</span><span class="n">enhanced</span><span class="p">}]</span> <span class="p">[</span><span class="o">--</span><span class="n">domain</span> <span class="n">DOMAIN</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">output</span><span class="o">-</span><span class="n">locale</span> <span class="n">LOCALE</span><span class="p">]</span>
+                        <span class="p">[</span><span class="o">--</span><span class="n">additional</span><span class="o">-</span><span class="n">vocab</span> <span class="p">[</span><span class="n">ADDITIONAL_VOCAB</span> <span class="p">[</span><span class="n">ADDITIONAL_VOCAB</span> <span class="o">...</span><span class="p">]]]</span> <span class="p">[</span><span class="o">--</span><span class="n">additional</span><span class="o">-</span><span class="n">vocab</span><span class="o">-</span><span class="n">file</span> <span class="n">VOCAB_FILEPATH</span><span class="p">]</span>
+                        <span class="p">[</span><span class="o">--</span><span class="n">punctuation</span><span class="o">-</span><span class="n">permitted</span><span class="o">-</span><span class="n">marks</span> <span class="n">PUNCTUATION_PERMITTED_MARKS</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">enable</span><span class="o">-</span><span class="n">entities</span><span class="p">]</span>
+                        <span class="n">FILEPATHS</span> <span class="p">[</span><span class="n">FILEPATHS</span> <span class="o">...</span><span class="p">]</span>
+</pre></div>
+</div>
+<section id="positional-arguments_repeat3">
+<h4>Positional Arguments<a class="headerlink" href="#positional-arguments_repeat3" title="Permalink to this headline">¶</a></h4>
+<dl class="option-list">
+<dt><kbd>FILEPATHS</kbd></dt>
+<dd><p>File(s) to process.</p>
+</dd>
+</dl>
+</section>
+<section id="named-arguments_repeat8">
+<h4>Named Arguments<a class="headerlink" href="#named-arguments_repeat8" title="Permalink to this headline">¶</a></h4>
+<dl class="option-list">
+<dt><kbd>--enable-partials</kbd></dt>
+<dd><p>Whether to return partial transcripts which can be updated by later,final transcripts.</p>
+<p>Default: False</p>
+</dd>
+<dt><kbd>--punctuation-sensitivity</kbd></dt>
+<dd><p>Sensitivity level for advanced punctuation.</p>
+</dd>
+<dt><kbd>--speaker-diarization-max-speakers</kbd></dt>
+<dd><p>Enforces the maximum number of speakers allowed in a single audio stream. Min: 2, Max: 20, Default: 20.</p>
+</dd>
+<dt><kbd>--speaker-change-sensitivity</kbd></dt>
+<dd><p>Sensitivity level for speaker change.</p>
+</dd>
+<dt><kbd>--speaker-change-token</kbd></dt>
+<dd><p>Shows a &lt;sc&gt; token where a speaker change was detected.</p>
+<p>Default: False</p>
+</dd>
+<dt><kbd>--max-delay</kbd></dt>
+<dd><p>Maximum acceptable delay before sending a piece of transcript.</p>
+</dd>
+<dt><kbd>--max-delay-mode</kbd></dt>
+<dd><p>Possible choices: fixed, flexible</p>
+<p>How to interpret the max-delay size if speech is inthe middle of an unbreakable entity like a number.</p>
+<p>Default: “flexible”</p>
+</dd>
+<dt><kbd>--raw</kbd></dt>
+<dd><p>Indicate that the input audio is raw, provide the encodingof this raw audio, eg. pcm_f32le.</p>
+</dd>
+<dt><kbd>--sample-rate</kbd></dt>
+<dd><p>The sample rate in Hz of the input audio, if in raw format.</p>
+<p>Default: 44100</p>
+</dd>
+<dt><kbd>--chunk-size</kbd></dt>
+<dd><p>How much audio data, in bytes, to send to the server in each websocket message. Larger values can increase latency, but values which are too small create unnecessary overhead.</p>
+<p>Default: 4096</p>
+</dd>
+<dt><kbd>--buffer-size</kbd></dt>
+<dd><p>Maximum number of messages to send before waiting foracknowledgements from the server.</p>
+<p>Default: 512</p>
+</dd>
+<dt><kbd>--print-json</kbd></dt>
+<dd><p>Print the JSON partial &amp; final transcripts received rather than plaintext messages.</p>
+<p>Default: False</p>
+</dd>
+<dt><kbd>--diarization</kbd></dt>
+<dd><p>Possible choices: none, speaker, speaker_change</p>
+<p>Which type of diarization to use.</p>
+</dd>
+<dt><kbd>--url</kbd></dt>
+<dd><p>Websocket for RT or for batch API URL (e.g. wss://192.168.8.12:9000/ or https://asr.api.speechmatics.com/v2 respectively).</p>
+</dd>
+<dt><kbd>--auth-token</kbd></dt>
+<dd><p>Pre-shared authentication token to authorize the client.Applies to Speechmatics SaaS products.</p>
+</dd>
+<dt><kbd>--ssl-mode</kbd></dt>
+<dd><p>Possible choices: regular, insecure, none</p>
+<p>Use a preset configuration for the SSL context. With <cite>regular</cite> mode a valid certificate is expected. With <cite>insecure</cite> mode a self signed certificate is allowed. With <cite>none</cite> then SSL is not used.</p>
+<p>Default: “regular”</p>
+</dd>
+<dt><kbd>--generate-temp-token</kbd></dt>
+<dd><p>Automatically generate a temporary token for authentication.Non-enterprise customers must set this to True.Enterprise customers should set this to False.</p>
+</dd>
+<dt><kbd>--config-file</kbd></dt>
+<dd><p>Read the transcription config from a file. If you provide this, all other config options work as overrides.</p>
+</dd>
+<dt><kbd>--lang, --language</kbd></dt>
+<dd><p>Language (ISO 639-1 code, e.g. en, fr, de).</p>
+</dd>
+<dt><kbd>--operating-point</kbd></dt>
+<dd><p>Possible choices: standard, enhanced</p>
+<p>Selects the acoustic model configuration. “enhanced” is more computationally expensive than “standard” but should result in a more accurate transcript.</p>
+</dd>
+<dt><kbd>--domain</kbd></dt>
+<dd><p>Optionally request a specialized language pack, e.g. ‘finance’</p>
+</dd>
+<dt><kbd>--output-locale</kbd></dt>
+<dd><p>Locale of the output of transcripts. eg. en-US.</p>
+</dd>
+<dt><kbd>--additional-vocab</kbd></dt>
+<dd><p>Space separated list of additional vocab. Expected format: &lt;content (required)&gt;:&lt;sounds like (optional)&gt;,&lt;anymore sounds like&gt; Simple vocab list example: ‘Speechmatics gnocchi’. Vocab list with sounds like example: ‘gnocchi:nokey,nochi’.</p>
+</dd>
+<dt><kbd>--additional-vocab-file</kbd></dt>
+<dd><p>File with additional vocab in JSON format.</p>
+</dd>
+<dt><kbd>--punctuation-permitted-marks</kbd></dt>
+<dd><p>Space separated list of permitted punctuation marks for advanced punctuation.</p>
+</dd>
+<dt><kbd>--enable-entities</kbd></dt>
+<dd><p>Whether to output additional information about recognisedentity classes (JSON output only).</p>
+<p>Default: False</p>
+</dd>
+</dl>
+</section>
+</section>
+<section id="config">
+<h3>config<a class="headerlink" href="#config" title="Permalink to this headline">¶</a></h3>
+<p>Config commands. Used to handle local config.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">speechmatics</span> <span class="n">config</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">{</span><span class="nb">set</span><span class="p">,</span><span class="n">unset</span><span class="p">}</span> <span class="o">...</span>
+</pre></div>
+</div>
+<section id="commands_repeat2">
+<h4>commands<a class="headerlink" href="#commands_repeat2" title="Permalink to this headline">¶</a></h4>
+<dl class="option-list">
+<dt><kbd>command</kbd></dt>
+<dd><p>Possible choices: set, unset</p>
+</dd>
+</dl>
+</section>
+<section id="Sub-commands_repeat3">
+<h4>Sub-commands<a class="headerlink" href="#Sub-commands_repeat3" title="Permalink to this headline">¶</a></h4>
+<section id="set">
+<h5>set<a class="headerlink" href="#set" title="Permalink to this headline">¶</a></h5>
+<p>Set config for the local CLI environment.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">speechmatics</span> <span class="n">config</span> <span class="nb">set</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">auth</span><span class="o">-</span><span class="n">token</span> <span class="n">AUTH_TOKEN</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">generate</span><span class="o">-</span><span class="n">temp</span><span class="o">-</span><span class="n">token</span><span class="p">]</span>
+</pre></div>
+</div>
+<section id="named-arguments_repeat9">
+<h6>Named Arguments<a class="headerlink" href="#named-arguments_repeat9" title="Permalink to this headline">¶</a></h6>
+<dl class="option-list">
+<dt><kbd>--auth-token</kbd></dt>
+<dd><p>Auth token to use as default for all requests.</p>
+</dd>
+<dt><kbd>--generate-temp-token</kbd></dt>
+<dd><p>Sets generate_temp_token to true in the config file.This will set the –generate-temp-token to true globally wherever it is a valid command line flag.</p>
+<p>Default: False</p>
+</dd>
+</dl>
+</section>
+</section>
+<section id="unset">
+<h5>unset<a class="headerlink" href="#unset" title="Permalink to this headline">¶</a></h5>
+<p>Remove specified config values from the CLI config file.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">speechmatics</span> <span class="n">config</span> <span class="n">unset</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">auth</span><span class="o">-</span><span class="n">token</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">generate</span><span class="o">-</span><span class="n">temp</span><span class="o">-</span><span class="n">token</span><span class="p">]</span>
+</pre></div>
+</div>
+<section id="named-arguments_repeat10">
+<h6>Named Arguments<a class="headerlink" href="#named-arguments_repeat10" title="Permalink to this headline">¶</a></h6>
+<dl class="option-list">
+<dt><kbd>--auth-token</kbd></dt>
+<dd><p>If flag is set, removes the auth token value from the config file.</p>
+<p>Default: False</p>
+</dd>
+<dt><kbd>--generate-temp-token</kbd></dt>
+<dd><p>If flag is set, removes the generate temp token value from the config file.</p>
+<p>Default: False</p>
+</dd>
+</dl>
+</section>
+</section>
+</section>
+</section>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="index.html">
+    <img class="logo" src="_static/logo.svg" alt="Logo"/>
+    
+  </a>
+</p>
+
+
+
+<p class="blurb">Python API client and CLI for Speechmatics</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=speechmatics&repo=speechmatics-python&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="client.html">speechmatics.client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="batch_client.html">speechmatics.batch_client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="exceptions.html">speechmatics.exceptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="helpers.html">speechmatics.helpers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="models.html">speechmatics.models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="constants.html">speechmatics.client</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">speechmatics.cli_parser</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#named-arguments">Named Arguments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mode">Mode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Sub-commands">Sub-commands</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="constants.html" title="previous chapter">speechmatics.client</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, Cantab Research Ltd..
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.4.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/cli_parser.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
