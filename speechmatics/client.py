@@ -227,9 +227,9 @@ class WebsocketClient:
                 # Can occur if a timeout has closed the connection.
                 LOGGER.info("Cannot receive from closed websocket.")
                 return
-            except websockets.exceptions.ConnectionClosedError:
+            except websockets.exceptions.ConnectionClosedError as ex:
                 LOGGER.info("Disconnected while waiting for recv().")
-                return
+                raise ex
             self._consumer(message)
 
     async def _producer_handler(self, stream, audio_chunk_size):
