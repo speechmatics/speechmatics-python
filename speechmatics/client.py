@@ -13,6 +13,7 @@ import os
 import websockets
 import httpx
 
+from speechmatics.constants import CONN_CLOSE_ERR_TYPES
 from speechmatics.exceptions import (
     EndOfTranscriptException,
     ForceEndSession,
@@ -185,7 +186,7 @@ class WebsocketClient:
             raise EndOfTranscriptException()
         elif message_type == ServerMessageType.Warning:
             LOGGER.warning(message["reason"])
-        elif message_type == ServerMessageType.Error:
+        elif message_type == ServerMessageType.Error and message["type"] not in CONN_CLOSE_ERR_TYPES:
             raise TranscriptionError(message["reason"])
 
     async def _producer(self, stream, audio_chunk_size):
