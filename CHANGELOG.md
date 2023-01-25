@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Update the docs / help texts for the CLI tool
+- Exception raised rather than returning while upstream closed abruptly.
 
 ## [1.5.0] - 2023-01-13
 
