@@ -35,6 +35,7 @@ from speechmatics.models import (
     BatchTranscriptionConfig,
     BatchSpeakerDiarizationConfig,
     RTSpeakerDiarizationConfig,
+    BatchTranslationConfig,
 )
 from speechmatics.cli_parser import (
     parse_args,
@@ -258,6 +259,12 @@ def get_transcription_config(args):  # pylint: disable=too-many-branches
         speaker_sensitivity = args.get("speaker_diarization_sensitivity")
         config["speaker_diarization_config"] = BatchSpeakerDiarizationConfig(
             speaker_sensitivity=speaker_sensitivity
+        )
+
+    if args.get("translation_target_languages") is not None:
+        translation_target_languages = args.get("translation_target_languages")
+        config["translation_config"] = BatchTranslationConfig(
+            target_languages=translation_target_languages.split(",")
         )
 
     if args["mode"] == "rt":

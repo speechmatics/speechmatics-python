@@ -166,6 +166,14 @@
     <span class="sd">&quot;&quot;&quot;The sensitivity of the speaker detection.&quot;&quot;&quot;</span></div>
 
 
+<div class="viewcode-block" id="BatchTranslationConfig"><a class="viewcode-back" href="../../models.html#speechmatics.models.BatchTranslationConfig">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">BatchTranslationConfig</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Batch mode: Translation config.&quot;&quot;&quot;</span>
+
+    <span class="n">target_languages</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;Target languages for which translation should be produced&quot;&quot;&quot;</span></div>
+
+
 <div class="viewcode-block" id="TranscriptionConfig"><a class="viewcode-back" href="../../models.html#speechmatics.models.TranscriptionConfig">[docs]</a><span class="nd">@dataclass</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">TranscriptionConfig</span><span class="p">(</span><span class="n">_TranscriptionConfig</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Real-time: Defines transcription parameters.&quot;&quot;&quot;</span>
@@ -202,6 +210,9 @@
     <span class="n">notification_config</span><span class="p">:</span> <span class="n">NotificationConfig</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="sd">&quot;&quot;&quot;Optional configuration for callback notification.&quot;&quot;&quot;</span>
 
+    <span class="n">translation_config</span><span class="p">:</span> <span class="n">BatchTranslationConfig</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;Optional configuration for translation.&quot;&quot;&quot;</span>
+
     <span class="n">srt_overrides</span><span class="p">:</span> <span class="n">SRTOverrides</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="sd">&quot;&quot;&quot;Optional configuration for SRT output.&quot;&quot;&quot;</span>
 
@@ -216,6 +227,7 @@
 
         <span class="n">fetch_data</span> <span class="o">=</span> <span class="n">dictionary</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;fetch_data&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="n">notification_config</span> <span class="o">=</span> <span class="n">dictionary</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;notification_config&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">translation_config</span> <span class="o">=</span> <span class="n">dictionary</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;translation_config&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="n">srt_overrides</span> <span class="o">=</span> <span class="n">dictionary</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;srt_overrides&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
         <span class="n">config</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;transcription&quot;</span><span class="p">,</span> <span class="s2">&quot;transcription_config&quot;</span><span class="p">:</span> <span class="n">dictionary</span><span class="p">}</span>
@@ -227,6 +239,9 @@
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">notification_config</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
                 <span class="n">notification_config</span> <span class="o">=</span> <span class="p">[</span><span class="n">notification_config</span><span class="p">]</span>
             <span class="n">config</span><span class="p">[</span><span class="s2">&quot;notification_config&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">notification_config</span>
+
+        <span class="k">if</span> <span class="n">translation_config</span><span class="p">:</span>
+            <span class="n">config</span><span class="p">[</span><span class="s2">&quot;translation_config&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">translation_config</span>
 
         <span class="k">if</span> <span class="n">srt_overrides</span><span class="p">:</span>
             <span class="n">config</span><span class="p">[</span><span class="s2">&quot;output_config&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;srt_overrides&quot;</span><span class="p">:</span> <span class="n">srt_overrides</span><span class="p">}</span>
@@ -377,7 +392,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../helpers.html">speechmatics.helpers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../models.html">speechmatics.models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../constants.html">speechmatics.client</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../cli_parser.html">speechmatics.cli_parser</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cli_parser.html">Speechmatics CLI Tool</a></li>
 </ul>
 
 <div class="relations">

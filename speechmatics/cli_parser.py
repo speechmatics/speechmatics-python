@@ -196,7 +196,7 @@ def get_arg_parser():
         type=str,
         default=None,
         help=(
-            "Space separated list of permitted punctuation marks for advanced punctuation."
+            "Space-separated list of permitted punctuation marks for advanced punctuation."
         ),
     )
     config_parser.add_argument(
@@ -207,6 +207,14 @@ def get_arg_parser():
             "Whether to output additional information about recognised"
             "entity classes (JSON output only)."
         ),
+    )
+    config_parser.add_argument(
+        "--translation-langs",
+        "--translation-languages",
+        dest="translation_target_languages",
+        type=str,
+        default=None,
+        help=("Comma-separated list of languages to translate the transcription into"),
     )
 
     # Parent parser for output type

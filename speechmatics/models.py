@@ -133,6 +133,14 @@ class BatchSpeakerDiarizationConfig:
     """The sensitivity of the speaker detection."""
 
 
+@dataclass
+class BatchTranslationConfig:
+    """Batch mode: Translation config."""
+
+    target_languages: List[str] = None
+    """Target languages for which translation should be produced"""
+
+
 @dataclass(init=False)
 class TranscriptionConfig(_TranscriptionConfig):
     """Real-time: Defines transcription parameters."""
@@ -169,6 +177,9 @@ class BatchTranscriptionConfig(_TranscriptionConfig):
     notification_config: NotificationConfig = None
     """Optional configuration for callback notification."""
 
+    translation_config: BatchTranslationConfig = None
+    """Optional configuration for translation."""
+
     srt_overrides: SRTOverrides = None
     """Optional configuration for SRT output."""
 
@@ -183,6 +194,7 @@ class BatchTranscriptionConfig(_TranscriptionConfig):
 
         fetch_data = dictionary.pop("fetch_data", None)
         notification_config = dictionary.pop("notification_config", None)
+        translation_config = dictionary.pop("translation_config", None)
         srt_overrides = dictionary.pop("srt_overrides", None)
 
         config = {"type": "transcription", "transcription_config": dictionary}
@@ -194,6 +206,9 @@ class BatchTranscriptionConfig(_TranscriptionConfig):
             if isinstance(notification_config, dict):
                 notification_config = [notification_config]
             config["notification_config"] = notification_config
+
+        if translation_config:
+            config["translation_config"] = translation_config
 
         if srt_overrides:
             config["output_config"] = {"srt_overrides": srt_overrides}

@@ -1,4 +1,4 @@
-speechmatics.cli_parser
+Speechmatics CLI Tool
 =========================
 .. argparse:: 
    :module: speechmatics.cli_parser
