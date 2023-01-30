@@ -195,6 +195,44 @@ from tests.utils import path_to_test_resource
             ["rt", "transcribe", "--config-file=data/transcription_config.json"],
             {"config_file": "data/transcription_config.json"},
         ),
+        (
+            ["batch", "transcribe", "--translation-langs=de"],
+            {
+                "translation_target_languages": "de",
+                "output_format": "txt",
+            },
+        ),
+        (
+            [
+                "batch",
+                "transcribe",
+                "--output-format=json-v2",
+                "--translation-langs=de,es,cs",
+            ],
+            {
+                "translation_target_languages": "de,es,cs",
+                "output_format": "json-v2",
+            },
+        ),
+        (
+            ["batch", "submit", "--translation-langs=de"],
+            {
+                "translation_target_languages": "de",
+                "output_format": "txt",
+            },
+        ),
+        (
+            [
+                "batch",
+                "submit",
+                "--output-format=json-v2",
+                "--translation-langs=de,es,cs",
+            ],
+            {
+                "translation_target_languages": "de,es,cs",
+                "output_format": "json-v2",
+            },
+        ),
     ],
 )
 def test_cli_arg_parse_with_file(args, values):
