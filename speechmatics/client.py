@@ -17,6 +17,7 @@ from speechmatics.exceptions import (
     EndOfTranscriptException,
     ForceEndSession,
     TranscriptionError,
+    CONN_CLOSE_ERR_TYPES,
 )
 from speechmatics.models import ClientMessageType, ServerMessageType
 from speechmatics.helpers import json_utf8, read_in_chunks
@@ -159,7 +160,7 @@ class WebsocketClient:
         :type message: str
 
         :raises TranscriptionError: on an error message received from the
-            server.
+            server after the Session started.
         :raises EndOfTranscriptException: on EndOfTranscription message.
         :raises ForceEndSession: If this was raised by the user's event
             handler.
@@ -185,7 +186,10 @@ class WebsocketClient:
             raise EndOfTranscriptException()
         elif message_type == ServerMessageType.Warning:
             LOGGER.warning(message["reason"])
-        elif message_type == ServerMessageType.Error:
+        elif (
+            message_type == ServerMessageType.Error
+            and message["type"] not in CONN_CLOSE_ERR_TYPES
+        ):
             raise TranscriptionError(message["reason"])
 
     async def _producer(self, stream, audio_chunk_size):
@@ -219,6 +223,8 @@ class WebsocketClient:
     async def _consumer_handler(self):
         """
         Controls the consumer loop for handling messages from the server.
+
+        raises: ConnectionClosedError when the upstream closes unexpectedly
         """
         while self.session_running:
             try:
@@ -227,9 +233,9 @@ class WebsocketClient:
                 # Can occur if a timeout has closed the connection.
                 LOGGER.info("Cannot receive from closed websocket.")
                 return
-            except websockets.exceptions.ConnectionClosedError:
+            except websockets.exceptions.ConnectionClosedError as ex:
                 LOGGER.info("Disconnected while waiting for recv().")
-                return
+                raise ex
             self._consumer(message)
 
     async def _producer_handler(self, stream, audio_chunk_size):

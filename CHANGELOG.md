@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add support for translation (DEL-9547)
 
+### Changed
+
+- Raises ConnectionClosedException rather than returning when the websocket connection closes unexpectedly
 
 ## [1.5.1] - 2023-01-17
 
@@ -43,7 +46,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved error types in HTTP requests to capture errors more clearly
 - Remove excess logging on errors and allow developer to catch errors
 - Use environment variable SM_MANAGEMENT_PLATFORM_URL before defaulting to production MP API URL
-
 
 ## [1.4.4] - 2022-12-06
 
@@ -79,6 +81,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.3.0] - 2022-08-05
 
 ### Added
+
 - Add --print-json CLI argument to enable printing transcripts as JSON rather than text
 - Add `speechmatics.adapters` module with support for performing JSON to text conversion
 - Add support for `language_pack_info` in the `RecognitionStarted` message
@@ -86,6 +89,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.2.3] - 2022-07-22
 
 ### Fixed
+
 - Restored postional `language` parameter to `TranscriptionConfig.__init__`
 
 ## [1.2.2] - 2022-07-20
@@ -103,15 +107,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update batch delete job to return meaningful response
 
 ## [1.2.1] - 2022-06-17
+
 - Update documentation for RT speaker diarization.
 
 ## [1.2.0] - 2022-06-14
+
 - Add support for speaker diarization in RT, and support the max_speakers parameter
 
 ## [1.1.0] - 2022-06-13
+
 - Remove support for --n_best_limit parameter
 
 ## [1.0.6] - 2022-06-01
+
 - Remove unnecessary Version file use and updated documentation for batch_client
 
 ## [1.0.5] - 2022-05-26
@@ -128,7 +136,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.2] - 2022-04-14
 
-- Remove default values from args parser for max-delay-mode and operating-point for 
+- Remove default values from args parser for max-delay-mode and operating-point for
   backwards compatibility with older versions of RTC.
 
 ## [1.0.1] - 2022-04-13
@@ -172,13 +180,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Support for enabling inverse text normalization (ITN) entities via `enable_entities` in transcription config.
 
-
 ## [0.0.14] - 2021-09-07
 
 ### Added
 
 - operating_point CLI option validation and documentation
-
 
 ## [0.0.13] - 2021-03-29
 
@@ -186,13 +192,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - operating_point CLI option and property in TranscriptionConfig
 
-
 ## [0.0.12] - 2021-02-10
 
 ### Fixed
 
 - Fix seq_no persisting across sessions
-
 
 ## [0.0.11] - 2020-10-18
 
@@ -200,14 +204,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Migrate from Travis CI to GitHub Actions
 
-
 ## [0.0.10] - 2020-10-01
 
 ### Added
 
 - Added authentication token support for RT-SaaS [@rakeshv247](https://github.com/rakeshv247).
 
-[Unreleased]: https://github.com/speechmatics/speechmatics-python/compare/v1.5.1...HEAD
+[unreleased]: https://github.com/speechmatics/speechmatics-python/compare/v1.5.1...HEAD
 [1.5.1]: https://github.com/speechmatics/speechmatics-python/releases/tag/1.5.1
 [1.5.0]: https://github.com/speechmatics/speechmatics-python/releases/tag/1.5.0
 [1.4.5]: https://github.com/speechmatics/speechmatics-python/releases/tag/1.4.5
