@@ -8,6 +8,7 @@ Exceptions and errors used by the library.
 CONN_CLOSE_ERR_TYPES = [
     "protocol_error",
     "not_authorised",
+    "not_allowed",
     "invalid_model",
     "quota_exceeded",
     "timelimit_exceeded",
