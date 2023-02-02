@@ -50,6 +50,7 @@
     <span class="n">EndOfTranscriptException</span><span class="p">,</span>
     <span class="n">ForceEndSession</span><span class="p">,</span>
     <span class="n">TranscriptionError</span><span class="p">,</span>
+    <span class="n">CONN_CLOSE_ERR_TYPES</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">speechmatics.models</span> <span class="kn">import</span> <span class="n">ClientMessageType</span><span class="p">,</span> <span class="n">ServerMessageType</span>
 <span class="kn">from</span> <span class="nn">speechmatics.helpers</span> <span class="kn">import</span> <span class="n">json_utf8</span><span class="p">,</span> <span class="n">read_in_chunks</span>
@@ -192,7 +193,7 @@
 <span class="sd">        :type message: str</span>
 
 <span class="sd">        :raises TranscriptionError: on an error message received from the</span>
-<span class="sd">            server.</span>
+<span class="sd">            server after the Session started.</span>
 <span class="sd">        :raises EndOfTranscriptException: on EndOfTranscription message.</span>
 <span class="sd">        :raises ForceEndSession: If this was raised by the user&#39;s event</span>
 <span class="sd">            handler.</span>
@@ -218,7 +219,10 @@
             <span class="k">raise</span> <span class="n">EndOfTranscriptException</span><span class="p">()</span>
         <span class="k">elif</span> <span class="n">message_type</span> <span class="o">==</span> <span class="n">ServerMessageType</span><span class="o">.</span><span class="n">Warning</span><span class="p">:</span>
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">message</span><span class="p">[</span><span class="s2">&quot;reason&quot;</span><span class="p">])</span>
-        <span class="k">elif</span> <span class="n">message_type</span> <span class="o">==</span> <span class="n">ServerMessageType</span><span class="o">.</span><span class="n">Error</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="p">(</span>
+            <span class="n">message_type</span> <span class="o">==</span> <span class="n">ServerMessageType</span><span class="o">.</span><span class="n">Error</span>
+            <span class="ow">and</span> <span class="n">message</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">CONN_CLOSE_ERR_TYPES</span>
+        <span class="p">):</span>
             <span class="k">raise</span> <span class="n">TranscriptionError</span><span class="p">(</span><span class="n">message</span><span class="p">[</span><span class="s2">&quot;reason&quot;</span><span class="p">])</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">_producer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">,</span> <span class="n">audio_chunk_size</span><span class="p">):</span>
@@ -252,6 +256,8 @@
     <span class="k">async</span> <span class="k">def</span> <span class="nf">_consumer_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Controls the consumer loop for handling messages from the server.</span>
+
+<span class="sd">        raises: ConnectionClosedError when the upstream closes unexpectedly</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">session_running</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
@@ -260,9 +266,9 @@
                 <span class="c1"># Can occur if a timeout has closed the connection.</span>
                 <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Cannot receive from closed websocket.&quot;</span><span class="p">)</span>
                 <span class="k">return</span>
-            <span class="k">except</span> <span class="n">websockets</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">ConnectionClosedError</span><span class="p">:</span>
+            <span class="k">except</span> <span class="n">websockets</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">ConnectionClosedError</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
                 <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Disconnected while waiting for recv().&quot;</span><span class="p">)</span>
-                <span class="k">return</span>
+                <span class="k">raise</span> <span class="n">ex</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_consumer</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">_producer_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">,</span> <span class="n">audio_chunk_size</span><span class="p">):</span>
