@@ -17,7 +17,6 @@ from speechmatics.exceptions import (
     EndOfTranscriptException,
     ForceEndSession,
     TranscriptionError,
-    CONN_CLOSE_ERR_TYPES,
 )
 from speechmatics.models import ClientMessageType, ServerMessageType
 from speechmatics.helpers import json_utf8, read_in_chunks
@@ -186,10 +185,7 @@ class WebsocketClient:
             raise EndOfTranscriptException()
         elif message_type == ServerMessageType.Warning:
             LOGGER.warning(message["reason"])
-        elif (
-            message_type == ServerMessageType.Error
-            and message["type"] not in CONN_CLOSE_ERR_TYPES
-        ):
+        elif message_type == ServerMessageType.Error:
             raise TranscriptionError(message["reason"])
 
     async def _producer(self, stream, audio_chunk_size):
