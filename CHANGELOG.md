@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.2] - 2023-02-07
+- Always raise an exception on transcriber error
+
+### Changed
+
 ## [1.6.1] - 2023-02-02
 
 ### Changed
