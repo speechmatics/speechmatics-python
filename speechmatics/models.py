@@ -129,8 +129,10 @@ class RTSpeakerDiarizationConfig:
 class BatchSpeakerDiarizationConfig:
     """Batch mode: Speaker diarization config."""
 
-    speaker_sensitivity: int = None
-    """The sensitivity of the speaker detection."""
+    speaker_sensitivity: float = None
+    """The sensitivity of the speaker detection.
+    This is a number between 0 and 1, where 0 means least sensitive and 1 means
+    most sensitive."""
 
 
 @dataclass
