@@ -28,6 +28,17 @@ The speechmatics python SDK and CLI is documented at https://speechmatics.github
 
 The Speechmatics API and product documentation can be found at https://docs.speechmatics.com.
 
+## Example client usage
+
+The `examples/` directory has some examples of how to use the `speechmatics` client.
+
+Some of these require a Speechmatics ASR API key.
+
+For example:
+```
+$ MY_API_KEY=... PYTHONPATH=. python3 examples/v2_batch_asr_api_transcription.py
+```
+
 ## Example command-line usage
 
 A complete list of commands and flags can be found in the SDK docs at https://speechmatics.github.io/speechmatics-python/.

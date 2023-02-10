@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.4] - 2023-02-10
+
+### Added
+
+- Added an example of how to submit a job using BatchClient
+
 ## [1.6.3] - 2023-02-10
 
 ### Fixed
