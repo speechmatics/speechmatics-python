@@ -7,12 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.4] - 2023-02-14
+
+### Fixed
+
+- printing finals in cli now correctly deletes partials for that segment
+
 ## [1.6.3] - 2023-02-14
 
 ### Fixed
 
 - Type annotation for BatchSpeakerDiarizationConfig.speaker_sensitivity
-- printing finals in cli now correctly deletes partials for that segment
 
 ## [1.6.2] - 2023-02-07
 
