@@ -344,7 +344,8 @@ def add_printing_handlers(
             speaker_change_token=speaker_change_token,
         )
         if plaintext:
-            print(plaintext, end="\r", file=sys.stderr)
+            escape_seq = "\33[2K" if sys.stderr.isatty() else ""
+            sys.stderr.write(f"{escape_seq}{plaintext}\r")
 
     def transcript_handler(message):
         transcripts.json.append(message)
@@ -359,7 +360,8 @@ def add_printing_handlers(
             speaker_change_token=speaker_change_token,
         )
         if plaintext:
-            print(plaintext)
+            escape_seq = "\33[2K" if sys.stdout.isatty() else ""
+            sys.stdout.write(f"{escape_seq}{plaintext}\n")
         transcripts.text += plaintext
 
     def end_of_transcript_handler(_):

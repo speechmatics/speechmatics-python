@@ -3,6 +3,7 @@ import collections
 import copy
 import logging
 import os
+import sys
 
 import pytest
 import toml
@@ -650,7 +651,12 @@ def test_rt_main_with_config_file_cmdline_override(mock_server):
     assert msg["transcription_config"]["operating_point"] == "enhanced"
 
 
-def test_add_printing_handlers_transcript_handler(mocker, capsys):
+@pytest.mark.parametrize("check_tty", [False, True])
+def test_add_printing_handlers_transcript_handler(mocker, capsys, check_tty):
+    # patch in isatty, in order to check beheviour with and without tty
+    sys.stderr.isatty = lambda: check_tty
+    sys.stdout.isatty = lambda: check_tty
+
     api = mocker.MagicMock()
     api.get_language_pack_info = mocker.MagicMock(return_value={"word_delimiter": " "})
     transcripts = cli.Transcripts(text="", json=[])
@@ -682,6 +688,7 @@ def test_add_printing_handlers_transcript_handler(mocker, capsys):
     transcript_handler_cb_func(msg_empty_transcript)
     assert transcripts.text == transcript
     assert transcripts.json == [msg_empty_transcript]
+
     out, err = capsys.readouterr()
     assert not out, "Don't print a newline when the transcript is empty"
     assert not err
@@ -703,7 +710,9 @@ def test_add_printing_handlers_transcript_handler(mocker, capsys):
     assert transcripts.text == transcript
     assert transcripts.json == [msg_empty_transcript, msg_single_word_transcript]
     out, err = capsys.readouterr()
-    assert out == transcript + "\n"
+
+    escape_seq = "\33[2K" if sys.stdout.isatty() else ""
+    assert out == escape_seq + transcript + "\n"
     assert not err
 
     transcript_handler_cb_func(msg_empty_transcript)
@@ -717,8 +726,10 @@ def test_add_printing_handlers_transcript_handler(mocker, capsys):
         msg_single_word_transcript,
         msg_empty_transcript,
     ]
+
+    escape_seq = "\33[2K" if sys.stdout.isatty() else ""
     out, err = capsys.readouterr()
-    assert out == transcript + "\n"
+    assert out == escape_seq + transcript + "\n"
     assert not err
 
 
@@ -755,8 +766,13 @@ TRANSCRIPT_WITH_SC = {
 
 
 def check_printing_handlers(
-    mocker, capsys, transcript, expected_transcript_txt, speaker_change_token
+    mocker,
+    capsys,
+    transcript,
+    expected_transcript_txt,
+    speaker_change_token,
 ):
+
     api = mocker.MagicMock()
     api.get_language_pack_info = mocker.MagicMock(return_value={"word_delimiter": " "})
     transcripts = cli.Transcripts(text="", json=[])
@@ -779,12 +795,19 @@ def check_printing_handlers(
     transcript_handler_cb_func(transcript)
     assert transcripts.text == expected_transcript_txt
     assert transcripts.json == [transcript]
+
+    escape_seq = "\33[2K" if sys.stdout.isatty() else ""
     out, err = capsys.readouterr()
-    assert out == expected_transcript_txt + "\n"
+    assert out == escape_seq + expected_transcript_txt + "\n"
     assert not err
 
 
-def test_add_printing_handlers_with_speaker_change_token(mocker, capsys):
+@pytest.mark.parametrize("check_tty", [False, True])
+def test_add_printing_handlers_with_speaker_change_token(mocker, capsys, check_tty):
+    # patch in isatty, in order to check beheviour with and without tty
+    sys.stderr.isatty = lambda: check_tty
+    sys.stdout.isatty = lambda: check_tty
+
     expected_transcript = "Hey\n<sc>\nHello"
     check_printing_handlers(
         mocker,
@@ -795,7 +818,12 @@ def test_add_printing_handlers_with_speaker_change_token(mocker, capsys):
     )
 
 
-def test_add_printing_handlers_with_speaker_change_no_token(mocker, capsys):
+@pytest.mark.parametrize("check_tty", [False, True])
+def test_add_printing_handlers_with_speaker_change_no_token(mocker, capsys, check_tty):
+    # patch in isatty, in order to check beheviour with and without tty
+    sys.stderr.isatty = lambda: check_tty
+    sys.stdout.isatty = lambda: check_tty
+
     expected_transcript = "Hey\nHello"
     check_printing_handlers(
         mocker,
