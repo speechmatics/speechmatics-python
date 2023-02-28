@@ -568,14 +568,16 @@ def batch_main(args):
         if command == "transcribe":
             for filename in args["files"]:
                 print(f"Processing {filename}\n==========")
-                print(
-                    submit_job_and_wait(
-                        connection_settings=get_connection_settings(args),
-                        audio=filename,
-                        transcription_config=get_transcription_config(args),
-                        transcription_format=args["output_format"],
-                    )
+                result = submit_job_and_wait(
+                    connection_settings=get_connection_settings(args),
+                    audio=filename,
+                    transcription_config=get_transcription_config(args),
+                    transcription_format=args["output_format"],
                 )
+                if args["output_format"] in ["json", "json-v2"]:
+                    print(json.dumps(result, ensure_ascii=False))
+                else:
+                    print(result)
                 print(f"==========\n{filename} completed!\n==========")
         elif command == "submit":
             for filename in args["files"]:
@@ -584,11 +586,13 @@ def batch_main(args):
                 )
                 print(f"Submitted {filename} successfully, job ID: {job_id}")
         elif command == "get-results":
-            print(
-                batch_client.get_job_result(
-                    job_id=args["job_id"], transcription_format=args["output_format"]
-                )
+            result = batch_client.get_job_result(
+                job_id=args["job_id"], transcription_format=args["output_format"]
             )
+            if args["output_format"] in ["json", "json-v2"]:
+                print(json.dumps(result, ensure_ascii=False))
+            else:
+                print(result)
         elif command == "list-jobs":
             print(batch_client.list_jobs())
         elif command == "delete":

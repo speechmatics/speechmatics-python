@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.5] - 2023-02-22
+
+### Fixed
+
+- CLI transcript output now properly handles UTF-8
+
 ## [1.6.4] - 2023-02-14
 
 ### Fixed
