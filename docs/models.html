@@ -123,13 +123,27 @@ e.g. ‘finance’</p>
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="speechmatics.models.BatchLanguageIdentificationConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">speechmatics.models.</span></span><span class="sig-name descname"><span class="pre">BatchLanguageIdentificationConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">expected_languages</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/speechmatics/models.html#BatchLanguageIdentificationConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#speechmatics.models.BatchLanguageIdentificationConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>Batch mode: Language identification config.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="speechmatics.models.BatchLanguageIdentificationConfig.expected_languages">
+<span class="sig-name descname"><span class="pre">expected_languages</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#speechmatics.models.BatchLanguageIdentificationConfig.expected_languages" title="Permalink to this definition">¶</a></dt>
+<dd><p>Expected languages for language identification</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="speechmatics.models.BatchSpeakerDiarizationConfig">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">speechmatics.models.</span></span><span class="sig-name descname"><span class="pre">BatchSpeakerDiarizationConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">speaker_sensitivity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/speechmatics/models.html#BatchSpeakerDiarizationConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#speechmatics.models.BatchSpeakerDiarizationConfig" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">speechmatics.models.</span></span><span class="sig-name descname"><span class="pre">BatchSpeakerDiarizationConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">speaker_sensitivity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/speechmatics/models.html#BatchSpeakerDiarizationConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#speechmatics.models.BatchSpeakerDiarizationConfig" title="Permalink to this definition">¶</a></dt>
 <dd><p>Batch mode: Speaker diarization config.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="speechmatics.models.BatchSpeakerDiarizationConfig.speaker_sensitivity">
-<span class="sig-name descname"><span class="pre">speaker_sensitivity</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#speechmatics.models.BatchSpeakerDiarizationConfig.speaker_sensitivity" title="Permalink to this definition">¶</a></dt>
-<dd><p>The sensitivity of the speaker detection.</p>
+<span class="sig-name descname"><span class="pre">speaker_sensitivity</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#speechmatics.models.BatchSpeakerDiarizationConfig.speaker_sensitivity" title="Permalink to this definition">¶</a></dt>
+<dd><p>The sensitivity of the speaker detection.
+This is a number between 0 and 1, where 0 means least sensitive and 1 means
+most sensitive.</p>
 </dd></dl>
 
 </dd></dl>
@@ -149,6 +163,12 @@ The <cite>.as_config()</cite> method will return it wrapped into a Speechmatics 
 <dt class="sig sig-object py" id="speechmatics.models.BatchTranscriptionConfig.fetch_data">
 <span class="sig-name descname"><span class="pre">fetch_data</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#speechmatics.models.FetchData" title="speechmatics.models.FetchData"><span class="pre">speechmatics.models.FetchData</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#speechmatics.models.BatchTranscriptionConfig.fetch_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Optional configuration for fetching file for transcription.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="speechmatics.models.BatchTranscriptionConfig.language_identification_config">
+<span class="sig-name descname"><span class="pre">language_identification_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#speechmatics.models.BatchLanguageIdentificationConfig" title="speechmatics.models.BatchLanguageIdentificationConfig"><span class="pre">speechmatics.models.BatchLanguageIdentificationConfig</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#speechmatics.models.BatchTranscriptionConfig.language_identification_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optional configuration for language identification.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -533,7 +553,7 @@ entity that would not be completed within that threshold.</p>
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 4.4.0</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
       <a href="_sources/models.rst.txt"

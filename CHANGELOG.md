@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add support for language identification (DEL-10418)
+
+### Fixed
+
+- Fixed an issue where `transcription_config` was not correctly loaded from the JSON config file
+
 ## [1.6.5] - 2023-02-22
 
 ### Fixed

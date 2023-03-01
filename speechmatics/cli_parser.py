@@ -216,6 +216,14 @@ def get_arg_parser():
         default=None,
         help=("Comma-separated list of languages to translate the transcription into"),
     )
+    config_parser.add_argument(
+        "--langid-langs",
+        "--langid-languages",
+        dest="langid_expected_languages",
+        type=str,
+        default=None,
+        help=("Comma-separated list of expected languages for language identification"),
+    )
 
     # Parent parser for output type
     output_format_parser = argparse.ArgumentParser(add_help=False)

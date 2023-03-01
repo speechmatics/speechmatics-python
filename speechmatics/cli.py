@@ -36,6 +36,7 @@ from speechmatics.models import (
     BatchSpeakerDiarizationConfig,
     RTSpeakerDiarizationConfig,
     BatchTranslationConfig,
+    BatchLanguageIdentificationConfig,
 )
 from speechmatics.cli_parser import (
     parse_args,
@@ -198,6 +199,11 @@ def get_transcription_config(args):  # pylint: disable=too-many-branches
         # Ensure "en" is the default language as to not break existing API behavior.
         config = {"language": "en"}
 
+    # transcription_config is flattened in the BatchTranscriptionConfig,
+    # so the config entry from JSON must be flattened here, otherwise the JSON entry would be ignored
+    if config.get("transcription_config"):
+        config.update(config.pop("transcription_config"))
+
     # Explicit command line arguments override values from config file.
     for option in [
         "language",
@@ -265,6 +271,12 @@ def get_transcription_config(args):  # pylint: disable=too-many-branches
         translation_target_languages = args.get("translation_target_languages")
         config["translation_config"] = BatchTranslationConfig(
             target_languages=translation_target_languages.split(",")
+        )
+
+    if args.get("langid_expected_languages") is not None:
+        langid_expected_languages = args.get("langid_expected_languages")
+        config["language_identification_config"] = BatchLanguageIdentificationConfig(
+            expected_languages=langid_expected_languages.split(",")
         )
 
     if args["mode"] == "rt":
