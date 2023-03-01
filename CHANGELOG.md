@@ -7,18 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.7.0] - 2023-03-01
+
 ### Added
 
-- Add support for language identification (DEL-10418)
+- Add support for language identification
 
 ### Fixed
 
 - Fixed an issue where `transcription_config` was not correctly loaded from the JSON config file
-
-## [1.6.5] - 2023-02-22
-
-### Fixed
-
 - CLI transcript output now properly handles UTF-8
 
 ## [1.6.4] - 2023-02-14
@@ -250,8 +247,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added authentication token support for RT-SaaS [@rakeshv247](https://github.com/rakeshv247).
 
-[unreleased]: https://github.com/speechmatics/speechmatics-python/compare/v1.5.1...HEAD
-[1.5.1]: https://github.com/speechmatics/speechmatics-python/releases/tag/1.5.1
+[unreleased]: https://github.com/speechmatics/speechmatics-python/compare/v1.7.0...HEAD
+[1.7.0]: https://github.com/speechmatics/speechmatics-python/releases/tag/1.7.0
+[1.6.4]: https://github.com/speechmatics/speechmatics-python/releases/tag/1.6.4
+[1.6.3]: https://github.com/speechmatics/speechmatics-python/releases/tag/1.6.3
+[1.6.2]: https://github.com/speechmatics/speechmatics-python/releases/tag/1.6.2
+[1.6.1]: https://github.com/speechmatics/speechmatics-python/releases/tag/1.6.1
+[1.6.0]: https://github.com/speechmatics/speechmatics-python/releases/tag/1.6.0
 [1.5.0]: https://github.com/speechmatics/speechmatics-python/releases/tag/1.5.0
 [1.4.5]: https://github.com/speechmatics/speechmatics-python/releases/tag/1.4.5
 [1.4.4]: https://github.com/speechmatics/speechmatics-python/releases/tag/1.4.4

@@ -1,7 +1,7 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -9,9 +9,8 @@
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css" />
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/jquery.js"></script>
-    <script src="../../_static/underscore.js"></script>
     <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
    
@@ -47,13 +46,13 @@
 
 <div class="viewcode-block" id="FetchData"><a class="viewcode-back" href="../../models.html#speechmatics.models.FetchData">[docs]</a><span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">FetchData</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Batch: Optional configuration for fetching file for transcription.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Batch: Optional configuration for fetching file for transcription.&quot;&quot;&quot;</span>
 
     <span class="n">url</span><span class="p">:</span> <span class="nb">str</span>
-    <span class="sd">&quot;&quot;&quot;URL to fetch&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;URL to fetch&quot;&quot;&quot;</span>
 
     <span class="n">auth_headers</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A list of additional headers to be added to the input fetch request</span>
 <span class="sd">    when using http or https. This is intended to support authentication or</span>
 <span class="sd">    authorization, for example by supplying an OAuth2 bearer token</span>
@@ -62,23 +61,23 @@
 
 <div class="viewcode-block" id="NotificationConfig"><a class="viewcode-back" href="../../models.html#speechmatics.models.NotificationConfig">[docs]</a><span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">NotificationConfig</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Batch: Optional configuration for callback notification.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Batch: Optional configuration for callback notification.&quot;&quot;&quot;</span>
 
     <span class="n">url</span><span class="p">:</span> <span class="nb">str</span>
-    <span class="sd">&quot;&quot;&quot;URL for notification. The `id` and `status` query parameters will be added.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;URL for notification. The `id` and `status` query parameters will be added.&quot;&quot;&quot;</span>
 
     <span class="n">contents</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Specifies a list of items to be attached to the notification message.</span>
 <span class="sd">    When multiple items are requested, they are included as named file</span>
 <span class="sd">    attachments.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;post&quot;</span>
-    <span class="sd">&quot;&quot;&quot;The HTTP(S) method to be used. Only `post` and `put` are supported.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The HTTP(S) method to be used. Only `post` and `put` are supported.&quot;&quot;&quot;</span>
 
     <span class="n">auth_headers</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A list of additional headers to be added to the notification request</span>
 <span class="sd">    when using http or https. This is intended to support authentication or</span>
 <span class="sd">    authorization, for example by supplying an OAuth2 bearer token</span>
@@ -87,21 +86,21 @@
 
 <div class="viewcode-block" id="SRTOverrides"><a class="viewcode-back" href="../../models.html#speechmatics.models.SRTOverrides">[docs]</a><span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">SRTOverrides</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Batch: Optional configuration for SRT output.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Batch: Optional configuration for SRT output.&quot;&quot;&quot;</span>
 
     <span class="n">max_line_length</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">37</span>
-    <span class="sd">&quot;&quot;&quot;Maximum count of characters per subtitle line including white space&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Maximum count of characters per subtitle line including white space&quot;&quot;&quot;</span>
 
     <span class="n">max_lines</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span>
-    <span class="sd">&quot;&quot;&quot;Sets maximum count of lines in a subtitle section&quot;&quot;&quot;</span></div>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Sets maximum count of lines in a subtitle section&quot;&quot;&quot;</span></div>
 
 
 <div class="viewcode-block" id="_TranscriptionConfig"><a class="viewcode-back" href="../../models.html#speechmatics.models._TranscriptionConfig">[docs]</a><span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">_TranscriptionConfig</span><span class="p">:</span>  <span class="c1"># pylint: disable=too-many-instance-attributes</span>
-    <span class="sd">&quot;&quot;&quot;Base model for defining transcription parameters.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base model for defining transcription parameters.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">language</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Ignores values which are not dataclass members when initalising.</span>
 <span class="sd">        This allows **kwargs to contain fields which are not in the model,</span>
 <span class="sd">        which is useful for reusing code to build RT and batch configs.</span>
@@ -119,121 +118,121 @@
                 <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
 
 <div class="viewcode-block" id="_TranscriptionConfig.asdict"><a class="viewcode-back" href="../../models.html#speechmatics.models._TranscriptionConfig.asdict">[docs]</a>    <span class="k">def</span> <span class="nf">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Returns model as a dict while excluding None values recursively.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns model as a dict while excluding None values recursively.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">asdict</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">dict_factory</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="n">x</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">}</span>
         <span class="p">)</span></div>
 
     <span class="n">language</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;en&quot;</span>
-    <span class="sd">&quot;&quot;&quot;ISO 639-1 language code. eg. `en`&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;ISO 639-1 language code. eg. `en`&quot;&quot;&quot;</span>
 
     <span class="n">operating_point</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="sd">&quot;&quot;&quot;Specifies which acoustic model to use.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Specifies which acoustic model to use.&quot;&quot;&quot;</span>
 
     <span class="n">output_locale</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="sd">&quot;&quot;&quot;RFC-5646 language code for transcript output. eg. `en-AU`&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;RFC-5646 language code for transcript output. eg. `en-AU`&quot;&quot;&quot;</span>
 
     <span class="n">diarization</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="sd">&quot;&quot;&quot;Indicates type of diarization to use, if any.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Indicates type of diarization to use, if any.&quot;&quot;&quot;</span>
 
     <span class="n">additional_vocab</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="sd">&quot;&quot;&quot;Additional vocabulary that is not part of the standard language.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Additional vocabulary that is not part of the standard language.&quot;&quot;&quot;</span>
 
     <span class="n">punctuation_overrides</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="sd">&quot;&quot;&quot;Permitted puctuation marks for advanced punctuation.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Permitted puctuation marks for advanced punctuation.&quot;&quot;&quot;</span>
 
     <span class="n">domain</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="sd">&quot;&quot;&quot;Optionally request a language pack optimized for a specific domain,</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Optionally request a language pack optimized for a specific domain,</span>
 <span class="sd">    e.g. &#39;finance&#39;&quot;&quot;&quot;</span>
 
     <span class="n">enable_entities</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="sd">&quot;&quot;&quot;Indicates if inverse text normalization entity output is enabled.&quot;&quot;&quot;</span></div>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Indicates if inverse text normalization entity output is enabled.&quot;&quot;&quot;</span></div>
 
 
 <div class="viewcode-block" id="RTSpeakerDiarizationConfig"><a class="viewcode-back" href="../../models.html#speechmatics.models.RTSpeakerDiarizationConfig">[docs]</a><span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">RTSpeakerDiarizationConfig</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Real-time mode: Speaker diarization config.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Real-time mode: Speaker diarization config.&quot;&quot;&quot;</span>
 
     <span class="n">max_speakers</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="sd">&quot;&quot;&quot;This enforces the maximum number of speakers allowed in a single audio stream.&quot;&quot;&quot;</span></div>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;This enforces the maximum number of speakers allowed in a single audio stream.&quot;&quot;&quot;</span></div>
 
 
 <div class="viewcode-block" id="BatchSpeakerDiarizationConfig"><a class="viewcode-back" href="../../models.html#speechmatics.models.BatchSpeakerDiarizationConfig">[docs]</a><span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">BatchSpeakerDiarizationConfig</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Batch mode: Speaker diarization config.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Batch mode: Speaker diarization config.&quot;&quot;&quot;</span>
 
     <span class="n">speaker_sensitivity</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="sd">&quot;&quot;&quot;The sensitivity of the speaker detection.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The sensitivity of the speaker detection.</span>
 <span class="sd">    This is a number between 0 and 1, where 0 means least sensitive and 1 means</span>
 <span class="sd">    most sensitive.&quot;&quot;&quot;</span></div>
 
 
 <div class="viewcode-block" id="BatchTranslationConfig"><a class="viewcode-back" href="../../models.html#speechmatics.models.BatchTranslationConfig">[docs]</a><span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">BatchTranslationConfig</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Batch mode: Translation config.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Batch mode: Translation config.&quot;&quot;&quot;</span>
 
     <span class="n">target_languages</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="sd">&quot;&quot;&quot;Target languages for which translation should be produced&quot;&quot;&quot;</span></div>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Target languages for which translation should be produced&quot;&quot;&quot;</span></div>
 
 
 <div class="viewcode-block" id="BatchLanguageIdentificationConfig"><a class="viewcode-back" href="../../models.html#speechmatics.models.BatchLanguageIdentificationConfig">[docs]</a><span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">BatchLanguageIdentificationConfig</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Batch mode: Language identification config.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Batch mode: Language identification config.&quot;&quot;&quot;</span>
 
     <span class="n">expected_languages</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="sd">&quot;&quot;&quot;Expected languages for language identification&quot;&quot;&quot;</span></div>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Expected languages for language identification&quot;&quot;&quot;</span></div>
 
 
 <div class="viewcode-block" id="TranscriptionConfig"><a class="viewcode-back" href="../../models.html#speechmatics.models.TranscriptionConfig">[docs]</a><span class="nd">@dataclass</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">TranscriptionConfig</span><span class="p">(</span><span class="n">_TranscriptionConfig</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Real-time: Defines transcription parameters.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Real-time: Defines transcription parameters.&quot;&quot;&quot;</span>
 
     <span class="n">max_delay</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="sd">&quot;&quot;&quot;Maximum acceptable delay.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Maximum acceptable delay.&quot;&quot;&quot;</span>
 
     <span class="n">max_delay_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="sd">&quot;&quot;&quot;Determines whether the threshold specified in max_delay can be exceeded</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Determines whether the threshold specified in max_delay can be exceeded</span>
 <span class="sd">    if a potential entity is detected. Flexible means if a potential entity</span>
 <span class="sd">    is detected, then the max_delay can be overriden until the end of that</span>
 <span class="sd">    entity. Fixed means that max_delay specified ignores any potential</span>
 <span class="sd">    entity that would not be completed within that threshold.&quot;&quot;&quot;</span>
 
     <span class="n">speaker_diarization_config</span><span class="p">:</span> <span class="n">RTSpeakerDiarizationConfig</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="sd">&quot;&quot;&quot;Configuration for speaker diarization.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Configuration for speaker diarization.&quot;&quot;&quot;</span>
 
     <span class="n">speaker_change_sensitivity</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="sd">&quot;&quot;&quot;Sensitivity level for speaker change.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Sensitivity level for speaker change.&quot;&quot;&quot;</span>
 
     <span class="n">enable_partials</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="sd">&quot;&quot;&quot;Indicates if partial transcription, where words are produced</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Indicates if partial transcription, where words are produced</span>
 <span class="sd">    immediately, is enabled. &quot;&quot;&quot;</span></div>
 
 
 <div class="viewcode-block" id="BatchTranscriptionConfig"><a class="viewcode-back" href="../../models.html#speechmatics.models.BatchTranscriptionConfig">[docs]</a><span class="nd">@dataclass</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">BatchTranscriptionConfig</span><span class="p">(</span><span class="n">_TranscriptionConfig</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Batch: Defines transcription parameters for batch requests.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Batch: Defines transcription parameters for batch requests.</span>
 <span class="sd">    The `.as_config()` method will return it wrapped into a Speechmatics json config.&quot;&quot;&quot;</span>
 
     <span class="n">fetch_data</span><span class="p">:</span> <span class="n">FetchData</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="sd">&quot;&quot;&quot;Optional configuration for fetching file for transcription.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Optional configuration for fetching file for transcription.&quot;&quot;&quot;</span>
 
     <span class="n">notification_config</span><span class="p">:</span> <span class="n">NotificationConfig</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="sd">&quot;&quot;&quot;Optional configuration for callback notification.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Optional configuration for callback notification.&quot;&quot;&quot;</span>
 
     <span class="n">language_identification_config</span><span class="p">:</span> <span class="n">BatchLanguageIdentificationConfig</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="sd">&quot;&quot;&quot;Optional configuration for language identification.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Optional configuration for language identification.&quot;&quot;&quot;</span>
 
     <span class="n">translation_config</span><span class="p">:</span> <span class="n">BatchTranslationConfig</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="sd">&quot;&quot;&quot;Optional configuration for translation.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Optional configuration for translation.&quot;&quot;&quot;</span>
 
     <span class="n">srt_overrides</span><span class="p">:</span> <span class="n">SRTOverrides</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="sd">&quot;&quot;&quot;Optional configuration for SRT output.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Optional configuration for SRT output.&quot;&quot;&quot;</span>
 
     <span class="n">speaker_diarization_config</span><span class="p">:</span> <span class="n">BatchSpeakerDiarizationConfig</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="sd">&quot;&quot;&quot;The sensitivity of the speaker detection.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The sensitivity of the speaker detection.&quot;&quot;&quot;</span>
 
     <span class="n">channel_diarization_labels</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="sd">&quot;&quot;&quot;Add your own speaker or channel labels to the transcript&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add your own speaker or channel labels to the transcript&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">as_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">dictionary</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">asdict</span><span class="p">()</span>
@@ -270,17 +269,17 @@
 
 <div class="viewcode-block" id="AudioSettings"><a class="viewcode-back" href="../../models.html#speechmatics.models.AudioSettings">[docs]</a><span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">AudioSettings</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Real-time: Defines audio parameters.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Real-time: Defines audio parameters.&quot;&quot;&quot;</span>
 
     <span class="n">encoding</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="sd">&quot;&quot;&quot;Encoding format when raw audio is used. Allowed values are</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Encoding format when raw audio is used. Allowed values are</span>
 <span class="sd">    `pcm_f32le`, `pcm_s16le` and `mulaw`.&quot;&quot;&quot;</span>
 
     <span class="n">sample_rate</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">44100</span>
-    <span class="sd">&quot;&quot;&quot;Sampling rate in hertz.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Sampling rate in hertz.&quot;&quot;&quot;</span>
 
     <span class="n">chunk_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">4</span>
-    <span class="sd">&quot;&quot;&quot;Chunk size.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Chunk size.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoding</span><span class="p">:</span>
@@ -295,83 +294,83 @@
 
 <div class="viewcode-block" id="ConnectionSettings"><a class="viewcode-back" href="../../models.html#speechmatics.models.ConnectionSettings">[docs]</a><span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">ConnectionSettings</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Defines connection parameters.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Defines connection parameters.&quot;&quot;&quot;</span>
 
     <span class="n">url</span><span class="p">:</span> <span class="nb">str</span>
-    <span class="sd">&quot;&quot;&quot;Websocket server endpoint.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Websocket server endpoint.&quot;&quot;&quot;</span>
 
     <span class="n">message_buffer_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">512</span>
-    <span class="sd">&quot;&quot;&quot;Message buffer size in bytes.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Message buffer size in bytes.&quot;&quot;&quot;</span>
 
     <span class="n">ssl_context</span><span class="p">:</span> <span class="n">ssl</span><span class="o">.</span><span class="n">SSLContext</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">ssl</span><span class="o">.</span><span class="n">create_default_context</span><span class="p">)</span>
-    <span class="sd">&quot;&quot;&quot;SSL context.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;SSL context.&quot;&quot;&quot;</span>
 
     <span class="n">semaphore_timeout_seconds</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">120</span>
-    <span class="sd">&quot;&quot;&quot;Semaphore timeout in seconds.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Semaphore timeout in seconds.&quot;&quot;&quot;</span>
 
     <span class="n">ping_timeout_seconds</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">60</span>
-    <span class="sd">&quot;&quot;&quot;Ping-pong timeout in seconds.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Ping-pong timeout in seconds.&quot;&quot;&quot;</span>
 
     <span class="n">auth_token</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="sd">&quot;&quot;&quot;auth token to authenticate a customer.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;auth token to authenticate a customer.</span>
 <span class="sd">    This auth token is only applicable for RT-SaaS.&quot;&quot;&quot;</span>
 
     <span class="n">generate_temp_token</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="sd">&quot;&quot;&quot;Automatically generate a temporary token for authentication.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Automatically generate a temporary token for authentication.</span>
 <span class="sd">    Non-enterprise customers must set this to True. Enterprise customers should set this to False.&quot;&quot;&quot;</span></div>
 
 
 <div class="viewcode-block" id="ClientMessageType"><a class="viewcode-back" href="../../models.html#speechmatics.models.ClientMessageType">[docs]</a><span class="k">class</span> <span class="nc">ClientMessageType</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
     <span class="c1"># pylint: disable=invalid-name</span>
-    <span class="sd">&quot;&quot;&quot;Real-time: Defines various messages sent from client to server.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Real-time: Defines various messages sent from client to server.&quot;&quot;&quot;</span>
 
     <span class="n">StartRecognition</span> <span class="o">=</span> <span class="s2">&quot;StartRecognition&quot;</span>
-    <span class="sd">&quot;&quot;&quot;Initiates a recognition job based on configuration set previously.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Initiates a recognition job based on configuration set previously.&quot;&quot;&quot;</span>
 
     <span class="n">AddAudio</span> <span class="o">=</span> <span class="s2">&quot;AddAudio&quot;</span>
-    <span class="sd">&quot;&quot;&quot;Adds more audio data to the recognition job. The server confirms</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Adds more audio data to the recognition job. The server confirms</span>
 <span class="sd">    receipt by sending an :py:attr:`ServerMessageType.AudioAdded` message.&quot;&quot;&quot;</span>
 
     <span class="n">EndOfStream</span> <span class="o">=</span> <span class="s2">&quot;EndOfStream&quot;</span>
-    <span class="sd">&quot;&quot;&quot;Indicates that the client has no more audio to send.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Indicates that the client has no more audio to send.&quot;&quot;&quot;</span>
 
     <span class="n">SetRecognitionConfig</span> <span class="o">=</span> <span class="s2">&quot;SetRecognitionConfig&quot;</span>
-    <span class="sd">&quot;&quot;&quot;Allows the client to re-configure the recognition session.&quot;&quot;&quot;</span></div>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Allows the client to re-configure the recognition session.&quot;&quot;&quot;</span></div>
 
 
 <div class="viewcode-block" id="ServerMessageType"><a class="viewcode-back" href="../../models.html#speechmatics.models.ServerMessageType">[docs]</a><span class="k">class</span> <span class="nc">ServerMessageType</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
     <span class="c1"># pylint: disable=invalid-name</span>
-    <span class="sd">&quot;&quot;&quot;Real-time: Defines various message types sent from server to client.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Real-time: Defines various message types sent from server to client.&quot;&quot;&quot;</span>
 
     <span class="n">RecognitionStarted</span> <span class="o">=</span> <span class="s2">&quot;RecognitionStarted&quot;</span>
-    <span class="sd">&quot;&quot;&quot;Server response to :py:attr:`ClientMessageType.StartRecognition`,</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Server response to :py:attr:`ClientMessageType.StartRecognition`,</span>
 <span class="sd">    acknowledging that a recognition session has started.&quot;&quot;&quot;</span>
 
     <span class="n">AudioAdded</span> <span class="o">=</span> <span class="s2">&quot;AudioAdded&quot;</span>
-    <span class="sd">&quot;&quot;&quot;Server response to :py:attr:`ClientMessageType.AddAudio`, indicating</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Server response to :py:attr:`ClientMessageType.AddAudio`, indicating</span>
 <span class="sd">    that audio has been added successfully.&quot;&quot;&quot;</span>
 
     <span class="n">AddPartialTranscript</span> <span class="o">=</span> <span class="s2">&quot;AddPartialTranscript&quot;</span>
-    <span class="sd">&quot;&quot;&quot;Indicates a partial transcript, which is an incomplete transcript that</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Indicates a partial transcript, which is an incomplete transcript that</span>
 <span class="sd">    is immediately produced and may change as more context becomes available.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">AddTranscript</span> <span class="o">=</span> <span class="s2">&quot;AddTranscript&quot;</span>
-    <span class="sd">&quot;&quot;&quot;Indicates the final transcript of a part of the audio.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Indicates the final transcript of a part of the audio.&quot;&quot;&quot;</span>
 
     <span class="n">EndOfTranscript</span> <span class="o">=</span> <span class="s2">&quot;EndOfTranscript&quot;</span>
-    <span class="sd">&quot;&quot;&quot;Server response to :py:attr:`ClientMessageType.EndOfStream`,</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Server response to :py:attr:`ClientMessageType.EndOfStream`,</span>
 <span class="sd">    after the server has finished sending all :py:attr:`AddTranscript`</span>
 <span class="sd">    messages.&quot;&quot;&quot;</span>
 
     <span class="n">Info</span> <span class="o">=</span> <span class="s2">&quot;Info&quot;</span>
-    <span class="sd">&quot;&quot;&quot;Indicates a generic info message.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Indicates a generic info message.&quot;&quot;&quot;</span>
 
     <span class="ne">Warning</span> <span class="o">=</span> <span class="s2">&quot;Warning&quot;</span>
-    <span class="sd">&quot;&quot;&quot;Indicates a generic warning message.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Indicates a generic warning message.&quot;&quot;&quot;</span>
 
     <span class="n">Error</span> <span class="o">=</span> <span class="s2">&quot;Error&quot;</span>
-    <span class="sd">&quot;&quot;&quot;Indicates n generic error message.&quot;&quot;&quot;</span></div>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Indicates n generic error message.&quot;&quot;&quot;</span></div>
 </pre></div>
 
           </div>
@@ -432,7 +431,7 @@
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
 
 
 
@@ -449,8 +448,8 @@
       &copy;2022, Cantab Research Ltd..
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.4.0</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 6.1.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
       
     </div>
 
