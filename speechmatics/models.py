@@ -143,6 +143,14 @@ class BatchTranslationConfig:
     """Target languages for which translation should be produced"""
 
 
+@dataclass
+class BatchLanguageIdentificationConfig:
+    """Batch mode: Language identification config."""
+
+    expected_languages: List[str] = None
+    """Expected languages for language identification"""
+
+
 @dataclass(init=False)
 class TranscriptionConfig(_TranscriptionConfig):
     """Real-time: Defines transcription parameters."""
@@ -179,6 +187,9 @@ class BatchTranscriptionConfig(_TranscriptionConfig):
     notification_config: NotificationConfig = None
     """Optional configuration for callback notification."""
 
+    language_identification_config: BatchLanguageIdentificationConfig = None
+    """Optional configuration for language identification."""
+
     translation_config: BatchTranslationConfig = None
     """Optional configuration for translation."""
 
@@ -196,6 +207,9 @@ class BatchTranscriptionConfig(_TranscriptionConfig):
 
         fetch_data = dictionary.pop("fetch_data", None)
         notification_config = dictionary.pop("notification_config", None)
+        language_identification_config = dictionary.pop(
+            "language_identification_config", None
+        )
         translation_config = dictionary.pop("translation_config", None)
         srt_overrides = dictionary.pop("srt_overrides", None)
 
@@ -208,6 +222,9 @@ class BatchTranscriptionConfig(_TranscriptionConfig):
             if isinstance(notification_config, dict):
                 notification_config = [notification_config]
             config["notification_config"] = notification_config
+
+        if language_identification_config:
+            config["language_identification_config"] = language_identification_config
 
         if translation_config:
             config["translation_config"] = translation_config

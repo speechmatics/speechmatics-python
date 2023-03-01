@@ -1,0 +1,18 @@
+{
+  "job": {
+    "config": {
+      "fetch_data": {
+        "url": "https://smtooling.blob.core.windows.net/short-files/15sec.wav"
+      },
+      "transcription_config": {
+        "language": "en"
+      },
+      "type": "transcription"
+    },
+    "created_at": "2023-02-22T14:33:02.221Z",
+    "data_name": "",
+    "duration": 15,
+    "id": "p8t3dcrign",
+    "status": "done"
+  }
+}

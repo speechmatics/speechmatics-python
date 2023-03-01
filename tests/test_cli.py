@@ -234,6 +234,16 @@ from tests.utils import path_to_test_resource
                 "output_format": "json-v2",
             },
         ),
+        (
+            [
+                "batch",
+                "submit",
+                "--langid-langs=de,es,cs",
+            ],
+            {
+                "langid_expected_languages": "de,es,cs",
+            },
+        ),
     ],
 )
 def test_cli_arg_parse_with_file(args, values):

@@ -9,14 +9,18 @@ from unittest.mock import patch, MagicMock
 import asynctest
 import pytest
 
+from pytest_httpx import HTTPXMock
 from speechmatics import client
+from speechmatics.batch_client import BatchClient
 from speechmatics.exceptions import ForceEndSession
 from speechmatics.models import (
     ConnectionSettings,
     ServerMessageType,
     ClientMessageType,
     RTSpeakerDiarizationConfig,
+    BatchTranscriptionConfig,
 )
+
 from tests.utils import path_to_test_resource, default_ws_client_setup
 
 
@@ -535,6 +539,41 @@ def test_language_pack_info_is_stored(mock_server):
     info = ws_client.get_language_pack_info()
     assert info is not None
     assert info["language_code"] == "en"
+
+
+def test_batch_mock_jobs(httpx_mock: HTTPXMock):
+    # submit job
+    httpx_mock.add_response(content=b'{"id":"p8t3dcrign"}')
+
+    # check job status
+    with open(path_to_test_resource("batch-job-status.json"), "rb") as file:
+        job_status = file.read()
+    httpx_mock.add_response(content=job_status)
+
+    # get job result
+    with open(path_to_test_resource("batch-job-transcript.json"), "rb") as file:
+        transcript = file.read()
+    httpx_mock.add_response(content=transcript)
+
+    settings = ConnectionSettings(
+        url="https://speechmatics.com/foo/v2",
+        auth_token="bar",
+    )
+
+    conf = BatchTranscriptionConfig(
+        language="en",
+    )
+
+    with BatchClient(settings) as batch_client:
+        job_id = batch_client.submit_job(
+            audio=("foo", b"some audio data"),
+            transcription_config=conf,
+        )
+
+        actual_transcript = batch_client.wait_for_completion(
+            job_id, transcription_format="txt"
+        )
+        assert transcript.decode("utf-8") == actual_transcript
 
 
 def deepcopy_state(obj):

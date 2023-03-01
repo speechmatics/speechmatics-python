@@ -168,6 +168,16 @@ A complete list of commands and flags can be found in the SDK docs at https://sp
    # $JOB_ID is from the submit command output
    $ speechmatics batch get-results --job-id $JOB_ID
     ```
+  
+- Submit a job with automatic language identification
+
+    ```shell
+   $ speechmatics batch transcribe --language auto --langid-langs en,es example_audio.wav
+    ```
+    If Speechmatics is not able to identify a language with high enough confidence,  the job will be rejected. This is to reduce the risk of transcribing incorrectly.
+   
+    `--langid-langs` is optional and specifies what language(s) you expect to be detected in the source files.
+
 
 - Submit a job with translation (translation output only available as JSON)
 
@@ -176,6 +186,9 @@ A complete list of commands and flags can be found in the SDK docs at https://sp
     ```
   `--translation-langs` is supported in asynchronous mode as well, and translation output can be retrieved using `get-results` with `--output-format json-v2` set.
   
+  When combining language identification with translation, we can't know if the identified language can be translated
+  to your translation targets. If the translation pair is not supported, the error will be recorded in the metadata of the transcript.
+
   ### Custom Transcription Config File
 - Instead of passing all the transcription options via the command line you can also pass a transcription config file.
   The config file is a JSON file that contains the transcription options.
