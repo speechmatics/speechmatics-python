@@ -1,17 +1,18 @@
 
 <!DOCTYPE html>
 
-<html lang="en">
+<html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
     <title>speechmatics.client &#8212; speechmatics-python  documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
-    <script src="_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="speechmatics.batch_client" href="batch_client.html" />
@@ -33,7 +34,7 @@
           <div class="body" role="main">
             
   <section id="module-speechmatics.client">
-<span id="speechmatics-client"></span><h1>speechmatics.client<a class="headerlink" href="#module-speechmatics.client" title="Permalink to this heading">¶</a></h1>
+<span id="speechmatics-client"></span><h1>speechmatics.client<a class="headerlink" href="#module-speechmatics.client" title="Permalink to this headline">¶</a></h1>
 <p>Wrapper library to interface with Real-time ASR v2 API.
 Based on <a class="reference external" href="http://asyncio.readthedocs.io/en/latest/producer_consumer.html">http://asyncio.readthedocs.io/en/latest/producer_consumer.html</a></p>
 <dl class="py class">
@@ -44,7 +45,7 @@ Based on <a class="reference external" href="http://asyncio.readthedocs.io/en/la
 and then add a set of handlers to it. Handlers respond to particular types
 of messages received from the server.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>connection_settings</strong> (<a class="reference internal" href="models.html#speechmatics.models.ConnectionSettings" title="speechmatics.models.ConnectionSettings"><em>speechmatics.models.ConnectionSettings</em></a>) – Settings for the WebSocket connection,
 including the URL of the server.</p>
 </dd>
@@ -66,7 +67,7 @@ messages received:</p>
 </pre></div>
 </div>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>event_name</strong> (<em>str</em>) – The name of the message for which a handler is
 being added. Refer to
@@ -76,7 +77,7 @@ of the possible message types.</p></li>
 given type is received.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dt class="field-even">Raises</dt>
 <dd class="field-even"><p><strong>ValueError</strong> – If the given event name is not valid.</p>
 </dd>
 </dl>
@@ -91,7 +92,7 @@ they may alter.
 If <cite>event_name</cite> is set to ‘all’ then the handler will be added for
 every event.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>event_name</strong> (<em>str</em>) – The name of the message for which a middleware is
 being added. Refer to the V2 API docs for a list of the possible
@@ -103,7 +104,7 @@ whether or not the message is binary data (which implies it is an
 AddAudio message).</p></li>
 </ul>
 </dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dt class="field-even">Raises</dt>
 <dd class="field-even"><p><strong>ValueError</strong> – If the given event name is not valid.</p>
 </dd>
 </dl>
@@ -126,14 +127,14 @@ This will run asynchronously. Most callers may prefer to use
 <a class="reference internal" href="#speechmatics.client.WebsocketClient.run_synchronously" title="speechmatics.client.WebsocketClient.run_synchronously"><code class="xref py py-meth docutils literal notranslate"><span class="pre">run_synchronously()</span></code></a> which will block until the session is
 finished.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>stream</strong> (<em>io.IOBase</em>) – File-like object which an audio stream can be read from.</p></li>
 <li><p><strong>transcription_config</strong> (<a class="reference internal" href="models.html#speechmatics.models.TranscriptionConfig" title="speechmatics.models.TranscriptionConfig"><em>speechmatics.models.TranscriptionConfig</em></a>) – Configuration for the transcription.</p></li>
 <li><p><strong>audio_settings</strong> (<a class="reference internal" href="models.html#speechmatics.models.AudioSettings" title="speechmatics.models.AudioSettings"><em>speechmatics.models.AudioSettings</em></a>) – Configuration for the audio stream.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dt class="field-even">Raises</dt>
 <dd class="field-even"><p><strong>Exception</strong> – Can raise any exception returned by the
 consumer/producer tasks.</p>
 </dd>
@@ -162,7 +163,7 @@ You probably don’t need to call this if you’re running the client via
 <dd><p>Updates the transcription config used for the session.
 This results in a SetRecognitionConfig message sent to the server.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>new_transcription_config</strong> (<a class="reference internal" href="models.html#speechmatics.models.TranscriptionConfig" title="speechmatics.models.TranscriptionConfig"><em>speechmatics.models.TranscriptionConfig</em></a>) – The new config object.</p>
 </dd>
 </dl>
@@ -204,10 +205,7 @@ This results in a SetRecognitionConfig message sent to the server.</p>
 
 <h3>Navigation</h3>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">speechmatics.client</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#speechmatics.client.WebsocketClient"><code class="docutils literal notranslate"><span class="pre">WebsocketClient</span></code></a></li>
-</ul>
-</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">speechmatics.client</a></li>
 <li class="toctree-l1"><a class="reference internal" href="batch_client.html">speechmatics.batch_client</a></li>
 <li class="toctree-l1"><a class="reference internal" href="exceptions.html">speechmatics.exceptions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="helpers.html">speechmatics.helpers</a></li>
@@ -234,7 +232,7 @@ This results in a SetRecognitionConfig message sent to the server.</p>
     </form>
     </div>
 </div>
-<script>document.getElementById('searchbox').style.display = "block"</script>
+<script>$('#searchbox').show(0);</script>
 
 
 
@@ -251,7 +249,7 @@ This results in a SetRecognitionConfig message sent to the server.</p>
       &copy;2022, Cantab Research Ltd..
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 6.1.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.4.0</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
       
       |
