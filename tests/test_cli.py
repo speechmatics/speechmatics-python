@@ -865,25 +865,6 @@ def test_cli_argparse_config(args, values):
         assert actual_values[key] == val
 
 
-def test_config_set_toml():
-    args = {
-        "command": "set",
-        "auth_token": "faketoken",
-    }
-    try:
-        cli.config_main(args)
-    except Exception:  # pylint: disable=broad-except
-        assert False
-    home_dir = os.path.expanduser("~")
-    cli_config = {"default": {}}
-    with open(f"{home_dir}/.speechmatics/config", "r", encoding="UTF-8") as file:
-        cli_config = toml.load(file)
-
-    del args["command"]
-    for (key, val) in args.items():
-        assert cli_config["default"][key] == val
-
-
 @pytest.mark.parametrize(
     "args",
     (
@@ -897,6 +878,7 @@ def test_config_set_toml():
         {
             "generate_temp_token": True,
         },
+        {"generate_temp_token": True, "auth_token": "faketoken", "profile": "test"},
     ),
 )
 def test_config_set_and_remove_toml(args):
@@ -907,14 +889,15 @@ def test_config_set_and_remove_toml(args):
     except Exception:  # pylint: disable=broad-except
         assert False
     home_dir = os.path.expanduser("~")
-    cli_config = {"default": {}}
+    cli_config = {}
     with open(f"{home_dir}/.speechmatics/config", "r", encoding="UTF-8") as file:
         cli_config = toml.load(file)
-
+    profile = args.get("profile", "default")
     for (key, val) in args.items():
-        assert cli_config["default"][key] == val
+        if key != "profile":
+            assert cli_config[profile][key] == val
 
-    unset_args = {"command": "unset"}
+    unset_args = {"command": "unset", "profile": profile}
     for key in ["auth_token", "generate_temp_token"]:
         if key in args:
             unset_args[key] = True
@@ -926,12 +909,12 @@ def test_config_set_and_remove_toml(args):
     except Exception:  # pylint: disable=broad-except
         assert False
     home_dir = os.path.expanduser("~")
-    cli_config = {"default": {}}
     with open(f"{home_dir}/.speechmatics/config", "r", encoding="UTF-8") as file:
         cli_config = toml.load(file)
 
     for (key, val) in args.items():
-        assert key not in cli_config["default"]
+        if key != "profile":
+            assert key not in cli_config[profile]
 
 
 def test_default_urls_connection_config():

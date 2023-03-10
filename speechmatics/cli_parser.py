@@ -132,6 +132,15 @@ def get_arg_parser():
             "Enterprise customers should set this to False."
         ),
     )
+    connection_parser.add_argument(
+        "--profile",
+        default="default",
+        type=str,
+        help=(
+            "Determines the local config toml profile to use."
+            "Profiles can be used to maintain multiple different user accounts and setups locally."
+        ),
+    )
 
     # Parent parser for shared params related to building a job config
     config_parser = argparse.ArgumentParser(add_help=False)
@@ -468,6 +477,13 @@ def get_arg_parser():
         help="Sets generate_temp_token to true in the config file."
         "This will set the --generate-temp-token to true globally wherever it is a valid command line flag.",
     )
+    cli_set_config_parser.add_argument(
+        "--profile",
+        type=str,
+        default="default",
+        help="Specifies the profile to set the config for."
+        "Profiles can be used to maintain multiple different sets of config locally.",
+    )
     cli_set_config_parser = cli_config_subparsers.add_parser(
         "unset", help="Remove specified config values from the CLI config file."
     )
@@ -480,6 +496,13 @@ def get_arg_parser():
         "--generate-temp-token",
         action="store_true",
         help="If flag is set, removes the generate temp token value from the config file.",
+    )
+    cli_set_config_parser.add_argument(
+        "--profile",
+        type=str,
+        default="default",
+        help="Specifies the profile to unset the config for."
+        "Profiles can be used to maintain multiple different sets of config locally.",
     )
     return parser
 

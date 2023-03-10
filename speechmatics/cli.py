@@ -149,10 +149,15 @@ def get_connection_settings(args, lang="en"):
             f"{home_directory}/.speechmatics/config", "r", encoding="UTF-8"
         ) as file:
             cli_config = toml.load(file)
-        if cli_config["default"].get("auth_token") is not None and auth_token is None:
-            auth_token = cli_config["default"].get("auth_token", None)
-        if generate_temp_token is None:
-            generate_temp_token = cli_config["default"].get("generate_temp_token")
+        profile = args.get("profile", "default")
+        if profile not in cli_config:
+            raise SystemExit(
+                f"Cannot unset config for profile {profile}. Profile does not exist."
+            )
+        if "auth_token" in cli_config[profile] and auth_token is None:
+            auth_token = cli_config[profile].get("auth_token")
+        if "generate_temp_token" in cli_config[profile]:
+            generate_temp_token = cli_config[profile].get("generate_temp_token")
 
     url = args.get("url", None)
     if url is None:
@@ -633,10 +638,13 @@ def config_main(args):
         else:
             os.makedirs(f"{home_directory}/.speechmatics")
 
-        if args.get("auth_token"):
-            cli_config["default"]["auth_token"] = args.get("auth_token")
+        profile = args.get("profile", "default")
+        if profile not in cli_config:
+            cli_config[profile] = {}
+        if "auth_token" in args:
+            cli_config[profile]["auth_token"] = args.get("auth_token")
         if args.get("generate_temp_token"):
-            cli_config["default"]["generate_temp_token"] = True
+            cli_config[profile]["generate_temp_token"] = True
 
         with open(
             f"{home_directory}/.speechmatics/config", "w", encoding="UTF-8"
@@ -654,13 +662,18 @@ def config_main(args):
                     toml_string = file.read()
                     cli_config = toml.loads(toml_string)
 
-                if args.get("auth_token") and cli_config["default"].get("auth_token"):
-                    cli_config["default"].pop("auth_token")
+                profile = args.get("profile", "default")
+                if profile not in cli_config:
+                    raise SystemExit(
+                        f"Cannot unset config for profile {profile}. Profile does not exist."
+                    )
+                if "auth_token" in cli_config[profile] and args.get("auth_token"):
+                    cli_config[profile].pop("auth_token")
                 if (
                     args.get("generate_temp_token")
-                    and cli_config["default"].get("generate_temp_token") is not None
+                    and "generate_temp_token" in cli_config[profile]
                 ):
-                    cli_config["default"].pop("generate_temp_token")
+                    cli_config[profile].pop("generate_temp_token")
 
                 with open(
                     f"{home_directory}/.speechmatics/config", "w", encoding="UTF-8"
