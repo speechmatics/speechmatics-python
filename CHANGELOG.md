@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add support for multiple profiles to the CLI tool
+
 ## [1.7.0] - 2023-03-01
 
 ### Added
@@ -46,7 +50,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add support for translation (DEL-9547)
+- Add support for translation
 
 ### Changed
 
