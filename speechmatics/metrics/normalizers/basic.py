@@ -3,13 +3,25 @@ import unicodedata
 import regex
 
 
+def remove_symbols(s: str):
+    """
+    Replace any other markers, symbols, punctuations with a space, keeping diacritics
+
+    Args:
+        s (str): raw input transcript
+
+    Returns:
+        s (str): same string which has been modified inplace
+    """
+    return "".join(
+        " " if unicodedata.category(c)[0] in "MSP" else c
+        for c in unicodedata.normalize("NFKC", s)
+    )
+
+
 class BasicTextNormalizer:
     def __init__(self, remove_diacritics: bool = False, split_letters: bool = False):
-        self.clean = (
-            self.remove_symbols_and_diacritics
-            if remove_diacritics
-            else self.remove_symbols
-        )
+        self.remove_diacritics = remove_diacritics
         self.split_letters = split_letters
 
         # non-ASCII letters that are not separated by "NFKD" normalization
@@ -50,20 +62,11 @@ class BasicTextNormalizer:
             for c in unicodedata.normalize("NFKD", s)
         )
 
-    def remove_symbols(self, s: str):
-        """
-        Replace any other markers, symbols, punctuations with a space, keeping diacritics
-
-        Args:
-            s (str): raw input transcript
-
-        Returns:
-            s (str): same string which has been modified inplace
-        """
-        return "".join(
-            " " if unicodedata.category(c)[0] in "MSP" else c
-            for c in unicodedata.normalize("NFKC", s)
-        )
+    def clean(self, s: str):
+        "Return a string without symbols and optionally without diacritics, given input string"
+        if self.remove_diacritics is True:
+            return self.remove_symbols_and_diacritics(s)
+        return remove_symbols(s)
 
     def __call__(self, s: str) -> str:
         """
@@ -84,7 +87,7 @@ class BasicTextNormalizer:
 
         # insert a single space between characters in a string
         if self.split_letters:
-            s = " ".join(regex.findall(r"\X", s, regex.U))
+            s = " ".join(regex.findall(r"\X", s, re.UNICODE))
 
         s = re.sub(r"\s+", " ", s)
 
