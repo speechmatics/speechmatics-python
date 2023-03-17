@@ -6,7 +6,7 @@ from typing import Iterator, List, Match, Optional, Union
 
 from more_itertools import windowed
 
-from .basic import remove_symbols_and_diacritics
+from .basic import BasicTextNormalizer
 
 
 class EnglishNumberNormalizer:
@@ -190,13 +190,14 @@ class EnglishNumberNormalizer:
                 skip = False
                 continue
 
+            assert isinstance(current, str)
             next_is_numeric = next is not None and re.match(r"^\d+(\.\d+)?$", next)
             has_prefix = current[0] in self.prefixes
             current_without_prefix = current[1:] if has_prefix else current
             if re.match(r"^\d+(\.\d+)?$", current_without_prefix):
                 # arabic numbers (potentially with signs and fractions)
-                f = to_fraction(current_without_prefix)
-                assert f is not None
+                frac = to_fraction(current_without_prefix)
+                assert frac is not None
                 if value is not None:
                     if isinstance(value, str) and value.endswith("."):
                         # concatenate decimals / ip address components
@@ -206,8 +207,8 @@ class EnglishNumberNormalizer:
                         yield output(value)
 
                 prefix = current[0] if has_prefix else prefix
-                if f.denominator == 1:
-                    value = f.numerator  # store integers as int
+                if frac.denominator == 1:
+                    value = frac.numerator  # store integers as int
                 else:
                     value = current_without_prefix
             elif current not in self.words:
@@ -223,9 +224,9 @@ class EnglishNumberNormalizer:
                 if value is None:
                     value = ones
                 elif isinstance(value, str) or prev in self.ones:
-                    if (
-                        prev in self.tens and ones < 10
-                    ):  # replace the last zero with the digit
+                    # replace the last zero with the digit
+                    if prev in self.tens and ones < 10:
+                        assert isinstance(value, str)
                         assert value[-1] == "0"
                         value = value[:-1] + str(ones)
                     else:
@@ -290,9 +291,9 @@ class EnglishNumberNormalizer:
                 if value is None:
                     value = multiplier
                 elif isinstance(value, str) or value == 0:
-                    f = to_fraction(value)
-                    p = f * multiplier if f is not None else None
-                    if f is not None and p.denominator == 1:
+                    frac = to_fraction(value)
+                    p = frac * multiplier if frac is not None else None
+                    if frac is not None and p.denominator == 1:
                         value = p.numerator
                     else:
                         yield output(value)
@@ -306,9 +307,9 @@ class EnglishNumberNormalizer:
                 if value is None:
                     yield output(str(multiplier) + suffix)
                 elif isinstance(value, str):
-                    f = to_fraction(value)
-                    p = f * multiplier if f is not None else None
-                    if f is not None and p.denominator == 1:
+                    frac = to_fraction(value)
+                    p = frac * multiplier if frac is not None else None
+                    if frac is not None and p.denominator == 1:
                         yield output(str(p.numerator) + suffix)
                     else:
                         yield output(value)
@@ -463,14 +464,15 @@ class EnglishSpellingNormalizer:
 
     def __init__(self):
         mapping_path = os.path.join(os.path.dirname(__file__), "english.json")
-        self.mapping = json.load(open(mapping_path))
+        self.mapping = json.load(open(mapping_path, "r", encoding="utf-8"))
 
     def __call__(self, s: str):
         return " ".join(self.mapping.get(word, word) for word in s.split())
 
 
-class EnglishTextNormalizer:
+class EnglishTextNormalizer(BasicTextNormalizer):
     def __init__(self):
+        super().__init__()
         # hesitations to be removed
         self.ignore_patterns = r"\b(hmm|mm|mhm|mmm|uh|um)\b"
         self.replacers = {
@@ -551,7 +553,7 @@ class EnglishTextNormalizer:
         s = re.sub(r"\.([^0-9]|$)", r" \1", s)
 
         # keep some symbols for numerics
-        s = remove_symbols_and_diacritics(s, keep=".%$¢€£")
+        s = self.remove_symbols_and_diacritics(s, keep=".%$¢€£")
 
         s = self.standardize_numbers(s)
         s = self.standardize_spellings(s)
