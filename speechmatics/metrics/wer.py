@@ -300,12 +300,18 @@ def main():
         if args["show_errors"] is True:
             differ.print_errors_by_type()
 
-        for metric in ["file name", "wer", "cer", "reference length", "substitutions", "deletions", "insertions"]:
+        for metric in [
+            "file name",
+            "wer",
+            "cer",
+            "reference length",
+            "substitutions",
+            "deletions",
+            "insertions",
+        ]:
             res = stats.get(metric)
             if res is not None:
                 print(f"{metric}: {res}")
-
-
 
         results.append(stats)
 
