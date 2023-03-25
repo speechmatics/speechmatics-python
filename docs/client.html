@@ -4,7 +4,8 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>speechmatics.client &#8212; speechmatics-python  documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
@@ -19,6 +20,7 @@
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
+  
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head><body>
@@ -27,15 +29,17 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
+          
+
           <div class="body" role="main">
             
-  <div class="section" id="module-speechmatics.client">
+  <section id="module-speechmatics.client">
 <span id="speechmatics-client"></span><h1>speechmatics.client<a class="headerlink" href="#module-speechmatics.client" title="Permalink to this headline">¶</a></h1>
 <p>Wrapper library to interface with Real-time ASR v2 API.
 Based on <a class="reference external" href="http://asyncio.readthedocs.io/en/latest/producer_consumer.html">http://asyncio.readthedocs.io/en/latest/producer_consumer.html</a></p>
 <dl class="py class">
 <dt class="sig sig-object py" id="speechmatics.client.WebsocketClient">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">speechmatics.client.</span></span><span class="sig-name descname"><span class="pre">WebsocketClient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">connection_settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/speechmatics/client.html#WebsocketClient"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#speechmatics.client.WebsocketClient" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">speechmatics.client.</span></span><span class="sig-name descname"><span class="pre">WebsocketClient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">connection_settings_or_auth_token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="models.html#speechmatics.models.ConnectionSettings" title="speechmatics.models.ConnectionSettings"><span class="pre">speechmatics.models.ConnectionSettings</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/speechmatics/client.html#WebsocketClient"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#speechmatics.client.WebsocketClient" title="Permalink to this definition">¶</a></dt>
 <dd><p>Manage a transcription session with the server.</p>
 <p>The best way to interact with this library is to instantiate this client
 and then add a set of handlers to it. Handlers respond to particular types
@@ -117,7 +121,7 @@ message has not been received yet.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="speechmatics.client.WebsocketClient.run">
-<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stream</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transcription_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">audio_settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/speechmatics/client.html#WebsocketClient.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#speechmatics.client.WebsocketClient.run" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stream</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transcription_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="models.html#speechmatics.models.TranscriptionConfig" title="speechmatics.models.TranscriptionConfig"><span class="pre">speechmatics.models.TranscriptionConfig</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">audio_settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">AudioSettings(encoding=None,</span> <span class="pre">sample_rate=44100,</span> <span class="pre">chunk_size=4096)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">from_cli</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/speechmatics/client.html#WebsocketClient.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#speechmatics.client.WebsocketClient.run" title="Permalink to this definition">¶</a></dt>
 <dd><p>Begin a new recognition session.
 This will run asynchronously. Most callers may prefer to use
 <a class="reference internal" href="#speechmatics.client.WebsocketClient.run_synchronously" title="speechmatics.client.WebsocketClient.run_synchronously"><code class="xref py py-meth docutils literal notranslate"><span class="pre">run_synchronously()</span></code></a> which will block until the session is
@@ -128,6 +132,7 @@ finished.</p>
 <li><p><strong>stream</strong> (<em>io.IOBase</em>) – File-like object which an audio stream can be read from.</p></li>
 <li><p><strong>transcription_config</strong> (<a class="reference internal" href="models.html#speechmatics.models.TranscriptionConfig" title="speechmatics.models.TranscriptionConfig"><em>speechmatics.models.TranscriptionConfig</em></a>) – Configuration for the transcription.</p></li>
 <li><p><strong>audio_settings</strong> (<a class="reference internal" href="models.html#speechmatics.models.AudioSettings" title="speechmatics.models.AudioSettings"><em>speechmatics.models.AudioSettings</em></a>) – Configuration for the audio stream.</p></li>
+<li><p><strong>from_cli</strong> (<em>bool</em>) – Indicates whether the caller is the command-line interface or not.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises</dt>
@@ -167,10 +172,11 @@ This results in a SetRecognitionConfig message sent to the server.</p>
 
 </dd></dl>
 
-</div>
+</section>
 
 
           </div>
+          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -228,6 +234,14 @@ This results in a SetRecognitionConfig message sent to the server.</p>
     </div>
 </div>
 <script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
         </div>
       </div>
       <div class="clearer"></div>
@@ -237,7 +251,7 @@ This results in a SetRecognitionConfig message sent to the server.</p>
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 4.4.0</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
       
       |
       <a href="_sources/client.rst.txt"

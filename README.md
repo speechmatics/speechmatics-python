@@ -1,4 +1,4 @@
-# speechmatics-python &ensp; ![Tests](https://github.com/speechmatics/speechmatics-python/workflows/Tests/badge.svg) [![License](https://img.shields.io/badge/license-MIT-yellow.svg)](https://github.com/speechmatics/speechmatics-python/blob/master/LICENSE.txt)
+# speechmatics-python &ensp; ![Tests](https://github.com/speechmatics/speechmatics-python/workflows/Tests/badge.svg) [![License](https://img.shields.io/badge/license-MIT-yellow.svg)](https://github.com/speechmatics/speechmatics-python/blob/master/LICENSE.txt) ![PythonSupport](https://img.shields.io/badge/Python-3.7%2B-green)
 
 Python client library and CLI for Speechmatics Realtime and Batch ASR v2 APIs.
 
@@ -6,27 +6,92 @@ Python client library and CLI for Speechmatics Realtime and Batch ASR v2 APIs.
 ## Getting started
 
 To install from PyPI:
-
-    $ pip install speechmatics-python
-
+```bash
+pip install speechmatics-python
+```
 To install from source:
-
-    $ git clone https://github.com/speechmatics/speechmatics-python
-    $ cd speechmatics-python && python setup.py install
-
+```bash
+git clone https://github.com/speechmatics/speechmatics-python
+cd speechmatics-python && python setup.py install
+```
 Windows users may need to run the install command with an extra flag:
-
-    $ python setup.py install --user
-
-### Requirements
-
-- Python 3.7+
+```bash
+python setup.py install --user
+```
 
 ## Docs
 
 The speechmatics python SDK and CLI is documented at https://speechmatics.github.io/speechmatics-python/.
 
 The Speechmatics API and product documentation can be found at https://docs.speechmatics.com.
+
+## Real-Time Client Usage
+```python
+from speechmatics.models import *
+import speechmatics
+
+# Change to your own file
+PATH_TO_FILE = "tests/data/ch.wav"
+LANGUAGE = "en"
+
+# Generate an API key at https://portal.speechmatics.com/manage-access/
+API_KEY = ""
+
+# Create a transcription client from config defaults
+sm_client = speechmatics.client.WebsocketClient(API_KEY)
+
+sm_client.add_event_handler(
+    event_name=ServerMessageType.AddPartialTranscript,
+    event_handler=print,
+)
+
+sm_client.add_event_handler(
+    event_name=ServerMessageType.AddTranscript,
+    event_handler=print,
+)
+
+conf = TranscriptionConfig(
+    language=LANGUAGE, enable_partials=True, max_delay=5, enable_entities=True,
+)
+
+print("Starting transcription (type Ctrl-C to stop):")
+with open(PATH_TO_FILE, "rb") as fd:
+    try:
+        sm_client.run_synchronously(fd, conf)
+    except KeyboardInterrupt:
+        print("\nTranscription stopped.")
+  
+```
+
+## Batch Client Usage
+```python
+from speechmatics.models import ConnectionSettings, BatchTranscriptionConfig
+from speechmatics.batch_client import BatchClient
+from httpx import HTTPStatusError
+
+API_KEY = "YOUR_API_KEY"
+PATH_TO_FILE = "example.wav"
+LANGUAGE = "en"
+
+# Open the client using a context manager
+with BatchClient(API_KEY) as client:
+    try:
+        job_id = client.submit_job(PATH_TO_FILE, BatchTranscriptionConfig(LANGUAGE))
+        print(f'job {job_id} submitted successfully, waiting for transcript')
+
+        # Note that in production, you should set up notifications instead of polling.
+        # Notifications are described here: https://docs.speechmatics.com/features-other/notifications
+        transcript = client.wait_for_completion(job_id, transcription_format='txt')
+        # To see the full output, try setting transcription_format='json-v2'.
+        print(transcript)
+    except HTTPStatusError as e:
+        if e.response.status_code == 401:
+            print('Invalid API key - Check your API_KEY at the top of the code!')
+        elif e.response.status_code == 400:
+            print(e.response.json()['detail'])
+        else:
+            raise e
+```
 
 ## Example command-line usage
 
@@ -35,76 +100,92 @@ A complete list of commands and flags can be found in the SDK docs at https://sp
   ### Configuring Auth Tokens
 - Setting an auth token for CLI authentication:
    ```shell
-   $ speechmatics config set --auth-token $AUTH_TOKEN
+   speechmatics config set --auth-token $AUTH_TOKEN
    ```
   Auth tokens are stored in toml config at HOME_DIR/.speechmatics/config.
   You may also set the auth_token for each CLI command using the --auth-token flag.
   The --auth-token flag overrides the value stored in the config file, e.g.
    ```shell
-   $ speechmatics transcribe --auth-token $AUTH_TOKEN --generate-temp-token example_audio.wav
+   speechmatics transcribe --auth-token $AUTH_TOKEN --generate-temp-token example_audio.wav
    ```
 
 - Removing an auth_token from the toml file:
    ```shell
-   $ speechmatics config unset --auth-token
+   speechmatics config unset --auth-token
    ```
 
 - Setting --generate-temp-token flag globally for CLI authentication:
    ```shell
-   $ speechmatics config set --generate-temp-token
+   speechmatics config set --generate-temp-token
    ```
 
 - Unsetting generate temp token globally for CLI authentication:
    ```shell
-   $ speechmatics config unset --generate-temp-token
+   speechmatics config unset --generate-temp-token
    ```
 
 - Setting URLs for connecting to transcribers. These values can be used in places of the --url flag:
    ```shell
-   $ speechmatics config set --rt-url wss://eu2.rt.speechmatics.com/v2 --batch-url https://asr.api.speechmatics.com/v2
+   speechmatics config set --rt-url wss://eu2.rt.speechmatics.com/v2 --batch-url https://asr.api.speechmatics.com/v2
    ```
 
 - Unsetting transcriber URLs in the toml config:
    ```shell
-   $ speechmatics config unset --rt-url --batch-url
+   speechmatics config unset --rt-url --batch-url
+   ```
+
+- Setting URLs for connecting to transcribers. These values can be used in places of the --url flag:
+   ```shell
+   speechmatics config set --rt-url wss://eu2.rt.speechmatics.com/v2 --batch-url https://asr.api.speechmatics.com/v2
+   ```
+
+- Unsetting transcriber URLs in the toml config:
+   ```shell
+   speechmatics config unset --rt-url --batch-url
    ```
 
   ### Realtime ASR
 - Starting a real-time session for self-service SaaS customers using a .wav file as the input audio:
 
    ```shell
-   $ speechmatics transcribe --lang en --generate-temp-token example_audio.wav
+   speechmatics transcribe --lang en --generate-temp-token example_audio.wav
    ```
+
+- Real-time transcription of online stream (needs ffmpeg installed):
+  ```shell
+  ffmpeg -v 0 -i https://cdn.bitmovin.com/content/assets/art-of-motion-dash-hls-progressive/mpds/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.mpd \
+  -f s16le -ar 44100 -ac 1 -acodec pcm_s16le - | \
+  speechmatics transcribe --raw pcm_s16le --sample-rate 44100 --generate-temp-token -
 
 - Starting a real-time session for enterprise SaaS customers using a .wav file as the input audio:
 
    ```shell
    # Point URL to the a SaaS enterprise runtime
-   $ URL=wss://neu.rt.speechmatics.com/v2/en
+   URL=wss://neu.rt.speechmatics.com/v2/en
 
-   $ speechmatics transcribe --url $URL example_audio.wav
+   speechmatics transcribe --url $URL example_audio.wav
    ```
 
 - Starting a real-time session for on-prem customers using a .wav file as the input audio:
 
    ```shell
    # Point URL to the local instance of the realtime appliance
-   $ URL=ws://realtimeappliance.yourcompany:9000/v2
+   URL=ws://realtimeappliance.yourcompany:9000/v2
 
-   $ speechmatics transcribe --url $URL --lang en --ssl-mode none example_audio.wav
+   speechmatics transcribe --url $URL --lang en --ssl-mode none example_audio.wav
    ```
 
 - Show the messages that are going over the websocket connection using verbose output:
 
    ```shell
-   $ speechmatics -v transcribe --url $URL --ssl-mode none example_audio.wav
+   speechmatics -v transcribe --url $URL --ssl-mode none example_audio.wav
    ```
 
 - The CLI also accepts an audio stream on standard input.
   Transcribe the piped input audio:
 
    ```shell
-   $ cat example_audio.wav | speechmatics transcribe --url $URL --ssl-mode none -
+   cat example_audio.wav | speechmatics transcribe --url $URL --ssl-mode none -
    ```
 
 - Pipe audio directly from the microphone (example uses MacOS with [ffmpeg](https://ffmpeg.org/ffmpeg-devices.html#avfoundation))
@@ -112,7 +193,7 @@ A complete list of commands and flags can be found in the SDK docs at https://sp
   List available input devices:
 
   ```shell
-  $ ffmpeg -f avfoundation -list_devices true -i ""
+  ffmpeg -f avfoundation -list_devices true -i ""
   ```
 
   There needs to be at least one available microphone attached to your computer.
@@ -121,7 +202,7 @@ A complete list of commands and flags can be found in the SDK docs at https://sp
   You may also need to replace `:default` with something like `:0` or `:1` if you want to use a specific microphone.
 
   ```shell
-  $ ffmpeg -loglevel quiet -f avfoundation -i ":default" -f f32le -acodec pcm_f32le -ar 44100 - \
+  ffmpeg -loglevel quiet -f avfoundation -i ":default" -f f32le -acodec pcm_f32le -ar 44100 - \
   >   | speechmatics transcribe --url $URL --ssl-mode none --raw pcm_f32le --sample-rate 44100 -
   ```
 
@@ -131,13 +212,13 @@ A complete list of commands and flags can be found in the SDK docs at https://sp
   List available input devices:
 
   ```shell
-  $ cat /proc/asound/cards
+  cat /proc/asound/cards
   ```
 
   Record microphone audio and pipe to transcriber:
 
   ```shell
-  $ ffmpeg -loglevel quiet -f alsa -i hw:0 -f f32le -acodec pcm_f32le -ar 44100 - \
+  ffmpeg -loglevel quiet -f alsa -i hw:0 -f f32le -acodec pcm_f32le -ar 44100 - \
       | speechmatics transcribe --url $URL --ssl-mode none --enable-partials --raw pcm_f32le --sample-rate 44100 -
   ```
 
@@ -147,42 +228,42 @@ A complete list of commands and flags can be found in the SDK docs at https://sp
 - Submit a .wav file for batch ASR processing
 
    ```shell
-   $ speechmatics batch transcribe --lang en example_audio.wav
+   speechmatics batch transcribe --lang en example_audio.wav
    ```
 
 - Files may be submitted for asynchronous processing
 
     ```shell
-   $ speechmatics batch submit example_audio.wav
+   speechmatics batch submit example_audio.wav
     ```
 
 - Enterprise SaaS and on-prem customers can point to a custom runtime:
 
    ```shell
    # Point URL to a custom runtime (in this case, the trial runtime)
-   $ URL=https://trial.asr.api.speechmatics.com/v2/
+   URL=https://trial.asr.api.speechmatics.com/v2/
 
-   $ speechmatics batch transcribe --url $URL example_audio.wav
+   speechmatics batch transcribe --url $URL example_audio.wav
    ```
 
 - Check processing status of a job
 
     ```shell
    # $JOB_ID is from the submit command output
-   $ speechmatics batch job-status --job-id $JOB_ID
+   speechmatics batch job-status --job-id $JOB_ID
     ```
 
 - Retrieve completed transcription
 
     ```shell
    # $JOB_ID is from the submit command output
-   $ speechmatics batch get-results --job-id $JOB_ID
+   speechmatics batch get-results --job-id $JOB_ID
     ```
   
 - Submit a job with automatic language identification
 
     ```shell
-   $ speechmatics batch transcribe --language auto --langid-langs en,es example_audio.wav
+   speechmatics batch transcribe --language auto --langid-langs en,es example_audio.wav
     ```
     If Speechmatics is not able to identify a language with high enough confidence,  the job will be rejected. This is to reduce the risk of transcribing incorrectly.
    
@@ -195,7 +276,7 @@ A complete list of commands and flags can be found in the SDK docs at https://sp
   The config file can be passed to the CLI using the `--config-file` option.
 
     ```shell
-  $ speechmatics transcribe --config-file transcription_config.json example_audio.wav
+  speechmatics transcribe --config-file transcription_config.json example_audio.wav
     ```
 - The format of this JSON file is described in detail in the 
   [Batch API documentation](https://docs.speechmatics.com/jobsapi#tag/TranscriptionConfig)
@@ -206,8 +287,8 @@ A complete list of commands and flags can be found in the SDK docs at https://sp
 
 To install development dependencies and run tests
 
-    $ pip install -r requirements-dev.txt
-    $ make test
+    pip install -r requirements-dev.txt
+    make test
 
 
 ## Support

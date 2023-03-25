@@ -9,41 +9,33 @@ import logging
 import os
 import ssl
 import sys
-from socket import gaierror
-
 from dataclasses import dataclass
+from socket import gaierror
 from typing import List
 
-import toml
 import httpx
+import toml
 from websockets.exceptions import WebSocketException
 
 import speechmatics.adapters
-from speechmatics.helpers import _process_status_errors
-from speechmatics.client import WebsocketClient
 from speechmatics.batch_client import BatchClient
-from speechmatics.exceptions import (
-    TranscriptionError,
-    JobNotFoundException,
-)
+from speechmatics.cli_parser import parse_args
+from speechmatics.client import WebsocketClient
+from speechmatics.config import read_config_from_home
+from speechmatics.constants import BATCH_SELF_SERVICE_URL, RT_SELF_SERVICE_URL
+from speechmatics.exceptions import JobNotFoundException, TranscriptionError
+from speechmatics.helpers import _process_status_errors
 from speechmatics.models import (
-    TranscriptionConfig,
     AudioSettings,
-    ClientMessageType,
-    ServerMessageType,
-    ConnectionSettings,
-    BatchTranscriptionConfig,
+    BatchLanguageIdentificationConfig,
     BatchSpeakerDiarizationConfig,
+    BatchTranscriptionConfig,
+    ClientMessageType,
+    ConnectionSettings,
     RTSpeakerDiarizationConfig,
     RTTranslationConfig,
-    BatchLanguageIdentificationConfig,
-)
-from speechmatics.cli_parser import (
-    parse_args,
-)
-from speechmatics.constants import (
-    BATCH_SELF_SERVICE_URL,
-    RT_SELF_SERVICE_URL,
+    ServerMessageType,
+    TranscriptionConfig,
 )
 
 LOGGER = logging.getLogger(__name__)
@@ -143,34 +135,20 @@ def get_connection_settings(args, lang="en"):
     generate_temp_token = args.get("generate_temp_token")
     url = args.get("url")
 
-    home_directory = os.path.expanduser("~")
-    if os.path.exists(f"{home_directory}/.speechmatics/config"):
-        cli_config = {"default": {}}
-        with open(
-            f"{home_directory}/.speechmatics/config", "r", encoding="UTF-8"
-        ) as file:
-            cli_config = toml.load(file)
-        profile = args.get("profile", "default")
-        if profile not in cli_config:
-            raise SystemExit(
-                f"Cannot unset config for profile {profile}. Profile does not exist."
-            )
-        if "auth_token" in cli_config[profile] and auth_token is None:
-            auth_token = cli_config[profile].get("auth_token")
-        if "generate_temp_token" in cli_config[profile]:
-            generate_temp_token = cli_config[profile].get("generate_temp_token")
+    stored_config = read_config_from_home(args.get("profile", "default"))
+    if stored_config is not None:
+        if auth_token is None and stored_config.get("auth_token") is not None:
+            auth_token = stored_config["auth_token"]
         if (
-            url is None
-            and args.get("mode") == "batch"
-            and "batch_url" in cli_config[profile]
+            generate_temp_token is None
+            and stored_config.get("generate_temp_token") is not None
         ):
-            url = cli_config[profile].get("batch_url")
-        if (
-            url is None
-            and args.get("mode") == "rt"
-            and "realtime_url" in cli_config[profile]
-        ):
-            url = cli_config[profile].get("realtime_url")
+            generate_temp_token = stored_config["generate_temp_token"]
+
+        if url is None and args.get("mode") == "batch" and "batch_url" in stored_config:
+            url = stored_config.get("batch_url")
+        if url is None and args.get("mode") == "rt" and "realtime_url" in stored_config:
+            url = stored_config.get("realtime_url")
 
     if url is None:
         if args.get("mode") == "batch":

@@ -14,7 +14,7 @@ from polling2 import poll
 
 from speechmatics.exceptions import JobNotFoundException, TranscriptionError
 from speechmatics.helpers import get_version
-from speechmatics.models import BatchTranscriptionConfig, ConnectionSettings
+from speechmatics.models import BatchTranscriptionConfig, ConnectionSettings, UsageMode
 
 LOGGER = logging.getLogger(__name__)
 
@@ -59,9 +59,7 @@ class BatchClient:
 
     This client may be used directly but must be closed afterwards, e.g.::
 
-        settings = ConnectionSettings(url="https://{api}/v2",
-        auth_token="{token}")
-        client = BatchClient(settings)
+        client = BatchClient(auth_token)
         client.connect()
         list_of_jobs = client.list_jobs()
         client.close()
@@ -74,19 +72,34 @@ class BatchClient:
 
     """
 
-    def __init__(self, connection_settings: ConnectionSettings, from_cli=False):
-        """Constructor method.
-
-        :param connection_settings: Connection settings for API
-        :type connection_settings: speechmatics.models.ConnectionSettings.
+    def __init__(
+        self,
+        connection_settings_or_auth_token: Union[str, ConnectionSettings, None] = None,
+        from_cli=False,
+    ):
         """
-        if connection_settings.url[-1] == "/":
-            connection_settings.url = connection_settings.url[:-1]
+        Args:
+            connection_settings_or_auth_token (Union[str, ConnectionSettings, None], optional)
+                If `str`,, assumes auth_token passed and default URL being used
+                If `None`, attempts using auth_token from config.
+                Defaults to `None`
+            from_clie (bool)
+        """
+        if not isinstance(connection_settings_or_auth_token, ConnectionSettings):
+            self.connection_settings = ConnectionSettings.create(
+                UsageMode.Batch, connection_settings_or_auth_token
+            )
+        else:
+            self.connection_settings = connection_settings_or_auth_token
+            self.connection_settings.set_missing_values_from_config(UsageMode.Batch)
+        if self.connection_settings.url[-1] == "/":
+            self.connection_settings.url = self.connection_settings.url[:-1]
+        if not self.connection_settings.url.endswith("/v2"):
+            self.connection_settings.url = "/".join(
+                [self.connection_settings.url, "v2"]
+            )
 
-        if not connection_settings.url.endswith("/v2"):
-            connection_settings.url = "/".join([connection_settings.url, "v2"])
-
-        self.connection_settings = connection_settings
+        self.connection_settings = self.connection_settings
         self.transcription_config = None
 
         self.default_headers = {
