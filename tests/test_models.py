@@ -48,6 +48,30 @@ def test_batchtranscriptionconfig_json_simple():
     assert got == want
 
 
+def test_translationconfig_default_values():
+    config = models.RTTranslationConfig()
+    assert {"target_languages": None, "enable_partials": False} == config.asdict()
+
+
+@pytest.mark.parametrize(
+    "target_languages, enable_partials, want_config",
+    [
+        (["fr"], False, {"target_languages": ["fr"], "enable_partials": False}),
+        (["fr"], True, {"target_languages": ["fr"], "enable_partials": True}),
+        (
+            ["fr", "es"],
+            True,
+            {"target_languages": ["fr", "es"], "enable_partials": True},
+        ),
+    ],
+)
+def test_translationconfig(target_languages, enable_partials, want_config):
+    config = models.RTTranslationConfig(
+        target_languages=target_languages, enable_partials=enable_partials
+    )
+    assert want_config == config.asdict()
+
+
 @pytest.mark.parametrize(
     "url, want",
     [
