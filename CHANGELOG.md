@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.8.0]
+
+### Added
+
+- Added support for real-time translation
+- Added `--enable-translation-partials` to enable partials for translation only
+- Added `--enable-transcription-partials` to enable partials for transcription only
+
+### Changed
+
+- Updated `--enable-partials` to enable partials for both transcription and translation
+
 ### Added
 
 - Add support for multiple profiles to the CLI tool

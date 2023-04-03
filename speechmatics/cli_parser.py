@@ -277,8 +277,26 @@ def get_arg_parser():
         default=False,
         action="store_true",
         help=(
+            "Whether to return partials for both transcripts and translation which can be updated by later,"
+            "final transcripts."
+        ),
+    )
+    rt_transcribe_command_parser.add_argument(
+        "--enable-transcription-partials",
+        default=False,
+        action="store_true",
+        help=(
             "Whether to return partial transcripts which can be updated by later,"
             "final transcripts."
+        ),
+    )
+    rt_transcribe_command_parser.add_argument(
+        "--enable-translation-partials",
+        default=False,
+        action="store_true",
+        help=(
+            "Whether to return partial translation which can be updated by later,"
+            "final translation."
         ),
     )
     rt_transcribe_command_parser.add_argument(
