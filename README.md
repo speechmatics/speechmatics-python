@@ -179,24 +179,6 @@ A complete list of commands and flags can be found in the SDK docs at https://sp
     `--langid-langs` is optional and specifies what language(s) you expect to be detected in the source files.
 
 
-- Submit a job with translation (translation output only available as JSON)
-
-    ```shell
-   $ speechmatics batch transcribe --translation-langs de,es --output-format json-v2 example_audio.wav
-    ```
-  `--translation-langs` is supported in asynchronous mode as well, and translation output can be retrieved using `get-results` with `--output-format json-v2` set.
-  
-  When combining language identification with translation, we can't know if the identified language can be translated
-  to your translation targets. If the translation pair is not supported, the error will be recorded in the metadata of the transcript.
-
-- Start a real-time transcription with translation session using microphone audio and pipe to transcriber
-
-  ```shell
-  $ ffmpeg -loglevel quiet -f alsa -i hw:0 -f f32le -acodec pcm_f32le -ar 44100 - \
-      | speechmatics rt transcribe --url $URL --ssl-mode none --raw pcm_f32le --sample-rate 44100 \
-  --print-json --translation-langs fr -
-  ```
-
   ### Custom Transcription Config File
 - Instead of passing all the transcription options via the command line you can also pass a transcription config file.
   The config file is a JSON file that contains the transcription options.
