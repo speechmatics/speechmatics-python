@@ -191,7 +191,7 @@ The <cite>.as_config()</cite> method will return it wrapped into a Speechmatics 
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="speechmatics.models.BatchTranscriptionConfig.translation_config">
-<span class="sig-name descname"><span class="pre">translation_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#speechmatics.models.BatchTranslationConfig" title="speechmatics.models.BatchTranslationConfig"><span class="pre">speechmatics.models.BatchTranslationConfig</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#speechmatics.models.BatchTranscriptionConfig.translation_config" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">translation_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#speechmatics.models.TranslationConfig" title="speechmatics.models.TranslationConfig"><span class="pre">speechmatics.models.TranslationConfig</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#speechmatics.models.BatchTranscriptionConfig.translation_config" title="Permalink to this definition">¶</a></dt>
 <dd><p>Optional configuration for translation.</p>
 </dd></dl>
 
@@ -201,12 +201,6 @@ The <cite>.as_config()</cite> method will return it wrapped into a Speechmatics 
 <dt class="sig sig-object py" id="speechmatics.models.BatchTranslationConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">speechmatics.models.</span></span><span class="sig-name descname"><span class="pre">BatchTranslationConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_languages</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/speechmatics/models.html#BatchTranslationConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#speechmatics.models.BatchTranslationConfig" title="Permalink to this definition">¶</a></dt>
 <dd><p>Batch mode: Translation config.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="speechmatics.models.BatchTranslationConfig.target_languages">
-<span class="sig-name descname"><span class="pre">target_languages</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#speechmatics.models.BatchTranslationConfig.target_languages" title="Permalink to this definition">¶</a></dt>
-<dd><p>Target languages for which translation should be produced</p>
-</dd></dl>
-
 </dd></dl>
 
 <dl class="py class">
@@ -357,6 +351,19 @@ attachments.</p>
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="speechmatics.models.RTTranslationConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">speechmatics.models.</span></span><span class="sig-name descname"><span class="pre">RTTranslationConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_languages</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enable_partials</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/speechmatics/models.html#RTTranslationConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#speechmatics.models.RTTranslationConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>Real-time mode: Translation config.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="speechmatics.models.RTTranslationConfig.enable_partials">
+<span class="sig-name descname"><span class="pre">enable_partials</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#speechmatics.models.RTTranslationConfig.enable_partials" title="Permalink to this definition">¶</a></dt>
+<dd><p>Indicates if partial translation, where sentences are produced
+immediately, is enabled.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="speechmatics.models.SRTOverrides">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">speechmatics.models.</span></span><span class="sig-name descname"><span class="pre">SRTOverrides</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_line_length</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">37</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_lines</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/speechmatics/models.html#SRTOverrides"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#speechmatics.models.SRTOverrides" title="Permalink to this definition">¶</a></dt>
 <dd><p>Batch: Optional configuration for SRT output.</p>
@@ -386,9 +393,22 @@ is immediately produced and may change as more context becomes available.</p>
 </dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="speechmatics.models.ServerMessageType.AddPartialTranslation">
+<span class="sig-name descname"><span class="pre">AddPartialTranslation</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'AddPartialTranslation'</span></em><a class="headerlink" href="#speechmatics.models.ServerMessageType.AddPartialTranslation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Indicates a partial translation, which is an incomplete translation that
+is immediately produced and may change as more context becomes available.</p>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="speechmatics.models.ServerMessageType.AddTranscript">
 <span class="sig-name descname"><span class="pre">AddTranscript</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'AddTranscript'</span></em><a class="headerlink" href="#speechmatics.models.ServerMessageType.AddTranscript" title="Permalink to this definition">¶</a></dt>
 <dd><p>Indicates the final transcript of a part of the audio.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="speechmatics.models.ServerMessageType.AddTranslation">
+<span class="sig-name descname"><span class="pre">AddTranslation</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'AddTranslation'</span></em><a class="headerlink" href="#speechmatics.models.ServerMessageType.AddTranslation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Indicates the final translation of a part of the audio.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -436,11 +456,26 @@ acknowledging that a recognition session has started.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="speechmatics.models.TranscriptionConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">speechmatics.models.</span></span><span class="sig-name descname"><span class="pre">TranscriptionConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">language</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/speechmatics/models.html#TranscriptionConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#speechmatics.models.TranscriptionConfig" title="Permalink to this definition">¶</a></dt>
-<dd><p>Real-time: Defines transcription parameters.</p>
+<dd><p>Real-time: Defines transcription parameters.
+The <cite>.as_config()</cite> method removes translation_config and returns it wrapped into a Speechmatics json config.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="speechmatics.models.TranscriptionConfig.enable_partials">
 <span class="sig-name descname"><span class="pre">enable_partials</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#speechmatics.models.TranscriptionConfig.enable_partials" title="Permalink to this definition">¶</a></dt>
-<dd><p>Indicates if partial transcription, where words are produced
+<dd><p>Indicates if partials for both transcripts and translation, where words are produced
+immediately, is enabled.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="speechmatics.models.TranscriptionConfig.enable_transcription_partials">
+<span class="sig-name descname"><span class="pre">enable_transcription_partials</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#speechmatics.models.TranscriptionConfig.enable_transcription_partials" title="Permalink to this definition">¶</a></dt>
+<dd><p>Indicates if partial transcripts, where words are produced
+immediately, is enabled.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="speechmatics.models.TranscriptionConfig.enable_translation_partials">
+<span class="sig-name descname"><span class="pre">enable_translation_partials</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#speechmatics.models.TranscriptionConfig.enable_translation_partials" title="Permalink to this definition">¶</a></dt>
+<dd><p>Indicates if partial translation, where words are produced
 immediately, is enabled.</p>
 </dd></dl>
 
@@ -470,6 +505,24 @@ entity that would not be completed within that threshold.</p>
 <dt class="sig sig-object py" id="speechmatics.models.TranscriptionConfig.speaker_diarization_config">
 <span class="sig-name descname"><span class="pre">speaker_diarization_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#speechmatics.models.RTSpeakerDiarizationConfig" title="speechmatics.models.RTSpeakerDiarizationConfig"><span class="pre">speechmatics.models.RTSpeakerDiarizationConfig</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#speechmatics.models.TranscriptionConfig.speaker_diarization_config" title="Permalink to this definition">¶</a></dt>
 <dd><p>Configuration for speaker diarization.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="speechmatics.models.TranscriptionConfig.translation_config">
+<span class="sig-name descname"><span class="pre">translation_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#speechmatics.models.TranslationConfig" title="speechmatics.models.TranslationConfig"><span class="pre">speechmatics.models.TranslationConfig</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#speechmatics.models.TranscriptionConfig.translation_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optional configuration for translation.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="speechmatics.models.TranslationConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">speechmatics.models.</span></span><span class="sig-name descname"><span class="pre">TranslationConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_languages</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/speechmatics/models.html#TranslationConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#speechmatics.models.TranslationConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>Translation config.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="speechmatics.models.TranslationConfig.target_languages">
+<span class="sig-name descname"><span class="pre">target_languages</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#speechmatics.models.TranslationConfig.target_languages" title="Permalink to this definition">¶</a></dt>
+<dd><p>Target languages for which translation should be produced.</p>
 </dd></dl>
 
 </dd></dl>
@@ -553,7 +606,7 @@ entity that would not be completed within that threshold.</p>
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 4.4.0</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
       
       |
       <a href="_sources/models.rst.txt"
