@@ -702,6 +702,8 @@ def test_cli_argparse_config(args, values):
             "generate_temp_token": True,
         },
         {"generate_temp_token": True, "auth_token": "faketoken", "profile": "test"},
+        {"realtime_url": "wss://speechmatics.io"},
+        {"batch_url": "https://speechmatics.io"},
     ),
 )
 def test_config_set_and_remove_toml(args):
@@ -721,7 +723,7 @@ def test_config_set_and_remove_toml(args):
             assert cli_config[profile][key] == val
 
     unset_args = {"command": "unset", "profile": profile}
-    for key in ["auth_token", "generate_temp_token"]:
+    for key in ["auth_token", "generate_temp_token", "realtime_url", "batch_url"]:
         if key in args:
             unset_args[key] = True
         else:

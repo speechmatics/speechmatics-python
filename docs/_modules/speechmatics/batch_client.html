@@ -17,7 +17,6 @@
    
   <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
   
-  
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head><body>
@@ -26,8 +25,6 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          
-
           <div class="body" role="main">
             
   <h1>Source code for speechmatics.batch_client</h1><div class="highlight"><pre>
@@ -40,16 +37,16 @@
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">List</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">List</span>
 
 <span class="kn">import</span> <span class="nn">httpx</span>
-<span class="kn">from</span> <span class="nn">polling2</span> <span class="kn">import</span> <span class="n">poll</span>
+<span class="kn">from</span> <span class="nn">polling2</span> <span class="k">import</span> <span class="n">poll</span>
 
-<span class="kn">from</span> <span class="nn">speechmatics.exceptions</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span> <span class="nn">speechmatics.exceptions</span> <span class="k">import</span> <span class="p">(</span>
     <span class="n">TranscriptionError</span><span class="p">,</span>
     <span class="n">JobNotFoundException</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">speechmatics.models</span> <span class="kn">import</span> <span class="n">ConnectionSettings</span><span class="p">,</span> <span class="n">BatchTranscriptionConfig</span>
+<span class="kn">from</span> <span class="nn">speechmatics.models</span> <span class="k">import</span> <span class="n">ConnectionSettings</span><span class="p">,</span> <span class="n">BatchTranscriptionConfig</span>
 
 <span class="n">LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -62,7 +59,7 @@
 
 
 <div class="viewcode-block" id="BatchClient"><a class="viewcode-back" href="../../batch_client.html#speechmatics.batch_client.BatchClient">[docs]</a><span class="k">class</span> <span class="nc">BatchClient</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Client class for Speechmatics Batch ASR REST API.</span>
+    <span class="sd">&quot;&quot;&quot;Client class for Speechmatics Batch ASR REST API.</span>
 
 <span class="sd">    This client may be used directly but must be closed afterwards, e.g.::</span>
 
@@ -81,8 +78,8 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">connection_settings</span><span class="p">:</span> <span class="n">ConnectionSettings</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructor method.</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">connection_settings</span><span class="p">:</span> <span class="n">ConnectionSettings</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Constructor method.</span>
 
 <span class="sd">        :param connection_settings: Connection settings for API</span>
 <span class="sd">        :type connection_settings: speechmatics.models.ConnectionSettings.</span>
@@ -97,13 +94,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">transcription_config</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">default_headers</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;Authorization&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Bearer </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">connection_settings</span><span class="o">.</span><span class="n">auth_token</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Authorization&quot;</span><span class="p">:</span> <span class="n">f</span><span class="s2">&quot;Bearer </span><span class="si">{self.connection_settings.auth_token}</span><span class="s2">&quot;</span><span class="p">,</span>
             <span class="s2">&quot;Accept-Charset&quot;</span><span class="p">:</span> <span class="s2">&quot;utf-8&quot;</span><span class="p">,</span>
         <span class="p">}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">api_client</span> <span class="o">=</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="BatchClient.connect"><a class="viewcode-back" href="../../batch_client.html#speechmatics.batch_client.BatchClient.connect">[docs]</a>    <span class="k">def</span> <span class="nf">connect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a connection to a Speechmatics Transcription REST endpoint&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Create a connection to a Speechmatics Transcription REST endpoint&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">api_client</span> <span class="o">=</span> <span class="n">httpx</span><span class="o">.</span><span class="n">Client</span><span class="p">(</span>
             <span class="n">base_url</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">connection_settings</span><span class="o">.</span><span class="n">url</span><span class="p">,</span>
             <span class="n">timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -113,15 +110,15 @@
         <span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span></div>
 
-    <span class="k">def</span> <span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">traceback</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">traceback</span><span class="p">):</span>
         <span class="c1"># pylint: disable=redefined-outer-name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
 <div class="viewcode-block" id="BatchClient.close"><a class="viewcode-back" href="../../batch_client.html#speechmatics.batch_client.BatchClient.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Clean up/close client connection pool.</span>
 
 <span class="sd">        This is required when using the client directly, but not required when</span>
@@ -132,7 +129,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">api_client</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="BatchClient.send_request"><a class="viewcode-back" href="../../batch_client.html#speechmatics.batch_client.BatchClient.send_request">[docs]</a>    <span class="k">def</span> <span class="nf">send_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">httpx</span><span class="o">.</span><span class="n">Response</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Send a request using httpx.Client()</span>
 
 <span class="sd">        :param method: HTTP request method</span>
@@ -155,7 +152,7 @@
             <span class="k">return</span> <span class="n">response</span></div>
 
 <div class="viewcode-block" id="BatchClient.list_jobs"><a class="viewcode-back" href="../../batch_client.html#speechmatics.batch_client.BatchClient.list_jobs">[docs]</a>    <span class="k">def</span> <span class="nf">list_jobs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Lists last 100 jobs within 7 days associated with auth_token for the SaaS</span>
 <span class="sd">        or all of the jobs for the batch appliance.</span>
 
@@ -171,7 +168,7 @@
             <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">BatchTranscriptionConfig</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span>
         <span class="p">],</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Submits audio and config for transcription.</span>
 
 <span class="sd">        :param audio: Audio file path or tuple of filename and bytes</span>
@@ -194,7 +191,7 @@
             <span class="n">config_json</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">transcription_config</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-<span class="w">                </span><span class="sd">&quot;&quot;&quot;Job configuration must be a BatchTranscriptionConfig object,</span>
+                <span class="sd">&quot;&quot;&quot;Job configuration must be a BatchTranscriptionConfig object,</span>
 <span class="sd">                a filepath as a string or Path object, or a dict&quot;&quot;&quot;</span>
             <span class="p">)</span>
         <span class="n">config_data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;config&quot;</span><span class="p">:</span> <span class="n">config_json</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)}</span>
@@ -217,7 +214,7 @@
         <span class="n">job_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">transcription_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;json-v2&quot;</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Request results of a transcription job.</span>
 
 <span class="sd">        :param job_id: ID of previously submitted job.</span>
@@ -253,7 +250,7 @@
             <span class="p">)</span>
         <span class="k">except</span> <span class="n">httpx</span><span class="o">.</span><span class="n">HTTPStatusError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">exc</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">404</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">JobNotFoundException</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not find job </span><span class="si">{</span><span class="n">job_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">exc</span>
+                <span class="k">raise</span> <span class="n">JobNotFoundException</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;Could not find job </span><span class="si">{job_id}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">exc</span>
             <span class="k">raise</span> <span class="n">exc</span>
 
         <span class="k">if</span> <span class="n">transcription_format</span> <span class="o">==</span> <span class="s2">&quot;json-v2&quot;</span><span class="p">:</span>
@@ -261,7 +258,7 @@
         <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span></div>
 
 <div class="viewcode-block" id="BatchClient.delete_job"><a class="viewcode-back" href="../../batch_client.html#speechmatics.batch_client.BatchClient.delete_job">[docs]</a>    <span class="k">def</span> <span class="nf">delete_job</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">job_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Delete a job. Must pass force=True to cancel a running job.</span>
 
 <span class="sd">        :param job_id: ID of previously submitted job.</span>
@@ -283,19 +280,19 @@
                 <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;force&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">force</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()},</span>
             <span class="p">)</span>
             <span class="k">return</span> <span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Job </span><span class="si">{</span><span class="n">job_id</span><span class="si">}</span><span class="s2"> deleted&quot;</span>
+                <span class="n">f</span><span class="s2">&quot;Job </span><span class="si">{job_id}</span><span class="s2"> deleted&quot;</span>
                 <span class="k">if</span> <span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">())[</span><span class="s2">&quot;job&quot;</span><span class="p">][</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;deleted&quot;</span>
-                <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;Job </span><span class="si">{</span><span class="n">job_id</span><span class="si">}</span><span class="s2"> was not deleted. Error </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="k">else</span> <span class="n">f</span><span class="s2">&quot;Job </span><span class="si">{job_id}</span><span class="s2"> was not deleted. Error {response.json()}&quot;</span>
             <span class="p">)</span>
         <span class="k">except</span> <span class="n">httpx</span><span class="o">.</span><span class="n">HTTPStatusError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">exc</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">404</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">JobNotFoundException</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not find job </span><span class="si">{</span><span class="n">job_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">exc</span>
+                <span class="k">raise</span> <span class="n">JobNotFoundException</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;Could not find job </span><span class="si">{job_id}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">exc</span>
             <span class="k">raise</span> <span class="n">exc</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span></div>
 
 <div class="viewcode-block" id="BatchClient.check_job_status"><a class="viewcode-back" href="../../batch_client.html#speechmatics.batch_client.BatchClient.check_job_status">[docs]</a>    <span class="k">def</span> <span class="nf">check_job_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">job_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Check the status of a job.</span>
 
 <span class="sd">        :param job_id: ID of previously submitted job.</span>
@@ -311,14 +308,14 @@
             <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_request</span><span class="p">(</span><span class="s2">&quot;GET&quot;</span><span class="p">,</span> <span class="s2">&quot;/&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;jobs&quot;</span><span class="p">,</span> <span class="n">job_id</span><span class="p">]))</span>
         <span class="k">except</span> <span class="n">httpx</span><span class="o">.</span><span class="n">HTTPStatusError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">error</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">404</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">JobNotFoundException</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Job </span><span class="si">{</span><span class="n">job_id</span><span class="si">}</span><span class="s2"> not found&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">error</span>
+                <span class="k">raise</span> <span class="n">JobNotFoundException</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;Job </span><span class="si">{job_id}</span><span class="s2"> not found&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">error</span>
             <span class="k">raise</span> <span class="n">error</span>
         <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="BatchClient.wait_for_completion"><a class="viewcode-back" href="../../batch_client.html#speechmatics.batch_client.BatchClient.wait_for_completion">[docs]</a>    <span class="k">def</span> <span class="nf">wait_for_completion</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">job_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">transcription_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;txt&quot;</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Blocks until job is complete, returning a transcript in</span>
 <span class="sd">        the requested format.</span>
 
@@ -349,7 +346,7 @@
                     <span class="n">POLLING_DURATION</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="k">return</span> <span class="kc">False</span>
-            <span class="k">raise</span> <span class="n">TranscriptionError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">job_id</span><span class="si">}</span><span class="s2"> status </span><span class="si">{</span><span class="n">job_status</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">TranscriptionError</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;</span><span class="si">{job_id}</span><span class="s2"> status </span><span class="si">{job_status}</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_job_status</span><span class="p">(</span><span class="n">job_id</span><span class="p">)</span>
 
@@ -373,7 +370,7 @@
     <span class="k">def</span> <span class="nf">_from_file</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">],</span> <span class="n">filetype</span><span class="p">:</span> <span class="nb">str</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve data from a file.</span>
+        <span class="sd">&quot;&quot;&quot;Retrieve data from a file.</span>
 <span class="sd">        For filetype==&quot;json&quot;, returns a dict</span>
 <span class="sd">        For filetype==&quot;binary&quot;, returns a tuple of (filename, data)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -386,7 +383,6 @@
 </pre></div>
 
           </div>
-          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -444,14 +440,6 @@
     </div>
 </div>
 <script>$('#searchbox').show(0);</script>
-
-
-
-
-
-
-
-
         </div>
       </div>
       <div class="clearer"></div>
@@ -461,7 +449,7 @@
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 4.4.0</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
       
     </div>
 
