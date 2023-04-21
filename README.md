@@ -1,4 +1,4 @@
-# speechmatics-python &ensp; ![Tests](https://github.com/speechmatics/speechmatics-python/workflows/Tests/badge.svg) [![codecov](https://codecov.io/gh/speechmatics/speechmatics-python/branch/master/graph/badge.svg)](https://codecov.io/gh/speechmatics/speechmatics-python) [![License](https://img.shields.io/badge/license-MIT-yellow.svg)](https://github.com/speechmatics/speechmatics-python/blob/master/LICENSE.txt)
+# speechmatics-python &ensp; ![Tests](https://github.com/speechmatics/speechmatics-python/workflows/Tests/badge.svg) [![License](https://img.shields.io/badge/license-MIT-yellow.svg)](https://github.com/speechmatics/speechmatics-python/blob/master/LICENSE.txt)
 
 Python client library and CLI for Speechmatics Realtime and Batch ASR v2 APIs.
 
@@ -57,6 +57,16 @@ A complete list of commands and flags can be found in the SDK docs at https://sp
 - Unsetting generate temp token globally for CLI authentication:
    ```shell
    $ speechmatics config unset --generate-temp-token
+   ```
+
+- Setting URLs for connecting to transcribers. These values can be used in places of the --url flag:
+   ```shell
+   $ speechmatics config set --rt-url wss://eu2.rt.speechmatics.com/v2 --batch-url https://asr.api.speechmatics.com/v2
+   ```
+
+- Unsetting transcriber URLs in the toml config:
+   ```shell
+   $ speechmatics config unset --rt-url --batch-url
    ```
 
   ### Realtime ASR

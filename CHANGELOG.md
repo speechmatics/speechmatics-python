@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Support for batch and realtime urls in config .toml files
+
 ## [1.8.0]
 
 ### Added

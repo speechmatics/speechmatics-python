@@ -10,6 +10,10 @@ lint:
 	pylint $(SOURCES)
 	pycodestyle $(SOURCES)
 
+.PHONY: format
+format:
+	black $(SOURCES)
+
 .PHONY: test
 test: unittest
 
