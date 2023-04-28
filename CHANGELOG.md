@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.8.1]
+
+### Fixed
+
+- setting TranscriptionConfig.enable_partials bool value to a string raises exception
+
 ### Added
 
 - Support for batch and realtime urls in config .toml files
