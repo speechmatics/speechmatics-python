@@ -212,7 +212,7 @@ class TranscriptionConfig(_TranscriptionConfig):
         dictionary.pop("translation_config", None)
         dictionary.pop("enable_translation_partials", None)
         enable_transcription_partials = dictionary.pop(
-            "enable_transcription_partials", None
+            "enable_transcription_partials", False
         )
         # set enable_partials to True if either one is True
         dictionary["enable_partials"] = (

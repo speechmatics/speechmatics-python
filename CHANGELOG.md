@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.8.2]
+
+### Fixed
+
+- TranscriptionConfig.enable_partials defaults to False
+
 ## [1.8.1]
 
 ### Fixed
