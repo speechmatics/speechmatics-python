@@ -215,9 +215,8 @@ class TranscriptionConfig(_TranscriptionConfig):
             "enable_transcription_partials", False
         )
         # set enable_partials to True if either one is True
-        dictionary["enable_partials"] = (
-            dictionary.get("enable_partials", False) or enable_transcription_partials
-        )
+        if dictionary.get("enable_partials") is True or enable_transcription_partials:
+            dictionary["enable_partials"] = True
 
         return dictionary
 
