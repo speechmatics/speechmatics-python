@@ -26,7 +26,7 @@ def test_audio_settings_asdict_when_encoding_set():
 
 def test_transcriptionconfig_excludes_nones():
     config = models.TranscriptionConfig()
-    config_dict = config.asdict()
+    config_dict = config.as_config()
     assert None not in config_dict.values()
 
 
