@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Fixed an issue in the batch client where jobs with fetch_url were not able to be submitted
+
 ## [1.8.2]
 
 ### Fixed

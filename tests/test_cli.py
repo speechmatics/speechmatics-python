@@ -257,7 +257,7 @@ def test_cli_arg_parse_with_file(args, values):
     test_args = args + common_transcribe_args
     actual_values = vars(cli.parse_args(args=test_args))
 
-    for (key, val) in values.items():
+    for key, val in values.items():
         assert actual_values[key] == val, f"Expected {actual_values} to match {values}"
 
 
@@ -279,7 +279,7 @@ def test_cli_arg_parse_transcribe_url(args, values):
     test_args = args + connection_args + ["fake_file.wav"]
     actual_values = vars(cli.parse_args(args=test_args))
 
-    for (key, val) in values.items():
+    for key, val in values.items():
         assert actual_values[key] == val
 
 
@@ -322,7 +322,7 @@ def test_cli_list_arg_parse_without_file(args, values):
     test_args = args + required_args
     actual_values = vars(cli.parse_args(args=test_args))
 
-    for (key, val) in values.items():
+    for key, val in values.items():
         assert actual_values[key] == val
 
 
@@ -681,10 +681,9 @@ def test_rt_main_with_config_file_cmdline_override(mock_server):
     ),
 )
 def test_cli_argparse_config(args, values):
-
     actual_values = vars(cli.parse_args(args=args))
 
-    for (key, val) in values.items():
+    for key, val in values.items():
         assert actual_values[key] == val
 
 
@@ -718,7 +717,7 @@ def test_config_set_and_remove_toml(args):
     with open(f"{home_dir}/.speechmatics/config", "r", encoding="UTF-8") as file:
         cli_config = toml.load(file)
     profile = args.get("profile", "default")
-    for (key, val) in args.items():
+    for key, val in args.items():
         if key != "profile":
             assert cli_config[profile][key] == val
 
@@ -737,7 +736,7 @@ def test_config_set_and_remove_toml(args):
     with open(f"{home_dir}/.speechmatics/config", "r", encoding="UTF-8") as file:
         cli_config = toml.load(file)
 
-    for (key, val) in args.items():
+    for key, val in args.items():
         if key != "profile":
             assert key not in cli_config[profile]
 

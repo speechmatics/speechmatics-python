@@ -98,7 +98,7 @@ def test_handlers_called(mock_server, mocker):
     # Each handler should have been called once for every message
     # received from the server
     server_message_counts = Counter(msg["message"] for msg in mock_server.messages_sent)
-    for (msg_name, count) in server_message_counts.items():
+    for msg_name, count in server_message_counts.items():
         assert msg_name and handlers[msg_name].call_count == count
 
     # The 'all' handler should have been called for every message.
@@ -141,7 +141,7 @@ def test_middlewares_called(mock_server, mocker):
         msg["message"] if isinstance(msg, dict) else "AddAudio"
         for msg in mock_server.messages_received
     )
-    for (msg_name, count) in client_message_counts.items():
+    for msg_name, count in client_message_counts.items():
         assert msg_name and middlewares[msg_name].call_count == count
 
     # The change to the language made by the middleware above
