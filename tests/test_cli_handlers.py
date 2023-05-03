@@ -198,7 +198,6 @@ def check_printing_handlers(
     expected_transcript_txt,
     speaker_change_token,
 ):
-
     api = mocker.MagicMock()
     api.get_language_pack_info = mocker.MagicMock(return_value={"word_delimiter": " "})
     transcripts = cli.Transcripts(text="", json=[])

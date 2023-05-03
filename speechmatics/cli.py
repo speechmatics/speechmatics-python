@@ -623,7 +623,7 @@ def rt_main(args):
         )
     if settings.url.lower().startswith("wss://") and args["ssl_mode"] == "none":
         raise SystemExit(
-            "ssl_mode 'none' is incompatible with protocol 'wss'." "Use 'ws' instead."
+            "ssl_mode 'none' is incompatible with protocol 'wss'. Use 'ws' instead."
         )
 
     transcripts = Transcripts(text="", json=[])
