@@ -7,16 +7,14 @@ import json
 import logging
 import os
 import time
-from typing import Any, Dict, Tuple, Union, List
+from typing import Any, Dict, List, Tuple, Union
 
 import httpx
 from polling2 import poll
 
-from speechmatics.exceptions import (
-    TranscriptionError,
-    JobNotFoundException,
-)
-from speechmatics.models import ConnectionSettings, BatchTranscriptionConfig
+from speechmatics.exceptions import JobNotFoundException, TranscriptionError
+from speechmatics.helpers import get_version
+from speechmatics.models import BatchTranscriptionConfig, ConnectionSettings
 
 LOGGER = logging.getLogger(__name__)
 
@@ -36,6 +34,24 @@ class _ForceMultipartDict(dict):
 
     def __bool__(self):
         return True
+
+
+class HttpClient(httpx.Client):
+    """Wrapper class around httpx.Client that adds the sm-sdk query parameter to request urls"""
+
+    def __init__(self, *args, **kwargs):
+        self._from_cli = False
+        if "from_cli" in kwargs:
+            self._from_cli = kwargs["from_cli"]
+            kwargs.pop("from_cli")
+        super().__init__(*args, **kwargs)
+
+    def build_request(self, method: str, url, *args, **kwargs):
+        cli = "-cli" if self._from_cli is True else ""
+        version = get_version()
+        url = httpx.URL(url)
+        url = url.copy_merge_params({"sm-sdk": f"python{cli}-{version}"})
+        return super().build_request(method, url, *args, **kwargs)
 
 
 class BatchClient:
@@ -58,7 +74,7 @@ class BatchClient:
 
     """
 
-    def __init__(self, connection_settings: ConnectionSettings):
+    def __init__(self, connection_settings: ConnectionSettings, from_cli=False):
         """Constructor method.
 
         :param connection_settings: Connection settings for API
@@ -78,15 +94,17 @@ class BatchClient:
             "Accept-Charset": "utf-8",
         }
         self.api_client = None
+        self._from_cli = from_cli
 
     def connect(self):
         """Create a connection to a Speechmatics Transcription REST endpoint"""
-        self.api_client = httpx.Client(
+        self.api_client = HttpClient(
             base_url=self.connection_settings.url,
             timeout=None,
             headers=self.default_headers,
             http2=True,
             verify=self.connection_settings.ssl_context,
+            from_cli=self._from_cli,
         )
         return self
 
