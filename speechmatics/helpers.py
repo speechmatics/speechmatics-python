@@ -5,9 +5,12 @@ Helper functions used by the library.
 
 import asyncio
 import concurrent.futures
-import json
 import inspect
+import json
+import os
 import sys
+
+import pkg_resources
 
 
 def del_none(dictionary):
@@ -70,6 +73,27 @@ async def read_in_chunks(stream, chunk_size):
         if not audio_chunk:
             break
         yield audio_chunk
+
+
+def get_version() -> str:
+    """
+    Reads the version number from the package or from VERSION file in case
+    the package information is not found.
+
+    :return: the library version
+    :rtype: str
+    """
+    try:
+        version = pkg_resources.get_distribution("speechmatics-python").version
+    except pkg_resources.DistributionNotFound:
+        # The library is not running from the distributed package
+        # Get the version from the VERSION file
+        base_path = os.path.abspath(os.path.dirname(__file__))
+        version_path = os.path.join(base_path, "..", "VERSION")
+        with open(version_path, "r", encoding="utf-8") as version_file:
+            version = version_file.read().strip()
+
+    return version
 
 
 def _process_status_errors(error):

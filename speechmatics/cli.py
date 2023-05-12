@@ -12,7 +12,7 @@ import sys
 from socket import gaierror
 
 from dataclasses import dataclass
-from typing import List, Dict, Union, Tuple, Any
+from typing import List
 
 import toml
 import httpx
@@ -492,42 +492,6 @@ def join_words(words, language="en"):
     return separator.join(words)
 
 
-def submit_job_and_wait(
-    connection_settings: ConnectionSettings,
-    audio: Union[Tuple[str, bytes], str, os.PathLike],
-    transcription_config: Union[
-        Dict[str, Any], BatchTranscriptionConfig, str, os.PathLike
-    ],
-    transcription_format: str = "txt",
-) -> str:
-    """
-    Submit a job, waiting for response.
-    This is the ``batch transcribe`` command.
-
-    :param connection_settings: Settings for API connection.
-    :type connection_settings: speechmatics.models.ConnectionSettings
-
-    :param audio: Audio file path or tuple of filename and bytes
-    :type audio: os.Pathlike | str | Tuple[str, bytes]
-
-    :param transcription_config: Configuration for the transcription.
-    :type transcription_config:
-        Dict[str, Any] | speechmatics.models.BatchTranscriptionConfig | str
-
-    :param transcription_format: Format of transcript. Defaults to txt.
-        Valid options are json-v2, txt, srt. json is accepted as an
-        alias for json-v2.
-    :type format: str
-
-    :return: transcript in txt format
-    :rtype: str
-    """
-    with BatchClient(connection_settings) as client:
-        job_id = client.submit_job(audio, transcription_config)
-        print(f"Job submission successful. ID: {job_id} . Waiting for completion")
-        return client.wait_for_completion(job_id, transcription_format)
-
-
 # pylint: disable=too-many-branches
 # pylint: disable=too-many-statements
 def main(args=None):
@@ -642,7 +606,7 @@ def rt_main(args):
     def run(stream):
         try:
             api.run_synchronously(
-                stream, transcription_config, get_audio_settings(args)
+                stream, transcription_config, get_audio_settings(args), from_cli=True
             )
         except KeyboardInterrupt:
             # Gracefully handle Ctrl-C, else we get a huge stack-trace.
@@ -663,16 +627,17 @@ def batch_main(args):
     :type args: argparse.Namespace
     """
     command = args["command"]
-    with BatchClient(get_connection_settings(args)) as batch_client:
+    with BatchClient(get_connection_settings(args), from_cli=True) as batch_client:
         if command == "transcribe":
             for filename in args["files"]:
                 print(f"Processing {filename}\n==========")
-                result = submit_job_and_wait(
-                    connection_settings=get_connection_settings(args),
-                    audio=filename,
-                    transcription_config=get_transcription_config(args),
-                    transcription_format=args["output_format"],
+                job_id = batch_client.submit_job(
+                    filename, get_transcription_config(args)
                 )
+                print(
+                    f"Job submission successful. ID: {job_id} . Waiting for completion"
+                )
+                result = batch_client.wait_for_completion(job_id, args["output_format"])
                 if args["output_format"] in ["json", "json-v2"]:
                     print(json.dumps(result, ensure_ascii=False))
                 else:
