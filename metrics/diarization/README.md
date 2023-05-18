@@ -2,8 +2,14 @@
 
 This project is Speechmatics' fork of https://github.com/pyannote/pyannote-metrics used to calculate various speaker diarization metrics from reference/hypothesis transcript pairs.
 
-This package has a CLI supporting ctm, lab, or V2 JSON format transcripts and can be run using eg
-`python3 -m sm_diarisation_metrics.cookbook reference.json transcript.json`
+To install the package:
+`pip install speechmatics-diarization-metrics`
+
+This package has a CLI supporting ctm, lab, or V2 JSON format transcripts and can be run using:
+`python3 -m sm_diarization_metrics.cookbook reference.json transcript.json`
+
+For further guidance run:
+`python3 -m sm_diarization_metrics.cookbook -h`
 
 ### Run from source code
 
