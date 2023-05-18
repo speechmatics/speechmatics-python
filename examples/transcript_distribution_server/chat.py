@@ -3,7 +3,6 @@ logging.basicConfig(level=logging.INFO)
 import speechmatics
 import asyncio
 import argparse
-import os
 import sys
 import sounddevice as sd
 import time
@@ -46,10 +45,31 @@ def discard_old_transcript(current_transcript, current_duration, seconds_to_keep
 
 TRANSCRIPTION_START_TIME=0
 
-async def init(sm_client):
-    current_transcript = dict()
+current_transcript = dict()
+text = None
+prev_text = None
+
+async def check_for_done():
+    global text
+    global prev_text
+    counter = 0
+    while True:
+        print(counter)
+        if prev_text is not None and text.replace(".","").lower() == prev_text.replace(".","").lower():
+            counter += 0.5
+        else:
+            counter = 0
+            prev_text = text
+        if counter > 2:
+            raise TimeoutError
+        await asyncio.sleep(0.5)
+
+
+def init(sm_client):
     def update_rolling_transcript(msg):
-        nonlocal current_transcript
+        global current_transcript
+        global text
+        global prev_text
         is_final =  msg['message'] == 'AddTranscript'
         # current_time = time.time()
         # duration = current_time - TRANSCRIPTION_START_TIME
@@ -62,12 +82,11 @@ async def init(sm_client):
         # current_transcript = discard_old_transcript(current_transcript, duration)
 
         if len(current_transcript) > 0:
-
+            prev_text = text
             text = format_text(current_transcript).strip()
-            text.replace("\n", "")
-            os.system('clear')
+            # os.system('clear')
             print(text)
-            sys.stdout.write("\033[F") # Cursor up one line
+            # sys.stdout.write("\033[F") # Cursor up one line
 
     sm_client.add_event_handler(speechmatics.models.ServerMessageType.AddPartialTranscript, event_handler=update_rolling_transcript)
     sm_client.add_event_handler(speechmatics.models.ServerMessageType.AddTranscript, event_handler=update_rolling_transcript)
@@ -97,16 +116,16 @@ async def transcribe_from_device(device, speechmatics_client):
         TRANSCRIPTION_START_TIME = time.time()
         await speechmatics_client.run(RawInputStreamWrapper(stream), conf, settings)
 
-def main(args):
+async def main(args):
     speechmatics_client = create_speechmatics_client(args.speechmatics_url, args.speechmatics_api_key)
+    init(speechmatics_client)
 
-    loop = asyncio.get_event_loop()
-
-    if not loop.run_until_complete(init(speechmatics_client)):
-        logging.info("failed to init")
-        os._exit(1)
-
-    loop.run_until_complete(transcribe_from_device(args.device, speechmatics_client))
+    tasks = [transcribe_from_device(args.device, speechmatics_client), check_for_done()]
+    try:
+        await asyncio.gather(*tasks)
+    except Exception as e:
+        # Handle the exception when one of the tasks fails
+        print(f"An error occurred: {e}")
 
 def int_or_str(text):
     """Helper function for argument parsing."""
@@ -122,4 +141,4 @@ if __name__ == "__main__":
 
     parser.add_argument('-d', '--device', type=int_or_str, help='input device (numeric ID or substring)')
 
-    main(parser.parse_args())
+    asyncio.run(main(parser.parse_args()))
