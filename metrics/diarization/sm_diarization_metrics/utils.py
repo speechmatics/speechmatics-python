@@ -99,24 +99,24 @@ def load_v2_json_file(filename, get_content_type=False):
     Returns a list of the entries (as tuples, (start, end, label).  Returns None if formatting error.
     """
     with open(filename) as fh:
-        v2_json = json.load(fh)
-    if "results" in v2_json:
+        results = json.load(fh)
+    if "results" in results:
+        results = results["results"]
+
+    try:
         entries = []
-        results = v2_json["results"]
-        try:
-            for res in results:
-                start_time = float(res["start_time"])
-                end_time = float(res["end_time"])
-                label = res["alternatives"][0].get("speaker")
-                if get_content_type:
-                    content_type = res["type"]
-                    entries.append((start_time, end_time, label, content_type))
-                else:
-                    entries.append((start_time, end_time, label))
-        except KeyError:
-            entries = None
-    else:
+        for res in results:
+            start_time = float(res["start_time"])
+            end_time = float(res["end_time"])
+            label = res["alternatives"][0].get("speaker")
+            if get_content_type:
+                content_type = res["type"]
+                entries.append((start_time, end_time, label, content_type))
+            else:
+                entries.append((start_time, end_time, label))
+    except KeyError:
         entries = None
+    
     return entries
 
 
