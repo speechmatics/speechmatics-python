@@ -31,7 +31,7 @@ $$ \text{WER} = \frac{I + D + S}{N}$$
 
 Accuracy is the complement of WER. That is, if the WER of an ASR transcript if 5 %, it's Accuracy would be 95 %, since 5 % + 95 % = 100 %
 
-## Usage
+## Installation
 
 These instructions assume the repository has been cloned, and is the working directory. You do this using:
 
