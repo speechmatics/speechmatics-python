@@ -126,6 +126,26 @@ class RTSpeakerDiarizationConfig:
 
 
 @dataclass
+class TranslationConfig:
+    """Translation config."""
+
+    target_languages: List[str] = None
+    """Target languages for which translation should be produced."""
+
+    def asdict(self):
+        return asdict(self)
+
+
+@dataclass
+class RTTranslationConfig(TranslationConfig):
+    """Real-time mode: Translation config."""
+
+    enable_partials: bool = False
+    """Indicates if partial translation, where sentences are produced
+    immediately, is enabled."""
+
+
+@dataclass
 class BatchSpeakerDiarizationConfig:
     """Batch mode: Speaker diarization config."""
 
@@ -136,11 +156,8 @@ class BatchSpeakerDiarizationConfig:
 
 
 @dataclass
-class BatchTranslationConfig:
+class BatchTranslationConfig(TranslationConfig):
     """Batch mode: Translation config."""
-
-    target_languages: List[str] = None
-    """Target languages for which translation should be produced"""
 
 
 @dataclass
@@ -153,7 +170,11 @@ class BatchLanguageIdentificationConfig:
 
 @dataclass(init=False)
 class TranscriptionConfig(_TranscriptionConfig):
-    """Real-time: Defines transcription parameters."""
+    # pylint: disable=too-many-instance-attributes
+    """
+    Real-time: Defines transcription parameters.
+    The `.as_config()` method removes translation_config and returns it wrapped into a Speechmatics json config.
+    """
 
     max_delay: float = None
     """Maximum acceptable delay."""
@@ -172,8 +193,32 @@ class TranscriptionConfig(_TranscriptionConfig):
     """Sensitivity level for speaker change."""
 
     enable_partials: bool = None
-    """Indicates if partial transcription, where words are produced
-    immediately, is enabled. """
+    """Indicates if partials for both transcripts and translation, where words are produced
+    immediately, is enabled."""
+
+    enable_transcription_partials: bool = None
+    """Indicates if partial transcripts, where words are produced
+    immediately, is enabled."""
+
+    enable_translation_partials: bool = None
+    """Indicates if partial translation, where words are produced
+    immediately, is enabled."""
+
+    translation_config: TranslationConfig = None
+    """Optional configuration for translation."""
+
+    def as_config(self):
+        dictionary = self.asdict()
+        dictionary.pop("translation_config", None)
+        dictionary.pop("enable_translation_partials", None)
+        enable_transcription_partials = dictionary.pop(
+            "enable_transcription_partials", False
+        )
+        # set enable_partials to True if either one is True
+        if dictionary.get("enable_partials") is True or enable_transcription_partials:
+            dictionary["enable_partials"] = True
+
+        return dictionary
 
 
 @dataclass(init=False)
@@ -190,7 +235,7 @@ class BatchTranscriptionConfig(_TranscriptionConfig):
     language_identification_config: BatchLanguageIdentificationConfig = None
     """Optional configuration for language identification."""
 
-    translation_config: BatchTranslationConfig = None
+    translation_config: TranslationConfig = None
     """Optional configuration for translation."""
 
     srt_overrides: SRTOverrides = None
@@ -325,6 +370,14 @@ class ServerMessageType(str, Enum):
 
     AddTranscript = "AddTranscript"
     """Indicates the final transcript of a part of the audio."""
+
+    AddPartialTranslation = "AddPartialTranslation"
+    """Indicates a partial translation, which is an incomplete translation that
+    is immediately produced and may change as more context becomes available.
+    """
+
+    AddTranslation = "AddTranslation"
+    """Indicates the final translation of a part of the audio."""
 
     EndOfTranscript = "EndOfTranscript"
     """Server response to :py:attr:`ClientMessageType.EndOfStream`,

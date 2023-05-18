@@ -17,7 +17,6 @@
    
   <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
   
-  
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head><body>
@@ -26,8 +25,6 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          
-
           <div class="body" role="main">
             
   <h1>Source code for speechmatics.helpers</h1><div class="highlight"><pre>
@@ -115,32 +112,31 @@
 <span class="sd">    :raises SystemExit: for all cases</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">error_string</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">error</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">method</span><span class="si">}</span><span class="s2"> request to </span><span class="si">{</span><span class="n">error</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">url</span><span class="si">}</span><span class="s2"> returned </span><span class="si">{</span><span class="n">error</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">error_string</span> <span class="o">=</span> <span class="n">f</span><span class="s2">&quot;</span><span class="si">{error.request.method}</span><span class="s2"> request to </span><span class="si">{error.request.url}</span><span class="s2"> returned </span><span class="si">{error.response.status_code}</span><span class="s2">&quot;</span>
     <span class="k">if</span> <span class="n">error</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">401</span><span class="p">:</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Unauthorized: </span><span class="si">{</span><span class="n">error_string</span><span class="si">}</span><span class="s2">. </span><span class="se">\n</span><span class="s2"> Make sure you&#39;re using a valid API key or JWT.&quot;</span>
+            <span class="n">f</span><span class="s2">&quot;Unauthorized: </span><span class="si">{error_string}</span><span class="s2">. </span><span class="se">\n</span><span class="s2"> Make sure you&#39;re using a valid API key or JWT.&quot;</span>
         <span class="p">)</span>
     <span class="k">if</span> <span class="n">error</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">404</span><span class="p">:</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;NotFound: </span><span class="si">{</span><span class="n">error_string</span><span class="si">}</span><span class="s2">. Make sure the url and resource id are correct.&quot;</span>
+            <span class="n">f</span><span class="s2">&quot;NotFound: </span><span class="si">{error_string}</span><span class="s2">. Make sure the url and resource id are correct.&quot;</span>
         <span class="p">)</span>
     <span class="k">if</span> <span class="n">error</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">429</span><span class="p">:</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;TooManyRequests: </span><span class="si">{</span><span class="n">error_string</span><span class="si">}</span><span class="s2">. &quot;</span>
+            <span class="n">f</span><span class="s2">&quot;TooManyRequests: </span><span class="si">{error_string}</span><span class="s2">. &quot;</span>
             <span class="o">+</span> <span class="s2">&quot;In order to ensure a good service to all our users, we rate limit requests. &quot;</span>
             <span class="o">+</span> <span class="s2">&quot;Consider redesigning your code to reduce the number of requests or spread your requests over time.&quot;</span>
         <span class="p">)</span>
     <span class="k">if</span> <span class="n">error</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">400</span><span class="p">,</span> <span class="mi">422</span><span class="p">]:</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;BadOrUnprocessableRequest: </span><span class="si">{</span><span class="n">error_string</span><span class="si">}</span><span class="s2">.</span><span class="se">\n\n</span><span class="s2">response: </span><span class="si">{</span><span class="n">error</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="n">f</span><span class="s2">&quot;BadOrUnprocessableRequest: </span><span class="si">{error_string}</span><span class="s2">.</span><span class="se">\n\n</span><span class="s2">response: </span><span class="si">{error.response.text}</span><span class="se">\n</span><span class="s2">&quot;</span>
             <span class="o">+</span> <span class="s2">&quot;Make sure the config you&#39;ve submitted has a valid structure, and that the values are allowed.</span><span class="se">\n</span><span class="s2">&quot;</span>
             <span class="o">+</span> <span class="s2">&quot;(e.g. --lang abc is invalid).&quot;</span>
         <span class="p">)</span>
-    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;httpx.HTTPStatusError: </span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;httpx.HTTPStatusError: </span><span class="si">{error}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 
           </div>
-          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -198,14 +194,6 @@
     </div>
 </div>
 <script>$('#searchbox').show(0);</script>
-
-
-
-
-
-
-
-
         </div>
       </div>
       <div class="clearer"></div>
@@ -215,7 +203,7 @@
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 4.4.0</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
       
     </div>
 

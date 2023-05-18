@@ -9,18 +9,18 @@ import copy
 import json
 import logging
 import os
+from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 
-import websockets
 import httpx
+import websockets
 
 from speechmatics.exceptions import (
     EndOfTranscriptException,
     ForceEndSession,
     TranscriptionError,
 )
+from speechmatics.helpers import get_version, json_utf8, read_in_chunks
 from speechmatics.models import ClientMessageType, ServerMessageType
-from speechmatics.helpers import json_utf8, read_in_chunks
-
 
 LOGGER = logging.getLogger(__name__)
 
@@ -49,6 +49,7 @@ class WebsocketClient:
         self.connection_settings = connection_settings
         self.websocket = None
         self.transcription_config = None
+        self.translation_config = None
 
         self.event_handlers = {x: [] for x in ServerMessageType}
         self.middlewares = {x: [] for x in ClientMessageType}
@@ -113,8 +114,10 @@ class WebsocketClient:
         """
         msg = {
             "message": ClientMessageType.SetRecognitionConfig,
-            "transcription_config": self.transcription_config.asdict(),
+            "transcription_config": self.transcription_config.as_config(),
         }
+        if self.translation_config is not None:
+            msg["translation_config"] = self.translation_config.asdict()
         self._call_middleware(ClientMessageType.SetRecognitionConfig, msg, False)
         return msg
 
@@ -132,8 +135,10 @@ class WebsocketClient:
         msg = {
             "message": ClientMessageType.StartRecognition,
             "audio_format": audio_settings.asdict(),
-            "transcription_config": self.transcription_config.asdict(),
+            "transcription_config": self.transcription_config.as_config(),
         }
+        if self.translation_config is not None:
+            msg["translation_config"] = self.translation_config.asdict()
         self.session_running = True
         self._call_middleware(ClientMessageType.StartRecognition, msg, False)
         LOGGER.debug(msg)
@@ -378,7 +383,7 @@ class WebsocketClient:
             if exc and not isinstance(exc, (EndOfTranscriptException, ForceEndSession)):
                 raise exc
 
-    async def run(self, stream, transcription_config, audio_settings):
+    async def run(self, stream, transcription_config, audio_settings, from_cli=False):
         """
         Begin a new recognition session.
         This will run asynchronously. Most callers may prefer to use
@@ -394,10 +399,14 @@ class WebsocketClient:
         :param audio_settings: Configuration for the audio stream.
         :type audio_settings: speechmatics.models.AudioSettings
 
+        :param from_cli: Indicates whether the caller is the command-line interface or not.
+        :type from_cli: bool
+
         :raises Exception: Can raise any exception returned by the
             consumer/producer tasks.
         """
         self.transcription_config = transcription_config
+        self.translation_config = transcription_config.translation_config
         self.seq_no = 0
         self._language_pack_info = None
         await self._init_synchronization_primitives()
@@ -417,9 +426,18 @@ class WebsocketClient:
             token = f"Bearer {temp_token}"
             extra_headers["Authorization"] = token
 
+        # Extend connection url with sdk version information
+        cli = "-cli" if from_cli is True else ""
+        version = get_version()
+        parsed_url = urlparse(self.connection_settings.url)
+        query_params = dict(parse_qsl(parsed_url.query))
+        query_params["sm-sdk"] = f"python{cli}-{version}"
+        updated_query = urlencode(query_params)
+        updated_url = urlunparse(parsed_url._replace(query=updated_query))
+
         try:
             async with websockets.connect(  # pylint: disable=no-member
-                self.connection_settings.url,
+                updated_url,
                 ssl=self.connection_settings.ssl_context,
                 ping_timeout=self.connection_settings.ping_timeout_seconds,
                 # Don't limit the max. size of incoming messages
@@ -454,9 +472,10 @@ async def _get_temp_token(api_key):
     """
     Used to get a temporary token from management platform api for SaaS users
     """
+    version = get_version()
     mp_api_url = os.getenv("SM_MANAGEMENT_PLATFORM_URL", "https://mp.speechmatics.com")
     endpoint = mp_api_url + "/v1/api_keys"
-    params = {"type": "rt"}
+    params = {"type": "rt", "sm-sdk": f"python-{version}"}
     body = {"ttl": 60}
     headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
     # pylint: disable=no-member

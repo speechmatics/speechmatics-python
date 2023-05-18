@@ -277,8 +277,26 @@ def get_arg_parser():
         default=False,
         action="store_true",
         help=(
+            "Whether to return partials for both transcripts and translation which can be updated by later,"
+            "final transcripts."
+        ),
+    )
+    rt_transcribe_command_parser.add_argument(
+        "--enable-transcription-partials",
+        default=False,
+        action="store_true",
+        help=(
             "Whether to return partial transcripts which can be updated by later,"
             "final transcripts."
+        ),
+    )
+    rt_transcribe_command_parser.add_argument(
+        "--enable-translation-partials",
+        default=False,
+        action="store_true",
+        help=(
+            "Whether to return partial translation which can be updated by later,"
+            "final translation."
         ),
     )
     rt_transcribe_command_parser.add_argument(
@@ -472,6 +490,18 @@ def get_arg_parser():
         "--auth-token", type=str, help="Auth token to use as default for all requests."
     )
     cli_set_config_parser.add_argument(
+        "--realtime-url",
+        "--rt-url",
+        type=str,
+        dest="realtime_url",
+        help="Default URL to use for RT transcription. Overriden by the --url flag.",
+    )
+    cli_set_config_parser.add_argument(
+        "--batch-url",
+        type=str,
+        help="Default URL to use for Batch transcription. Overriden by the --url flag.",
+    )
+    cli_set_config_parser.add_argument(
         "--generate-temp-token",
         action="store_true",
         help="Sets generate_temp_token to true in the config file."
@@ -484,25 +514,37 @@ def get_arg_parser():
         help="Specifies the profile to set the config for."
         "Profiles can be used to maintain multiple different sets of config locally.",
     )
-    cli_set_config_parser = cli_config_subparsers.add_parser(
+    cli_unset_config_parser = cli_config_subparsers.add_parser(
         "unset", help="Remove specified config values from the CLI config file."
     )
-    cli_set_config_parser.add_argument(
+    cli_unset_config_parser.add_argument(
         "--auth-token",
         action="store_true",
         help="If flag is set, removes the auth token value from the config file.",
     )
-    cli_set_config_parser.add_argument(
+    cli_unset_config_parser.add_argument(
         "--generate-temp-token",
         action="store_true",
         help="If flag is set, removes the generate temp token value from the config file.",
     )
-    cli_set_config_parser.add_argument(
+    cli_unset_config_parser.add_argument(
         "--profile",
         type=str,
         default="default",
         help="Specifies the profile to unset the config for."
         "Profiles can be used to maintain multiple different sets of config locally.",
+    )
+    cli_unset_config_parser.add_argument(
+        "--realtime-url",
+        "--rt-url",
+        dest="realtime_url",
+        action="store_true",
+        help="Remove the default URL to use for RT transcription.",
+    )
+    cli_unset_config_parser.add_argument(
+        "--batch-url",
+        action="store_true",
+        help="Remove the default URL to use for Batch transcription.",
     )
     return parser
 

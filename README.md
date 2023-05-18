@@ -1,4 +1,4 @@
-# speechmatics-python &ensp; ![Tests](https://github.com/speechmatics/speechmatics-python/workflows/Tests/badge.svg) [![codecov](https://codecov.io/gh/speechmatics/speechmatics-python/branch/master/graph/badge.svg)](https://codecov.io/gh/speechmatics/speechmatics-python) [![License](https://img.shields.io/badge/license-MIT-yellow.svg)](https://github.com/speechmatics/speechmatics-python/blob/master/LICENSE.txt)
+# speechmatics-python &ensp; ![Tests](https://github.com/speechmatics/speechmatics-python/workflows/Tests/badge.svg) [![License](https://img.shields.io/badge/license-MIT-yellow.svg)](https://github.com/speechmatics/speechmatics-python/blob/master/LICENSE.txt)
 
 Python client library and CLI for Speechmatics Realtime and Batch ASR v2 APIs.
 
@@ -57,6 +57,16 @@ A complete list of commands and flags can be found in the SDK docs at https://sp
 - Unsetting generate temp token globally for CLI authentication:
    ```shell
    $ speechmatics config unset --generate-temp-token
+   ```
+
+- Setting URLs for connecting to transcribers. These values can be used in places of the --url flag:
+   ```shell
+   $ speechmatics config set --rt-url wss://eu2.rt.speechmatics.com/v2 --batch-url https://asr.api.speechmatics.com/v2
+   ```
+
+- Unsetting transcriber URLs in the toml config:
+   ```shell
+   $ speechmatics config unset --rt-url --batch-url
    ```
 
   ### Realtime ASR
@@ -178,16 +188,6 @@ A complete list of commands and flags can be found in the SDK docs at https://sp
    
     `--langid-langs` is optional and specifies what language(s) you expect to be detected in the source files.
 
-
-- Submit a job with translation (translation output only available as JSON)
-
-    ```shell
-   $ speechmatics batch transcribe --translation-langs de,es --output-format json-v2 example_audio.wav
-    ```
-  `--translation-langs` is supported in asynchronous mode as well, and translation output can be retrieved using `get-results` with `--output-format json-v2` set.
-  
-  When combining language identification with translation, we can't know if the identified language can be translated
-  to your translation targets. If the translation pair is not supported, the error will be recorded in the metadata of the transcript.
 
   ### Custom Transcription Config File
 - Instead of passing all the transcription options via the command line you can also pass a transcription config file.

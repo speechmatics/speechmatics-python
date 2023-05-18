@@ -5,6 +5,30 @@ Functions for converting our JSON transcription results to other formats.
 from typing import Any, List
 
 
+def get_txt_translation(translations: List[dict]):
+    """
+    Extract translation content and speaker labels to plain text format.
+
+    :param translations: list of dicts containing translation content.
+    :return: the plain text as a string.
+    """
+    sentences = []
+    current_speaker = None
+    for translation in translations:
+        sentence_delimiter = " "
+        if translation.get("content", None):
+            if (
+                translation.get("speaker", None)
+                and translation.get("speaker") != current_speaker
+            ):
+                current_speaker = translation["speaker"]
+                sentences.append(f"SPEAKER: {current_speaker}\n")
+                sentence_delimiter = "\n"
+            sentences.append(translation["content"])
+            sentences.append(sentence_delimiter)
+    return "".join(sentences).rstrip()
+
+
 def convert_to_txt(
     tokens: List[dict],
     language: str,

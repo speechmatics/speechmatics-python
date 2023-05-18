@@ -1,4 +1,4 @@
-SOURCES := speechmatics/ tests/ setup.py
+SOURCES := speechmatics/ tests/ examples/ setup.py
 VERSION ?= $(shell cat VERSION)
 
 .PHONY: all
@@ -9,6 +9,10 @@ lint:
 	black --check --diff $(SOURCES)
 	pylint $(SOURCES)
 	pycodestyle $(SOURCES)
+
+.PHONY: format
+format:
+	black $(SOURCES)
 
 .PHONY: test
 test: unittest

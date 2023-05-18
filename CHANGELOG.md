@@ -9,6 +9,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Pass sdk information to batch and rt requests
+
+### Fixed
+
+- Fixed an issue in the batch client where jobs with fetch_url were not able to be submitted
+
+## [1.8.2]
+
+### Fixed
+
+- TranscriptionConfig.enable_partials defaults to False
+
+## [1.8.1]
+
+### Fixed
+
+- setting TranscriptionConfig.enable_partials bool value to a string raises exception
+
+### Added
+
+- Support for batch and realtime urls in config .toml files
+
+## [1.8.0]
+
+### Added
+
+- Added support for real-time translation
+- Added `--enable-translation-partials` to enable partials for translation only
+- Added `--enable-transcription-partials` to enable partials for transcription only
+
+### Changed
+
+- Updated `--enable-partials` to enable partials for both transcription and translation
+
+### Added
+
 - Add support for multiple profiles to the CLI tool
 
 ## [1.7.0] - 2023-03-01

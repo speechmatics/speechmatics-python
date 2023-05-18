@@ -12,7 +12,7 @@ import sys
 from socket import gaierror
 
 from dataclasses import dataclass
-from typing import List, Dict, Union, Tuple, Any
+from typing import List
 
 import toml
 import httpx
@@ -35,7 +35,7 @@ from speechmatics.models import (
     BatchTranscriptionConfig,
     BatchSpeakerDiarizationConfig,
     RTSpeakerDiarizationConfig,
-    BatchTranslationConfig,
+    RTTranslationConfig,
     BatchLanguageIdentificationConfig,
 )
 from speechmatics.cli_parser import (
@@ -141,6 +141,7 @@ def get_connection_settings(args, lang="en"):
     """
     auth_token = args.get("auth_token")
     generate_temp_token = args.get("generate_temp_token")
+    url = args.get("url")
 
     home_directory = os.path.expanduser("~")
     if os.path.exists(f"{home_directory}/.speechmatics/config"):
@@ -158,8 +159,19 @@ def get_connection_settings(args, lang="en"):
             auth_token = cli_config[profile].get("auth_token")
         if "generate_temp_token" in cli_config[profile]:
             generate_temp_token = cli_config[profile].get("generate_temp_token")
+        if (
+            url is None
+            and args.get("mode") == "batch"
+            and "batch_url" in cli_config[profile]
+        ):
+            url = cli_config[profile].get("batch_url")
+        if (
+            url is None
+            and args.get("mode") == "rt"
+            and "realtime_url" in cli_config[profile]
+        ):
+            url = cli_config[profile].get("realtime_url")
 
-    url = args.get("url", None)
     if url is None:
         if args.get("mode") == "batch":
             url = BATCH_SELF_SERVICE_URL
@@ -227,6 +239,8 @@ def get_transcription_config(args):  # pylint: disable=too-many-branches
     for option in [
         "enable_partials",
         "enable_entities",
+        "enable_translation_partials",
+        "enable_transcription_partials",
     ]:
         config[option] = True if args.get(option) else config.get(option)
 
@@ -274,8 +288,12 @@ def get_transcription_config(args):  # pylint: disable=too-many-branches
 
     if args.get("translation_target_languages") is not None:
         translation_target_languages = args.get("translation_target_languages")
-        config["translation_config"] = BatchTranslationConfig(
-            target_languages=translation_target_languages.split(",")
+        enable_partials = args.get("enable_partials", False) or args.get(
+            "enable_translation_partials", False
+        )
+        config["translation_config"] = RTTranslationConfig(
+            target_languages=translation_target_languages.split(","),
+            enable_partials=enable_partials,
         )
 
     if args.get("langid_expected_languages") is not None:
@@ -311,14 +329,17 @@ def get_audio_settings(args):
     return settings
 
 
-# pylint: disable=too-many-arguments
+# pylint: disable=too-many-arguments,too-many-statements
 def add_printing_handlers(
     api,
     transcripts,
     enable_partials=False,
+    enable_transcription_partials=False,
+    enable_translation_partials=False,
     debug_handlers_too=False,
     speaker_change_token=False,
     print_json=False,
+    translation_config=None,
 ):
     """
     Adds a set of handlers to the websocket client which print out transcripts
@@ -328,14 +349,23 @@ def add_printing_handlers(
         api (speechmatics.client.WebsocketClient): Client instance.
         transcripts (Transcripts): Allows the transcripts to be concatenated to
             produce a final result.
-        enable_partials (bool, optional): Whether or not partials are enabled.
-        debug_handlers_too (bool, optional): Whether or not to enable 'debug'
+        enable_partials (bool, optional): Whether partials are enabled
+            for both transcription and translation.
+        enable_transcription_partials (bool, optional): Whether partials are enabled
+            for transcription only.
+        enable_translation_partials (bool, optional): Whether partials are enabled
+            for translation only.
+        debug_handlers_too (bool, optional): Whether to enable 'debug'
             handlers that print out an ASCII symbol representing messages being
             received and sent.
         speaker_change_token (bool, optional): Whether to explicitly include a
             speaker change token '<sc>' in the output to indicate speaker
             changes.
+        print_json (bool, optional): Whether to print json transcript messages.
+        translation_config (TranslationConfig, optional): Translation config with target languages.
     """
+    escape_seq = "\33[2K" if sys.stdout.isatty() else ""
+
     if debug_handlers_too:
         api.add_event_handler(
             ServerMessageType.AudioAdded, lambda *args: print_symbol("-")
@@ -361,7 +391,6 @@ def add_printing_handlers(
             speaker_change_token=speaker_change_token,
         )
         if plaintext:
-            escape_seq = "\33[2K" if sys.stderr.isatty() else ""
             sys.stderr.write(f"{escape_seq}{plaintext}\r")
 
     def transcript_handler(message):
@@ -377,19 +406,69 @@ def add_printing_handlers(
             speaker_change_token=speaker_change_token,
         )
         if plaintext:
-            escape_seq = "\33[2K" if sys.stdout.isatty() else ""
             sys.stdout.write(f"{escape_seq}{plaintext}\n")
         transcripts.text += plaintext
+
+    def partial_translation_handler(message):
+        if print_json:
+            print(json.dumps(message))
+            return
+        # Translations for all requested languages should be available
+        # but, we're only going to print one translation
+        if translation_config.target_languages[0] == message["language"]:
+            plaintext = speechmatics.adapters.get_txt_translation(message["results"])
+            sys.stderr.write(f"{escape_seq}{plaintext}\r")
+
+    def translation_handler(message):
+        transcripts.json.append(message)
+        if print_json:
+            print(json.dumps(message))
+            return
+        # Translations for all requested languages should be available
+        # but, we're only going to print one translation
+        if translation_config.target_languages[0] == message["language"]:
+            plaintext = speechmatics.adapters.get_txt_translation(message["results"])
+            if plaintext:
+                sys.stdout.write(f"{escape_seq}{plaintext}\n")
+            transcripts.text += plaintext
 
     def end_of_transcript_handler(_):
         if enable_partials:
             print("\n", file=sys.stderr)
 
-    api.add_event_handler(
-        ServerMessageType.AddPartialTranscript, partial_transcript_handler
-    )
-    api.add_event_handler(ServerMessageType.AddTranscript, transcript_handler)
     api.add_event_handler(ServerMessageType.EndOfTranscript, end_of_transcript_handler)
+
+    # print both transcription and translation messages (if json was requested)
+    # print translation (if text was requested then)
+    # print transcription (if text was requested without translation)
+    if print_json:
+        if enable_partials or enable_translation_partials:
+            api.add_event_handler(
+                ServerMessageType.AddPartialTranslation,
+                partial_translation_handler,
+            )
+        api.add_event_handler(ServerMessageType.AddTranslation, translation_handler)
+        if enable_partials or enable_transcription_partials:
+            api.add_event_handler(
+                ServerMessageType.AddPartialTranscript,
+                partial_transcript_handler,
+            )
+        api.add_event_handler(ServerMessageType.AddTranscript, transcript_handler)
+    else:
+        if translation_config is not None:
+            if enable_partials or enable_translation_partials:
+                api.add_event_handler(
+                    ServerMessageType.AddPartialTranslation,
+                    partial_translation_handler,
+                )
+            api.add_event_handler(ServerMessageType.AddTranslation, translation_handler)
+        else:
+            if enable_partials or enable_transcription_partials:
+                api.add_event_handler(
+                    ServerMessageType.AddPartialTranscript,
+                    partial_transcript_handler,
+                )
+            api.add_event_handler(ServerMessageType.AddTranscript, transcript_handler)
 
 
 def join_words(words, language="en"):
@@ -413,42 +492,6 @@ def join_words(words, language="en"):
     return separator.join(words)
 
 
-def submit_job_and_wait(
-    connection_settings: ConnectionSettings,
-    audio: Union[Tuple[str, bytes], str, os.PathLike],
-    transcription_config: Union[
-        Dict[str, Any], BatchTranscriptionConfig, str, os.PathLike
-    ],
-    transcription_format: str = "txt",
-) -> str:
-    """
-    Submit a job, waiting for response.
-    This is the ``batch transcribe`` command.
-
-    :param connection_settings: Settings for API connection.
-    :type connection_settings: speechmatics.models.ConnectionSettings
-
-    :param audio: Audio file path or tuple of filename and bytes
-    :type audio: os.Pathlike | str | Tuple[str, bytes]
-
-    :param transcription_config: Configuration for the transcription.
-    :type transcription_config:
-        Dict[str, Any] | speechmatics.models.BatchTranscriptionConfig | str
-
-    :param transcription_format: Format of transcript. Defaults to txt.
-        Valid options are json-v2, txt, srt. json is accepted as an
-        alias for json-v2.
-    :type format: str
-
-    :return: transcript in txt format
-    :rtype: str
-    """
-    with BatchClient(connection_settings) as client:
-        job_id = client.submit_job(audio, transcription_config)
-        print(f"Job submission successful. ID: {job_id} . Waiting for completion")
-        return client.wait_for_completion(job_id, transcription_format)
-
-
 # pylint: disable=too-many-branches
 # pylint: disable=too-many-statements
 def main(args=None):
@@ -456,7 +499,7 @@ def main(args=None):
     Main entrypoint.
 
     :param args: command-line arguments; defaults to None in which
-            case arguments will retrieved from `sys.argv` (this is useful
+            case arguments will be retrieved from `sys.argv` (this is useful
             mainly for unit tests).
     :type args: List[str]
     """
@@ -544,7 +587,7 @@ def rt_main(args):
         )
     if settings.url.lower().startswith("wss://") and args["ssl_mode"] == "none":
         raise SystemExit(
-            "ssl_mode 'none' is incompatible with protocol 'wss'." "Use 'ws' instead."
+            "ssl_mode 'none' is incompatible with protocol 'wss'. Use 'ws' instead."
         )
 
     transcripts = Transcripts(text="", json=[])
@@ -552,15 +595,18 @@ def rt_main(args):
         api,
         transcripts,
         enable_partials=args["enable_partials"],
+        enable_transcription_partials=args["enable_transcription_partials"],
+        enable_translation_partials=args["enable_translation_partials"],
         debug_handlers_too=args["debug"],
         speaker_change_token=args["speaker_change_token"],
         print_json=args["print_json"],
+        translation_config=transcription_config.translation_config,
     )
 
     def run(stream):
         try:
             api.run_synchronously(
-                stream, get_transcription_config(args), get_audio_settings(args)
+                stream, transcription_config, get_audio_settings(args), from_cli=True
             )
         except KeyboardInterrupt:
             # Gracefully handle Ctrl-C, else we get a huge stack-trace.
@@ -581,16 +627,17 @@ def batch_main(args):
     :type args: argparse.Namespace
     """
     command = args["command"]
-    with BatchClient(get_connection_settings(args)) as batch_client:
+    with BatchClient(get_connection_settings(args), from_cli=True) as batch_client:
         if command == "transcribe":
             for filename in args["files"]:
                 print(f"Processing {filename}\n==========")
-                result = submit_job_and_wait(
-                    connection_settings=get_connection_settings(args),
-                    audio=filename,
-                    transcription_config=get_transcription_config(args),
-                    transcription_format=args["output_format"],
+                job_id = batch_client.submit_job(
+                    filename, get_transcription_config(args)
                 )
+                print(
+                    f"Job submission successful. ID: {job_id} . Waiting for completion"
+                )
+                result = batch_client.wait_for_completion(job_id, args["output_format"])
                 if args["output_format"] in ["json", "json-v2"]:
                     print(json.dumps(result, ensure_ascii=False))
                 else:
@@ -624,66 +671,92 @@ def config_main(args):
     :param args: arguments from parse_args()
     :type args: argparse.Namespace
     """
-    home_directory = os.path.expanduser("~")
     command = args.get("command")
     if command == "set":
-        cli_config = {"default": {}}
-        if os.path.exists(f"{home_directory}/.speechmatics"):
-            if os.path.exists(f"{home_directory}/.speechmatics/config"):
-                with open(
-                    f"{home_directory}/.speechmatics/config", "r", encoding="UTF-8"
-                ) as file:
-                    toml_string = file.read()
-                    cli_config = toml.loads(toml_string)
-        else:
-            os.makedirs(f"{home_directory}/.speechmatics")
-
-        profile = args.get("profile", "default")
-        if profile not in cli_config:
-            cli_config[profile] = {}
-        if "auth_token" in args:
-            cli_config[profile]["auth_token"] = args.get("auth_token")
-        if args.get("generate_temp_token"):
-            cli_config[profile]["generate_temp_token"] = True
-
-        with open(
-            f"{home_directory}/.speechmatics/config", "w", encoding="UTF-8"
-        ) as file:
-            toml.dump(cli_config, file)
-
+        set_config(args)
     if command == "unset":
-        cli_config = {"default": {}}
+        unset_config(args)
 
-        if os.path.exists(f"{home_directory}/.speechmatics"):
-            if os.path.exists(f"{home_directory}/.speechmatics/config"):
-                with open(
-                    f"{home_directory}/.speechmatics/config", "r", encoding="UTF-8"
-                ) as file:
-                    toml_string = file.read()
-                    cli_config = toml.loads(toml_string)
 
-                profile = args.get("profile", "default")
-                if profile not in cli_config:
-                    raise SystemExit(
-                        f"Cannot unset config for profile {profile}. Profile does not exist."
-                    )
-                if "auth_token" in cli_config[profile] and args.get("auth_token"):
-                    cli_config[profile].pop("auth_token")
-                if (
-                    args.get("generate_temp_token")
-                    and "generate_temp_token" in cli_config[profile]
-                ):
-                    cli_config[profile].pop("generate_temp_token")
+def set_config(args):
+    """
+    Function which handles the config set commands, storing values in the toml file.
 
-                with open(
-                    f"{home_directory}/.speechmatics/config", "w", encoding="UTF-8"
-                ) as file:
-                    toml.dump(cli_config, file)
-                return
+    :param args: arguments from parse_args()
+    :type args: argparse.Namespace
+    """
+    home_directory = os.path.expanduser("~")
+    cli_config = {"default": {}}
+    if os.path.exists(f"{home_directory}/.speechmatics"):
+        if os.path.exists(f"{home_directory}/.speechmatics/config"):
+            with open(
+                f"{home_directory}/.speechmatics/config", "r", encoding="UTF-8"
+            ) as file:
+                toml_string = file.read()
+                cli_config = toml.loads(toml_string)
+    else:
+        os.makedirs(f"{home_directory}/.speechmatics")
 
-        raise SystemExit(
-            f"Unable to remove config. No config file stored found at {home_directory}/.speechmatics/config"
-        )
+    profile = args.get("profile", "default")
+    if profile not in cli_config:
+        cli_config[profile] = {}
+    if args.get("auth_token"):
+        cli_config[profile]["auth_token"] = args.get("auth_token")
+    if args.get("generate_temp_token"):
+        cli_config[profile]["generate_temp_token"] = True
+    if args.get("batch_url"):
+        cli_config[profile]["batch_url"] = args.get("batch_url")
+    if args.get("realtime_url"):
+        cli_config[profile]["realtime_url"] = args.get("realtime_url")
+
+    with open(f"{home_directory}/.speechmatics/config", "w", encoding="UTF-8") as file:
+        toml.dump(cli_config, file)
+
+
+def unset_config(args):
+    """
+    Function which handles the config unset commands, removing values from the toml file.
+
+    :param args: arguments from parse_args()
+    :type args: argparse.Namespace
+    """
+    home_directory = os.path.expanduser("~")
+    cli_config = {"default": {}}
+
+    if os.path.exists(f"{home_directory}/.speechmatics"):
+        if os.path.exists(f"{home_directory}/.speechmatics/config"):
+            with open(
+                f"{home_directory}/.speechmatics/config", "r", encoding="UTF-8"
+            ) as file:
+                toml_string = file.read()
+                cli_config = toml.loads(toml_string)
+
+            profile = args.get("profile", "default")
+            if profile not in cli_config:
+                raise SystemExit(
+                    f"Cannot unset config for profile {profile}. Profile does not exist."
+                )
+            if "auth_token" in cli_config[profile] and args.get("auth_token"):
+                cli_config[profile].pop("auth_token")
+            if (
+                args.get("generate_temp_token")
+                and "generate_temp_token" in cli_config[profile]
+            ):
+                cli_config[profile].pop("generate_temp_token")
+            if "batch_url" in cli_config[profile] and args.get("batch_url"):
+                cli_config[profile].pop("batch_url")
+            if "realtime_url" in cli_config[profile] and args.get("realtime_url"):
+                cli_config[profile].pop("realtime_url")
+
+            with open(
+                f"{home_directory}/.speechmatics/config", "w", encoding="UTF-8"
+            ) as file:
+                toml.dump(cli_config, file)
+            return
+
+    raise SystemExit(
+        f"Unable to remove config. No config file stored found at {home_directory}/.speechmatics/config"
+    )
 
 
 if __name__ == "__main__":

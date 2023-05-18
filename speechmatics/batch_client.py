@@ -7,16 +7,14 @@ import json
 import logging
 import os
 import time
-from typing import Any, Dict, Tuple, Union, List
+from typing import Any, Dict, List, Tuple, Union
 
 import httpx
 from polling2 import poll
 
-from speechmatics.exceptions import (
-    TranscriptionError,
-    JobNotFoundException,
-)
-from speechmatics.models import ConnectionSettings, BatchTranscriptionConfig
+from speechmatics.exceptions import JobNotFoundException, TranscriptionError
+from speechmatics.helpers import get_version
+from speechmatics.models import BatchTranscriptionConfig, ConnectionSettings
 
 LOGGER = logging.getLogger(__name__)
 
@@ -26,6 +24,34 @@ LOGGER = logging.getLogger(__name__)
 logging.getLogger("websockets.protocol").setLevel(logging.INFO)
 
 POLLING_DURATION = 15
+
+
+class _ForceMultipartDict(dict):
+    """Creates a dictionary that evaluates to True, even if empty.
+    Used in submit_job() to force proper multipart encoding when fetch_data is used.
+    See https://github.com/encode/httpx/discussions/2399 (link to psf/requests#1081) for details.
+    """
+
+    def __bool__(self):
+        return True
+
+
+class HttpClient(httpx.Client):
+    """Wrapper class around httpx.Client that adds the sm-sdk query parameter to request urls"""
+
+    def __init__(self, *args, **kwargs):
+        self._from_cli = False
+        if "from_cli" in kwargs:
+            self._from_cli = kwargs["from_cli"]
+            kwargs.pop("from_cli")
+        super().__init__(*args, **kwargs)
+
+    def build_request(self, method: str, url, *args, **kwargs):
+        cli = "-cli" if self._from_cli is True else ""
+        version = get_version()
+        url = httpx.URL(url)
+        url = url.copy_merge_params({"sm-sdk": f"python{cli}-{version}"})
+        return super().build_request(method, url, *args, **kwargs)
 
 
 class BatchClient:
@@ -48,7 +74,7 @@ class BatchClient:
 
     """
 
-    def __init__(self, connection_settings: ConnectionSettings):
+    def __init__(self, connection_settings: ConnectionSettings, from_cli=False):
         """Constructor method.
 
         :param connection_settings: Connection settings for API
@@ -68,15 +94,17 @@ class BatchClient:
             "Accept-Charset": "utf-8",
         }
         self.api_client = None
+        self._from_cli = from_cli
 
     def connect(self):
         """Create a connection to a Speechmatics Transcription REST endpoint"""
-        self.api_client = httpx.Client(
+        self.api_client = HttpClient(
             base_url=self.connection_settings.url,
             timeout=None,
             headers=self.default_headers,
             http2=True,
             verify=self.connection_settings.ssl_context,
+            from_cli=self._from_cli,
         )
         return self
 
@@ -133,7 +161,7 @@ class BatchClient:
 
     def submit_job(
         self,
-        audio: Union[Tuple[str, bytes], str, os.PathLike],
+        audio: Union[Tuple[str, bytes], str, os.PathLike, None],
         transcription_config: Union[
             Dict[str, Any], BatchTranscriptionConfig, str, os.PathLike
         ],
@@ -141,8 +169,9 @@ class BatchClient:
         """
         Submits audio and config for transcription.
 
-        :param audio: Audio file path or tuple of filename and bytes
-        :type audio: os.Pathlike | str | Tuple[str, bytes]
+        :param audio: Audio file path or tuple of filename and bytes, or None if using fetch_url
+            NOTE: You must expliticly pass audio=None if providing a fetch_url in the config
+        :type audio: os.Pathlike | str | Tuple[str, bytes] | None
 
         :param transcription_config: Configuration for the transcription.
         :type transcription_config:
@@ -153,28 +182,41 @@ class BatchClient:
 
         :raises httpx.HTTPError: For any request errors, httpx exceptions are raised.
         """
+
+        # Handle getting config into a dict
         if isinstance(transcription_config, (str or os.PathLike)):
-            config_json = json.dumps(self._from_file(transcription_config, "json"))
+            with open(transcription_config, mode="rt", encoding="utf-8") as file:
+                config_dict = json.load(file)
         elif isinstance(transcription_config, BatchTranscriptionConfig):
-            config_json = transcription_config.as_config()
+            config_dict = json.loads(transcription_config.as_config())
         elif isinstance(transcription_config, dict):
-            config_json = json.dumps(transcription_config)
+            config_dict = transcription_config
         else:
             raise ValueError(
                 """Job configuration must be a BatchTranscriptionConfig object,
                 a filepath as a string or Path object, or a dict"""
             )
-        config_data = {"config": config_json.encode("utf-8")}
 
-        if isinstance(audio, (str, os.PathLike)):
-            audio_data = self._from_file(audio, "binary")
-        elif isinstance(audio, tuple):
+        # If audio=None, fetch_data must be specified
+        if audio and "fetch_data" in config_dict:
+            raise ValueError("Only one of audio or fetch_data can be set at a time")
+        if not audio and "fetch_data" in config_dict:
+            audio_data = None
+        elif isinstance(audio, (str, os.PathLike)):
+            with open(audio, "rb") as file:
+                audio_data = os.path.basename(file.name), file.read()
+        elif isinstance(audio, tuple) and "fetch_data" not in config_dict:
             audio_data = audio
         else:
-            raise ValueError(
-                "Audio must be a filepath or a tuple of" "(filename, bytes)"
-            )
-        audio_file = {"data_file": audio_data}
+            raise ValueError("Audio must be a filepath or a tuple of (filename, bytes)")
+
+        # httpx seems to expect an un-nested json, throws a type error otherwise.
+        config_data = {"config": json.dumps(config_dict, ensure_ascii=False)}
+
+        if audio_data:
+            audio_file = {"data_file": audio_data}
+        else:
+            audio_file = _ForceMultipartDict()
 
         response = self.send_request("POST", "jobs", data=config_data, files=audio_file)
         return response.json()["id"]
@@ -305,7 +347,6 @@ class BatchClient:
         """
 
         def _poll_for_status() -> bool:
-
             job_status = self.check_job_status(job_id)["job"]["status"]
             if job_status == "done":
                 return True
@@ -323,7 +364,7 @@ class BatchClient:
         if status["job"]["status"] == "done":
             return self.get_job_result(job_id, transcription_format)
 
-        min_rtf = 0.25
+        min_rtf = 0.10
         duration = status["job"]["duration"]
         LOGGER.info(
             "Waiting %i sec to begin polling for completion.", round(duration * min_rtf)
@@ -334,19 +375,3 @@ class BatchClient:
         LOGGER.info("Starting poll.")
         poll(_poll_for_status, step=POLLING_DURATION, timeout=3600)
         return self.get_job_result(job_id, transcription_format)
-
-    # pylint:disable=no-self-use
-    # pylint:disable=inconsistent-return-statements
-    def _from_file(
-        self, path: Union[str, os.PathLike], filetype: str
-    ) -> Union[Dict[Any, Any], Tuple[str, bytes]]:
-        """Retrieve data from a file.
-        For filetype=="json", returns a dict
-        For filetype=="binary", returns a tuple of (filename, data)
-        """
-        if filetype == "json":
-            with open(path, mode="rt", encoding="utf-8") as file:
-                return json.load(file)
-        elif filetype == "binary":
-            with open(path, mode="rb") as file:
-                return os.path.basename(file.name), file.read()

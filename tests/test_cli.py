@@ -1,9 +1,7 @@
 import argparse
 import collections
-import copy
 import logging
 import os
-import sys
 
 import pytest
 import toml
@@ -131,6 +129,14 @@ from tests.utils import path_to_test_resource
         (["rt", "transcribe", "--ssl-mode=insecure"], {"ssl_mode": "insecure"}),
         (["rt", "transcribe", "--ssl-mode=none"], {"ssl_mode": "none"}),
         (["rt", "transcribe", "--enable-partials"], {"enable_partials": True}),
+        (
+            ["rt", "transcribe", "--enable-transcription-partials"],
+            {"enable_transcription_partials": True},
+        ),
+        (
+            ["rt", "transcribe", "--enable-translation-partials"],
+            {"enable_translation_partials": True},
+        ),
         (["rt", "transcribe", "--enable-entities"], {"enable_entities": True}),
         (["batch", "transcribe", "--enable-entities"], {"enable_entities": True}),
         (
@@ -251,7 +257,7 @@ def test_cli_arg_parse_with_file(args, values):
     test_args = args + common_transcribe_args
     actual_values = vars(cli.parse_args(args=test_args))
 
-    for (key, val) in values.items():
+    for key, val in values.items():
         assert actual_values[key] == val, f"Expected {actual_values} to match {values}"
 
 
@@ -273,7 +279,7 @@ def test_cli_arg_parse_transcribe_url(args, values):
     test_args = args + connection_args + ["fake_file.wav"]
     actual_values = vars(cli.parse_args(args=test_args))
 
-    for (key, val) in values.items():
+    for key, val in values.items():
         assert actual_values[key] == val
 
 
@@ -316,7 +322,7 @@ def test_cli_list_arg_parse_without_file(args, values):
     test_args = args + required_args
     actual_values = vars(cli.parse_args(args=test_args))
 
-    for (key, val) in values.items():
+    for key, val in values.items():
         assert actual_values[key] == val
 
 
@@ -445,7 +451,7 @@ def test_rt_main_with_basic_options(mock_server):
     assert mock_server.clients_disconnected_count == 1
     assert mock_server.messages_received
     assert mock_server.messages_sent
-    assert mock_server.path == "/v2"
+    assert mock_server.path.startswith("/v2")
 
 
 def test_rt_main_with_temp_token_option(mock_server):
@@ -466,7 +472,7 @@ def test_rt_main_with_temp_token_option(mock_server):
     assert mock_server.clients_disconnected_count == 1
     assert mock_server.messages_received
     assert mock_server.messages_sent
-    assert mock_server.path == "/v2"
+    assert mock_server.path.startswith("/v2")
 
 
 def test_rt_main_with_toml_config(mock_server):
@@ -492,7 +498,7 @@ def test_rt_main_with_toml_config(mock_server):
     assert mock_server.clients_disconnected_count == 1
     assert mock_server.messages_received
     assert mock_server.messages_sent
-    assert mock_server.path == "/v2"
+    assert mock_server.path.startswith("/v2")
 
 
 def test_rt_main_with_all_options(mock_server, tmp_path):
@@ -661,189 +667,6 @@ def test_rt_main_with_config_file_cmdline_override(mock_server):
     assert msg["transcription_config"]["operating_point"] == "enhanced"
 
 
-@pytest.mark.parametrize("check_tty", [False, True])
-def test_add_printing_handlers_transcript_handler(mocker, capsys, check_tty):
-    # patch in isatty, in order to check beheviour with and without tty
-    sys.stderr.isatty = lambda: check_tty
-    sys.stdout.isatty = lambda: check_tty
-
-    api = mocker.MagicMock()
-    api.get_language_pack_info = mocker.MagicMock(return_value={"word_delimiter": " "})
-    transcripts = cli.Transcripts(text="", json=[])
-
-    cli.add_printing_handlers(api, transcripts)
-    assert not transcripts.text
-    assert not transcripts.json
-    out, err = capsys.readouterr()
-    assert not out
-    assert not err
-    assert api.add_event_handler.called
-    call_args_dict = {i[0][0]: i[0][1] for i in api.add_event_handler.call_args_list}
-
-    finals_msg_type = "AddTranscript"
-    assert finals_msg_type in call_args_dict
-    transcript_handler_cb_func = call_args_dict[finals_msg_type]
-
-    transcript = ""
-    msg_empty_transcript = {
-        "message": "AddTranscript",
-        "results": [],
-        "metadata": {
-            "start_time": 58.920005798339844,
-            "end_time": 60.0000057220459,
-            "transcript": transcript,
-        },
-        "format": "2.4",
-    }
-    transcript_handler_cb_func(msg_empty_transcript)
-    assert transcripts.text == transcript
-    assert transcripts.json == [msg_empty_transcript]
-
-    out, err = capsys.readouterr()
-    assert not out, "Don't print a newline when the transcript is empty"
-    assert not err
-
-    transcript = "Howdy"
-    msg_single_word_transcript = copy.deepcopy(msg_empty_transcript)
-    msg_single_word_transcript["metadata"]["transcript"] = transcript
-    msg_single_word_transcript["results"].append(
-        {
-            "type": "word",
-            "start_time": 0.08999999612569809,
-            "end_time": 0.29999998211860657,
-            "alternatives": [
-                {"confidence": 1.0, "content": transcript.strip(), "language": "en"}
-            ],
-        }
-    )
-    transcript_handler_cb_func(msg_single_word_transcript)
-    assert transcripts.text == transcript
-    assert transcripts.json == [msg_empty_transcript, msg_single_word_transcript]
-    out, err = capsys.readouterr()
-
-    escape_seq = "\33[2K" if sys.stdout.isatty() else ""
-    assert out == escape_seq + transcript + "\n"
-    assert not err
-
-    transcript_handler_cb_func(msg_empty_transcript)
-    transcript_handler_cb_func(msg_single_word_transcript)
-    transcript_handler_cb_func(msg_empty_transcript)
-    assert transcripts.text == transcript * 2
-    assert transcripts.json == [
-        msg_empty_transcript,
-        msg_single_word_transcript,
-        msg_empty_transcript,
-        msg_single_word_transcript,
-        msg_empty_transcript,
-    ]
-
-    escape_seq = "\33[2K" if sys.stdout.isatty() else ""
-    out, err = capsys.readouterr()
-    assert out == escape_seq + transcript + "\n"
-    assert not err
-
-
-TRANSCRIPT_TXT_WITH_SC = "Hey\nHello"
-TRANSCRIPT_WITH_SC = {
-    "message": "AddTranscript",
-    "results": [
-        {
-            "type": "word",
-            "start_time": 0.08999999612569809,
-            "end_time": 0.29999998211860657,
-            "alternatives": [{"confidence": 1.0, "content": "Hey", "language": "en"}],
-        },
-        {
-            "type": "speaker_change",
-            "start_time": 0.08999999612569809,
-            "end_time": 0.29999998211860657,
-            "score": 1,
-        },
-        {
-            "type": "word",
-            "start_time": 0.08999999612569809,
-            "end_time": 0.29999998211860657,
-            "alternatives": [{"confidence": 1.0, "content": "Hello", "language": "en"}],
-        },
-    ],
-    "metadata": {
-        "start_time": 58.920005798339844,
-        "end_time": 60.0000057220459,
-        "transcript": TRANSCRIPT_TXT_WITH_SC,
-    },
-    "format": "2.4",
-}
-
-
-def check_printing_handlers(
-    mocker,
-    capsys,
-    transcript,
-    expected_transcript_txt,
-    speaker_change_token,
-):
-
-    api = mocker.MagicMock()
-    api.get_language_pack_info = mocker.MagicMock(return_value={"word_delimiter": " "})
-    transcripts = cli.Transcripts(text="", json=[])
-
-    cli.add_printing_handlers(
-        api, transcripts, speaker_change_token=speaker_change_token
-    )
-    assert not transcripts.text
-    assert not transcripts.json
-    out, err = capsys.readouterr()
-    assert not out
-    assert not err
-    assert api.add_event_handler.called
-    call_args_dict = {i[0][0]: i[0][1] for i in api.add_event_handler.call_args_list}
-
-    finals_msg_type = "AddTranscript"
-    assert finals_msg_type in call_args_dict
-    transcript_handler_cb_func = call_args_dict[finals_msg_type]
-
-    transcript_handler_cb_func(transcript)
-    assert transcripts.text == expected_transcript_txt
-    assert transcripts.json == [transcript]
-
-    escape_seq = "\33[2K" if sys.stdout.isatty() else ""
-    out, err = capsys.readouterr()
-    assert out == escape_seq + expected_transcript_txt + "\n"
-    assert not err
-
-
-@pytest.mark.parametrize("check_tty", [False, True])
-def test_add_printing_handlers_with_speaker_change_token(mocker, capsys, check_tty):
-    # patch in isatty, in order to check beheviour with and without tty
-    sys.stderr.isatty = lambda: check_tty
-    sys.stdout.isatty = lambda: check_tty
-
-    expected_transcript = "Hey\n<sc>\nHello"
-    check_printing_handlers(
-        mocker,
-        capsys,
-        TRANSCRIPT_WITH_SC,
-        expected_transcript,
-        speaker_change_token=True,
-    )
-
-
-@pytest.mark.parametrize("check_tty", [False, True])
-def test_add_printing_handlers_with_speaker_change_no_token(mocker, capsys, check_tty):
-    # patch in isatty, in order to check beheviour with and without tty
-    sys.stderr.isatty = lambda: check_tty
-    sys.stdout.isatty = lambda: check_tty
-
-    expected_transcript = "Hey\nHello"
-    check_printing_handlers(
-        mocker,
-        capsys,
-        TRANSCRIPT_WITH_SC,
-        expected_transcript,
-        speaker_change_token=False,
-    )
-
-
 @pytest.mark.parametrize(
     "args, values",
     (
@@ -858,10 +681,9 @@ def test_add_printing_handlers_with_speaker_change_no_token(mocker, capsys, chec
     ),
 )
 def test_cli_argparse_config(args, values):
-
     actual_values = vars(cli.parse_args(args=args))
 
-    for (key, val) in values.items():
+    for key, val in values.items():
         assert actual_values[key] == val
 
 
@@ -879,6 +701,8 @@ def test_cli_argparse_config(args, values):
             "generate_temp_token": True,
         },
         {"generate_temp_token": True, "auth_token": "faketoken", "profile": "test"},
+        {"realtime_url": "wss://speechmatics.io"},
+        {"batch_url": "https://speechmatics.io"},
     ),
 )
 def test_config_set_and_remove_toml(args):
@@ -893,12 +717,12 @@ def test_config_set_and_remove_toml(args):
     with open(f"{home_dir}/.speechmatics/config", "r", encoding="UTF-8") as file:
         cli_config = toml.load(file)
     profile = args.get("profile", "default")
-    for (key, val) in args.items():
+    for key, val in args.items():
         if key != "profile":
             assert cli_config[profile][key] == val
 
     unset_args = {"command": "unset", "profile": profile}
-    for key in ["auth_token", "generate_temp_token"]:
+    for key in ["auth_token", "generate_temp_token", "realtime_url", "batch_url"]:
         if key in args:
             unset_args[key] = True
         else:
@@ -912,7 +736,7 @@ def test_config_set_and_remove_toml(args):
     with open(f"{home_dir}/.speechmatics/config", "r", encoding="UTF-8") as file:
         cli_config = toml.load(file)
 
-    for (key, val) in args.items():
+    for key, val in args.items():
         if key != "profile":
             assert key not in cli_config[profile]
 
