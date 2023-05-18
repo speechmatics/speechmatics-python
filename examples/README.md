@@ -14,4 +14,8 @@ Provide a URL to a YouTube video and receive a transcription in return. This is 
 
 Demonstrates how to run a websocket server that acts as a proxy to a speechmatics transcriber. It allows multiple clients to connect to the same transcriber stream. This can be used, for example, for distributing a radio transcription stream to multiple clients based on a single audio source.
 
+4. [sync](./sync)
+
+Tools for batch synchronising a local folder of audio into a searchable database of transcriptions.
+
 Each of the examples should have a separate README with all the necessary steps to get them up and running.
