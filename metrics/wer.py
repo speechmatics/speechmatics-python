@@ -124,14 +124,10 @@ class TranscriptDiff(difflib.SequenceMatcher):
         """
         assert error_type in ["INSERTION", "DELETION", "SUBSTITUTION"]
 
-        if len(errors) > 0:
-            return None
-
         print(self._colourise_segment(error_type, self.colour_mapping[error_type]))
+
         for error in errors:
             print(error, end="\n")
-
-        return None
 
     def print_errors_by_type(self) -> None:
         """
@@ -140,6 +136,7 @@ class TranscriptDiff(difflib.SequenceMatcher):
         error_types = ["INSERTION", "DELETION", "SUBSTITUTION"]
         for error_type, list_of_errors in zip(error_types, self.errors.values()):
             self._print_errors_for_type(error_type, list_of_errors)
+            print("\n")
 
 
 def count_errors(errors_list: list) -> list[tuple[Any, int]]:
