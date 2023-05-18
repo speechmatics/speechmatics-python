@@ -14,19 +14,20 @@ For further guidance run:
 ### Run from source code
 
 If you would prefer to clone the repo and run the source code: 
-`git clone git@github.com:speechmatics/speechmatics-python.git`
-`cd speechmatics-python/metrics/sm_diarization_metrics`
-`pip install -r ./requirements.txt`
-`python3 -m sm_diarization_metrics.cookbook reference.json transcript.json` 
-``
+`git clone git@github.com:speechmatics/speechmatics-python.git`  
+
+`cd speechmatics-python/metrics/sm_diarization_metrics`  
+
+`pip install -r ./requirements.txt`  
+
+`python3 -m sm_diarization_metrics.cookbook reference.json transcript.json`   
 
 ### Build wheel
 To build and install the wheel run:
-
-$ make wheel
-$ make install
+`make wheel`
+`make install`
 
 ### Docs
 
-A description of each of the metrics is available in sm_diarization_metrics.pdf
+Further description of how to use the tool and the metrics available are in sm_diarization_metrics.pdf
 
