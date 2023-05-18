@@ -36,13 +36,13 @@ Accuracy is the complement of WER. That is, if the WER of an ASR transcript if 5
 This WER tool is built using the JiWER library. Install it as follows:
 
 ```bash
-pip3 install jiwer
+pip3 install jiwer regex
 ```
 
 To compute the WER and show a transcript highlighting the difference between the Reference and the Hypothesis, run the following:
 
 ```bash
-python3 wer.py --diff <reference_path> <hypothesis_path>
+python3 -m metrics.wer --diff <reference_path> <hypothesis_path>
 ```
 
 ## Read More
