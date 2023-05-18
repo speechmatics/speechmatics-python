@@ -12,7 +12,7 @@ from langchain.chat_models import ChatOpenAI
 from langchain.chains import ConversationChain
 from langchain.memory import ConversationBufferMemory
 
-from elevenlabs import generate, play, set_api_key
+from elevenlabs import generate, play, set_api_key, clone
 
 ELEVEN_API_KEY = os.getenv("ELEVEN_API_KEY", "")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
@@ -150,12 +150,25 @@ async def main(args):
 
     llm = ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo")
     memory = ConversationBufferMemory()
-    memory.chat_memory.add_ai_message(args.llm_system_prompt)
+    if args.llm_system_prompt:
+        memory.chat_memory.add_ai_message(args.llm_system_prompt)
     conversation = ConversationChain(
         llm=llm, 
         verbose=True, 
         memory=memory
     )
+    
+    if args.voice_file:
+        print("Cloning voice")
+        voice = clone(
+            name=args.voice_name,
+            description=args.voice_description,
+            files=[args.voice_file],
+        )
+        print("Finished cloning")
+    else:
+        voice = args.voice_name
+
 
     while True:
         tasks = [transcribe_from_device(args.device, speechmatics_client), check_for_done(), check_key_press()]
@@ -169,7 +182,7 @@ async def main(args):
             response = conversation.predict(input=text)
             print(f"User: {text}")
             print(f"AI: {response}")
-            audio = generate(text=response, voice="Adam")
+            audio = generate(text=response, voice=voice)
             play(audio)
         else:
             print("Nothing was said!")
@@ -188,7 +201,10 @@ def int_or_str(text):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Speechmatics realtime chat')
     parser.add_argument('--speechmatics_url', type=str, default="wss://eu.rt.speechmatics.com/v2/en", help='Speechmatics websocket url')
-    parser.add_argument('--llm_system_prompt', type=str, required=True, help='LLM system prompt')
+    parser.add_argument('--llm_system_prompt', type=str, default=None, help='LLM system prompt')
+    parser.add_argument('--voice_name', type=str, default="Adam", help='voice name')
+    parser.add_argument('--voice_description', type=str, default="", help='voice description')
+    parser.add_argument('--voice_file', type=str, default=None, help='voice file for cloning')
 
     parser.add_argument('-d', '--device', type=int_or_str, help='input device (numeric ID or substring)')
 
