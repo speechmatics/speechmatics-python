@@ -1,0 +1,4 @@
+pyannote.core
+pyannote.database
+docopt
+tabulate
