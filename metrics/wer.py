@@ -271,7 +271,6 @@ def main():
     parser.add_argument("ref_path", help="Path to the reference transcript", type=str)
     parser.add_argument("hyp_path", help="Path to the hypothesis transcript", type=str)
     args = vars(parser.parse_args())
-    print(args)
 
     normaliser = BasicTextNormalizer() if args["non_en"] else EnglishTextNormalizer()
 
