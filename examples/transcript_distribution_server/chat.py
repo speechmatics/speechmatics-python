@@ -6,16 +6,28 @@ import argparse
 import sys
 import sounddevice as sd
 import aioconsole
+import os
 
 from langchain.chat_models import ChatOpenAI
 from langchain.chains import ConversationChain
 from langchain.memory import ConversationBufferMemory
 
+from elevenlabs import generate, play, set_api_key
 
-def create_speechmatics_client(speechmatics_url: str, speechmatics_api_key: str):
+ELEVEN_API_KEY = os.getenv("ELEVEN_API_KEY", "")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
+SPEECHMATICS_API_KEY = os.getenv("SPEECHMATICS_API_KEY", "")
+assert ELEVEN_API_KEY, f"Please set {ELEVEN_API_KEY}"
+assert OPENAI_API_KEY, f"Please set {OPENAI_API_KEY}"
+assert SPEECHMATICS_API_KEY, f"Please set {SPEECHMATICS_API_KEY}"
+
+set_api_key(ELEVEN_API_KEY)
+
+
+def create_speechmatics_client(speechmatics_url: str):
     conn = speechmatics.models.ConnectionSettings(
         url=speechmatics_url,
-        auth_token=speechmatics_api_key,
+        auth_token=SPEECHMATICS_API_KEY,
     )
     return speechmatics.client.WebsocketClient(conn)
 
@@ -133,7 +145,7 @@ async def main(args):
     global text
     global prev_text
     global current_transcript
-    speechmatics_client = create_speechmatics_client(args.speechmatics_url, args.speechmatics_api_key)
+    speechmatics_client = create_speechmatics_client(args.speechmatics_url)
     init(speechmatics_client)
 
     llm = ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo")
@@ -154,8 +166,11 @@ async def main(args):
             print(f"An error occurred: {e}")
         
         if text:
+            response = conversation.predict(input=text)
             print(f"User: {text}")
-            print(f"AI: {conversation.predict(input=text)}")
+            print(f"AI: {response}")
+            audio = generate(text=response, voice="Adam")
+            play(audio)
         else:
             print("Nothing was said!")
         
@@ -173,7 +188,6 @@ def int_or_str(text):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Speechmatics realtime chat')
     parser.add_argument('--speechmatics_url', type=str, default="wss://eu.rt.speechmatics.com/v2/en", help='Speechmatics websocket url')
-    parser.add_argument('--speechmatics_api_key', type=str, required=True, help='Speechmatics websocket url')
     parser.add_argument('--llm_system_prompt', type=str, required=True, help='LLM system prompt')
 
     parser.add_argument('-d', '--device', type=int_or_str, help='input device (numeric ID or substring)')
