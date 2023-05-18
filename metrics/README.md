@@ -33,16 +33,32 @@ Accuracy is the complement of WER. That is, if the WER of an ASR transcript if 5
 
 ## Usage
 
+These instructions assume the repository has been cloned, and is the working directory. You do this using:
+
+```bash
+git clone https://github.com/speechmatics/speechmatics-python.git && cd speechmatics-python
+```
+
 This WER tool is built using the JiWER library. Install it as follows:
 
 ```bash
 pip3 install jiwer regex
 ```
 
+## Usage
+
 To compute the WER and show a transcript highlighting the difference between the Reference and the Hypothesis, run the following:
 
 ```bash
 python3 -m metrics.wer --diff <reference_path> <hypothesis_path>
+```
+
+Multiple files can be processed at once by listing the reference and hypotheses file paths in two separate .dbl text files (with a newline for each path).
+
+To see all the commands, run:
+
+```bash
+python3 -m metrics.wer -h
 ```
 
 ## Read More
