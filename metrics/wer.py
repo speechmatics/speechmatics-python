@@ -8,7 +8,7 @@ from typing import Any, Tuple
 from collections import Counter
 from argparse import ArgumentParser
 from jiwer import compute_measures, cer
-from speechmatics.metrics.normalizers import BasicTextNormalizer, EnglishTextNormalizer
+from metrics.normalizers import BasicTextNormalizer, EnglishTextNormalizer
 
 
 def load_file(path: str) -> str:
