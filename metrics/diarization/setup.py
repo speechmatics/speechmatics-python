@@ -11,7 +11,7 @@ requirements = parse_requirements("./requirements.txt", session=False)
 git_tag = os.environ.get("CI_COMMIT_TAG")
 if git_tag:
     assert git_tag.startswith("diarization-metrics")
-version = git_tag.lstrip("diarization-metrics/") if git_tag else "0.0.1"
+version = git_tag.lstrip("diarization-metrics/") if git_tag else "0.0.3"
 
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
