@@ -7,6 +7,10 @@ import sys
 import sounddevice as sd
 import time
 
+from langchain.chat_models import ChatOpenAI
+from langchain.chains import ConversationChain
+from langchain.memory import ConversationBufferMemory
+
 
 def create_speechmatics_client(speechmatics_url: str, speechmatics_api_key: str):
     conn = speechmatics.models.ConnectionSettings(
@@ -43,8 +47,6 @@ def discard_partials(current_transcript):
 def discard_old_transcript(current_transcript, current_duration, seconds_to_keep = 8):
     return {k: v for k, v in current_transcript.items() if k > (current_duration - seconds_to_keep)}
 
-TRANSCRIPTION_START_TIME=0
-
 current_transcript = dict()
 text = None
 prev_text = None
@@ -54,9 +56,11 @@ async def check_for_done():
     global prev_text
     counter = 0
     while True:
-        print(counter)
+        if text is not None and prev_text is None:
+            print("Listening...")
         if prev_text is not None and text.replace(".","").lower() == prev_text.replace(".","").lower():
             counter += 0.5
+            print(counter)
         else:
             counter = 0
             prev_text = text
@@ -112,20 +116,42 @@ async def transcribe_from_device(device, speechmatics_client):
         )
         # Define transcription parameters
         conf = speechmatics.models.TranscriptionConfig(language='en',operating_point="enhanced", max_delay=2, enable_partials=True, enable_entities=True)
-        global TRANSCRIPTION_START_TIME
-        TRANSCRIPTION_START_TIME = time.time()
         await speechmatics_client.run(RawInputStreamWrapper(stream), conf, settings)
 
+
 async def main(args):
+    global text
+    global prev_text
+    global current_transcript
     speechmatics_client = create_speechmatics_client(args.speechmatics_url, args.speechmatics_api_key)
     init(speechmatics_client)
 
-    tasks = [transcribe_from_device(args.device, speechmatics_client), check_for_done()]
-    try:
-        await asyncio.gather(*tasks)
-    except Exception as e:
-        # Handle the exception when one of the tasks fails
-        print(f"An error occurred: {e}")
+    llm = ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo")
+    memory = ConversationBufferMemory()
+    memory.chat_memory.add_ai_message(args.llm_system_prompt)
+    conversation = ConversationChain(
+        llm=llm, 
+        verbose=True, 
+        memory=memory
+    )
+
+    while True:
+        tasks = [transcribe_from_device(args.device, speechmatics_client), check_for_done()]
+        try:
+            await asyncio.gather(*tasks)
+        except Exception as e:
+            # Handle the exception when one of the tasks fails
+            print(f"An error occurred: {e}")
+        
+        if text:
+            print(f"User: {text}")
+            print(f"AI: {conversation.predict(input=text)}")
+        else:
+            print("Nothing was said!")
+        
+        text = None
+        prev_text = None
+        current_transcript = dict()
 
 def int_or_str(text):
     """Helper function for argument parsing."""
@@ -138,6 +164,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Speechmatics realtime chat')
     parser.add_argument('--speechmatics_url', type=str, default="wss://eu.rt.speechmatics.com/v2/en", help='Speechmatics websocket url')
     parser.add_argument('--speechmatics_api_key', type=str, required=True, help='Speechmatics websocket url')
+    parser.add_argument('--llm_system_prompt', type=str, required=True, help='LLM system prompt')
 
     parser.add_argument('-d', '--device', type=int_or_str, help='input device (numeric ID or substring)')
 

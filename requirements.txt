@@ -3,3 +3,6 @@ httpx[http2]~=0.22
 polling2~=0.5
 toml~=0.10.2
 sounddevice
+langchain
+openai
+urllib3==1.26.15
