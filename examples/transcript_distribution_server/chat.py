@@ -5,7 +5,7 @@ import asyncio
 import argparse
 import sys
 import sounddevice as sd
-import time
+import aioconsole
 
 from langchain.chat_models import ChatOpenAI
 from langchain.chains import ConversationChain
@@ -50,6 +50,7 @@ def discard_old_transcript(current_transcript, current_duration, seconds_to_keep
 current_transcript = dict()
 text = None
 prev_text = None
+TERMINATE_WORD = "abracadabra"
 
 async def check_for_done():
     global text
@@ -58,6 +59,10 @@ async def check_for_done():
     while True:
         if text is not None and prev_text is None:
             print("Listening...")
+        if text is not None and TERMINATE_WORD in text.lower():
+            text = text.replace(TERMINATE_WORD, "").replace(TERMINATE_WORD.capitalise(), "").strip()
+            raise TimeoutError
+        # increment counter if text hasn't changed
         if prev_text is not None and text.replace(".","").lower() == prev_text.replace(".","").lower():
             counter += 0.5
             print(counter)
@@ -67,6 +72,11 @@ async def check_for_done():
         if counter > 2:
             raise TimeoutError
         await asyncio.sleep(0.5)
+
+async def check_key_press():
+    while True:
+        if await aioconsole.ainput() is not None:
+            raise TimeoutError
 
 
 def init(sm_client):
@@ -136,7 +146,7 @@ async def main(args):
     )
 
     while True:
-        tasks = [transcribe_from_device(args.device, speechmatics_client), check_for_done()]
+        tasks = [transcribe_from_device(args.device, speechmatics_client), check_for_done(), check_key_press()]
         try:
             await asyncio.gather(*tasks)
         except Exception as e:

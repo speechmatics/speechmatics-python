@@ -6,3 +6,4 @@ sounddevice
 langchain
 openai
 urllib3==1.26.15
+aioconsole
