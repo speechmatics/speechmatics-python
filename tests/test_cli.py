@@ -622,6 +622,9 @@ def test_rt_main_with_config_file(mock_server):
     assert msg["transcription_config"]["domain"] == "fake"
     assert msg["transcription_config"]["enable_entities"] is True
     assert msg["transcription_config"].get("operating_point") is None
+    assert msg["translation_config"] is not None
+    assert msg["translation_config"]["enable_partials"] is False
+    assert msg["translation_config"]["target_languages"] == ["es"]
 
 
 def test_rt_main_with_config_file_cmdline_override(mock_server):
@@ -636,6 +639,8 @@ def test_rt_main_with_config_file_cmdline_override(mock_server):
         mock_server.url,
         "--config-file",
         config_path,
+        "--translation-langs=fr",
+        "--enable-translation-partials",
         "--auth-token=xyz",
         "--lang=yz",
         "--output-locale=en-US",
@@ -665,6 +670,9 @@ def test_rt_main_with_config_file_cmdline_override(mock_server):
     assert msg["transcription_config"]["output_locale"] == "en-US"
     assert msg["transcription_config"]["speaker_change_sensitivity"] == 0.8
     assert msg["transcription_config"]["operating_point"] == "enhanced"
+    assert msg["translation_config"] is not None
+    assert msg["translation_config"]["enable_partials"] is True
+    assert msg["translation_config"]["target_languages"] == ["fr"]
 
 
 @pytest.mark.parametrize(

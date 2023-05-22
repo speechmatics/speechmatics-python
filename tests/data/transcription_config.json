@@ -1,5 +1,9 @@
 {
   "language": "xy",
   "domain": "fake",
-  "enable_entities": true
+  "enable_entities": true,
+  "translation_config": {
+    "target_languages": ["es"],
+    "enable_partials": false
+  }
 }
