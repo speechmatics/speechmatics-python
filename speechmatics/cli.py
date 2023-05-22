@@ -286,13 +286,21 @@ def get_transcription_config(args):  # pylint: disable=too-many-branches
             speaker_sensitivity=speaker_sensitivity
         )
 
-    if args.get("translation_target_languages") is not None:
-        translation_target_languages = args.get("translation_target_languages")
-        enable_partials = args.get("enable_partials", False) or args.get(
-            "enable_translation_partials", False
+    translation_config = config.get("translation_config", {})
+    args_target_languages = args.get("translation_target_languages")
+    if translation_config or args_target_languages:
+        enable_partials = (
+            args.get("enable_partials", False)
+            or args.get("enable_translation_partials", False)
+            or translation_config.get("enable_partials", False)
+        )
+        target_languages = (
+            args_target_languages.split(",")
+            if args_target_languages
+            else translation_config.get("target_languages")
         )
         config["translation_config"] = RTTranslationConfig(
-            target_languages=translation_target_languages.split(","),
+            target_languages=target_languages,
             enable_partials=enable_partials,
         )
 
