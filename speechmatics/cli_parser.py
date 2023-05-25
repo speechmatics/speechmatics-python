@@ -3,8 +3,8 @@
 Parsers used by the CLI to handle CLI arguments
 """
 import argparse
-from urllib.parse import urlparse
 import logging
+from urllib.parse import urlparse
 
 LOGGER = logging.getLogger(__name__)
 

@@ -9,6 +9,7 @@ import copy
 import json
 import logging
 import os
+from typing import Union
 from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 
 import httpx
@@ -20,7 +21,14 @@ from speechmatics.exceptions import (
     TranscriptionError,
 )
 from speechmatics.helpers import get_version, json_utf8, read_in_chunks
-from speechmatics.models import ClientMessageType, ServerMessageType
+from speechmatics.models import (
+    AudioSettings,
+    ClientMessageType,
+    ConnectionSettings,
+    ServerMessageType,
+    TranscriptionConfig,
+    UsageMode,
+)
 
 LOGGER = logging.getLogger(__name__)
 
@@ -45,8 +53,23 @@ class WebsocketClient:
 
     # pylint: disable=too-many-instance-attributes
 
-    def __init__(self, connection_settings):
-        self.connection_settings = connection_settings
+    def __init__(
+        self,
+        connection_settings_or_auth_token: Union[str, ConnectionSettings, None] = None,
+    ):
+        """
+        Args:
+            connection_settings_or_auth_token (Union[str, ConnectionSettings, None], optional): Defaults to None.
+                If `str`,, assumes auth_token passed and default URL being used
+                If `None`, attempts using auth_token from config.
+        """
+        if not isinstance(connection_settings_or_auth_token, ConnectionSettings):
+            self.connection_settings = ConnectionSettings.create(
+                UsageMode.RealTime, connection_settings_or_auth_token
+            )
+        else:
+            self.connection_settings = connection_settings_or_auth_token
+            self.connection_settings.set_missing_values_from_config(UsageMode.RealTime)
         self.websocket = None
         self.transcription_config = None
         self.translation_config = None
@@ -383,7 +406,13 @@ class WebsocketClient:
             if exc and not isinstance(exc, (EndOfTranscriptException, ForceEndSession)):
                 raise exc
 
-    async def run(self, stream, transcription_config, audio_settings, from_cli=False):
+    async def run(
+        self,
+        stream,
+        transcription_config: TranscriptionConfig,
+        audio_settings=AudioSettings(),
+        from_cli=False,
+    ):
         """
         Begin a new recognition session.
         This will run asynchronously. Most callers may prefer to use
@@ -426,10 +455,17 @@ class WebsocketClient:
             token = f"Bearer {temp_token}"
             extra_headers["Authorization"] = token
 
+        url = self.connection_settings.url
+        if not url.endswith(self.transcription_config.language):
+            if url.endswith("/"):
+                url += self.transcription_config.language
+            else:
+                url += f"/{self.transcription_config.language}"
+
         # Extend connection url with sdk version information
         cli = "-cli" if from_cli is True else ""
         version = get_version()
-        parsed_url = urlparse(self.connection_settings.url)
+        parsed_url = urlparse(url)
         query_params = dict(parse_qsl(parsed_url.query))
         query_params["sm-sdk"] = f"python{cli}-{version}"
         updated_query = urlencode(query_params)

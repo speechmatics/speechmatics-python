@@ -5,11 +5,12 @@ Data models and message types used by the library.
 
 import json
 import ssl
-
 from dataclasses import asdict, dataclass, field, fields
 from enum import Enum
-
 from typing import Any, Dict, List, Optional
+
+from speechmatics.config import CONFIG_PATH, read_config_from_home
+from speechmatics.constants import BATCH_SELF_SERVICE_URL, RT_SELF_SERVICE_URL
 
 
 @dataclass
@@ -305,6 +306,12 @@ class AudioSettings:
         }
 
 
+class UsageMode(str, Enum):
+    # pylint: disable=invalid-name
+    Batch = "batch"
+    RealTime = "rt"
+
+
 @dataclass
 class ConnectionSettings:
     """Defines connection parameters."""
@@ -324,13 +331,62 @@ class ConnectionSettings:
     ping_timeout_seconds: float = 60
     """Ping-pong timeout in seconds."""
 
-    auth_token: str = None
-    """auth token to authenticate a customer.
-    This auth token is only applicable for RT-SaaS."""
+    auth_token: Optional[str] = None
+    """auth token to authenticate a customer."""
 
     generate_temp_token: Optional[bool] = False
     """Automatically generate a temporary token for authentication.
     Non-enterprise customers must set this to True. Enterprise customers should set this to False."""
+
+    def set_missing_values_from_config(self, mode: UsageMode):
+        stored_config = read_config_from_home()
+        if self.url is None or self.url == "":
+            url_key = "realtime_url" if mode == UsageMode.RealTime else "batch_url"
+            if stored_config and url_key in stored_config:
+                self.url = stored_config[url_key]
+            else:
+                raise ValueError(f"No URL provided or set in {CONFIG_PATH}")
+        if self.auth_token is None or self.auth_token == "":
+            if stored_config and stored_config.get("auth_token"):
+                self.auth_token = stored_config["auth_token"]
+
+    @classmethod
+    def create(cls, mode: UsageMode, auth_token: Optional[str] = None):
+        stored_config = read_config_from_home()
+        default_url = (
+            RT_SELF_SERVICE_URL
+            if mode == UsageMode.RealTime
+            else BATCH_SELF_SERVICE_URL
+        )
+        url_key = "realtime_url" if mode == UsageMode.RealTime else "batch_url"
+        if stored_config and url_key in stored_config:
+            url = stored_config[url_key]
+        else:
+            url = default_url
+        if auth_token is not None:
+            return ConnectionSettings(
+                url=url,
+                auth_token=auth_token,
+                generate_temp_token=True,
+            )
+        if stored_config and stored_config.get("auth_token"):
+            url = stored_config.get(url_key, default_url)
+            return ConnectionSettings(
+                url,
+                auth_token=stored_config["auth_token"],
+                generate_temp_token=stored_config.get("generate_temp_token", True),
+            )
+        raise ValueError(f"No acces token provided or set in {CONFIG_PATH}")
+
+
+@dataclass
+class RTConnectionSettings(ConnectionSettings):
+    url = f"{RT_SELF_SERVICE_URL}/en"
+
+
+@dataclass
+class BatchConnectionSettings(ConnectionSettings):
+    url = BATCH_SELF_SERVICE_URL
 
 
 class ClientMessageType(str, Enum):

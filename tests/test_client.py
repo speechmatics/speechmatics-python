@@ -19,6 +19,7 @@ from speechmatics.models import (
     ClientMessageType,
     RTSpeakerDiarizationConfig,
     BatchTranscriptionConfig,
+    TranscriptionConfig,
 )
 
 from tests.utils import path_to_test_resource, default_ws_client_setup
@@ -313,7 +314,9 @@ def test_helpful_error_message_received_on_connection_reset_error():
     with patch("websockets.connect", mock_connect):
         with patch.object(client.LOGGER, "error", mock_logger_error_method):
             try:
-                ws_client.run_synchronously(MagicMock(), MagicMock(), MagicMock())
+                ws_client.run_synchronously(
+                    MagicMock(), TranscriptionConfig(language="en"), MagicMock()
+                )
             except ConnectionResetError as exc:
                 assert exc is not None
 
@@ -574,6 +577,84 @@ def test_batch_mock_jobs(httpx_mock: HTTPXMock):
             job_id, transcription_format="txt"
         )
         assert transcript.decode("utf-8") == actual_transcript
+
+
+def test_client_apikey_constructor(mocker):
+    mocker.patch(
+        "speechmatics.models.read_config_from_home",
+        return_value={
+            "realtime_url": "http://rt-example.com",
+        },
+    )
+    sm_client = client.WebsocketClient("fake_api_key")
+    assert "fake_api_key" == sm_client.connection_settings.auth_token
+    assert "http://rt-example.com" == sm_client.connection_settings.url
+    assert sm_client.connection_settings.generate_temp_token
+
+
+def test_client_empty_constructor(mocker):
+    mocker.patch(
+        "speechmatics.models.read_config_from_home",
+        return_value={
+            "realtime_url": "http://rt-example.com",
+            "auth_token": "home_token",
+            "generate_temp_token": True,
+        },
+    )
+    sm_client = client.WebsocketClient()
+    assert "http://rt-example.com" == sm_client.connection_settings.url
+    assert "home_token" == sm_client.connection_settings.auth_token
+    assert sm_client.connection_settings.generate_temp_token
+
+
+def test_client_url_constructor(mocker):
+    mocker.patch(
+        "speechmatics.models.read_config_from_home",
+        return_value={
+            "auth_token": "home_token",
+        },
+    )
+    sm_client = client.WebsocketClient(ConnectionSettings("http://rt-example.com"))
+    assert "home_token" == sm_client.connection_settings.auth_token
+
+
+def test_batch_client_empty_constructor(mocker):
+    mocker.patch(
+        "speechmatics.models.read_config_from_home",
+        return_value={
+            "batch_url": "http://batch-example.com/v2",
+            "auth_token": "home_token",
+            "generate_temp_token": True,
+        },
+    )
+    with BatchClient() as batch_client:
+        assert "http://batch-example.com/v2" == batch_client.connection_settings.url
+        assert "home_token" == batch_client.connection_settings.auth_token
+        assert batch_client.connection_settings.generate_temp_token
+
+
+def test_batch_client_url_constructor(mocker):
+    mocker.patch(
+        "speechmatics.models.read_config_from_home",
+        return_value={
+            "auth_token": "home_token",
+        },
+    )
+    with BatchClient() as batch_client:
+        assert "home_token" == batch_client.connection_settings.auth_token
+
+
+def test_batch_client_api_key_constructor(mocker):
+    mocker.patch(
+        "speechmatics.models.read_config_from_home",
+        return_value={
+            "batch_url": "http://batch-example.com/v2",
+        },
+    )
+    with BatchClient("home_token") as batch_client:
+        assert "http://batch-example.com/v2" == batch_client.connection_settings.url
+        assert "home_token" == batch_client.connection_settings.auth_token
+        assert batch_client.connection_settings.generate_temp_token
 
 
 def deepcopy_state(obj):
