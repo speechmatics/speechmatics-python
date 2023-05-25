@@ -6,6 +6,7 @@ Wrapper library to interface with Speechmatics ASR batch v2 API.
 import json
 import logging
 import os
+from pathlib import Path
 import time
 from typing import Any, Dict, List, Tuple, Union
 
@@ -198,7 +199,9 @@ class BatchClient:
 
         # Handle getting config into a dict
         if isinstance(transcription_config, (str or os.PathLike)):
-            with open(transcription_config, mode="rt", encoding="utf-8") as file:
+            with Path(transcription_config).expanduser().open(
+                mode="rt", encoding="utf-8"
+            ) as file:
                 config_dict = json.load(file)
         elif isinstance(transcription_config, BatchTranscriptionConfig):
             config_dict = json.loads(transcription_config.as_config())
@@ -216,7 +219,7 @@ class BatchClient:
         if not audio and "fetch_data" in config_dict:
             audio_data = None
         elif isinstance(audio, (str, os.PathLike)):
-            with open(audio, "rb") as file:
+            with Path(audio).expanduser().open("rb") as file:
                 audio_data = os.path.basename(file.name), file.read()
         elif isinstance(audio, tuple) and "fetch_data" not in config_dict:
             audio_data = audio
