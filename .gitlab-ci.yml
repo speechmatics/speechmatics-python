@@ -27,6 +27,7 @@ source:
   image: python:${PYTHON_VER}-${PYTHON_OS}
   stage: test
   script:
+    - pip3 install -r examples/notification_flow/requirements.txt
     - make lint
     - make test
 
