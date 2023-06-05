@@ -5,12 +5,23 @@ Data models and message types used by the library.
 
 import json
 import ssl
+import sys
 from dataclasses import asdict, dataclass, field, fields
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
 from speechmatics.config import CONFIG_PATH, read_config_from_home
 from speechmatics.constants import BATCH_SELF_SERVICE_URL, RT_SELF_SERVICE_URL
+
+if sys.version_info >= (3, 8):
+    from typing import Literal
+else:
+    from typing_extensions import Literal  # pragma: no cover
+
+
+SummaryContentType = Literal["informative", "conversational", "auto"]
+SummaryLength = Literal["brief", "detailed"]
+SummaryType = Literal["paragraphs", "bullets"]
 
 
 @dataclass
@@ -169,6 +180,20 @@ class BatchLanguageIdentificationConfig:
     """Expected languages for language identification"""
 
 
+@dataclass
+class SummarizationConfig:
+    """Defines summarization parameters."""
+
+    content_type: SummaryContentType = "auto"
+    """Optional summarization content_type parameter."""
+
+    summary_length: SummaryLength = "brief"
+    """Optional summarization summary_length parameter."""
+
+    summary_type: SummaryType = "bullets"
+    """Optional summarization summary_type parameter."""
+
+
 @dataclass(init=False)
 class TranscriptionConfig(_TranscriptionConfig):
     # pylint: disable=too-many-instance-attributes
@@ -224,6 +249,7 @@ class TranscriptionConfig(_TranscriptionConfig):
 
 @dataclass(init=False)
 class BatchTranscriptionConfig(_TranscriptionConfig):
+    # pylint: disable=too-many-instance-attributes
     """Batch: Defines transcription parameters for batch requests.
     The `.as_config()` method will return it wrapped into a Speechmatics json config."""
 
@@ -248,6 +274,9 @@ class BatchTranscriptionConfig(_TranscriptionConfig):
     channel_diarization_labels: List[str] = None
     """Add your own speaker or channel labels to the transcript"""
 
+    summarization_config: SummarizationConfig = None
+    """Optional configuration for transcript summarization."""
+
     def as_config(self):
         dictionary = self.asdict()
 
@@ -258,6 +287,7 @@ class BatchTranscriptionConfig(_TranscriptionConfig):
         )
         translation_config = dictionary.pop("translation_config", None)
         srt_overrides = dictionary.pop("srt_overrides", None)
+        summarization_config = dictionary.pop("summarization_config", None)
 
         config = {"type": "transcription", "transcription_config": dictionary}
 
@@ -277,6 +307,9 @@ class BatchTranscriptionConfig(_TranscriptionConfig):
 
         if srt_overrides:
             config["output_config"] = {"srt_overrides": srt_overrides}
+
+        if summarization_config:
+            config["summarization_config"] = summarization_config
 
         return json.dumps(config)
 

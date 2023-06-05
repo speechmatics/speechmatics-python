@@ -234,6 +234,40 @@ def get_arg_parser():
         help=("Comma-separated list of expected languages for language identification"),
     )
 
+    # Parent parser for batch summarize argument
+    batch_summarization_parser = argparse.ArgumentParser(add_help=False)
+    batch_summarization_parser.add_argument(
+        "--summarize",
+        dest="summarize",
+        action="store_true",
+        default=False,
+        help="Whether to generate transcript summarization",
+    )
+    batch_summarization_parser.add_argument(
+        "--summary-content-type",
+        dest="content_type",
+        default=None,
+        choices=["informative", "conversational", "auto"],
+        type=str,
+        required=False,
+    )
+    batch_summarization_parser.add_argument(
+        "--summary-length",
+        dest="summary_length",
+        default=None,
+        choices=["brief", "detailed"],
+        type=str,
+        required=False,
+    )
+    batch_summarization_parser.add_argument(
+        "--summary-type",
+        dest="summary_type",
+        default=None,
+        choices=["paragraphs", "bullets"],
+        type=str,
+        required=False,
+    )
+
     # Parent parser for output type
     output_format_parser = argparse.ArgumentParser(add_help=False)
     output_format_parser.add_argument(
@@ -415,6 +449,7 @@ def get_arg_parser():
             config_parser,
             output_format_parser,
             batch_diarization_parser,
+            batch_summarization_parser,
         ],
         help="Transcribe one or more audio files using batch mode, while waiting for results.",
     )
@@ -427,6 +462,7 @@ def get_arg_parser():
             config_parser,
             output_format_parser,
             batch_diarization_parser,
+            batch_summarization_parser,
         ],
         help="Submit one or more files for transcription.",
     )

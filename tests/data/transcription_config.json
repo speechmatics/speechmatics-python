@@ -5,5 +5,10 @@
   "translation_config": {
     "target_languages": ["es"],
     "enable_partials": false
+  },
+  "summarization_config": {
+    "content_type": "auto",
+    "summary_length": "brief",
+    "summary_type": "bullets"
   }
 }
