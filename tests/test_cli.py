@@ -250,6 +250,50 @@ from tests.utils import path_to_test_resource
                 "langid_expected_languages": "de,es,cs",
             },
         ),
+        (
+            ["batch", "transcribe", "--summarize"],
+            {
+                "summarize": True,
+            },
+        ),
+        (
+            [
+                "batch",
+                "transcribe",
+                "--summarize",
+                "--summary-content-type=informative",
+            ],
+            {
+                "summarize": True,
+                "content_type": "informative",
+            },
+        ),
+        (
+            [
+                "batch",
+                "transcribe",
+                "--summarize",
+                "--summary-content-type=informative",
+            ],
+            {
+                "summarize": True,
+                "content_type": "informative",
+            },
+        ),
+        (
+            ["batch", "transcribe", "--summarize", "--summary-length=detailed"],
+            {
+                "summarize": True,
+                "summary_length": "detailed",
+            },
+        ),
+        (
+            ["batch", "transcribe", "--summarize", "--summary-type=paragraphs"],
+            {
+                "summarize": True,
+                "summary_type": "paragraphs",
+            },
+        ),
     ],
 )
 def test_cli_arg_parse_with_file(args, values):

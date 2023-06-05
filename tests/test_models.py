@@ -1,4 +1,6 @@
-import pytest
+from dataclasses import asdict
+
+from pytest import mark, param
 
 from speechmatics import models
 from speechmatics.batch_client import BatchClient
@@ -53,7 +55,7 @@ def test_translationconfig_default_values():
     assert {"target_languages": None, "enable_partials": False} == config.asdict()
 
 
-@pytest.mark.parametrize(
+@mark.parametrize(
     "target_languages, enable_partials, want_config",
     [
         (["fr"], False, {"target_languages": ["fr"], "enable_partials": False}),
@@ -72,7 +74,7 @@ def test_translationconfig(target_languages, enable_partials, want_config):
     assert want_config == config.asdict()
 
 
-@pytest.mark.parametrize(
+@mark.parametrize(
     "url, want",
     [
         ("example.com/v2", "example.com/v2"),
@@ -86,3 +88,62 @@ def test_connection_settings_url(url, want):
     batch_client = BatchClient(connection_settings)
     got = batch_client.connection_settings.url
     assert got == want
+
+
+@mark.parametrize(
+    "params, want",
+    [
+        param(
+            {},
+            {
+                "content_type": "auto",
+                "summary_length": "brief",
+                "summary_type": "bullets",
+            },
+            id="default params",
+        ),
+        param(
+            {"content_type": "informative"},
+            {
+                "content_type": "informative",
+                "summary_length": "brief",
+                "summary_type": "bullets",
+            },
+            id="set content_type param",
+        ),
+        param(
+            {"summary_length": "detailed"},
+            {
+                "content_type": "auto",
+                "summary_length": "detailed",
+                "summary_type": "bullets",
+            },
+            id="set summary_length param",
+        ),
+        param(
+            {"summary_type": "paragraphs"},
+            {
+                "content_type": "auto",
+                "summary_length": "brief",
+                "summary_type": "paragraphs",
+            },
+            id="set summary_type param",
+        ),
+        param(
+            {
+                "content_type": "auto",
+                "summary_length": "brief",
+                "summary_type": "bullets",
+            },
+            {
+                "content_type": "auto",
+                "summary_length": "brief",
+                "summary_type": "bullets",
+            },
+            id="set all params",
+        ),
+    ],
+)
+def test_summarization_config(params, want):
+    summarization_config = models.SummarizationConfig(**params)
+    assert asdict(summarization_config) == want

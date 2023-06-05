@@ -35,6 +35,7 @@ from speechmatics.models import (
     RTSpeakerDiarizationConfig,
     RTTranslationConfig,
     ServerMessageType,
+    SummarizationConfig,
     TranscriptionConfig,
 )
 
@@ -174,7 +175,9 @@ def get_connection_settings(args, lang="en"):
     return settings
 
 
-def get_transcription_config(args):  # pylint: disable=too-many-branches
+def get_transcription_config(
+    args,
+):  # pylint: disable=too-many-branches, too-many-locals, too-many-statements
     """
     Helper function which returns a TranscriptionConfig object based on the
     command line options given to the program.
@@ -287,6 +290,29 @@ def get_transcription_config(args):  # pylint: disable=too-many-branches
         config["language_identification_config"] = BatchLanguageIdentificationConfig(
             expected_languages=langid_expected_languages.split(",")
         )
+
+    # request summarization from config file
+    file_summarization_config = config.get("summarization_config", {})
+    # request summarization from cli
+    args_summarization = args.get("summarize")
+    if args_summarization or config.get("summarization_config") is not None:
+        summarization_config = SummarizationConfig()
+        content_type = args.get(
+            "content_type", file_summarization_config.get("content_type")
+        )
+        if content_type:
+            summarization_config.content_type = content_type
+        summary_length = args.get(
+            "summary_length", file_summarization_config.get("summary_length")
+        )
+        if summary_length:
+            summarization_config.summary_length = summary_length
+        summary_type = args.get(
+            "summary_type", file_summarization_config.get("summary_type")
+        )
+        if summary_type:
+            summarization_config.summary_type = summary_type
+        config["summarization_config"] = summarization_config
 
     if args["mode"] == "rt":
         # pylint: disable=unexpected-keyword-arg
