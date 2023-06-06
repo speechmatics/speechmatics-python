@@ -99,67 +99,67 @@ A complete list of commands and flags can be found in the SDK docs at https://sp
 
   ### Configuring Auth Tokens
 - Setting an auth token for CLI authentication:
-   ```shell
+   ```bash
    speechmatics config set --auth-token $AUTH_TOKEN
    ```
   Auth tokens are stored in toml config at HOME_DIR/.speechmatics/config.
   You may also set the auth_token for each CLI command using the --auth-token flag.
   The --auth-token flag overrides the value stored in the config file, e.g.
-   ```shell
+   ```bash
    speechmatics transcribe --auth-token $AUTH_TOKEN --generate-temp-token example_audio.wav
    ```
 
 - Removing an auth_token from the toml file:
-   ```shell
+   ```bash
    speechmatics config unset --auth-token
    ```
 
 - Setting --generate-temp-token flag globally for CLI authentication:
-   ```shell
+   ```bash
    speechmatics config set --generate-temp-token
    ```
 
 - Unsetting generate temp token globally for CLI authentication:
-   ```shell
+   ```bash
    speechmatics config unset --generate-temp-token
    ```
 
 - Setting URLs for connecting to transcribers. These values can be used in places of the --url flag:
-   ```shell
+   ```bash
    speechmatics config set --rt-url wss://eu2.rt.speechmatics.com/v2 --batch-url https://asr.api.speechmatics.com/v2
    ```
 
 - Unsetting transcriber URLs in the toml config:
-   ```shell
+   ```bash
    speechmatics config unset --rt-url --batch-url
    ```
 
 - Setting URLs for connecting to transcribers. These values can be used in places of the --url flag:
-   ```shell
+   ```bash
    speechmatics config set --rt-url wss://eu2.rt.speechmatics.com/v2 --batch-url https://asr.api.speechmatics.com/v2
    ```
 
 - Unsetting transcriber URLs in the toml config:
-   ```shell
+   ```bash
    speechmatics config unset --rt-url --batch-url
    ```
 
   ### Realtime ASR
 - Starting a real-time session for self-service SaaS customers using a .wav file as the input audio:
 
-   ```shell
+   ```bash
    speechmatics transcribe --lang en --generate-temp-token example_audio.wav
    ```
 
 - Real-time transcription of online stream (needs ffmpeg installed):
-  ```shell
+  ```bash
   ffmpeg -v 0 -i https://cdn.bitmovin.com/content/assets/art-of-motion-dash-hls-progressive/mpds/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.mpd \
   -f s16le -ar 44100 -ac 1 -acodec pcm_s16le - | \
   speechmatics transcribe --raw pcm_s16le --sample-rate 44100 --generate-temp-token -
 
 - Starting a real-time session for enterprise SaaS customers using a .wav file as the input audio:
 
-   ```shell
+   ```bash
    # Point URL to the a SaaS enterprise runtime
    URL=wss://neu.rt.speechmatics.com/v2/en
 
@@ -168,7 +168,7 @@ A complete list of commands and flags can be found in the SDK docs at https://sp
 
 - Starting a real-time session for on-prem customers using a .wav file as the input audio:
 
-   ```shell
+   ```bash
    # Point URL to the local instance of the realtime appliance
    URL=ws://realtimeappliance.yourcompany:9000/v2
 
@@ -177,14 +177,14 @@ A complete list of commands and flags can be found in the SDK docs at https://sp
 
 - Show the messages that are going over the websocket connection using verbose output:
 
-   ```shell
+   ```bash
    speechmatics -v transcribe --url $URL --ssl-mode none example_audio.wav
    ```
 
 - The CLI also accepts an audio stream on standard input.
   Transcribe the piped input audio:
 
-   ```shell
+   ```bash
    cat example_audio.wav | speechmatics transcribe --url $URL --ssl-mode none -
    ```
 
@@ -192,7 +192,7 @@ A complete list of commands and flags can be found in the SDK docs at https://sp
 
   List available input devices:
 
-  ```shell
+  ```bash
   ffmpeg -f avfoundation -list_devices true -i ""
   ```
 
@@ -201,7 +201,7 @@ A complete list of commands and flags can be found in the SDK docs at https://sp
   You may need to change the sample rate to match the sample rate that your machine records at.
   You may also need to replace `:default` with something like `:0` or `:1` if you want to use a specific microphone.
 
-  ```shell
+  ```bash
   ffmpeg -loglevel quiet -f avfoundation -i ":default" -f f32le -acodec pcm_f32le -ar 44100 - \
   >   | speechmatics transcribe --url $URL --ssl-mode none --raw pcm_f32le --sample-rate 44100 -
   ```
@@ -211,13 +211,13 @@ A complete list of commands and flags can be found in the SDK docs at https://sp
 
   List available input devices:
 
-  ```shell
+  ```bash
   cat /proc/asound/cards
   ```
 
   Record microphone audio and pipe to transcriber:
 
-  ```shell
+  ```bash
   ffmpeg -loglevel quiet -f alsa -i hw:0 -f f32le -acodec pcm_f32le -ar 44100 - \
       | speechmatics transcribe --url $URL --ssl-mode none --enable-partials --raw pcm_f32le --sample-rate 44100 -
   ```
@@ -227,19 +227,19 @@ A complete list of commands and flags can be found in the SDK docs at https://sp
   ### Batch ASR
 - Submit a .wav file for batch ASR processing
 
-   ```shell
+   ```bash
    speechmatics batch transcribe --lang en example_audio.wav
    ```
 
 - Files may be submitted for asynchronous processing
 
-    ```shell
+    ```bash
    speechmatics batch submit example_audio.wav
     ```
 
 - Enterprise SaaS and on-prem customers can point to a custom runtime:
 
-   ```shell
+   ```bash
    # Point URL to a custom runtime (in this case, the trial runtime)
    URL=https://trial.asr.api.speechmatics.com/v2/
 
@@ -248,21 +248,21 @@ A complete list of commands and flags can be found in the SDK docs at https://sp
 
 - Check processing status of a job
 
-    ```shell
+    ```bash
    # $JOB_ID is from the submit command output
    speechmatics batch job-status --job-id $JOB_ID
     ```
 
 - Retrieve completed transcription
 
-    ```shell
+    ```bash
    # $JOB_ID is from the submit command output
    speechmatics batch get-results --job-id $JOB_ID
     ```
   
 - Submit a job with automatic language identification
 
-    ```shell
+    ```bash
    speechmatics batch transcribe --language auto --langid-langs en,es example_audio.wav
     ```
     If Speechmatics is not able to identify a language with high enough confidence,  the job will be rejected. This is to reduce the risk of transcribing incorrectly.
@@ -272,8 +272,8 @@ A complete list of commands and flags can be found in the SDK docs at https://sp
 
 - Submit a job with translation
 
-    ```shell
-   $ speechmatics batch transcribe --translation-langs de,es --output-format json-v2 example_audio.wav
+    ```bash
+  speechmatics batch transcribe --translation-langs de,es --output-format json-v2 example_audio.wav
     ```
   `--translation-langs` is supported in asynchronous mode as well, and translation output can be retrieved using `get-results` with `--output-format json-v2` set.
   
@@ -282,16 +282,16 @@ A complete list of commands and flags can be found in the SDK docs at https://sp
 
 - Start a real-time transcription with translation session using microphone audio and pipe to transcriber
 
-  ```shell
-  $ ffmpeg -loglevel quiet -f alsa -i hw:0 -f f32le -acodec pcm_f32le -ar 44100 - \
+  ```bash
+  ffmpeg -loglevel quiet -f alsa -i hw:0 -f f32le -acodec pcm_f32le -ar 44100 - \
       | speechmatics rt transcribe --url $URL --ssl-mode none --raw pcm_f32le --sample-rate 44100 \
   --print-json --translation-langs fr -
   ```
 
 - Submit a job with summarization
 
-  ```shell
-   $ speechmatics batch transcribe --summarize --output-format json-v2 example_audio.wav
+  ```bash
+  speechmatics batch transcribe --summarize --output-format json-v2 example_audio.wav
     ```
 
   ### Custom Transcription Config File
@@ -299,7 +299,7 @@ A complete list of commands and flags can be found in the SDK docs at https://sp
   The config file is a JSON file that contains the transcription options.
   The config file can be passed to the CLI using the `--config-file` option.
 
-    ```shell
+    ```bash
   speechmatics transcribe --config-file transcription_config.json example_audio.wav
     ```
 - The format of this JSON file is described in detail in the 
