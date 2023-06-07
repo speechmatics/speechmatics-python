@@ -7,13 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Fix
+## [1.9.0] - 2023-06-07
+
+### Fixed
 
 - Fix error when language provided is whitespace
 
 ### Added
 
 - Add support for transcript summarization
+- Example of using notifications
 
 ## [1.8.3]
 
@@ -300,7 +303,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added authentication token support for RT-SaaS [@rakeshv247](https://github.com/rakeshv247).
 
-[unreleased]: https://github.com/speechmatics/speechmatics-python/compare/v1.7.0...HEAD
+[unreleased]: https://github.com/speechmatics/speechmatics-python/compare/v1.9.0...HEAD
+[1.9.0]: https://github.com/speechmatics/speechmatics-python/releases/tag/1.9.0
+[1.8.3]: https://github.com/speechmatics/speechmatics-python/releases/tag/1.8.3
+[1.8.2]: https://github.com/speechmatics/speechmatics-python/releases/tag/1.8.2
+[1.8.1]: https://github.com/speechmatics/speechmatics-python/releases/tag/1.8.1
+[1.8.0]: https://github.com/speechmatics/speechmatics-python/releases/tag/1.8.0
 [1.7.0]: https://github.com/speechmatics/speechmatics-python/releases/tag/1.7.0
 [1.6.4]: https://github.com/speechmatics/speechmatics-python/releases/tag/1.6.4
 [1.6.3]: https://github.com/speechmatics/speechmatics-python/releases/tag/1.6.3
