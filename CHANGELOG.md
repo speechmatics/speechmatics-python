@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fix
+
+- Fix error when language provided is whitespace
+
 ### Added
 
 - Add support for transcript summarization

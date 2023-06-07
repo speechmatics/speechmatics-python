@@ -456,11 +456,11 @@ class WebsocketClient:
             extra_headers["Authorization"] = token
 
         url = self.connection_settings.url
-        if not url.endswith(self.transcription_config.language):
+        if not url.endswith(self.transcription_config.language.strip()):
             if url.endswith("/"):
-                url += self.transcription_config.language
+                url += self.transcription_config.language.strip()
             else:
-                url += f"/{self.transcription_config.language}"
+                url += f"/{self.transcription_config.language.strip()}"
 
         # Extend connection url with sdk version information
         cli = "-cli" if from_cli is True else ""

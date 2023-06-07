@@ -155,7 +155,7 @@ def get_connection_settings(args, lang="en"):
         if args.get("mode") == "batch":
             url = BATCH_SELF_SERVICE_URL
         else:
-            url = f"{RT_SELF_SERVICE_URL}/{lang}"
+            url = f"{RT_SELF_SERVICE_URL}/{lang.strip()}"
 
     settings = ConnectionSettings(
         url=url,
