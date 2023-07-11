@@ -218,6 +218,12 @@ class TranscriptionConfig(_TranscriptionConfig):
     speaker_change_sensitivity: float = None
     """Sensitivity level for speaker change."""
 
+    streaming_mode: bool = None
+    """Indicates if we run the engine in streaming mode, or regular RT mode."""
+
+    ctrl: dict = None
+    """Internal Speechmatics flag that allows to give special commands to the engine."""
+
     enable_partials: bool = None
     """Indicates if partials for both transcripts and translation, where words are produced
     immediately, is enabled."""

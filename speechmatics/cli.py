@@ -218,12 +218,16 @@ def get_transcription_config(
         if args.get(option) is not None:
             config[option] = args[option]
     for option in [
+        "streaming_mode",
         "enable_partials",
         "enable_entities",
         "enable_translation_partials",
         "enable_transcription_partials",
     ]:
         config[option] = True if args.get(option) else config.get(option)
+
+    if args.get("ctrl"):
+        config["ctrl"] = json.loads(args["ctrl"])
 
     if args.get("additional_vocab_file"):
         additional_vocab = parse_additional_vocab(args["additional_vocab_file"])
