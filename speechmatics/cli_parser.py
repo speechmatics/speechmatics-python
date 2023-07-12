@@ -85,6 +85,11 @@ def get_arg_parser():
             "redirected to a file."
         ),
     )
+    parser.add_argument(
+        "--ctrl",
+        type=str,
+        help="Speechmatics internal use.",
+    )
 
     # Parsers for shared arguments.
     # Parent parser for commands involving files
@@ -306,6 +311,12 @@ def get_arg_parser():
 
     # Parent parser for RT transcribe arguments
     rt_transcribe_command_parser = argparse.ArgumentParser(add_help=False)
+    rt_transcribe_command_parser.add_argument(
+        "--streaming-mode",
+        default=False,
+        action="store_true",
+        help="Whether to run the engine in streaming mode. Internal Speechmatics use only.",
+    )
     rt_transcribe_command_parser.add_argument(
         "--enable-partials",
         default=False,
