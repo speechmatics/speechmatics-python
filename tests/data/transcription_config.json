@@ -10,5 +10,6 @@
     "content_type": "auto",
     "summary_length": "brief",
     "summary_type": "bullets"
-  }
+  },
+  "sentiment_analysis_config": {}
 }

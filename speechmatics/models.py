@@ -194,6 +194,11 @@ class SummarizationConfig:
     """Optional summarization summary_type parameter."""
 
 
+@dataclass
+class SentimentAnalysisConfig:
+    """Sentiment Analysis config."""
+
+
 @dataclass(init=False)
 class TranscriptionConfig(_TranscriptionConfig):
     # pylint: disable=too-many-instance-attributes
@@ -283,6 +288,9 @@ class BatchTranscriptionConfig(_TranscriptionConfig):
     summarization_config: SummarizationConfig = None
     """Optional configuration for transcript summarization."""
 
+    sentiment_analysis_config: Optional[SentimentAnalysisConfig] = None
+    """Optional configuration for sentiment analysis of the transcript"""
+
     def as_config(self):
         dictionary = self.asdict()
 
@@ -294,7 +302,7 @@ class BatchTranscriptionConfig(_TranscriptionConfig):
         translation_config = dictionary.pop("translation_config", None)
         srt_overrides = dictionary.pop("srt_overrides", None)
         summarization_config = dictionary.pop("summarization_config", None)
-
+        sentiment_analysis_config = dictionary.pop("sentiment_analysis_config", None)
         config = {"type": "transcription", "transcription_config": dictionary}
 
         if fetch_data:
@@ -316,6 +324,9 @@ class BatchTranscriptionConfig(_TranscriptionConfig):
 
         if summarization_config:
             config["summarization_config"] = summarization_config
+
+        if sentiment_analysis_config is not None:
+            config["sentiment_analysis_config"] = sentiment_analysis_config
 
         return json.dumps(config)
 

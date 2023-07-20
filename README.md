@@ -294,6 +294,12 @@ A complete list of commands and flags can be found in the SDK docs at https://sp
   speechmatics batch transcribe --summarize --output-format json-v2 example_audio.wav
     ```
 
+- Submit a job with sentiment analysis
+
+  ```bash
+  speechmatics batch transcribe --sentiment-analysis --output-format json-v2 example_audio.wav
+    ```
+
   ### Custom Transcription Config File
 - Instead of passing all the transcription options via the command line you can also pass a transcription config file.
   The config file is a JSON file that contains the transcription options.
