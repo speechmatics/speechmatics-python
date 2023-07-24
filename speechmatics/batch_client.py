@@ -8,7 +8,7 @@ import logging
 import os
 from pathlib import Path
 import time
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any, Dict, Iterable, List, Tuple, Union
 
 import httpx
 from polling2 import poll
@@ -25,6 +25,15 @@ LOGGER = logging.getLogger(__name__)
 logging.getLogger("websockets.protocol").setLevel(logging.INFO)
 
 POLLING_DURATION = 15
+
+# This is a reasonable default for when multiple audio files are submitted for
+# transcription in one go, in submit_jobs.
+#
+# Customers are free to increase this to any kind of maximum they are
+# comfortable with, but bear in mind there will be rate-limitting at the API
+# end for over-use.
+CONCURRENCY_DEFAULT = 5
+CONCURRENCY_MAXIMUM = 50
 
 
 class _ForceMultipartDict(dict):
@@ -236,6 +245,43 @@ class BatchClient:
 
         response = self.send_request("POST", "jobs", data=config_data, files=audio_file)
         return response.json()["id"]
+
+    def submit_jobs(
+        self,
+        audio_paths: Iterable[Union[str, os.PathLike]],
+        transcription_config: Any,
+        concurrency=CONCURRENCY_DEFAULT,
+    ):
+        if concurrency > CONCURRENCY_MAXIMUM:
+            raise Exception(
+                f"{concurrency=} is too high, choose a value <= {CONCURRENCY_MAXIMUM}!"
+            )
+        pool = {}
+
+        def wait():
+            while True:
+                for job_id in list(pool):
+                    path = pool[job_id]
+                    status = self.check_job_status(job_id)["job"]["status"]
+                    LOGGER.debug("%s for %s is %s", job_id, path, status)
+                    if status == "running":
+                        continue
+                    del pool[job_id]
+                    return path, job_id
+                time.sleep(POLLING_DURATION)
+
+        for audio_path in audio_paths:
+            if len(pool) >= concurrency:
+                yield wait()
+            try:
+                job_id = self.submit_job(audio_path, transcription_config)
+                LOGGER.debug("%s submitted as job %s", audio_path, job_id)
+                pool[job_id] = audio_path
+            except httpx.HTTPStatusError as exc:
+                LOGGER.warning("%s submit failed with %s", audio_path, exc)
+
+        while pool:
+            yield wait()
 
     def get_job_result(
         self,
