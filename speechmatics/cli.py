@@ -35,6 +35,7 @@ from speechmatics.models import (
     RTSpeakerDiarizationConfig,
     RTTranslationConfig,
     ServerMessageType,
+    SentimentAnalysisConfig,
     SummarizationConfig,
     TranscriptionConfig,
 )
@@ -318,6 +319,11 @@ def get_transcription_config(
         if summary_type:
             summarization_config.summary_type = summary_type
         config["summarization_config"] = summarization_config
+
+    sentiment_analysis_config = config.get("sentiment_analysis_config", {})
+    args_sentiment_analysis = args.get("sentiment_analysis")
+    if args_sentiment_analysis or sentiment_analysis_config:
+        config["sentiment_analysis_config"] = SentimentAnalysisConfig()
 
     if args["mode"] == "rt":
         # pylint: disable=unexpected-keyword-arg

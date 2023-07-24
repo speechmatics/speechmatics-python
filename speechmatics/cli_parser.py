@@ -273,6 +273,16 @@ def get_arg_parser():
         required=False,
     )
 
+    # Parent parser for batch sentiment-analysis argument
+    batch_sentiment_analysis_parser = argparse.ArgumentParser(add_help=False)
+    batch_sentiment_analysis_parser.add_argument(
+        "--sentiment-analysis",
+        dest="sentiment_analysis",
+        action="store_true",
+        default=False,
+        help="Perform sentiment analysis on the transcript",
+    )
+
     # Parent parser for output type
     output_format_parser = argparse.ArgumentParser(add_help=False)
     output_format_parser.add_argument(
@@ -461,6 +471,7 @@ def get_arg_parser():
             output_format_parser,
             batch_diarization_parser,
             batch_summarization_parser,
+            batch_sentiment_analysis_parser,
         ],
         help="Transcribe one or more audio files using batch mode, while waiting for results.",
     )
@@ -474,6 +485,7 @@ def get_arg_parser():
             output_format_parser,
             batch_diarization_parser,
             batch_summarization_parser,
+            batch_sentiment_analysis_parser,
         ],
         help="Submit one or more files for transcription.",
     )

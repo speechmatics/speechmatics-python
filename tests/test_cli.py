@@ -294,6 +294,12 @@ from tests.utils import path_to_test_resource
                 "summary_type": "paragraphs",
             },
         ),
+        (
+            ["batch", "transcribe", "--sentiment-analysis"],
+            {
+                "sentiment_analysis": True,
+            },
+        ),
     ],
 )
 def test_cli_arg_parse_with_file(args, values):
