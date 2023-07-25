@@ -174,7 +174,7 @@ def test_summarization_config(params, want):
                 "method": "put",
                 "auth_headers": ["Authorization", "Bearer token"],
             },
-        )
+        ),
     ],
 )
 def test_notification_config(params, want):
