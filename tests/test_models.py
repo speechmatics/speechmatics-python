@@ -147,3 +147,36 @@ def test_connection_settings_url(url, want):
 def test_summarization_config(params, want):
     summarization_config = models.SummarizationConfig(**params)
     assert asdict(summarization_config) == want
+
+
+@mark.parametrize(
+    "params, want",
+    [
+        param(
+            {"url": "example.com"},
+            {
+                "url": "example.com",
+                "contents": None,
+                "method": "post",
+                "auth_headers": None,
+            },
+        ),
+        param(
+            {
+                "url": "example.com",
+                "contents": ["transcript.txt"],
+                "method": "put",
+                "auth_headers": ["Authorization", "Bearer token"],
+            },
+            {
+                "url": "example.com",
+                "contents": ["transcript.txt"],
+                "method": "put",
+                "auth_headers": ["Authorization", "Bearer token"],
+            },
+        )
+    ],
+)
+def test_notification_config(params, want):
+    notification_config = models.NotificationConfig(**params)
+    assert asdict(notification_config) == want

@@ -46,7 +46,7 @@ class NotificationConfig:
     url: str
     """URL for notification. The `id` and `status` query parameters will be added."""
 
-    contents: str = None
+    contents: List[str] = None
     """
     Specifies a list of items to be attached to the notification message.
     When multiple items are requested, they are included as named file
@@ -56,7 +56,7 @@ class NotificationConfig:
     method: str = "post"
     """The HTTP(S) method to be used. Only `post` and `put` are supported."""
 
-    auth_headers: str = None
+    auth_headers: List[str] = None
     """
     A list of additional headers to be added to the notification request
     when using http or https. This is intended to support authentication or
