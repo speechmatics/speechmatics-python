@@ -16,7 +16,7 @@ conf = {
     "notification_config": [
         {
             "url": WEBHOOK_URL,
-            # Causes the webhook to send transcript json in the request body if the job is successful
+            # Causes the webhook to send transcript in the request body if the job is successful
             "contents": ["transcript.txt"],
         }
     ],
