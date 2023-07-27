@@ -11,7 +11,6 @@ Welcome to the Speechmatics Python SDK and CLI! We're open to contributions from
 - [How to Request a Feature](#how-to-request-a-feature)
 - [Style Guide](#style-guide)
 - [Testing](#testing)
-- [Releasing](#releasing)
 
 ## Useful Links
 
@@ -35,9 +34,10 @@ pip install -r requirements-dev.txt
 We try not to be too prescreptive about how people work, but we also believe in helping make things easier by following a couple of basic steps. If you follow these recommendations, it should make the review process simpler and quicker:
 
 1. If your change is large, consider reaching out to us beforehand and discussing the issue. This could save you a lot of time if there are good reasons why we haven't done something.
-2. Make sure your changes are tested - ideally both manually and in the unit tests.
-3. When opening a PR, provide some simple descriptive comments that list the changes being made in the PR.
-4. Give your PR a short, descriptive title.
+2. Fork the repo and work on a branch on your fork. Try to give your branches short, descriptive names in the format {type}/{description} e.g. bugfix/missing-try-catch.
+3. Make sure your changes are tested - ideally both manually and in the unit tests.
+4. When opening a PR back into our repo, provide some simple descriptive comments that list the changes being made in the PR.
+5. Give your PR a short, descriptive title.
 
 ## How to Report a Bug
 
@@ -75,9 +75,3 @@ pytest -v tests/test_models.py::test_notification_config
 ```
 
 If you make changes to the SDK or CLI, the tests should be updated or added to in a sensible way to ensure the new change is properly covered.
-
-## Releasing
-
-To release your changes, you should create a tag with the version of the release as it's name. This takes the format X.Y.Z e.g. 1.9.0. Once the tag is created, create and publish a new release from the new tag. This should automatically trigger a GitHub action that will publish your changes to PyPi.
-
-Note: GitHub workflow runs on `released`. This means it triggers when a release is published, or a pre-release is updated to a release. Drafts will do nothing.
