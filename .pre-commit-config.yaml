@@ -11,7 +11,11 @@ repos:
     - id: trailing-whitespace
       stages:
         - commit
-      exclude: docs
+      exclude: |
+        (?x)^(
+          tests/data|
+          docs
+        )
     - id: check-symlinks
       stages:
         - commit
@@ -43,7 +47,11 @@ repos:
     - id: end-of-file-fixer
       stages:
         - commit
-      exclude: docs
+      exclude: |
+        (?x)^(
+          tests/data|
+          docs
+        )
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.0.280
