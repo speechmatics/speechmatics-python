@@ -7,8 +7,7 @@ all: lint test docs
 .PHONY: lint
 lint:
 	black --check --diff $(SOURCES)
-	pylint $(SOURCES)
-	pycodestyle $(SOURCES)
+	ruff $(SOURCES)
 
 .PHONY: format
 format:
