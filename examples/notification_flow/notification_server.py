@@ -43,7 +43,6 @@ def process_request():
     else:
         # In case of failure, get the job's specific failure state
         with BatchClient() as client:
-
             job_id = request.json.get("id")
             cur = connection.cursor()
 

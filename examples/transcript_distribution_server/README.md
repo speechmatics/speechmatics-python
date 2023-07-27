@@ -1,7 +1,7 @@
 This is an example showing how Speechmatics transcription can be used to transcribe video and audio streams in Real-Time.
 For instance, with this we could transcribe a SRT stream once and distribute it to many clients.
 
-This is implemented using WebSocket. 
+This is implemented using WebSocket.
 Clients connect to the `transcript_distribution_server` and access a URL to be transcribed.
 Internally the `transcript_distribution_server` creates a Speechmatics Real-Time transcription session for each URL,
 and forwards the text to all connected clients.
@@ -12,7 +12,7 @@ and forwards the text to all connected clients.
 brew install ffmpeg
 pip3 install -r requirements.txt
 
-# For testing 
+# For testing
 brew install websocat
 ```
 
@@ -24,7 +24,7 @@ Start the server with
 python3 transcript_distribution_server.py --port 8765
 ```
 
-Connect with your client to e.g. `ws://localhost:8765`, 
+Connect with your client to e.g. `ws://localhost:8765`,
 with https://github.com/vi/websocat this can be done with:
 ```bash
 websocat ws://127.0.0.1:8765

@@ -31,7 +31,6 @@ with open("schema.sql", "r", encoding="utf-8") as f:
 
 # Open the client using a context manager
 with BatchClient() as client:
-
     # Sumbit the job to the API
     job_id = client.submit_job(
         audio=PATH_TO_FILE,

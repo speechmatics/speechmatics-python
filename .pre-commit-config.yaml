@@ -7,44 +7,26 @@ repos:
         - --allow-multiple-documents
       stages:
         - commit
-      exclude: |
-        (?x)^(
-          unittests/langpack/sample_langpacks
-        )
+      exclude: docs
     - id: trailing-whitespace
       stages:
         - commit
-      exclude: |
-        (?x)^(
-          resources/|
-          functests/am/models|
-          speech_app/teams_call_bot|
-          coreasr/test|
-          orchestrator/functests/resources/transport/ws/
-        )
+      exclude: docs
     - id: check-symlinks
       stages:
         - commit
+      exclude: docs
     - id: check-json
       stages:
         - commit
-      exclude: |
-        (?x)^(
-          resources/|
-          aladdin/dctcreate|
-          functests/am/models|
-          speech_app/teams_call_bot
-        )
+      exclude: docs
     - id: check-merge-conflict
       stages:
         - commit
     - id: detect-private-key
       stages:
         - commit
-      exclude: |
-        (?x)^(
-          container-tests/framework_tests/ssl_test_certs_for_rtbackend/api.key_
-        )
+      exclude: tests/data/dummy_key
     - id: no-commit-to-branch
       args: ['--branch=master']
       stages:
@@ -53,22 +35,15 @@ repos:
       args: ['--maxkb=500']
       stages:
         - commit
+      exclude: docs
     - id: check-ast
       stages:
         - commit
+      exclude: docs
     - id: end-of-file-fixer
       stages:
         - commit
-      exclude: |
-        (?x)^(
-          resources/|
-          testsets/|
-          unittests/langpack/sample_langpacks|
-          .*(tests|test)/.*(\.txt|\.lat|\.json|\.htk)|
-          .*.transcript|
-          speech_app/teams_call_bot
-        )|
-          .*model.pt$
+      exclude: docs
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.0.278
@@ -77,59 +52,10 @@ repos:
       args:
         - --fix
         - --exit-non-zero-on-fix
+      exclude: docs
 
   - repo: https://github.com/psf/black
     rev: 23.3.0
     hooks:
     - id: black
-      exclude: |
-        (?x)^(
-          aladdin/dctcreate/|
-          unittests/langpack/sample_langpacks/|
-          .*pb2.py
-        )
-
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.4.1
-    hooks:
-    - id: mypy
-      additional_dependencies:
-        - types-python-dateutil==2.8.19.14
-        - types-pyyaml==6.0.12.11
-        - types-requests==2.31.0.2
-        - types-tabulate==0.9.0.3
-      exclude: |
-        (?x)^(
-          aladdin|
-          component|
-          container-tests/tests|
-          container-tests/unittests|
-          coreasr|
-          env|
-          functests|
-          orchestrator|
-          playground|
-          quality|
-          resources|
-          scripts|
-          speech_app|
-          uniasr|
-          unittests
-        )
-
-  - repo: local
-    hooks:
-    - id: cross-platform-filenames
-      name: filenames must be cross-platform
-      language: fail
-      entry: 'filenames must be cross-platform'
-      exclude: '^[^\\:"<|>*?]+$'
-
-    - id: notebook_clean
-      name: remove ipynb output cells
-      entry: jupyter
-      language: system
-      args: ["nbconvert", "--clear-output", "--inplace"]
-      types: [jupyter]
-      stages:
-      - commit
+      exclude: docs
