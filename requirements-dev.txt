@@ -8,4 +8,4 @@ pytest_httpx==0.22.0
 pytest-cov==3.0.0
 black==22.3.0
 ruff==0.0.280
-pre-commit==3.3.3
+pre-commit==2.21.0
