@@ -17,7 +17,7 @@ python3 -m youtube_transcribe --input-url https://youtu.be/x438-2c59l8
 A subset of the speechmatics cli options can be specified, check the docs to see what other options can be added.
 
 * `--output-dir`: specify a directory in which which to save the transcription/translation in json and text formats.
-* `--lang`: language of the video. 
+* `--lang`: language of the video.
 * `--translation-langs`: comma separated list of languages to translate the content into.
 * `--max-delay`: Maximum acceptable delay before sending a piece of transcript.
 * `--enable-partials`: Whether to return partials for both transcripts and translation.

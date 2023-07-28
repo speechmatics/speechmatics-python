@@ -21,7 +21,6 @@ with BatchClient() as client:
     rows = cur.fetchall()
 
     for item in rows:
-
         # Request job status from Speechmatics API
         res = client.check_job_status(item[0])
         status = res.get("job").get("status")

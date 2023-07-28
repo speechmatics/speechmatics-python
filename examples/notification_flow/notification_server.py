@@ -6,8 +6,8 @@ This is a dev example - DO NOT USE IN PRODUCTION
 import json
 import sqlite3
 
-from flask import Flask, request
-from flask_cors import CORS, cross_origin
+from flask import Flask, request  # noqa: F401
+from flask_cors import CORS, cross_origin  # noqa: F401
 
 from speechmatics.batch_client import BatchClient
 
@@ -43,7 +43,6 @@ def process_request():
     else:
         # In case of failure, get the job's specific failure state
         with BatchClient() as client:
-
             job_id = request.json.get("id")
             cur = connection.cursor()
 

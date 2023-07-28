@@ -60,7 +60,7 @@ with open(PATH_TO_FILE, "rb") as fd:
         sm_client.run_synchronously(fd, conf)
     except KeyboardInterrupt:
         print("\nTranscription stopped.")
-  
+
 ```
 
 ## Batch Client Usage
@@ -259,14 +259,14 @@ A complete list of commands and flags can be found in the SDK docs at https://sp
    # $JOB_ID is from the submit command output
    speechmatics batch get-results --job-id $JOB_ID
     ```
-  
+
 - Submit a job with automatic language identification
 
     ```bash
    speechmatics batch transcribe --language auto --langid-langs en,es example_audio.wav
     ```
     If Speechmatics is not able to identify a language with high enough confidence,  the job will be rejected. This is to reduce the risk of transcribing incorrectly.
-   
+
     `--langid-langs` is optional and specifies what language(s) you expect to be detected in the source files.
 
 
@@ -276,7 +276,7 @@ A complete list of commands and flags can be found in the SDK docs at https://sp
   speechmatics batch transcribe --translation-langs de,es --output-format json-v2 example_audio.wav
     ```
   `--translation-langs` is supported in asynchronous mode as well, and translation output can be retrieved using `get-results` with `--output-format json-v2` set.
-  
+
   When combining language identification with translation, we can't know if the identified language can be translated
   to your translation targets. If the translation pair is not supported, the error will be recorded in the metadata of the transcript.
 
@@ -308,7 +308,7 @@ A complete list of commands and flags can be found in the SDK docs at https://sp
     ```bash
   speechmatics transcribe --config-file transcription_config.json example_audio.wav
     ```
-- The format of this JSON file is described in detail in the 
+- The format of this JSON file is described in detail in the
   [Batch API documentation](https://docs.speechmatics.com/jobsapi#tag/TranscriptionConfig)
   and [RT API documentation](https://docs.speechmatics.com/rt-api-ref#transcription-config).
 

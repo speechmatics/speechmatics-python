@@ -31,4 +31,3 @@ jobs:
       run: |
         make build
         twine upload dist/*
-

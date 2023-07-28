@@ -254,7 +254,7 @@ class BatchClient:
     ):
         if concurrency > CONCURRENCY_MAXIMUM:
             raise Exception(
-                f"{concurrency=} is too high, choose a value <= {CONCURRENCY_MAXIMUM}!"
+                f"concurrency={concurrency} is too high, choose a value <= {CONCURRENCY_MAXIMUM}!"
             )
         pool = {}
 

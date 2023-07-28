@@ -3,7 +3,7 @@ import json
 import logging
 from pathlib import Path
 
-import streamlink  # pylint: disable=E0401
+import streamlink  # noqa: F401
 from speechmatics.client import WebsocketClient
 from speechmatics.models import AudioSettings
 from speechmatics.cli import (
