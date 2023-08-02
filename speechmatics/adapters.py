@@ -28,6 +28,29 @@ def get_txt_translation(translations: List[dict]):
             sentences.append(sentence_delimiter)
     return "".join(sentences).rstrip()
 
+def get_txt_sentiment_analysis(sentiment_segments: List[dict]):
+    """
+    Extract sentiment content and speaker labels to plain text format.
+
+    :param sentiment_segments: list of dicts containing sentiment content.
+    :return: the plain text as a string.
+    """
+    sentences = []
+    current_speaker = None
+    for segment in sentiment_segments:
+        sentence_delimiter = " "
+        if segment.get("text", None):
+            if (
+                segment.get("speaker", None)
+                and segment.get("speaker") != current_speaker
+            ):
+                current_speaker = segment["speaker"]
+                sentences.append(f"SPEAKER: {current_speaker}\n")
+                sentence_delimiter = "\n"
+            sentences.append(f"SENTIMENT: {segment['sentiment']}\n")
+            sentences.append(segment["text"])
+            sentences.append(sentence_delimiter)
+    return "".join(sentences).rstrip()
 
 def convert_to_txt(
     tokens: List[dict],

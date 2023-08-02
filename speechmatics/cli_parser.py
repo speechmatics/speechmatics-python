@@ -440,6 +440,15 @@ def get_arg_parser():
         help="Which type of diarization to use.",
     )
 
+    # Parent parser for rt sentiment-analysis argument
+    rt_sentiment_analysis_parser = argparse.ArgumentParser(add_help=False)
+    rt_sentiment_analysis_parser.add_argument(
+        "--sentiment-analysis",
+        dest="sentiment_analysis",
+        action="store_true",
+        default=False,
+        help="Perform sentiment analysis on the transcript",
+    )
     # Build our actual parsers.
     mode_subparsers = parser.add_subparsers(title="Mode", dest="mode")
 
@@ -454,6 +463,7 @@ def get_arg_parser():
             file_parser,
             connection_parser,
             config_parser,
+            rt_sentiment_analysis_parser,
         ],
         help="Transcribe an audio file or stream in real time and output the results to the console.",
     )

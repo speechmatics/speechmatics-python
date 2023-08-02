@@ -197,6 +197,8 @@ class SummarizationConfig:
 @dataclass
 class SentimentAnalysisConfig:
     """Sentiment Analysis config."""
+    def asdict(self):
+        return asdict(self)
 
 
 @dataclass(init=False)
@@ -244,10 +246,13 @@ class TranscriptionConfig(_TranscriptionConfig):
     translation_config: TranslationConfig = None
     """Optional configuration for translation."""
 
+    sentiment_analysis_config: Optional[SentimentAnalysisConfig] = None
+
     def as_config(self):
         dictionary = self.asdict()
         dictionary.pop("translation_config", None)
         dictionary.pop("enable_translation_partials", None)
+        dictionary.pop("sentiment_analysis_config", None)
         enable_transcription_partials = dictionary.pop(
             "enable_transcription_partials", False
         )
@@ -484,6 +489,9 @@ class ServerMessageType(str, Enum):
 
     AddTranslation = "AddTranslation"
     """Indicates the final translation of a part of the audio."""
+
+    AddSentimentAnalysis = "AddSentimentAnalysis"
+    """Indicates the final sentiment analysis of a part of the audio."""
 
     EndOfTranscript = "EndOfTranscript"
     """Server response to :py:attr:`ClientMessageType.EndOfStream`,

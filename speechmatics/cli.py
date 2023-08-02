@@ -363,6 +363,7 @@ def add_printing_handlers(
     speaker_change_token=False,
     print_json=False,
     translation_config=None,
+    sentiment_analysis_config=None,
 ):
     """
     Adds a set of handlers to the websocket client which print out transcripts
@@ -455,6 +456,17 @@ def add_printing_handlers(
                 sys.stdout.write(f"{escape_seq}{plaintext}\n")
             transcripts.text += plaintext
 
+    def sentiment_analysis_handler(message):
+        transcripts.json.append(message)
+        if print_json:
+            print(json.dumps(message))
+            return
+
+        plaintext = speechmatics.adapters.get_txt_sentiment_analysis(message["results"])
+        if plaintext:
+            sys.stdout.write(f"{escape_seq}{plaintext}\n")
+        transcripts.text += plaintext
+
     def end_of_transcript_handler(_):
         if enable_partials:
             print("\n", file=sys.stderr)
@@ -471,6 +483,7 @@ def add_printing_handlers(
                 partial_translation_handler,
             )
         api.add_event_handler(ServerMessageType.AddTranslation, translation_handler)
+        api.add_event_handler(ServerMessageType.AddSentimentAnalysis, sentiment_analysis_handler)
         if enable_partials or enable_transcription_partials:
             api.add_event_handler(
                 ServerMessageType.AddPartialTranscript,
@@ -485,6 +498,8 @@ def add_printing_handlers(
                     partial_translation_handler,
                 )
             api.add_event_handler(ServerMessageType.AddTranslation, translation_handler)
+        elif sentiment_analysis_config is not None:
+            api.add_event_handler(ServerMessageType.AddSentimentAnalysis, sentiment_analysis_handler)
         else:
             if enable_partials or enable_transcription_partials:
                 api.add_event_handler(
@@ -624,6 +639,7 @@ def rt_main(args):
         speaker_change_token=args["speaker_change_token"],
         print_json=args["print_json"],
         translation_config=transcription_config.translation_config,
+        sentiment_analysis_config=transcription_config.sentiment_analysis_config,
     )
 
     def run(stream):
