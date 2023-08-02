@@ -7,9 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.10.0] - 2023-08-02
+
 ### Added
 
 - Add support for batch sentiment analysis
+- Add support for transcribing multiple files at once (submit_jobs)
 
 ## [1.9.0] - 2023-06-07
 
