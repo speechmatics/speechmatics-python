@@ -199,6 +199,14 @@ class SentimentAnalysisConfig:
     """Sentiment Analysis config."""
 
 
+@dataclass
+class TopicDetectionConfig:
+    """Defines topic detection parameters."""
+
+    topics: List[str] = None
+    """Optional list of topics for topic detection."""
+
+
 @dataclass(init=False)
 class TranscriptionConfig(_TranscriptionConfig):
     # pylint: disable=too-many-instance-attributes
@@ -291,6 +299,9 @@ class BatchTranscriptionConfig(_TranscriptionConfig):
     sentiment_analysis_config: Optional[SentimentAnalysisConfig] = None
     """Optional configuration for sentiment analysis of the transcript"""
 
+    topic_detection_config: Optional[TopicDetectionConfig] = None
+    """Optional configuration for detecting topics of the transcript"""
+
     def as_config(self):
         dictionary = self.asdict()
 
@@ -303,6 +314,7 @@ class BatchTranscriptionConfig(_TranscriptionConfig):
         srt_overrides = dictionary.pop("srt_overrides", None)
         summarization_config = dictionary.pop("summarization_config", None)
         sentiment_analysis_config = dictionary.pop("sentiment_analysis_config", None)
+        topic_detection_config = dictionary.pop("topic_detection_config", None)
         config = {"type": "transcription", "transcription_config": dictionary}
 
         if fetch_data:
@@ -327,6 +339,9 @@ class BatchTranscriptionConfig(_TranscriptionConfig):
 
         if sentiment_analysis_config is not None:
             config["sentiment_analysis_config"] = sentiment_analysis_config
+
+        if topic_detection_config:
+            config["topic_detection_config"] = topic_detection_config
 
         return json.dumps(config)
 

@@ -11,5 +11,6 @@
     "summary_length": "brief",
     "summary_type": "bullets"
   },
-  "sentiment_analysis_config": {}
+  "sentiment_analysis_config": {},
+  "topic_detection_config": {}
 }
