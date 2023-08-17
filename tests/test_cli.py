@@ -301,20 +301,20 @@ from tests.utils import path_to_test_resource
             },
         ),
         (
-            ["batch", "transcribe", "--topic-detection"],
+            ["batch", "transcribe", "--detect-topics"],
             {
-                "topic_detection": True,
+                "detect_topics": True,
             },
         ),
         (
             [
                 "batch",
                 "transcribe",
-                "--topic-detection",
-                "--topic-detection-topics=topic1,topic2,topic3",
+                "--detect-topics",
+                "--topics=topic1,topic2,topic3",
             ],
             {
-                "topic_detection": True,
+                "detect_topics": True,
                 "topics": "topic1,topic2,topic3",
             },
         ),

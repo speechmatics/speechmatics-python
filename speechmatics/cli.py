@@ -327,15 +327,12 @@ def get_transcription_config(
         config["sentiment_analysis_config"] = SentimentAnalysisConfig()
 
     topic_detection_config = config.get("topic_detection_config", {})
-    args_topic_detection = args.get("topic_detection")
+    args_topic_detection = args.get("detect_topics")
     if args_topic_detection or topic_detection_config:
         topic_detection_config = TopicDetectionConfig()
-        topics = (
-            args_topic_detection.split(",")
-            if args_topic_detection
-            else topic_detection_config.get("target_languages")
-        )
-        topic_detection_config.topics = topics
+        topics = args.get("topics", topic_detection_config.get("topics"))
+        if topics:
+            topic_detection_config.topics = topics
         config["topic_detection_config"] = topic_detection_config
 
     if args["mode"] == "rt":

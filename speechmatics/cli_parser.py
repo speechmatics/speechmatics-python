@@ -286,14 +286,14 @@ def get_arg_parser():
     # Parent parser for batch topic-detection argument
     batch_topic_detection_parser = argparse.ArgumentParser(add_help=False)
     batch_topic_detection_parser.add_argument(
-        "--topic-detection",
-        dest="topic_detection",
+        "--detect-topics",
+        dest="detect_topics",
         action="store_true",
         default=False,
         help="Whether to detect topics in transcript",
     )
     batch_topic_detection_parser.add_argument(
-        "--topic-detection-topics",
+        "--topics",
         dest="topics",
         default=None,
         type=str,
