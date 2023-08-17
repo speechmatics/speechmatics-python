@@ -303,7 +303,7 @@ A complete list of commands and flags can be found in the SDK docs at https://sp
 - Submit a job with topic detection
 
   ```bash
-  speechmatics batch transcribe --topic-detection --output-format json-v2 example_audio.wav
+  speechmatics batch transcribe --detect-topics --output-format json-v2 example_audio.wav
     ```
 
   ### Custom Transcription Config File
