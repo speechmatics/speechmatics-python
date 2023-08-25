@@ -283,6 +283,24 @@ def get_arg_parser():
         help="Perform sentiment analysis on the transcript",
     )
 
+    # Parent parser for batch topic-detection argument
+    batch_topic_detection_parser = argparse.ArgumentParser(add_help=False)
+    batch_topic_detection_parser.add_argument(
+        "--detect-topics",
+        dest="detect_topics",
+        action="store_true",
+        default=False,
+        help="Whether to detect topics in transcript",
+    )
+    batch_topic_detection_parser.add_argument(
+        "--topics",
+        dest="topics",
+        default=None,
+        type=str,
+        required=False,
+        help="Comma-separated list of topics for topic detection",
+    )
+
     # Parent parser for output type
     output_format_parser = argparse.ArgumentParser(add_help=False)
     output_format_parser.add_argument(
@@ -472,6 +490,7 @@ def get_arg_parser():
             batch_diarization_parser,
             batch_summarization_parser,
             batch_sentiment_analysis_parser,
+            batch_topic_detection_parser,
         ],
         help="Transcribe one or more audio files using batch mode, while waiting for results.",
     )
@@ -486,6 +505,7 @@ def get_arg_parser():
             batch_diarization_parser,
             batch_summarization_parser,
             batch_sentiment_analysis_parser,
+            batch_topic_detection_parser,
         ],
         help="Submit one or more files for transcription.",
     )

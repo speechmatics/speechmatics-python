@@ -39,15 +39,16 @@
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">import</span> <span class="nn">httpx</span>
 <span class="kn">from</span> <span class="nn">polling2</span> <span class="kn">import</span> <span class="n">poll</span>
 
 <span class="kn">from</span> <span class="nn">speechmatics.exceptions</span> <span class="kn">import</span> <span class="n">JobNotFoundException</span><span class="p">,</span> <span class="n">TranscriptionError</span>
 <span class="kn">from</span> <span class="nn">speechmatics.helpers</span> <span class="kn">import</span> <span class="n">get_version</span>
-<span class="kn">from</span> <span class="nn">speechmatics.models</span> <span class="kn">import</span> <span class="n">BatchTranscriptionConfig</span><span class="p">,</span> <span class="n">UsageMode</span><span class="p">,</span> <span class="n">ConnectionSettings</span>
+<span class="kn">from</span> <span class="nn">speechmatics.models</span> <span class="kn">import</span> <span class="n">BatchTranscriptionConfig</span><span class="p">,</span> <span class="n">ConnectionSettings</span><span class="p">,</span> <span class="n">UsageMode</span>
 
 <span class="n">LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -57,6 +58,15 @@
 <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;websockets.protocol&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
 
 <span class="n">POLLING_DURATION</span> <span class="o">=</span> <span class="mi">15</span>
+
+<span class="c1"># This is a reasonable default for when multiple audio files are submitted for</span>
+<span class="c1"># transcription in one go, in submit_jobs.</span>
+<span class="c1">#</span>
+<span class="c1"># Customers are free to increase this to any kind of maximum they are</span>
+<span class="c1"># comfortable with, but bear in mind there will be rate-limitting at the API</span>
+<span class="c1"># end for over-use.</span>
+<span class="n">CONCURRENCY_DEFAULT</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">CONCURRENCY_MAXIMUM</span> <span class="o">=</span> <span class="mi">50</span>
 
 
 <span class="k">class</span> <span class="nc">_ForceMultipartDict</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
@@ -105,7 +115,11 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">connection_settings_or_auth_token</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ConnectionSettings</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">from_cli</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">connection_settings_or_auth_token</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ConnectionSettings</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">from_cli</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            connection_settings_or_auth_token (Union[str, ConnectionSettings, None], optional)</span>
@@ -115,14 +129,18 @@
 <span class="sd">            from_clie (bool)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">connection_settings_or_auth_token</span><span class="p">,</span> <span class="n">ConnectionSettings</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">connection_settings</span> <span class="o">=</span> <span class="n">ConnectionSettings</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">UsageMode</span><span class="o">.</span><span class="n">Batch</span><span class="p">,</span> <span class="n">connection_settings_or_auth_token</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">connection_settings</span> <span class="o">=</span> <span class="n">ConnectionSettings</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+                <span class="n">UsageMode</span><span class="o">.</span><span class="n">Batch</span><span class="p">,</span> <span class="n">connection_settings_or_auth_token</span>
+            <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">connection_settings</span> <span class="o">=</span> <span class="n">connection_settings_or_auth_token</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">connection_settings</span><span class="o">.</span><span class="n">set_missing_values_from_config</span><span class="p">(</span><span class="n">UsageMode</span><span class="o">.</span><span class="n">Batch</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection_settings</span><span class="o">.</span><span class="n">url</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;/&quot;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">connection_settings</span><span class="o">.</span><span class="n">url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection_settings</span><span class="o">.</span><span class="n">url</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection_settings</span><span class="o">.</span><span class="n">url</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;/v2&quot;</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">connection_settings</span><span class="o">.</span><span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;/&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">connection_settings</span><span class="o">.</span><span class="n">url</span><span class="p">,</span> <span class="s2">&quot;v2&quot;</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">connection_settings</span><span class="o">.</span><span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;/&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">connection_settings</span><span class="o">.</span><span class="n">url</span><span class="p">,</span> <span class="s2">&quot;v2&quot;</span><span class="p">]</span>
+            <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">connection_settings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection_settings</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">transcription_config</span> <span class="o">=</span> <span class="kc">None</span>
@@ -223,7 +241,9 @@
 
         <span class="c1"># Handle getting config into a dict</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">transcription_config</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">)):</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">transcription_config</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;rt&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">Path</span><span class="p">(</span><span class="n">transcription_config</span><span class="p">)</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span><span class="o">.</span><span class="n">open</span><span class="p">(</span>
+                <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;rt&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span>
+            <span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
                 <span class="n">config_dict</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">transcription_config</span><span class="p">,</span> <span class="n">BatchTranscriptionConfig</span><span class="p">):</span>
             <span class="n">config_dict</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">transcription_config</span><span class="o">.</span><span class="n">as_config</span><span class="p">())</span>
@@ -241,7 +261,7 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">audio</span> <span class="ow">and</span> <span class="s2">&quot;fetch_data&quot;</span> <span class="ow">in</span> <span class="n">config_dict</span><span class="p">:</span>
             <span class="n">audio_data</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">audio</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">)):</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">audio</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">Path</span><span class="p">(</span><span class="n">audio</span><span class="p">)</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
                 <span class="n">audio_data</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">file</span><span class="o">.</span><span class="n">name</span><span class="p">),</span> <span class="n">file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">audio</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;fetch_data&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">config_dict</span><span class="p">:</span>
             <span class="n">audio_data</span> <span class="o">=</span> <span class="n">audio</span>
@@ -258,6 +278,43 @@
 
         <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_request</span><span class="p">(</span><span class="s2">&quot;POST&quot;</span><span class="p">,</span> <span class="s2">&quot;jobs&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">config_data</span><span class="p">,</span> <span class="n">files</span><span class="o">=</span><span class="n">audio_file</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span></div>
+
+    <span class="k">def</span> <span class="nf">submit_jobs</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">audio_paths</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">]],</span>
+        <span class="n">transcription_config</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+        <span class="n">concurrency</span><span class="o">=</span><span class="n">CONCURRENCY_DEFAULT</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="k">if</span> <span class="n">concurrency</span> <span class="o">&gt;</span> <span class="n">CONCURRENCY_MAXIMUM</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;concurrency=</span><span class="si">{</span><span class="n">concurrency</span><span class="si">}</span><span class="s2"> is too high, choose a value &lt;= </span><span class="si">{</span><span class="n">CONCURRENCY_MAXIMUM</span><span class="si">}</span><span class="s2">!&quot;</span>
+            <span class="p">)</span>
+        <span class="n">pool</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">def</span> <span class="nf">wait</span><span class="p">():</span>
+            <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">job_id</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">pool</span><span class="p">):</span>
+                    <span class="n">path</span> <span class="o">=</span> <span class="n">pool</span><span class="p">[</span><span class="n">job_id</span><span class="p">]</span>
+                    <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_job_status</span><span class="p">(</span><span class="n">job_id</span><span class="p">)[</span><span class="s2">&quot;job&quot;</span><span class="p">][</span><span class="s2">&quot;status&quot;</span><span class="p">]</span>
+                    <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> for </span><span class="si">%s</span><span class="s2"> is </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">job_id</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="s2">&quot;running&quot;</span><span class="p">:</span>
+                        <span class="k">continue</span>
+                    <span class="k">del</span> <span class="n">pool</span><span class="p">[</span><span class="n">job_id</span><span class="p">]</span>
+                    <span class="k">return</span> <span class="n">path</span><span class="p">,</span> <span class="n">job_id</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">POLLING_DURATION</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">audio_path</span> <span class="ow">in</span> <span class="n">audio_paths</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pool</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">concurrency</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">wait</span><span class="p">()</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">job_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">submit_job</span><span class="p">(</span><span class="n">audio_path</span><span class="p">,</span> <span class="n">transcription_config</span><span class="p">)</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> submitted as job </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">audio_path</span><span class="p">,</span> <span class="n">job_id</span><span class="p">)</span>
+                <span class="n">pool</span><span class="p">[</span><span class="n">job_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">audio_path</span>
+            <span class="k">except</span> <span class="n">httpx</span><span class="o">.</span><span class="n">HTTPStatusError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> submit failed with </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">audio_path</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
+
+        <span class="k">while</span> <span class="n">pool</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">wait</span><span class="p">()</span>
 
 <div class="viewcode-block" id="BatchClient.get_job_result"><a class="viewcode-back" href="../../batch_client.html#speechmatics.batch_client.BatchClient.get_job_result">[docs]</a>    <span class="k">def</span> <span class="nf">get_job_result</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>

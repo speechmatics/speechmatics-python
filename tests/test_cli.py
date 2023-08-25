@@ -300,6 +300,24 @@ from tests.utils import path_to_test_resource
                 "sentiment_analysis": True,
             },
         ),
+        (
+            ["batch", "transcribe", "--detect-topics"],
+            {
+                "detect_topics": True,
+            },
+        ),
+        (
+            [
+                "batch",
+                "transcribe",
+                "--detect-topics",
+                "--topics=topic1,topic2,topic3",
+            ],
+            {
+                "detect_topics": True,
+                "topics": "topic1,topic2,topic3",
+            },
+        ),
     ],
 )
 def test_cli_arg_parse_with_file(args, values):

@@ -37,6 +37,7 @@ from speechmatics.models import (
     ServerMessageType,
     SentimentAnalysisConfig,
     SummarizationConfig,
+    TopicDetectionConfig,
     TranscriptionConfig,
 )
 
@@ -324,6 +325,15 @@ def get_transcription_config(
     args_sentiment_analysis = args.get("sentiment_analysis")
     if args_sentiment_analysis or sentiment_analysis_config:
         config["sentiment_analysis_config"] = SentimentAnalysisConfig()
+
+    topic_detection_config = config.get("topic_detection_config", {})
+    args_topic_detection = args.get("detect_topics")
+    if args_topic_detection or topic_detection_config:
+        topic_detection_config = TopicDetectionConfig()
+        topics = args.get("topics", topic_detection_config.get("topics"))
+        if topics:
+            topic_detection_config.topics = topics
+        config["topic_detection_config"] = topic_detection_config
 
     if args["mode"] == "rt":
         # pylint: disable=unexpected-keyword-arg

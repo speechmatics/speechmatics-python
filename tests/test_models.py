@@ -153,6 +153,26 @@ def test_summarization_config(params, want):
     "params, want",
     [
         param(
+            {},
+            {"topics": None},
+            id="default params",
+        ),
+        param(
+            {"topics": ["topic1", "topic2"]},
+            {"topics": ["topic1", "topic2"]},
+            id="set topics param",
+        ),
+    ],
+)
+def test_topic_detection_config(params, want):
+    topic_detection_config = models.TopicDetectionConfig(**params)
+    assert asdict(topic_detection_config) == want
+
+
+@mark.parametrize(
+    "params, want",
+    [
+        param(
             {"url": "example.com"},
             {
                 "url": "example.com",

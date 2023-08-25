@@ -42,9 +42,10 @@
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
 <span class="kn">from</span> <span class="nn">urllib.parse</span> <span class="kn">import</span> <span class="n">parse_qsl</span><span class="p">,</span> <span class="n">urlencode</span><span class="p">,</span> <span class="n">urlparse</span><span class="p">,</span> <span class="n">urlunparse</span>
 
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
+<span class="kn">import</span> <span class="nn">httpx</span>
 <span class="kn">import</span> <span class="nn">websockets</span>
 
 <span class="kn">from</span> <span class="nn">speechmatics.exceptions</span> <span class="kn">import</span> <span class="p">(</span>
@@ -52,18 +53,15 @@
     <span class="n">ForceEndSession</span><span class="p">,</span>
     <span class="n">TranscriptionError</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span> <span class="nn">speechmatics.helpers</span> <span class="kn">import</span> <span class="n">get_version</span><span class="p">,</span> <span class="n">json_utf8</span><span class="p">,</span> <span class="n">read_in_chunks</span>
 <span class="kn">from</span> <span class="nn">speechmatics.models</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">ClientMessageType</span><span class="p">,</span>
-    <span class="n">ServerMessageType</span><span class="p">,</span>
     <span class="n">AudioSettings</span><span class="p">,</span>
+    <span class="n">ClientMessageType</span><span class="p">,</span>
     <span class="n">ConnectionSettings</span><span class="p">,</span>
+    <span class="n">ServerMessageType</span><span class="p">,</span>
     <span class="n">TranscriptionConfig</span><span class="p">,</span>
     <span class="n">UsageMode</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">speechmatics.constants</span> <span class="kn">import</span> <span class="n">RT_SELF_SERVICE_URL</span>
-<span class="kn">from</span> <span class="nn">speechmatics.config</span> <span class="kn">import</span> <span class="n">read_config_from_home</span>
-<span class="kn">from</span> <span class="nn">speechmatics.helpers</span> <span class="kn">import</span> <span class="n">get_version</span><span class="p">,</span> <span class="n">json_utf8</span><span class="p">,</span> <span class="n">read_in_chunks</span>
-<span class="kn">from</span> <span class="nn">speechmatics.models</span> <span class="kn">import</span> <span class="n">ClientMessageType</span><span class="p">,</span> <span class="n">ServerMessageType</span>
 
 <span class="n">LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -92,16 +90,19 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">connection_settings_or_auth_token</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ConnectionSettings</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; </span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
-<span class="sd">            connection_settings_or_auth_token (Union[str, ConnectionSettings, None], optional): _description_. Defaults to None.</span>
-<span class="sd">            If `str`,, assumes auth_token passed and default URL being used</span>
-<span class="sd">            If `None`, attempts using auth_token from config.</span>
+<span class="sd">            connection_settings_or_auth_token (Union[str, ConnectionSettings, None], optional): Defaults to None.</span>
+<span class="sd">                If `str`,, assumes auth_token passed and default URL being used</span>
+<span class="sd">                If `None`, attempts using auth_token from config.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">connection_settings_or_auth_token</span><span class="p">,</span> <span class="n">ConnectionSettings</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">connection_settings</span> <span class="o">=</span> <span class="n">ConnectionSettings</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">UsageMode</span><span class="o">.</span><span class="n">RealTime</span><span class="p">,</span> <span class="n">connection_settings_or_auth_token</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">connection_settings</span> <span class="o">=</span> <span class="n">ConnectionSettings</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+                <span class="n">UsageMode</span><span class="o">.</span><span class="n">RealTime</span><span class="p">,</span> <span class="n">connection_settings_or_auth_token</span>
+            <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">connection_settings</span> <span class="o">=</span> <span class="n">connection_settings_or_auth_token</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">connection_settings</span><span class="o">.</span><span class="n">set_missing_values_from_config</span><span class="p">(</span><span class="n">UsageMode</span><span class="o">.</span><span class="n">RealTime</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">websocket</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">transcription_config</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">translation_config</span> <span class="o">=</span> <span class="kc">None</span>
@@ -443,7 +444,8 @@
         <span class="n">stream</span><span class="p">,</span>
         <span class="n">transcription_config</span><span class="p">:</span> <span class="n">TranscriptionConfig</span><span class="p">,</span>
         <span class="n">audio_settings</span><span class="o">=</span><span class="n">AudioSettings</span><span class="p">(),</span>
-        <span class="n">from_cli</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">from_cli</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Begin a new recognition session.</span>
 <span class="sd">        This will run asynchronously. Most callers may prefer to use</span>
@@ -487,11 +489,11 @@
             <span class="n">extra_headers</span><span class="p">[</span><span class="s2">&quot;Authorization&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">token</span>
 
         <span class="n">url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection_settings</span><span class="o">.</span><span class="n">url</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">url</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transcription_config</span><span class="o">.</span><span class="n">language</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">url</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transcription_config</span><span class="o">.</span><span class="n">language</span><span class="o">.</span><span class="n">strip</span><span class="p">()):</span>
             <span class="k">if</span> <span class="n">url</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">):</span>
-                <span class="n">url</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transcription_config</span><span class="o">.</span><span class="n">language</span>
+                <span class="n">url</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transcription_config</span><span class="o">.</span><span class="n">language</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">url</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">transcription_config</span><span class="o">.</span><span class="n">language</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="n">url</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">transcription_config</span><span class="o">.</span><span class="n">language</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
 
         <span class="c1"># Extend connection url with sdk version information</span>
         <span class="n">cli</span> <span class="o">=</span> <span class="s2">&quot;-cli&quot;</span> <span class="k">if</span> <span class="n">from_cli</span> <span class="ow">is</span> <span class="kc">True</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
