@@ -318,6 +318,12 @@ from tests.utils import path_to_test_resource
                 "topics": "topic1,topic2,topic3",
             },
         ),
+        (
+            ["batch", "transcribe", "--detect-chapters"],
+            {
+                "detect_chapters": True,
+            },
+        ),
     ],
 )
 def test_cli_arg_parse_with_file(args, values):

@@ -27,6 +27,7 @@ from speechmatics.exceptions import JobNotFoundException, TranscriptionError
 from speechmatics.helpers import _process_status_errors
 from speechmatics.models import (
     AudioSettings,
+    AutoChaptersConfig,
     BatchLanguageIdentificationConfig,
     BatchSpeakerDiarizationConfig,
     BatchTranscriptionConfig,
@@ -334,6 +335,11 @@ def get_transcription_config(
         if topics:
             topic_detection_config.topics = topics
         config["topic_detection_config"] = topic_detection_config
+
+    auto_chapters_config = config.get("auto_chapters_config", {})
+    args_auto_chapters = args.get("detect_chapters")
+    if args_auto_chapters or auto_chapters_config:
+        config["auto_chapters_config"] = AutoChaptersConfig()
 
     if args["mode"] == "rt":
         # pylint: disable=unexpected-keyword-arg

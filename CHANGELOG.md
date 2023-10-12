@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.12.0] - 2023-11-03
+
+### Added
+
+- Add support for batch auto chapters
+
 ## [1.11.1] - 2023-10-19
 
 ### Added
