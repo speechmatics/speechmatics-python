@@ -12,6 +12,7 @@ from typing import Any, Dict, Iterable, List, Tuple, Union
 
 import httpx
 from polling2 import poll
+from tenacity import retry, retry_if_exception_type, stop_after_attempt
 
 from speechmatics.exceptions import JobNotFoundException, TranscriptionError
 from speechmatics.helpers import get_version
@@ -166,11 +167,19 @@ class BatchClient:
 
         :raises httpx.HTTPError: When a request fails, raises an HTTPError
         """
+
         # pylint: disable=no-member
-        with self.api_client.stream(method, path, **kwargs) as response:
-            response.read()
-            response.raise_for_status()
-            return response
+        @retry(
+            stop=stop_after_attempt(2),
+            retry=retry_if_exception_type(httpx.RemoteProtocolError),
+        )
+        def send():
+            with self.api_client.stream(method, path, **kwargs) as response:
+                response.read()
+                response.raise_for_status()
+                return response
+
+        return send()
 
     def list_jobs(self) -> List[Dict[str, Any]]:
         """
