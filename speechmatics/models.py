@@ -401,7 +401,7 @@ class ConnectionSettings:
 
     generate_temp_token: Optional[bool] = False
     """Automatically generate a temporary token for authentication.
-    Non-enterprise customers must set this to True. Enterprise customers should set this to False."""
+    Enterprise customers should set this to False."""
 
     def set_missing_values_from_config(self, mode: UsageMode):
         stored_config = read_config_from_home()
