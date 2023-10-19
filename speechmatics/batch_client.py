@@ -223,28 +223,39 @@ class BatchClient:
             )
 
         # If audio=None, fetch_data must be specified
-        if audio and "fetch_data" in config_dict:
-            raise ValueError("Only one of audio or fetch_data can be set at a time")
-        if not audio and "fetch_data" in config_dict:
-            audio_data = None
-        elif isinstance(audio, (str, os.PathLike)):
-            with Path(audio).expanduser().open("rb") as file:
-                audio_data = os.path.basename(file.name), file.read()
-        elif isinstance(audio, tuple) and "fetch_data" not in config_dict:
-            audio_data = audio
-        else:
-            raise ValueError("Audio must be a filepath or a tuple of (filename, bytes)")
+        file_object = None
+        try:
+            if audio and "fetch_data" in config_dict:
+                raise ValueError("Only one of audio or fetch_data can be set at a time")
+            if not audio and "fetch_data" in config_dict:
+                audio_data = None
+            elif isinstance(audio, (str, os.PathLike)):
+                # httpx performance is better when using a file-like object
+                # compared to passing the file contents as bytes.
+                file_object = Path(audio).expanduser().open("rb")
+                audio_data = os.path.basename(file_object.name), file_object
+            elif isinstance(audio, tuple) and "fetch_data" not in config_dict:
+                audio_data = audio
+            else:
+                raise ValueError(
+                    "Audio must be a filepath or a tuple of (filename, bytes)"
+                )
 
-        # httpx seems to expect an un-nested json, throws a type error otherwise.
-        config_data = {"config": json.dumps(config_dict, ensure_ascii=False)}
+            # httpx seems to expect an un-nested json, throws a type error otherwise.
+            config_data = {"config": json.dumps(config_dict, ensure_ascii=False)}
 
-        if audio_data:
-            audio_file = {"data_file": audio_data}
-        else:
-            audio_file = _ForceMultipartDict()
+            if audio_data:
+                audio_file = {"data_file": audio_data}
+            else:
+                audio_file = _ForceMultipartDict()
 
-        response = self.send_request("POST", "jobs", data=config_data, files=audio_file)
-        return response.json()["id"]
+            response = self.send_request(
+                "POST", "jobs", data=config_data, files=audio_file
+            )
+            return response.json()["id"]
+        finally:
+            if file_object:
+                file_object.close()
 
     def submit_jobs(
         self,
