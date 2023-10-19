@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Improve upload speeds for files submitted with the batch client
 - Retry requests in batch client on httpx.ProtocolError
+- Remove generate-temp-token option from examples and examples in docs
 
 ## [1.11.0] - 2023-08-25
 

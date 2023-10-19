@@ -26,7 +26,6 @@ The example below illustrates a waveform audio file being opened and transcribed
         speechmatics.models.ConnectionSettings(
             url=CONNECTION_URL,
             auth_token=AUTH_TOKEN,
-            generate_temp_token=True, # Enterprise customers don't need to provide this parameter
         )
     )
 

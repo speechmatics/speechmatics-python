@@ -133,7 +133,6 @@ def get_arg_parser():
         action="store_true",
         help=(
             "Automatically generate a temporary token for authentication."
-            "Non-enterprise customers must set this to True."
             "Enterprise customers should set this to False."
         ),
     )

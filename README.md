@@ -106,22 +106,12 @@ A complete list of commands and flags can be found in the SDK docs at https://sp
   You may also set the auth_token for each CLI command using the --auth-token flag.
   The --auth-token flag overrides the value stored in the config file, e.g.
    ```bash
-   speechmatics transcribe --auth-token $AUTH_TOKEN --generate-temp-token example_audio.wav
+   speechmatics transcribe --auth-token $AUTH_TOKEN example_audio.wav
    ```
 
 - Removing an auth_token from the toml file:
    ```bash
    speechmatics config unset --auth-token
-   ```
-
-- Setting --generate-temp-token flag globally for CLI authentication:
-   ```bash
-   speechmatics config set --generate-temp-token
-   ```
-
-- Unsetting generate temp token globally for CLI authentication:
-   ```bash
-   speechmatics config unset --generate-temp-token
    ```
 
 - Setting URLs for connecting to transcribers. These values can be used in places of the --url flag:
@@ -148,14 +138,14 @@ A complete list of commands and flags can be found in the SDK docs at https://sp
 - Starting a real-time session for self-service SaaS customers using a .wav file as the input audio:
 
    ```bash
-   speechmatics transcribe --lang en --generate-temp-token example_audio.wav
+   speechmatics transcribe --lang en example_audio.wav
    ```
 
 - Real-time transcription of online stream (needs ffmpeg installed):
   ```bash
   ffmpeg -v 0 -i https://cdn.bitmovin.com/content/assets/art-of-motion-dash-hls-progressive/mpds/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.mpd \
   -f s16le -ar 44100 -ac 1 -acodec pcm_s16le - | \
-  speechmatics transcribe --raw pcm_s16le --sample-rate 44100 --generate-temp-token -
+  speechmatics transcribe --raw pcm_s16le --sample-rate 44100 -
 
 - Starting a real-time session for enterprise SaaS customers using a .wav file as the input audio:
 
