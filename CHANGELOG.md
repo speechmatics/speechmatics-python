@@ -7,8 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.11.1] - 2023-10-19
+
+### Added
+
 - Improve upload speeds for files submitted with the batch client
 - Retry requests in batch client on httpx.ProtocolError
+
+### Changed
+
 - Remove generate-temp-token option from examples and examples in docs
 
 ## [1.11.0] - 2023-08-25
@@ -320,7 +327,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added authentication token support for RT-SaaS [@rakeshv247](https://github.com/rakeshv247).
 
-[unreleased]: https://github.com/speechmatics/speechmatics-python/compare/v1.9.0...HEAD
+[unreleased]: https://github.com/speechmatics/speechmatics-python/compare/v1.11.1...HEAD
+[1.11.1]: https://github.com/speechmatics/speechmatics-python/releases/tag/1.11.1
+[1.11.0]: https://github.com/speechmatics/speechmatics-python/releases/tag/1.11.0
 [1.9.0]: https://github.com/speechmatics/speechmatics-python/releases/tag/1.9.0
 [1.8.3]: https://github.com/speechmatics/speechmatics-python/releases/tag/1.8.3
 [1.8.2]: https://github.com/speechmatics/speechmatics-python/releases/tag/1.8.2
