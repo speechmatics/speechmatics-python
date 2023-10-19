@@ -249,10 +249,10 @@ class BatchClient:
             else:
                 audio_file = _ForceMultipartDict()
 
-                response = self.send_request(
-                    "POST", "jobs", data=config_data, files=audio_file
-                )
-                return response.json()["id"]
+            response = self.send_request(
+                "POST", "jobs", data=config_data, files=audio_file
+            )
+            return response.json()["id"]
         finally:
             if file_object:
                 file_object.close()
