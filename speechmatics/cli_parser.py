@@ -3,8 +3,8 @@
 Parsers used by the CLI to handle CLI arguments
 """
 import argparse
-from urllib.parse import urlparse
 import logging
+from urllib.parse import urlparse
 
 LOGGER = logging.getLogger(__name__)
 
@@ -85,6 +85,11 @@ def get_arg_parser():
             "redirected to a file."
         ),
     )
+    parser.add_argument(
+        "--ctrl",
+        type=str,
+        help="Speechmatics internal use.",
+    )
 
     # Parsers for shared arguments.
     # Parent parser for commands involving files
@@ -128,7 +133,6 @@ def get_arg_parser():
         action="store_true",
         help=(
             "Automatically generate a temporary token for authentication."
-            "Non-enterprise customers must set this to True."
             "Enterprise customers should set this to False."
         ),
     )
@@ -234,6 +238,68 @@ def get_arg_parser():
         help=("Comma-separated list of expected languages for language identification"),
     )
 
+    # Parent parser for batch summarize argument
+    batch_summarization_parser = argparse.ArgumentParser(add_help=False)
+    batch_summarization_parser.add_argument(
+        "--summarize",
+        dest="summarize",
+        action="store_true",
+        default=False,
+        help="Whether to generate transcript summarization",
+    )
+    batch_summarization_parser.add_argument(
+        "--summary-content-type",
+        dest="content_type",
+        default=None,
+        choices=["informative", "conversational", "auto"],
+        type=str,
+        required=False,
+    )
+    batch_summarization_parser.add_argument(
+        "--summary-length",
+        dest="summary_length",
+        default=None,
+        choices=["brief", "detailed"],
+        type=str,
+        required=False,
+    )
+    batch_summarization_parser.add_argument(
+        "--summary-type",
+        dest="summary_type",
+        default=None,
+        choices=["paragraphs", "bullets"],
+        type=str,
+        required=False,
+    )
+
+    # Parent parser for batch sentiment-analysis argument
+    batch_sentiment_analysis_parser = argparse.ArgumentParser(add_help=False)
+    batch_sentiment_analysis_parser.add_argument(
+        "--sentiment-analysis",
+        dest="sentiment_analysis",
+        action="store_true",
+        default=False,
+        help="Perform sentiment analysis on the transcript",
+    )
+
+    # Parent parser for batch topic-detection argument
+    batch_topic_detection_parser = argparse.ArgumentParser(add_help=False)
+    batch_topic_detection_parser.add_argument(
+        "--detect-topics",
+        dest="detect_topics",
+        action="store_true",
+        default=False,
+        help="Whether to detect topics in transcript",
+    )
+    batch_topic_detection_parser.add_argument(
+        "--topics",
+        dest="topics",
+        default=None,
+        type=str,
+        required=False,
+        help="Comma-separated list of topics for topic detection",
+    )
+
     # Parent parser for output type
     output_format_parser = argparse.ArgumentParser(add_help=False)
     output_format_parser.add_argument(
@@ -272,6 +338,12 @@ def get_arg_parser():
 
     # Parent parser for RT transcribe arguments
     rt_transcribe_command_parser = argparse.ArgumentParser(add_help=False)
+    rt_transcribe_command_parser.add_argument(
+        "--streaming-mode",
+        default=False,
+        action="store_true",
+        help="Whether to run the engine in streaming mode. Internal Speechmatics use only.",
+    )
     rt_transcribe_command_parser.add_argument(
         "--enable-partials",
         default=False,
@@ -415,6 +487,9 @@ def get_arg_parser():
             config_parser,
             output_format_parser,
             batch_diarization_parser,
+            batch_summarization_parser,
+            batch_sentiment_analysis_parser,
+            batch_topic_detection_parser,
         ],
         help="Transcribe one or more audio files using batch mode, while waiting for results.",
     )
@@ -427,6 +502,9 @@ def get_arg_parser():
             config_parser,
             output_format_parser,
             batch_diarization_parser,
+            batch_summarization_parser,
+            batch_sentiment_analysis_parser,
+            batch_topic_detection_parser,
         ],
         help="Submit one or more files for transcription.",
     )

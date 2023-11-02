@@ -9,41 +9,36 @@ import logging
 import os
 import ssl
 import sys
-from socket import gaierror
-
 from dataclasses import dataclass
+from socket import gaierror
 from typing import List
 
-import toml
 import httpx
+import toml
 from websockets.exceptions import WebSocketException
 
 import speechmatics.adapters
-from speechmatics.helpers import _process_status_errors
-from speechmatics.client import WebsocketClient
 from speechmatics.batch_client import BatchClient
-from speechmatics.exceptions import (
-    TranscriptionError,
-    JobNotFoundException,
-)
+from speechmatics.cli_parser import parse_args
+from speechmatics.client import WebsocketClient
+from speechmatics.config import read_config_from_home
+from speechmatics.constants import BATCH_SELF_SERVICE_URL, RT_SELF_SERVICE_URL
+from speechmatics.exceptions import JobNotFoundException, TranscriptionError
+from speechmatics.helpers import _process_status_errors
 from speechmatics.models import (
-    TranscriptionConfig,
     AudioSettings,
-    ClientMessageType,
-    ServerMessageType,
-    ConnectionSettings,
-    BatchTranscriptionConfig,
+    BatchLanguageIdentificationConfig,
     BatchSpeakerDiarizationConfig,
+    BatchTranscriptionConfig,
+    ClientMessageType,
+    ConnectionSettings,
     RTSpeakerDiarizationConfig,
     RTTranslationConfig,
-    BatchLanguageIdentificationConfig,
-)
-from speechmatics.cli_parser import (
-    parse_args,
-)
-from speechmatics.constants import (
-    BATCH_SELF_SERVICE_URL,
-    RT_SELF_SERVICE_URL,
+    ServerMessageType,
+    SentimentAnalysisConfig,
+    SummarizationConfig,
+    TopicDetectionConfig,
+    TranscriptionConfig,
 )
 
 LOGGER = logging.getLogger(__name__)
@@ -143,40 +138,26 @@ def get_connection_settings(args, lang="en"):
     generate_temp_token = args.get("generate_temp_token")
     url = args.get("url")
 
-    home_directory = os.path.expanduser("~")
-    if os.path.exists(f"{home_directory}/.speechmatics/config"):
-        cli_config = {"default": {}}
-        with open(
-            f"{home_directory}/.speechmatics/config", "r", encoding="UTF-8"
-        ) as file:
-            cli_config = toml.load(file)
-        profile = args.get("profile", "default")
-        if profile not in cli_config:
-            raise SystemExit(
-                f"Cannot unset config for profile {profile}. Profile does not exist."
-            )
-        if "auth_token" in cli_config[profile] and auth_token is None:
-            auth_token = cli_config[profile].get("auth_token")
-        if "generate_temp_token" in cli_config[profile]:
-            generate_temp_token = cli_config[profile].get("generate_temp_token")
+    stored_config = read_config_from_home(args.get("profile", "default"))
+    if stored_config is not None:
+        if auth_token is None and stored_config.get("auth_token") is not None:
+            auth_token = stored_config["auth_token"]
         if (
-            url is None
-            and args.get("mode") == "batch"
-            and "batch_url" in cli_config[profile]
+            generate_temp_token is None
+            and stored_config.get("generate_temp_token") is not None
         ):
-            url = cli_config[profile].get("batch_url")
-        if (
-            url is None
-            and args.get("mode") == "rt"
-            and "realtime_url" in cli_config[profile]
-        ):
-            url = cli_config[profile].get("realtime_url")
+            generate_temp_token = stored_config["generate_temp_token"]
+
+        if url is None and args.get("mode") == "batch" and "batch_url" in stored_config:
+            url = stored_config.get("batch_url")
+        if url is None and args.get("mode") == "rt" and "realtime_url" in stored_config:
+            url = stored_config.get("realtime_url")
 
     if url is None:
         if args.get("mode") == "batch":
             url = BATCH_SELF_SERVICE_URL
         else:
-            url = f"{RT_SELF_SERVICE_URL}/{lang}"
+            url = f"{RT_SELF_SERVICE_URL}/{lang.strip()}"
 
     settings = ConnectionSettings(
         url=url,
@@ -196,7 +177,9 @@ def get_connection_settings(args, lang="en"):
     return settings
 
 
-def get_transcription_config(args):  # pylint: disable=too-many-branches
+def get_transcription_config(
+    args,
+):  # pylint: disable=too-many-branches, too-many-locals, too-many-statements
     """
     Helper function which returns a TranscriptionConfig object based on the
     command line options given to the program.
@@ -237,12 +220,17 @@ def get_transcription_config(args):  # pylint: disable=too-many-branches
         if args.get(option) is not None:
             config[option] = args[option]
     for option in [
+        "streaming_mode",
         "enable_partials",
         "enable_entities",
         "enable_translation_partials",
         "enable_transcription_partials",
     ]:
         config[option] = True if args.get(option) else config.get(option)
+
+    if args.get("ctrl"):
+        LOGGER.warning(f"Using internal dev control command: {args['ctrl']}")
+        config["ctrl"] = json.loads(args["ctrl"])
 
     if args.get("additional_vocab_file"):
         additional_vocab = parse_additional_vocab(args["additional_vocab_file"])
@@ -286,13 +274,21 @@ def get_transcription_config(args):  # pylint: disable=too-many-branches
             speaker_sensitivity=speaker_sensitivity
         )
 
-    if args.get("translation_target_languages") is not None:
-        translation_target_languages = args.get("translation_target_languages")
-        enable_partials = args.get("enable_partials", False) or args.get(
-            "enable_translation_partials", False
+    translation_config = config.get("translation_config", {})
+    args_target_languages = args.get("translation_target_languages")
+    if translation_config or args_target_languages:
+        enable_partials = (
+            args.get("enable_partials", False)
+            or args.get("enable_translation_partials", False)
+            or translation_config.get("enable_partials", False)
+        )
+        target_languages = (
+            args_target_languages.split(",")
+            if args_target_languages
+            else translation_config.get("target_languages")
         )
         config["translation_config"] = RTTranslationConfig(
-            target_languages=translation_target_languages.split(","),
+            target_languages=target_languages,
             enable_partials=enable_partials,
         )
 
@@ -301,6 +297,43 @@ def get_transcription_config(args):  # pylint: disable=too-many-branches
         config["language_identification_config"] = BatchLanguageIdentificationConfig(
             expected_languages=langid_expected_languages.split(",")
         )
+
+    # request summarization from config file
+    file_summarization_config = config.get("summarization_config", {})
+    # request summarization from cli
+    args_summarization = args.get("summarize")
+    if args_summarization or config.get("summarization_config") is not None:
+        summarization_config = SummarizationConfig()
+        content_type = args.get(
+            "content_type", file_summarization_config.get("content_type")
+        )
+        if content_type:
+            summarization_config.content_type = content_type
+        summary_length = args.get(
+            "summary_length", file_summarization_config.get("summary_length")
+        )
+        if summary_length:
+            summarization_config.summary_length = summary_length
+        summary_type = args.get(
+            "summary_type", file_summarization_config.get("summary_type")
+        )
+        if summary_type:
+            summarization_config.summary_type = summary_type
+        config["summarization_config"] = summarization_config
+
+    sentiment_analysis_config = config.get("sentiment_analysis_config", {})
+    args_sentiment_analysis = args.get("sentiment_analysis")
+    if args_sentiment_analysis or sentiment_analysis_config:
+        config["sentiment_analysis_config"] = SentimentAnalysisConfig()
+
+    topic_detection_config = config.get("topic_detection_config", {})
+    args_topic_detection = args.get("detect_topics")
+    if args_topic_detection or topic_detection_config:
+        topic_detection_config = TopicDetectionConfig()
+        topics = args.get("topics", topic_detection_config.get("topics"))
+        if topics:
+            topic_detection_config.topics = topics
+        config["topic_detection_config"] = topic_detection_config
 
     if args["mode"] == "rt":
         # pylint: disable=unexpected-keyword-arg

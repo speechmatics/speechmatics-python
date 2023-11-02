@@ -5,11 +5,23 @@ Data models and message types used by the library.
 
 import json
 import ssl
-
+import sys
 from dataclasses import asdict, dataclass, field, fields
 from enum import Enum
-
 from typing import Any, Dict, List, Optional
+
+from speechmatics.config import CONFIG_PATH, read_config_from_home
+from speechmatics.constants import BATCH_SELF_SERVICE_URL, RT_SELF_SERVICE_URL
+
+if sys.version_info >= (3, 8):
+    from typing import Literal
+else:
+    from typing_extensions import Literal  # pragma: no cover
+
+
+SummaryContentType = Literal["informative", "conversational", "auto"]
+SummaryLength = Literal["brief", "detailed"]
+SummaryType = Literal["paragraphs", "bullets"]
 
 
 @dataclass
@@ -34,7 +46,7 @@ class NotificationConfig:
     url: str
     """URL for notification. The `id` and `status` query parameters will be added."""
 
-    contents: str = None
+    contents: List[str] = None
     """
     Specifies a list of items to be attached to the notification message.
     When multiple items are requested, they are included as named file
@@ -44,7 +56,7 @@ class NotificationConfig:
     method: str = "post"
     """The HTTP(S) method to be used. Only `post` and `put` are supported."""
 
-    auth_headers: str = None
+    auth_headers: List[str] = None
     """
     A list of additional headers to be added to the notification request
     when using http or https. This is intended to support authentication or
@@ -168,6 +180,33 @@ class BatchLanguageIdentificationConfig:
     """Expected languages for language identification"""
 
 
+@dataclass
+class SummarizationConfig:
+    """Defines summarization parameters."""
+
+    content_type: SummaryContentType = "auto"
+    """Optional summarization content_type parameter."""
+
+    summary_length: SummaryLength = "brief"
+    """Optional summarization summary_length parameter."""
+
+    summary_type: SummaryType = "bullets"
+    """Optional summarization summary_type parameter."""
+
+
+@dataclass
+class SentimentAnalysisConfig:
+    """Sentiment Analysis config."""
+
+
+@dataclass
+class TopicDetectionConfig:
+    """Defines topic detection parameters."""
+
+    topics: List[str] = None
+    """Optional list of topics for topic detection."""
+
+
 @dataclass(init=False)
 class TranscriptionConfig(_TranscriptionConfig):
     # pylint: disable=too-many-instance-attributes
@@ -191,6 +230,12 @@ class TranscriptionConfig(_TranscriptionConfig):
 
     speaker_change_sensitivity: float = None
     """Sensitivity level for speaker change."""
+
+    streaming_mode: bool = None
+    """Indicates if we run the engine in streaming mode, or regular RT mode."""
+
+    ctrl: dict = None
+    """Internal Speechmatics flag that allows to give special commands to the engine."""
 
     enable_partials: bool = None
     """Indicates if partials for both transcripts and translation, where words are produced
@@ -223,6 +268,7 @@ class TranscriptionConfig(_TranscriptionConfig):
 
 @dataclass(init=False)
 class BatchTranscriptionConfig(_TranscriptionConfig):
+    # pylint: disable=too-many-instance-attributes
     """Batch: Defines transcription parameters for batch requests.
     The `.as_config()` method will return it wrapped into a Speechmatics json config."""
 
@@ -247,6 +293,15 @@ class BatchTranscriptionConfig(_TranscriptionConfig):
     channel_diarization_labels: List[str] = None
     """Add your own speaker or channel labels to the transcript"""
 
+    summarization_config: SummarizationConfig = None
+    """Optional configuration for transcript summarization."""
+
+    sentiment_analysis_config: Optional[SentimentAnalysisConfig] = None
+    """Optional configuration for sentiment analysis of the transcript"""
+
+    topic_detection_config: Optional[TopicDetectionConfig] = None
+    """Optional configuration for detecting topics of the transcript"""
+
     def as_config(self):
         dictionary = self.asdict()
 
@@ -257,7 +312,9 @@ class BatchTranscriptionConfig(_TranscriptionConfig):
         )
         translation_config = dictionary.pop("translation_config", None)
         srt_overrides = dictionary.pop("srt_overrides", None)
-
+        summarization_config = dictionary.pop("summarization_config", None)
+        sentiment_analysis_config = dictionary.pop("sentiment_analysis_config", None)
+        topic_detection_config = dictionary.pop("topic_detection_config", None)
         config = {"type": "transcription", "transcription_config": dictionary}
 
         if fetch_data:
@@ -276,6 +333,15 @@ class BatchTranscriptionConfig(_TranscriptionConfig):
 
         if srt_overrides:
             config["output_config"] = {"srt_overrides": srt_overrides}
+
+        if summarization_config:
+            config["summarization_config"] = summarization_config
+
+        if sentiment_analysis_config is not None:
+            config["sentiment_analysis_config"] = sentiment_analysis_config
+
+        if topic_detection_config:
+            config["topic_detection_config"] = topic_detection_config
 
         return json.dumps(config)
 
@@ -305,6 +371,12 @@ class AudioSettings:
         }
 
 
+class UsageMode(str, Enum):
+    # pylint: disable=invalid-name
+    Batch = "batch"
+    RealTime = "rt"
+
+
 @dataclass
 class ConnectionSettings:
     """Defines connection parameters."""
@@ -324,13 +396,62 @@ class ConnectionSettings:
     ping_timeout_seconds: float = 60
     """Ping-pong timeout in seconds."""
 
-    auth_token: str = None
-    """auth token to authenticate a customer.
-    This auth token is only applicable for RT-SaaS."""
+    auth_token: Optional[str] = None
+    """auth token to authenticate a customer."""
 
     generate_temp_token: Optional[bool] = False
     """Automatically generate a temporary token for authentication.
-    Non-enterprise customers must set this to True. Enterprise customers should set this to False."""
+    Enterprise customers should set this to False."""
+
+    def set_missing_values_from_config(self, mode: UsageMode):
+        stored_config = read_config_from_home()
+        if self.url is None or self.url == "":
+            url_key = "realtime_url" if mode == UsageMode.RealTime else "batch_url"
+            if stored_config and url_key in stored_config:
+                self.url = stored_config[url_key]
+            else:
+                raise ValueError(f"No URL provided or set in {CONFIG_PATH}")
+        if self.auth_token is None or self.auth_token == "":
+            if stored_config and stored_config.get("auth_token"):
+                self.auth_token = stored_config["auth_token"]
+
+    @classmethod
+    def create(cls, mode: UsageMode, auth_token: Optional[str] = None):
+        stored_config = read_config_from_home()
+        default_url = (
+            RT_SELF_SERVICE_URL
+            if mode == UsageMode.RealTime
+            else BATCH_SELF_SERVICE_URL
+        )
+        url_key = "realtime_url" if mode == UsageMode.RealTime else "batch_url"
+        if stored_config and url_key in stored_config:
+            url = stored_config[url_key]
+        else:
+            url = default_url
+        if auth_token is not None:
+            return ConnectionSettings(
+                url=url,
+                auth_token=auth_token,
+                generate_temp_token=True,
+            )
+        if stored_config and stored_config.get("auth_token"):
+            url = stored_config.get(url_key, default_url)
+            return ConnectionSettings(
+                url,
+                auth_token=stored_config["auth_token"],
+                generate_temp_token=stored_config.get("generate_temp_token", True),
+            )
+        raise ValueError(f"No acces token provided or set in {CONFIG_PATH}")
+
+
+@dataclass
+class RTConnectionSettings(ConnectionSettings):
+    url = f"{RT_SELF_SERVICE_URL}/en"
+
+
+@dataclass
+class BatchConnectionSettings(ConnectionSettings):
+    url = BATCH_SELF_SERVICE_URL
 
 
 class ClientMessageType(str, Enum):

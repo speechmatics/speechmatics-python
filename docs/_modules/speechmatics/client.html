@@ -17,6 +17,7 @@
    
   <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
   
+  
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head><body>
@@ -25,6 +26,8 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
+          
+
           <div class="body" role="main">
             
   <h1>Source code for speechmatics.client</h1><div class="highlight"><pre>
@@ -39,18 +42,26 @@
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">urllib.parse</span> <span class="kn">import</span> <span class="n">parse_qsl</span><span class="p">,</span> <span class="n">urlencode</span><span class="p">,</span> <span class="n">urlparse</span><span class="p">,</span> <span class="n">urlunparse</span>
 
-<span class="kn">import</span> <span class="nn">websockets</span>
 <span class="kn">import</span> <span class="nn">httpx</span>
+<span class="kn">import</span> <span class="nn">websockets</span>
 
-<span class="kn">from</span> <span class="nn">speechmatics.exceptions</span> <span class="k">import</span> <span class="p">(</span>
+<span class="kn">from</span> <span class="nn">speechmatics.exceptions</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">EndOfTranscriptException</span><span class="p">,</span>
     <span class="n">ForceEndSession</span><span class="p">,</span>
     <span class="n">TranscriptionError</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">speechmatics.models</span> <span class="k">import</span> <span class="n">ClientMessageType</span><span class="p">,</span> <span class="n">ServerMessageType</span>
-<span class="kn">from</span> <span class="nn">speechmatics.helpers</span> <span class="k">import</span> <span class="n">json_utf8</span><span class="p">,</span> <span class="n">read_in_chunks</span>
-
+<span class="kn">from</span> <span class="nn">speechmatics.helpers</span> <span class="kn">import</span> <span class="n">get_version</span><span class="p">,</span> <span class="n">json_utf8</span><span class="p">,</span> <span class="n">read_in_chunks</span>
+<span class="kn">from</span> <span class="nn">speechmatics.models</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">AudioSettings</span><span class="p">,</span>
+    <span class="n">ClientMessageType</span><span class="p">,</span>
+    <span class="n">ConnectionSettings</span><span class="p">,</span>
+    <span class="n">ServerMessageType</span><span class="p">,</span>
+    <span class="n">TranscriptionConfig</span><span class="p">,</span>
+    <span class="n">UsageMode</span><span class="p">,</span>
+<span class="p">)</span>
 
 <span class="n">LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -61,7 +72,7 @@
 
 
 <div class="viewcode-block" id="WebsocketClient"><a class="viewcode-back" href="../../client.html#speechmatics.client.WebsocketClient">[docs]</a><span class="k">class</span> <span class="nc">WebsocketClient</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Manage a transcription session with the server.</span>
 
 <span class="sd">    The best way to interact with this library is to instantiate this client</span>
@@ -75,8 +86,23 @@
 
     <span class="c1"># pylint: disable=too-many-instance-attributes</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">connection_settings</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">connection_settings</span> <span class="o">=</span> <span class="n">connection_settings</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">connection_settings_or_auth_token</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ConnectionSettings</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            connection_settings_or_auth_token (Union[str, ConnectionSettings, None], optional): Defaults to None.</span>
+<span class="sd">                If `str`,, assumes auth_token passed and default URL being used</span>
+<span class="sd">                If `None`, attempts using auth_token from config.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">connection_settings_or_auth_token</span><span class="p">,</span> <span class="n">ConnectionSettings</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">connection_settings</span> <span class="o">=</span> <span class="n">ConnectionSettings</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+                <span class="n">UsageMode</span><span class="o">.</span><span class="n">RealTime</span><span class="p">,</span> <span class="n">connection_settings_or_auth_token</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">connection_settings</span> <span class="o">=</span> <span class="n">connection_settings_or_auth_token</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">connection_settings</span><span class="o">.</span><span class="n">set_missing_values_from_config</span><span class="p">(</span><span class="n">UsageMode</span><span class="o">.</span><span class="n">RealTime</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">websocket</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">transcription_config</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">translation_config</span> <span class="o">=</span> <span class="kc">None</span>
@@ -98,7 +124,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_buffer_semaphore</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">BoundedSemaphore</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">_init_synchronization_primitives</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Used to initialise synchronization primitives that require</span>
 <span class="sd">        an event loop</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -108,7 +134,7 @@
         <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_flag_recognition_started</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Handle a</span>
 <span class="sd">        :py:attr:`speechmatics.models.ClientMessageType.SetRecognitionConfig`</span>
 <span class="sd">        message from the server.</span>
@@ -118,7 +144,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_recognition_started</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">_set_language_pack_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">language_pack_info</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Update the `language_pack_info` which is a subset of information from the</span>
 <span class="sd">        manifest in the language pack which we expose to end users via the</span>
 <span class="sd">        RecognitionStarted message.</span>
@@ -126,7 +152,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_language_pack_info</span> <span class="o">=</span> <span class="n">language_pack_info</span>
 
 <div class="viewcode-block" id="WebsocketClient.get_language_pack_info"><a class="viewcode-back" href="../../client.html#speechmatics.client.WebsocketClient.get_language_pack_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_language_pack_info</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the `language_pack_info` which is a subset of information from the</span>
 <span class="sd">        manifest in the language pack which we expose to end users.</span>
 
@@ -137,7 +163,7 @@
 
     <span class="nd">@json_utf8</span>
     <span class="k">def</span> <span class="nf">_set_recognition_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Constructs a</span>
 <span class="sd">        :py:attr:`speechmatics.models.ClientMessageType.SetRecognitionConfig`</span>
 <span class="sd">        message.</span>
@@ -153,7 +179,7 @@
 
     <span class="nd">@json_utf8</span>
     <span class="k">def</span> <span class="nf">_start_recognition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">audio_settings</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Constructs a</span>
 <span class="sd">        :py:attr:`speechmatics.models.ClientMessageType.StartRecognition`</span>
 <span class="sd">        message.</span>
@@ -176,7 +202,7 @@
 
     <span class="nd">@json_utf8</span>
     <span class="k">def</span> <span class="nf">_end_of_stream</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Constructs an</span>
 <span class="sd">        :py:attr:`speechmatics.models.ClientMessageType.EndOfStream`</span>
 <span class="sd">        message.</span>
@@ -187,7 +213,7 @@
         <span class="k">return</span> <span class="n">msg</span>
 
     <span class="k">def</span> <span class="nf">_consumer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Consumes messages and acts on them.</span>
 
 <span class="sd">        :param message: Message received from the server.</span>
@@ -224,7 +250,7 @@
             <span class="k">raise</span> <span class="n">TranscriptionError</span><span class="p">(</span><span class="n">message</span><span class="p">[</span><span class="s2">&quot;reason&quot;</span><span class="p">])</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">_producer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">,</span> <span class="n">audio_chunk_size</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Yields messages to send to the server.</span>
 
 <span class="sd">        :param stream: File-like object which an audio stream can be read from.</span>
@@ -252,7 +278,7 @@
         <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">_end_of_stream</span><span class="p">()</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">_consumer_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Controls the consumer loop for handling messages from the server.</span>
 
 <span class="sd">        raises: ConnectionClosedError when the upstream closes unexpectedly</span>
@@ -270,7 +296,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_consumer</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">_producer_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">,</span> <span class="n">audio_chunk_size</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Controls the producer loop for sending messages to the server.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_recognition_started</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
@@ -286,7 +312,7 @@
                 <span class="k">return</span>
 
     <span class="k">def</span> <span class="nf">_call_middleware</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Call the middlewares attached to the client for the given event name.</span>
 
 <span class="sd">        :raises ForceEndSession: If this was raised by the user&#39;s middleware.</span>
@@ -299,7 +325,7 @@
                 <span class="k">raise</span>
 
 <div class="viewcode-block" id="WebsocketClient.update_transcription_config"><a class="viewcode-back" href="../../client.html#speechmatics.client.WebsocketClient.update_transcription_config">[docs]</a>    <span class="k">def</span> <span class="nf">update_transcription_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_transcription_config</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Updates the transcription config used for the session.</span>
 <span class="sd">        This results in a SetRecognitionConfig message sent to the server.</span>
 
@@ -311,7 +337,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_transcription_config_needs_update</span> <span class="o">=</span> <span class="kc">True</span></div>
 
 <div class="viewcode-block" id="WebsocketClient.add_event_handler"><a class="viewcode-back" href="../../client.html#speechmatics.client.WebsocketClient.add_event_handler">[docs]</a>    <span class="k">def</span> <span class="nf">add_event_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">,</span> <span class="n">event_handler</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add an event handler (callback function) to handle an incoming</span>
 <span class="sd">        message from the server. Event handlers are passed a copy of the</span>
 <span class="sd">        incoming message from the server. If `event_name` is set to &#39;all&#39; then</span>
@@ -343,14 +369,14 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">event_handlers</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event_handler</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">event_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">event_handlers</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="n">f</span><span class="s2">&quot;Unknown event name: </span><span class="si">{event_name!r}</span><span class="s2">, expected to be &quot;</span>
-                <span class="n">f</span><span class="s2">&quot;&#39;all&#39; or one of {list(self.event_handlers.keys())}.&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Unknown event name: </span><span class="si">{</span><span class="n">event_name</span><span class="si">!r}</span><span class="s2">, expected to be &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;&#39;all&#39; or one of </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">event_handlers</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s2">.&quot;</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">event_handlers</span><span class="p">[</span><span class="n">event_name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event_handler</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="WebsocketClient.add_middleware"><a class="viewcode-back" href="../../client.html#speechmatics.client.WebsocketClient.add_middleware">[docs]</a>    <span class="k">def</span> <span class="nf">add_middleware</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">,</span> <span class="n">middleware</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add a middleware to handle outgoing messages sent to the server.</span>
 <span class="sd">        Middlewares are passed a reference to the outgoing message, which</span>
 <span class="sd">        they may alter.</span>
@@ -377,15 +403,15 @@
         <span class="k">elif</span> <span class="n">event_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">middlewares</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="p">(</span>
-                    <span class="n">f</span><span class="s2">&quot;Unknown event name: </span><span class="si">{event_name}</span><span class="s2">, expected to be &#39;all&#39;&quot;</span>
-                    <span class="n">f</span><span class="s2">&quot;or one of {list(self.middlewares.keys())}.&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;Unknown event name: </span><span class="si">{</span><span class="n">event_name</span><span class="si">}</span><span class="s2">, expected to be &#39;all&#39;&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;or one of </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">middlewares</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s2">.&quot;</span>
                 <span class="p">)</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">middlewares</span><span class="p">[</span><span class="n">event_name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">middleware</span><span class="p">)</span></div>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">_communicate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">,</span> <span class="n">audio_settings</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a producer/consumer for transcription messages and</span>
 <span class="sd">        communicate with the server.</span>
 <span class="sd">        Internal method called from _run.</span>
@@ -413,8 +439,14 @@
             <span class="k">if</span> <span class="n">exc</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="p">(</span><span class="n">EndOfTranscriptException</span><span class="p">,</span> <span class="n">ForceEndSession</span><span class="p">)):</span>
                 <span class="k">raise</span> <span class="n">exc</span>
 
-<div class="viewcode-block" id="WebsocketClient.run"><a class="viewcode-back" href="../../client.html#speechmatics.client.WebsocketClient.run">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">,</span> <span class="n">transcription_config</span><span class="p">,</span> <span class="n">audio_settings</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="WebsocketClient.run"><a class="viewcode-back" href="../../client.html#speechmatics.client.WebsocketClient.run">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">run</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">stream</span><span class="p">,</span>
+        <span class="n">transcription_config</span><span class="p">:</span> <span class="n">TranscriptionConfig</span><span class="p">,</span>
+        <span class="n">audio_settings</span><span class="o">=</span><span class="n">AudioSettings</span><span class="p">(),</span>
+        <span class="n">from_cli</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Begin a new recognition session.</span>
 <span class="sd">        This will run asynchronously. Most callers may prefer to use</span>
 <span class="sd">        :py:meth:`run_synchronously` which will block until the session is</span>
@@ -429,6 +461,9 @@
 <span class="sd">        :param audio_settings: Configuration for the audio stream.</span>
 <span class="sd">        :type audio_settings: speechmatics.models.AudioSettings</span>
 
+<span class="sd">        :param from_cli: Indicates whether the caller is the command-line interface or not.</span>
+<span class="sd">        :type from_cli: bool</span>
+
 <span class="sd">        :raises Exception: Can raise any exception returned by the</span>
 <span class="sd">            consumer/producer tasks.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -442,7 +477,7 @@
             <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection_settings</span><span class="o">.</span><span class="n">generate_temp_token</span>
             <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection_settings</span><span class="o">.</span><span class="n">auth_token</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="p">):</span>
-            <span class="n">token</span> <span class="o">=</span> <span class="n">f</span><span class="s2">&quot;Bearer </span><span class="si">{self.connection_settings.auth_token}</span><span class="s2">&quot;</span>
+            <span class="n">token</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Bearer </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">connection_settings</span><span class="o">.</span><span class="n">auth_token</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="n">extra_headers</span><span class="p">[</span><span class="s2">&quot;Authorization&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">token</span>
 
         <span class="k">if</span> <span class="p">(</span>
@@ -450,12 +485,28 @@
             <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection_settings</span><span class="o">.</span><span class="n">auth_token</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="p">):</span>
             <span class="n">temp_token</span> <span class="o">=</span> <span class="k">await</span> <span class="n">_get_temp_token</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">connection_settings</span><span class="o">.</span><span class="n">auth_token</span><span class="p">)</span>
-            <span class="n">token</span> <span class="o">=</span> <span class="n">f</span><span class="s2">&quot;Bearer </span><span class="si">{temp_token}</span><span class="s2">&quot;</span>
+            <span class="n">token</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Bearer </span><span class="si">{</span><span class="n">temp_token</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="n">extra_headers</span><span class="p">[</span><span class="s2">&quot;Authorization&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">token</span>
+
+        <span class="n">url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection_settings</span><span class="o">.</span><span class="n">url</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">url</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transcription_config</span><span class="o">.</span><span class="n">language</span><span class="o">.</span><span class="n">strip</span><span class="p">()):</span>
+            <span class="k">if</span> <span class="n">url</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">):</span>
+                <span class="n">url</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transcription_config</span><span class="o">.</span><span class="n">language</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">url</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">transcription_config</span><span class="o">.</span><span class="n">language</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="c1"># Extend connection url with sdk version information</span>
+        <span class="n">cli</span> <span class="o">=</span> <span class="s2">&quot;-cli&quot;</span> <span class="k">if</span> <span class="n">from_cli</span> <span class="ow">is</span> <span class="kc">True</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">version</span> <span class="o">=</span> <span class="n">get_version</span><span class="p">()</span>
+        <span class="n">parsed_url</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+        <span class="n">query_params</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">parse_qsl</span><span class="p">(</span><span class="n">parsed_url</span><span class="o">.</span><span class="n">query</span><span class="p">))</span>
+        <span class="n">query_params</span><span class="p">[</span><span class="s2">&quot;sm-sdk&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;python</span><span class="si">{</span><span class="n">cli</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">updated_query</span> <span class="o">=</span> <span class="n">urlencode</span><span class="p">(</span><span class="n">query_params</span><span class="p">)</span>
+        <span class="n">updated_url</span> <span class="o">=</span> <span class="n">urlunparse</span><span class="p">(</span><span class="n">parsed_url</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">updated_query</span><span class="p">))</span>
 
         <span class="k">try</span><span class="p">:</span>
             <span class="k">async</span> <span class="k">with</span> <span class="n">websockets</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>  <span class="c1"># pylint: disable=no-member</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">connection_settings</span><span class="o">.</span><span class="n">url</span><span class="p">,</span>
+                <span class="n">updated_url</span><span class="p">,</span>
                 <span class="n">ssl</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">connection_settings</span><span class="o">.</span><span class="n">ssl_context</span><span class="p">,</span>
                 <span class="n">ping_timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">connection_settings</span><span class="o">.</span><span class="n">ping_timeout_seconds</span><span class="p">,</span>
                 <span class="c1"># Don&#39;t limit the max. size of incoming messages</span>
@@ -469,7 +520,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">websocket</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="WebsocketClient.stop"><a class="viewcode-back" href="../../client.html#speechmatics.client.WebsocketClient.stop">[docs]</a>    <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Indicates that the recognition session should be forcefully stopped.</span>
 <span class="sd">        Only used in conjunction with `run`.</span>
 <span class="sd">        You probably don&#39;t need to call this if you&#39;re running the client via</span>
@@ -478,7 +529,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_session_needs_closing</span> <span class="o">=</span> <span class="kc">True</span></div>
 
 <div class="viewcode-block" id="WebsocketClient.run_synchronously"><a class="viewcode-back" href="../../client.html#speechmatics.client.WebsocketClient.run_synchronously">[docs]</a>    <span class="k">def</span> <span class="nf">run_synchronously</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Run the transcription synchronously.</span>
 <span class="sd">        :raises asyncio.TimeoutError: If the given timeout is exceeded.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -487,14 +538,15 @@
 
 
 <span class="k">async</span> <span class="k">def</span> <span class="nf">_get_temp_token</span><span class="p">(</span><span class="n">api_key</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Used to get a temporary token from management platform api for SaaS users</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">version</span> <span class="o">=</span> <span class="n">get_version</span><span class="p">()</span>
     <span class="n">mp_api_url</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;SM_MANAGEMENT_PLATFORM_URL&quot;</span><span class="p">,</span> <span class="s2">&quot;https://mp.speechmatics.com&quot;</span><span class="p">)</span>
     <span class="n">endpoint</span> <span class="o">=</span> <span class="n">mp_api_url</span> <span class="o">+</span> <span class="s2">&quot;/v1/api_keys&quot;</span>
-    <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;rt&quot;</span><span class="p">}</span>
+    <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;rt&quot;</span><span class="p">,</span> <span class="s2">&quot;sm-sdk&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;python-</span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">}</span>
     <span class="n">body</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;ttl&quot;</span><span class="p">:</span> <span class="mi">60</span><span class="p">}</span>
-    <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Authorization&quot;</span><span class="p">:</span> <span class="n">f</span><span class="s2">&quot;Bearer </span><span class="si">{api_key}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;Content-Type&quot;</span><span class="p">:</span> <span class="s2">&quot;application/json&quot;</span><span class="p">}</span>
+    <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Authorization&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Bearer </span><span class="si">{</span><span class="n">api_key</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;Content-Type&quot;</span><span class="p">:</span> <span class="s2">&quot;application/json&quot;</span><span class="p">}</span>
     <span class="c1"># pylint: disable=no-member</span>
     <span class="n">response</span> <span class="o">=</span> <span class="n">httpx</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">body</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">)</span>
     <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
@@ -504,6 +556,7 @@
 </pre></div>
 
           </div>
+          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -561,6 +614,14 @@
     </div>
 </div>
 <script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
         </div>
       </div>
       <div class="clearer"></div>
@@ -570,7 +631,7 @@
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 4.4.0</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
       
     </div>
 

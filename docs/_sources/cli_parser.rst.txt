@@ -1,6 +1,6 @@
 Speechmatics CLI Tool
 =========================
-.. argparse:: 
+.. argparse::
    :module: speechmatics.cli_parser
    :func: get_arg_parser
    :prog: speechmatics

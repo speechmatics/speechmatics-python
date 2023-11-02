@@ -135,11 +135,7 @@ async def load_stream(stream_url: str, language: str):
                 break
     start_time = time.time()
     sm_client = WebsocketClient(
-        ConnectionSettings(
-            url=CONNECTION_URL,
-            auth_token=AUTH_TOKEN,
-            generate_temp_token=True,
-        )
+        ConnectionSettings(url=CONNECTION_URL, auth_token=AUTH_TOKEN)
     )
     sm_client.add_event_handler(
         event_name=ServerMessageType.AddTranscript,

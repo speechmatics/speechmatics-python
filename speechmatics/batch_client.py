@@ -6,15 +6,17 @@ Wrapper library to interface with Speechmatics ASR batch v2 API.
 import json
 import logging
 import os
+from pathlib import Path
 import time
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any, Dict, Iterable, List, Tuple, Union
 
 import httpx
 from polling2 import poll
+from tenacity import retry, retry_if_exception_type, stop_after_attempt
 
 from speechmatics.exceptions import JobNotFoundException, TranscriptionError
 from speechmatics.helpers import get_version
-from speechmatics.models import BatchTranscriptionConfig, ConnectionSettings
+from speechmatics.models import BatchTranscriptionConfig, ConnectionSettings, UsageMode
 
 LOGGER = logging.getLogger(__name__)
 
@@ -24,6 +26,15 @@ LOGGER = logging.getLogger(__name__)
 logging.getLogger("websockets.protocol").setLevel(logging.INFO)
 
 POLLING_DURATION = 15
+
+# This is a reasonable default for when multiple audio files are submitted for
+# transcription in one go, in submit_jobs.
+#
+# Customers are free to increase this to any kind of maximum they are
+# comfortable with, but bear in mind there will be rate-limitting at the API
+# end for over-use.
+CONCURRENCY_DEFAULT = 5
+CONCURRENCY_MAXIMUM = 50
 
 
 class _ForceMultipartDict(dict):
@@ -59,9 +70,7 @@ class BatchClient:
 
     This client may be used directly but must be closed afterwards, e.g.::
 
-        settings = ConnectionSettings(url="https://{api}/v2",
-        auth_token="{token}")
-        client = BatchClient(settings)
+        client = BatchClient(auth_token)
         client.connect()
         list_of_jobs = client.list_jobs()
         client.close()
@@ -74,19 +83,34 @@ class BatchClient:
 
     """
 
-    def __init__(self, connection_settings: ConnectionSettings, from_cli=False):
-        """Constructor method.
-
-        :param connection_settings: Connection settings for API
-        :type connection_settings: speechmatics.models.ConnectionSettings.
+    def __init__(
+        self,
+        connection_settings_or_auth_token: Union[str, ConnectionSettings, None] = None,
+        from_cli=False,
+    ):
         """
-        if connection_settings.url[-1] == "/":
-            connection_settings.url = connection_settings.url[:-1]
+        Args:
+            connection_settings_or_auth_token (Union[str, ConnectionSettings, None], optional)
+                If `str`,, assumes auth_token passed and default URL being used
+                If `None`, attempts using auth_token from config.
+                Defaults to `None`
+            from_clie (bool)
+        """
+        if not isinstance(connection_settings_or_auth_token, ConnectionSettings):
+            self.connection_settings = ConnectionSettings.create(
+                UsageMode.Batch, connection_settings_or_auth_token
+            )
+        else:
+            self.connection_settings = connection_settings_or_auth_token
+            self.connection_settings.set_missing_values_from_config(UsageMode.Batch)
+        if self.connection_settings.url[-1] == "/":
+            self.connection_settings.url = self.connection_settings.url[:-1]
+        if not self.connection_settings.url.endswith("/v2"):
+            self.connection_settings.url = "/".join(
+                [self.connection_settings.url, "v2"]
+            )
 
-        if not connection_settings.url.endswith("/v2"):
-            connection_settings.url = "/".join([connection_settings.url, "v2"])
-
-        self.connection_settings = connection_settings
+        self.connection_settings = self.connection_settings
         self.transcription_config = None
 
         self.default_headers = {
@@ -143,11 +167,19 @@ class BatchClient:
 
         :raises httpx.HTTPError: When a request fails, raises an HTTPError
         """
+
         # pylint: disable=no-member
-        with self.api_client.stream(method, path, **kwargs) as response:
-            response.read()
-            response.raise_for_status()
-            return response
+        @retry(
+            stop=stop_after_attempt(2),
+            retry=retry_if_exception_type(httpx.RemoteProtocolError),
+        )
+        def send():
+            with self.api_client.stream(method, path, **kwargs) as response:
+                response.read()
+                response.raise_for_status()
+                return response
+
+        return send()
 
     def list_jobs(self) -> List[Dict[str, Any]]:
         """
@@ -185,7 +217,9 @@ class BatchClient:
 
         # Handle getting config into a dict
         if isinstance(transcription_config, (str or os.PathLike)):
-            with open(transcription_config, mode="rt", encoding="utf-8") as file:
+            with Path(transcription_config).expanduser().open(
+                mode="rt", encoding="utf-8"
+            ) as file:
                 config_dict = json.load(file)
         elif isinstance(transcription_config, BatchTranscriptionConfig):
             config_dict = json.loads(transcription_config.as_config())
@@ -198,28 +232,76 @@ class BatchClient:
             )
 
         # If audio=None, fetch_data must be specified
-        if audio and "fetch_data" in config_dict:
-            raise ValueError("Only one of audio or fetch_data can be set at a time")
-        if not audio and "fetch_data" in config_dict:
-            audio_data = None
-        elif isinstance(audio, (str, os.PathLike)):
-            with open(audio, "rb") as file:
-                audio_data = os.path.basename(file.name), file.read()
-        elif isinstance(audio, tuple) and "fetch_data" not in config_dict:
-            audio_data = audio
-        else:
-            raise ValueError("Audio must be a filepath or a tuple of (filename, bytes)")
+        file_object = None
+        try:
+            if audio and "fetch_data" in config_dict:
+                raise ValueError("Only one of audio or fetch_data can be set at a time")
+            if not audio and "fetch_data" in config_dict:
+                audio_data = None
+            elif isinstance(audio, (str, os.PathLike)):
+                # httpx performance is better when using a file-like object
+                # compared to passing the file contents as bytes.
+                file_object = Path(audio).expanduser().open("rb")
+                audio_data = os.path.basename(file_object.name), file_object
+            elif isinstance(audio, tuple) and "fetch_data" not in config_dict:
+                audio_data = audio
+            else:
+                raise ValueError(
+                    "Audio must be a filepath or a tuple of (filename, bytes)"
+                )
 
-        # httpx seems to expect an un-nested json, throws a type error otherwise.
-        config_data = {"config": json.dumps(config_dict, ensure_ascii=False)}
+            # httpx seems to expect an un-nested json, throws a type error otherwise.
+            config_data = {"config": json.dumps(config_dict, ensure_ascii=False)}
 
-        if audio_data:
-            audio_file = {"data_file": audio_data}
-        else:
-            audio_file = _ForceMultipartDict()
+            if audio_data:
+                audio_file = {"data_file": audio_data}
+            else:
+                audio_file = _ForceMultipartDict()
 
-        response = self.send_request("POST", "jobs", data=config_data, files=audio_file)
-        return response.json()["id"]
+            response = self.send_request(
+                "POST", "jobs", data=config_data, files=audio_file
+            )
+            return response.json()["id"]
+        finally:
+            if file_object:
+                file_object.close()
+
+    def submit_jobs(
+        self,
+        audio_paths: Iterable[Union[str, os.PathLike]],
+        transcription_config: Any,
+        concurrency=CONCURRENCY_DEFAULT,
+    ):
+        if concurrency > CONCURRENCY_MAXIMUM:
+            raise Exception(
+                f"concurrency={concurrency} is too high, choose a value <= {CONCURRENCY_MAXIMUM}!"
+            )
+        pool = {}
+
+        def wait():
+            while True:
+                for job_id in list(pool):
+                    path = pool[job_id]
+                    status = self.check_job_status(job_id)["job"]["status"]
+                    LOGGER.debug("%s for %s is %s", job_id, path, status)
+                    if status == "running":
+                        continue
+                    del pool[job_id]
+                    return path, job_id
+                time.sleep(POLLING_DURATION)
+
+        for audio_path in audio_paths:
+            if len(pool) >= concurrency:
+                yield wait()
+            try:
+                job_id = self.submit_job(audio_path, transcription_config)
+                LOGGER.debug("%s submitted as job %s", audio_path, job_id)
+                pool[job_id] = audio_path
+            except httpx.HTTPStatusError as exc:
+                LOGGER.warning("%s submit failed with %s", audio_path, exc)
+
+        while pool:
+            yield wait()
 
     def get_job_result(
         self,

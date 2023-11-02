@@ -1,5 +1,16 @@
 {
   "language": "xy",
   "domain": "fake",
-  "enable_entities": true
+  "enable_entities": true,
+  "translation_config": {
+    "target_languages": ["es"],
+    "enable_partials": false
+  },
+  "summarization_config": {
+    "content_type": "auto",
+    "summary_length": "brief",
+    "summary_type": "bullets"
+  },
+  "sentiment_analysis_config": {},
+  "topic_detection_config": {}
 }

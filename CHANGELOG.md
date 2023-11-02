@@ -7,13 +7,53 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.11.1] - 2023-10-19
+
+### Added
+
+- Improve upload speeds for files submitted with the batch client
+- Retry requests in batch client on httpx.ProtocolError
+
+### Changed
+
+- Remove generate-temp-token option from examples and examples in docs
+
+## [1.11.0] - 2023-08-25
+
+### Added
+
+- Add support for batch topic detection
+
+## [1.10.0] - 2023-08-02
+
+### Added
+
+- Add support for batch sentiment analysis
+- Add support for transcribing multiple files at once (submit_jobs)
+
+## [1.9.0] - 2023-06-07
+
+### Fixed
+
+- Fix error when language provided is whitespace
+
+### Added
+
+- Add support for transcript summarization
+- Example of using notifications
+
+## [1.8.3]
+
 ### Added
 
 - Pass sdk information to batch and rt requests
+- Add support for providing just auth_token ConnectionSettings
+- Use default URLs + .toml config in python sdk
 
 ### Fixed
 
 - Fixed an issue in the batch client where jobs with fetch_url were not able to be submitted
+- Fixed reading translation config from config file
 
 ## [1.8.2]
 
@@ -287,7 +327,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added authentication token support for RT-SaaS [@rakeshv247](https://github.com/rakeshv247).
 
-[unreleased]: https://github.com/speechmatics/speechmatics-python/compare/v1.7.0...HEAD
+[unreleased]: https://github.com/speechmatics/speechmatics-python/compare/v1.11.1...HEAD
+[1.11.1]: https://github.com/speechmatics/speechmatics-python/releases/tag/1.11.1
+[1.11.0]: https://github.com/speechmatics/speechmatics-python/releases/tag/1.11.0
+[1.9.0]: https://github.com/speechmatics/speechmatics-python/releases/tag/1.9.0
+[1.8.3]: https://github.com/speechmatics/speechmatics-python/releases/tag/1.8.3
+[1.8.2]: https://github.com/speechmatics/speechmatics-python/releases/tag/1.8.2
+[1.8.1]: https://github.com/speechmatics/speechmatics-python/releases/tag/1.8.1
+[1.8.0]: https://github.com/speechmatics/speechmatics-python/releases/tag/1.8.0
 [1.7.0]: https://github.com/speechmatics/speechmatics-python/releases/tag/1.7.0
 [1.6.4]: https://github.com/speechmatics/speechmatics-python/releases/tag/1.6.4
 [1.6.3]: https://github.com/speechmatics/speechmatics-python/releases/tag/1.6.3
