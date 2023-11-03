@@ -300,6 +300,16 @@ def get_arg_parser():
         help="Comma-separated list of topics for topic detection",
     )
 
+    # Parent parser for batch auto-chapters argument
+    batch_auto_chapters_parser = argparse.ArgumentParser(add_help=False)
+    batch_auto_chapters_parser.add_argument(
+        "--detect-chapters",
+        dest="detect_chapters",
+        action="store_true",
+        default=False,
+        help="Whether to detect chapters on the transcript",
+    )
+
     # Parent parser for output type
     output_format_parser = argparse.ArgumentParser(add_help=False)
     output_format_parser.add_argument(
@@ -490,6 +500,7 @@ def get_arg_parser():
             batch_summarization_parser,
             batch_sentiment_analysis_parser,
             batch_topic_detection_parser,
+            batch_auto_chapters_parser,
         ],
         help="Transcribe one or more audio files using batch mode, while waiting for results.",
     )
@@ -505,6 +516,7 @@ def get_arg_parser():
             batch_summarization_parser,
             batch_sentiment_analysis_parser,
             batch_topic_detection_parser,
+            batch_auto_chapters_parser,
         ],
         help="Submit one or more files for transcription.",
     )

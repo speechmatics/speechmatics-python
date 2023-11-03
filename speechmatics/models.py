@@ -207,6 +207,11 @@ class TopicDetectionConfig:
     """Optional list of topics for topic detection."""
 
 
+@dataclass
+class AutoChaptersConfig:
+    """Auto Chapters config."""
+
+
 @dataclass(init=False)
 class TranscriptionConfig(_TranscriptionConfig):
     # pylint: disable=too-many-instance-attributes
@@ -302,6 +307,9 @@ class BatchTranscriptionConfig(_TranscriptionConfig):
     topic_detection_config: Optional[TopicDetectionConfig] = None
     """Optional configuration for detecting topics of the transcript"""
 
+    auto_chapters_config: Optional[AutoChaptersConfig] = None
+    """Optional configuration for detecting chapters of the transcript"""
+
     def as_config(self):
         dictionary = self.asdict()
 
@@ -315,6 +323,7 @@ class BatchTranscriptionConfig(_TranscriptionConfig):
         summarization_config = dictionary.pop("summarization_config", None)
         sentiment_analysis_config = dictionary.pop("sentiment_analysis_config", None)
         topic_detection_config = dictionary.pop("topic_detection_config", None)
+        auto_chapters_config = dictionary.pop("auto_chapters_config", None)
         config = {"type": "transcription", "transcription_config": dictionary}
 
         if fetch_data:
@@ -342,6 +351,9 @@ class BatchTranscriptionConfig(_TranscriptionConfig):
 
         if topic_detection_config:
             config["topic_detection_config"] = topic_detection_config
+
+        if auto_chapters_config is not None:
+            config["auto_chapters_config"] = auto_chapters_config
 
         return json.dumps(config)
 
