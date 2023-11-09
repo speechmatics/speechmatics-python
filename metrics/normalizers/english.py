@@ -8,6 +8,7 @@ from more_itertools import windowed
 
 from .basic import BasicTextNormalizer
 
+
 def postprocess(s: str):
     def combine_cents(match: Match):
         try:
@@ -32,6 +33,7 @@ def postprocess(s: str):
     s = re.sub(r"\b1(s?)\b", r"one\1", s)
 
     return s
+
 
 class EnglishNumberNormalizer:
     """
@@ -166,21 +168,21 @@ class EnglishNumberNormalizer:
         self.specials = {"and", "double", "triple", "point"}
 
         self.words = {
-                key
-                for mapping in [
-                    self.zeros,
-                    self.ones,
-                    self.ones_suffixed,
-                    self.tens,
-                    self.tens_suffixed,
-                    self.multipliers,
-                    self.multipliers_suffixed,
-                    self.preceding_prefixers,
-                    self.following_prefixers,
-                    self.suffixers,
-                    self.specials,
-                ]
-                for key in mapping
+            key
+            for mapping in [
+                self.zeros,
+                self.ones,
+                self.ones_suffixed,
+                self.tens,
+                self.tens_suffixed,
+                self.multipliers,
+                self.multipliers_suffixed,
+                self.preceding_prefixers,
+                self.following_prefixers,
+                self.suffixers,
+                self.specials,
+            ]
+            for key in mapping
         }
         self.literal_words = {"one", "ones"}
 
@@ -241,9 +243,9 @@ class EnglishNumberNormalizer:
 
                 prefix = current_word[0] if has_prefix else prefix
                 if frac.denominator == 1:
-                    value = frac.numerator # int
+                    value = frac.numerator  # int
                 else:
-                    value = current_without_prefix # str
+                    value = current_without_prefix  # str
             elif current_word not in self.words:
                 # non-numeric words
                 if value is not None:
@@ -454,7 +456,6 @@ class EnglishNumberNormalizer:
         s = re.sub(r"([0-9])\s+(st|nd|rd|th|s)\b", r"\1\2", s)
 
         return s
-
 
     def __call__(self, s: str):
         s = self.preprocess(s)

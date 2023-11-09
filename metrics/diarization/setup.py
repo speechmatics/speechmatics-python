@@ -13,8 +13,10 @@ if git_tag:
     assert git_tag.startswith("diarization-metrics")
 version = git_tag.lstrip("diarization-metrics/") if git_tag else "0.0.3"
 
+
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
+
 
 setup(
     author="Speechmatics",
@@ -27,6 +29,6 @@ setup(
     platforms=["linux"],
     python_requires=">=3.5",
     version=version,
-    long_description=read('README.md'),
-    long_description_content_type='text/markdown'
+    long_description=read("README.md"),
+    long_description_content_type="text/markdown",
 )

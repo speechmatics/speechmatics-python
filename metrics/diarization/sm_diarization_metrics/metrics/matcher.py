@@ -79,9 +79,20 @@ class LabelMatcher(object):
         """
 
         # counts and details
-        counts = {MATCH_CORRECT: 0, MATCH_CONFUSION: 0, MATCH_MISSED_DETECTION: 0, MATCH_FALSE_ALARM: 0, MATCH_TOTAL: 0}
+        counts = {
+            MATCH_CORRECT: 0,
+            MATCH_CONFUSION: 0,
+            MATCH_MISSED_DETECTION: 0,
+            MATCH_FALSE_ALARM: 0,
+            MATCH_TOTAL: 0,
+        }
 
-        details = {MATCH_CORRECT: [], MATCH_CONFUSION: [], MATCH_MISSED_DETECTION: [], MATCH_FALSE_ALARM: []}
+        details = {
+            MATCH_CORRECT: [],
+            MATCH_CONFUSION: [],
+            MATCH_MISSED_DETECTION: [],
+            MATCH_FALSE_ALARM: [],
+        }
 
         NR = len(rlabels)
         NH = len(hlabels)
@@ -106,7 +117,6 @@ class LabelMatcher(object):
         # find one-to-one mapping that maximize total number of matches
         # using the Hungarian algorithm and computes error accordingly
         for r, h in zip(*linear_sum_assignment(~match)):
-
             # hypothesis label is matched with unexisting reference label
             # ==> this is a false alarm
             if r >= NR:

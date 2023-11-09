@@ -39,7 +39,9 @@ with warnings.catch_warnings():
 import matplotlib.pyplot as plt
 
 
-def plot_distributions(y_true, scores, save_to, xlim=None, nbins=100, ymax=3.0, dpi=150):
+def plot_distributions(
+    y_true, scores, save_to, xlim=None, nbins=100, ymax=3.0, dpi=150
+):
     """Scores distributions
 
     This function will create (and overwrite) the following files:
@@ -155,7 +157,9 @@ def plot_precision_recall_curve(y_true, scores, save_to, distances=False, dpi=15
         Area under precision/recall curve
     """
 
-    precision, recall, thresholds, auc = precision_recall_curve(y_true, scores, distances=distances)
+    precision, recall, thresholds, auc = precision_recall_curve(
+        y_true, scores, distances=distances
+    )
 
     # plot P/R curve
     plt.figure(figsize=(12, 12))

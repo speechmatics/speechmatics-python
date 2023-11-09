@@ -67,7 +67,6 @@ class UEMSupportMixin:
         if collar > 0.0:
             # iterate over all segments in reference
             for segment in reference.itersegments():
-
                 # add collar centered on start time
                 t = segment.start
                 collars.append(Segment(t - 0.5 * collar, t + 0.5 * collar))
@@ -138,7 +137,14 @@ class UEMSupportMixin:
         return projection
 
     def uemify(
-        self, reference, hypothesis, uem=None, collar=0.0, skip_overlap=False, returns_uem=False, returns_timeline=False
+        self,
+        reference,
+        hypothesis,
+        uem=None,
+        collar=0.0,
+        skip_overlap=False,
+        returns_uem=False,
+        returns_timeline=False,
     ):
         """Crop 'reference' and 'hypothesis' to 'uem' support
 

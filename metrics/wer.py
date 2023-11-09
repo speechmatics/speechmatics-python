@@ -4,9 +4,10 @@ Prints results to terminal
 """
 import difflib
 import csv
-from typing import Any, Tuple
+from typing import Any, Tuple, Optional
 from collections import Counter
-from argparse import ArgumentParser
+import argparse
+
 from jiwer import compute_measures, cer
 from metrics.normalizers import BasicTextNormalizer, EnglishTextNormalizer
 
@@ -70,7 +71,6 @@ class TranscriptDiff(difflib.SequenceMatcher):
 
         diff = []
         for opcode, ref_i, ref_j, hyp_i, hyp_j in self.get_opcodes():
-
             ref_segment = self.join_token.join(self.ref[ref_i:ref_j])
             hyp_segment = self.join_token.join(self.hyp[hyp_i:hyp_j])
 
@@ -236,12 +236,7 @@ def check_paths(ref_path, hyp_path) -> Tuple[list[str], list[str]]:
     raise ValueError("Unexpected file type. Please ensure files are .dbl or .txt files")
 
 
-def main():
-    """
-    Calls argparse to make a command line utility
-    """
-
-    parser = ArgumentParser()
+def get_wer_args(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
     parser.add_argument(
         "--non-en", help="Indicate the language is NOT english", action="store_true"
     )
@@ -259,7 +254,7 @@ def main():
     parser.add_argument(
         "--cer",
         help="""
-        Compute Character Error Rate instead of Word Error Rate. 
+        Compute Character Error Rate instead of Word Error Rate.
         Spaces are considered as characters here.
         """,
         action="store_true",
@@ -267,33 +262,42 @@ def main():
     parser.add_argument("--csv", help="Write the results to a CSV", action="store_true")
     parser.add_argument("ref_path", help="Path to the reference transcript", type=str)
     parser.add_argument("hyp_path", help="Path to the hypothesis transcript", type=str)
-    args = vars(parser.parse_args())
+    return parser
 
-    normaliser = BasicTextNormalizer() if args["non_en"] else EnglishTextNormalizer()
 
-    ref_files, hyp_files = check_paths(args["ref_path"], args["hyp_path"])
+def main(args: Optional[argparse.Namespace] = None):
+    """
+    Calls argparse to make a command line utility
+    """
+
+    if args is None:
+        parser = get_wer_args(argparse.ArgumentParser())
+        args = parser.parse_args()
+
+    normaliser = BasicTextNormalizer() if args.non_en else EnglishTextNormalizer()
+
+    ref_files, hyp_files = check_paths(args.ref_path, args.hyp_path)
     results = []
 
     for ref, hyp in zip(ref_files, hyp_files):
-
         norm_ref = normaliser(load_file(ref.strip()))
         norm_hyp = normaliser(load_file(hyp.strip()))
 
-        if args["cer"] is True:
+        if args.cer is True:
             differ, stats = run_cer(norm_ref, norm_hyp)
         else:
             differ, stats = run_wer(norm_ref, norm_hyp)
 
-        stats["file name"] = hyp
+        stats["file_name"] = hyp
 
-        if args["show_normalised"] is True:
+        if args.show_normalised is True:
             print("NORMALISED REFERENCE:", norm_ref, sep="\n\n", end="\n\n")
             print("NORMALISED HYPOTHESIS:", norm_hyp, sep="\n\n", end="\n\n")
 
-        if args["diff"] is True:
+        if args.diff is True:
             differ.print_colourised_diff()
 
-        if args["show_errors"] is True:
+        if args.show_errors is True:
             differ.print_errors_by_type()
 
         for metric in [
@@ -311,8 +315,8 @@ def main():
 
         results.append(stats)
 
-    if args["csv"] is True:
-        generate_csv(results, args["cer"])
+    if args.cer is True:
+        generate_csv(results, args.cer)
 
 
 if __name__ == "__main__":

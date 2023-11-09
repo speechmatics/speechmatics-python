@@ -116,7 +116,7 @@ def load_v2_json_file(filename, get_content_type=False):
                 entries.append((start_time, end_time, label))
     except KeyError:
         entries = None
-    
+
     return entries
 
 
@@ -180,18 +180,43 @@ def options_from(argv: List[str]) -> Dict[str, str]:
     parser = ArgumentParser()
 
     parser.add_argument("dbl", type=str, help="model language")
-    parser.add_argument("--hyp_dir", type=str, default="", help="Hypothesis input directory")
-    parser.add_argument("--hyp_type", type=str, default="lab", choices=["lab", "ctm"], help="Hypothesis file type")
-    parser.add_argument("--hyp_ext", type=str, default=None, help="Hypothesis file extension (automatic if not set)")
-    parser.add_argument("--ref_dir", type=str, default="", help="Reference input directory")
-    parser.add_argument("--ref_type", type=str, default="lab", choices=["lab", "ctm"], help="Reference file type")
-    parser.add_argument("--ref_ext", type=str, default=None, help="Reference file extension (automatic if not set)")
+    parser.add_argument(
+        "--hyp_dir", type=str, default="", help="Hypothesis input directory"
+    )
+    parser.add_argument(
+        "--hyp_type",
+        type=str,
+        default="lab",
+        choices=["lab", "ctm"],
+        help="Hypothesis file type",
+    )
+    parser.add_argument(
+        "--hyp_ext",
+        type=str,
+        default=None,
+        help="Hypothesis file extension (automatic if not set)",
+    )
+    parser.add_argument(
+        "--ref_dir", type=str, default="", help="Reference input directory"
+    )
+    parser.add_argument(
+        "--ref_type",
+        type=str,
+        default="lab",
+        choices=["lab", "ctm"],
+        help="Reference file type",
+    )
+    parser.add_argument(
+        "--ref_ext",
+        type=str,
+        default=None,
+        help="Reference file extension (automatic if not set)",
+    )
 
     return vars(parser.parse_args(args=argv[1:]))
 
 
 def main():
-
     args = options_from(sys.argv)
     print("Arguments: %s" % args)
     config = SimpleNamespace(**args)

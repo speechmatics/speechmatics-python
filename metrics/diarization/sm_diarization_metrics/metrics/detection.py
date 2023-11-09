@@ -74,9 +74,13 @@ class DetectionErrorRate(UEMSupportMixin, BaseMetric):
         self.skip_overlap = skip_overlap
 
     def compute_components(self, reference, hypothesis, uem=None, **kwargs):
-
         reference, hypothesis, uem = self.uemify(
-            reference, hypothesis, uem=uem, collar=self.collar, skip_overlap=self.skip_overlap, returns_uem=True
+            reference,
+            hypothesis,
+            uem=uem,
+            collar=self.collar,
+            skip_overlap=self.skip_overlap,
+            returns_uem=True,
         )
 
         reference = reference.get_timeline(copy=False).support()
@@ -149,12 +153,21 @@ class DetectionAccuracy(DetectionErrorRate):
 
     @classmethod
     def metric_components(cls):
-        return [ACCURACY_TRUE_POSITIVE, ACCURACY_TRUE_NEGATIVE, ACCURACY_FALSE_POSITIVE, ACCURACY_FALSE_NEGATIVE]
+        return [
+            ACCURACY_TRUE_POSITIVE,
+            ACCURACY_TRUE_NEGATIVE,
+            ACCURACY_FALSE_POSITIVE,
+            ACCURACY_FALSE_NEGATIVE,
+        ]
 
     def compute_components(self, reference, hypothesis, uem=None, **kwargs):
-
         reference, hypothesis, uem = self.uemify(
-            reference, hypothesis, uem=uem, collar=self.collar, skip_overlap=self.skip_overlap, returns_uem=True
+            reference,
+            hypothesis,
+            uem=uem,
+            collar=self.collar,
+            skip_overlap=self.skip_overlap,
+            returns_uem=True,
         )
 
         reference = reference.get_timeline(copy=False).support()
@@ -188,7 +201,9 @@ class DetectionAccuracy(DetectionErrorRate):
         return detail
 
     def compute_metric(self, detail):
-        numerator = 1.0 * (detail[ACCURACY_TRUE_NEGATIVE] + detail[ACCURACY_TRUE_POSITIVE])
+        numerator = 1.0 * (
+            detail[ACCURACY_TRUE_NEGATIVE] + detail[ACCURACY_TRUE_POSITIVE]
+        )
         denominator = 1.0 * (
             detail[ACCURACY_TRUE_NEGATIVE]
             + detail[ACCURACY_TRUE_POSITIVE]
@@ -239,9 +254,13 @@ class DetectionPrecision(DetectionErrorRate):
         return [PRECISION_RETRIEVED, PRECISION_RELEVANT_RETRIEVED]
 
     def compute_components(self, reference, hypothesis, uem=None, **kwargs):
-
         reference, hypothesis, uem = self.uemify(
-            reference, hypothesis, uem=uem, collar=self.collar, skip_overlap=self.skip_overlap, returns_uem=True
+            reference,
+            hypothesis,
+            uem=uem,
+            collar=self.collar,
+            skip_overlap=self.skip_overlap,
+            returns_uem=True,
         )
 
         reference = reference.get_timeline(copy=False).support()
@@ -309,9 +328,13 @@ class DetectionRecall(DetectionErrorRate):
         return [RECALL_RELEVANT, RECALL_RELEVANT_RETRIEVED]
 
     def compute_components(self, reference, hypothesis, uem=None, **kwargs):
-
         reference, hypothesis, uem = self.uemify(
-            reference, hypothesis, uem=uem, collar=self.collar, skip_overlap=self.skip_overlap, returns_uem=True
+            reference,
+            hypothesis,
+            uem=uem,
+            collar=self.collar,
+            skip_overlap=self.skip_overlap,
+            returns_uem=True,
         )
 
         reference = reference.get_timeline(copy=False).support()
@@ -390,9 +413,13 @@ class DetectionPrecisionRecallFMeasure(UEMSupportMixin, BaseMetric):
         self.beta = beta
 
     def compute_components(self, reference, hypothesis, uem=None, **kwargs):
-
         reference, hypothesis, uem = self.uemify(
-            reference, hypothesis, uem=uem, collar=self.collar, skip_overlap=self.skip_overlap, returns_uem=True
+            reference,
+            hypothesis,
+            uem=uem,
+            collar=self.collar,
+            skip_overlap=self.skip_overlap,
+            returns_uem=True,
         )
 
         reference = reference.get_timeline(copy=False).support()
@@ -429,7 +456,6 @@ class DetectionPrecisionRecallFMeasure(UEMSupportMixin, BaseMetric):
         return value
 
     def compute_metrics(self, detail=None):
-
         detail = self.accumulated_ if detail is None else detail
         precision_retrieved = detail[DFS_PRECISION_RETRIEVED]
         recall_relevant = detail[DFS_RECALL_RELEVANT]

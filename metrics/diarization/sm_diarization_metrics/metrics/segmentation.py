@@ -70,7 +70,6 @@ class SegmentationCoverage(BaseMetric):
         self.tolerance = tolerance
 
     def _partition(self, timeline, coverage):
-
         # boundaries (as set of timestamps)
         boundaries = set([])
         for segment in timeline:
@@ -86,7 +85,6 @@ class SegmentationCoverage(BaseMetric):
         return partition.crop(coverage, mode="intersection").relabel_tracks()
 
     def _preprocess(self, reference, hypothesis):
-
         if not isinstance(reference, Annotation):
             raise TypeError("reference must be an instance of `Annotation`")
 
@@ -113,7 +111,6 @@ class SegmentationCoverage(BaseMetric):
         return reference_partition, hypothesis_partition
 
     def _process(self, reference, hypothesis):
-
         detail = self.init_components()
 
         # cooccurrence matrix
@@ -183,7 +180,9 @@ class SegmentationPurityCoverageFMeasure(SegmentationCoverage):
     """
 
     def __init__(self, tolerance=0.500, beta=1, **kwargs):
-        super(SegmentationPurityCoverageFMeasure, self).__init__(tolerance=tolerance, **kwargs)
+        super(SegmentationPurityCoverageFMeasure, self).__init__(
+            tolerance=tolerance, **kwargs
+        )
         self.beta = beta
 
     def _process(self, reference, hypothesis):
@@ -212,9 +211,13 @@ class SegmentationPurityCoverageFMeasure(SegmentationCoverage):
     def compute_metrics(self, detail=None):
         detail = self.accumulated_ if detail is None else detail
 
-        purity = 1.0 if detail[PTY_TOTAL] == 0.0 else detail[PTY_INTER] / detail[PTY_TOTAL]
+        purity = (
+            1.0 if detail[PTY_TOTAL] == 0.0 else detail[PTY_INTER] / detail[PTY_TOTAL]
+        )
 
-        coverage = 1.0 if detail[CVG_TOTAL] == 0.0 else detail[CVG_INTER] / detail[CVG_TOTAL]
+        coverage = (
+            1.0 if detail[CVG_TOTAL] == 0.0 else detail[CVG_INTER] / detail[CVG_TOTAL]
+        )
 
         return purity, coverage, f_measure(purity, coverage, beta=self.beta)
 
@@ -263,12 +266,10 @@ class SegmentationPrecision(UEMSupportMixin, BaseMetric):
         return [PR_MATCHES, PR_BOUNDARIES]
 
     def __init__(self, tolerance=0.0, **kwargs):
-
         super(SegmentationPrecision, self).__init__(**kwargs)
         self.tolerance = tolerance
 
     def compute_components(self, reference, hypothesis, **kwargs):
-
         # extract timeline if needed
         if isinstance(reference, Annotation):
             reference = reference.get_timeline()
@@ -334,7 +335,6 @@ class SegmentationPrecision(UEMSupportMixin, BaseMetric):
         return detail
 
     def compute_metric(self, detail):
-
         numerator = detail[PR_MATCHES]
         denominator = detail[PR_BOUNDARIES]
 

@@ -91,14 +91,18 @@ def f1_score(precision, recall):
     return fscore
 
 
-def get_speaker_count_metrics(reference: pyannote.core.Annotation, hypothesis: pyannote.core.Annotation) -> set:
+def get_speaker_count_metrics(
+    reference: pyannote.core.Annotation, hypothesis: pyannote.core.Annotation
+) -> set:
     """Get the speaker count discrepancy metrics."""
     ref_speakers = len(set(reference.labels()) - set(["UU"]))
     hyp_speakers = len(set(hypothesis.labels()) - set(["UU"]))
     return (ref_speakers, hyp_speakers)
 
 
-def get_word_level_metrics(reference: pyannote.core.Annotation, hypothesis: pyannote.core.Annotation) -> set:
+def get_word_level_metrics(
+    reference: pyannote.core.Annotation, hypothesis: pyannote.core.Annotation
+) -> set:
     """Get the error rate based on word level labelling."""
     metric = MetricsWords.WordDiarizationErrorRate()
     metric.set_unknown_label(UNKNOWN_SPEAKER)
@@ -142,7 +146,9 @@ def get_jaccard_error_rate_from_annotations(
     return metric(reference, hypothesis)
 
 
-def get_coverage_from_annotations(reference: pyannote.core.Annotation, hypothesis: pyannote.core.Annotation) -> float:
+def get_coverage_from_annotations(
+    reference: pyannote.core.Annotation, hypothesis: pyannote.core.Annotation
+) -> float:
     """Given a reference and hypothesis for the diarisation of some audio as
     two `pyannote.core.Annotation` objects, returns the diarisation coverage.
     """
@@ -150,7 +156,9 @@ def get_coverage_from_annotations(reference: pyannote.core.Annotation, hypothesi
     return metric(reference, hypothesis)
 
 
-def get_purity_from_annotations(reference: pyannote.core.Annotation, hypothesis: pyannote.core.Annotation) -> float:
+def get_purity_from_annotations(
+    reference: pyannote.core.Annotation, hypothesis: pyannote.core.Annotation
+) -> float:
     """Given a reference and hypothesis for the diarisation of some audio as
     two `pyannote.core.Annotation` objects, returns the diarisation purity.
     """
@@ -166,10 +174,18 @@ def get_segmentation_metrics_from_annotations(
     """Given a reference and hypothesis for the diarisation of some audio as
     two `pyannote.core.Annotation` objects, returns the speaker change metrics
     (recall, precision and coverage)"""
-    purity = MetricsSegmentation.SegmentationPurity(tolerance=tolerance)(reference, hypothesis)
-    coverage = MetricsSegmentation.SegmentationCoverage(tolerance=tolerance)(reference, hypothesis)
-    precision = MetricsSegmentation.SegmentationPrecision(tolerance=tolerance)(reference, hypothesis)
-    recall = MetricsSegmentation.SegmentationRecall(tolerance=tolerance)(reference, hypothesis)
+    purity = MetricsSegmentation.SegmentationPurity(tolerance=tolerance)(
+        reference, hypothesis
+    )
+    coverage = MetricsSegmentation.SegmentationCoverage(tolerance=tolerance)(
+        reference, hypothesis
+    )
+    precision = MetricsSegmentation.SegmentationPrecision(tolerance=tolerance)(
+        reference, hypothesis
+    )
+    recall = MetricsSegmentation.SegmentationRecall(tolerance=tolerance)(
+        reference, hypothesis
+    )
     return (purity, coverage, precision, recall)
 
 
@@ -184,8 +200,14 @@ def remove_overlaps(annotation: pyannote.core.Annotation):
             if prev_entry[0].end > entry[0].start:
                 # We have overlap, so split at halfway point
                 split_time = (prev_entry[0].end + entry[0].start) / 2.0
-                updated_annotation[pyannote.core.Segment(prev_entry[0].start, split_time)] = prev_entry[2]
-                prev_entry = (pyannote.core.Segment(split_time, entry[0].end), entry[1], entry[2])
+                updated_annotation[
+                    pyannote.core.Segment(prev_entry[0].start, split_time)
+                ] = prev_entry[2]
+                prev_entry = (
+                    pyannote.core.Segment(split_time, entry[0].end),
+                    entry[1],
+                    entry[2],
+                )
             else:
                 updated_annotation[prev_entry[0]] = prev_entry[2]
                 prev_entry = entry
@@ -217,7 +239,9 @@ def merge_adjacent_segments(annotation: pyannote.core.Annotation, max_gap: float
                     gap = entry[0].start - prev_entry[0].end
                     if max_gap == MERGE_GAP_ANY or gap <= max_gap:
                         # Merge. Update the previous entry with new end time.
-                        update_segment = pyannote.core.Segment(prev_entry[0].start, entry[0].end)
+                        update_segment = pyannote.core.Segment(
+                            prev_entry[0].start, entry[0].end
+                        )
                         prev_entry = (update_segment, prev_entry[1], prev_entry[2])
                     else:
                         # Do not merge. Add previous, and move on
@@ -235,7 +259,9 @@ def remove_uu(annotation: pyannote.core.Annotation):
     return annotation.subset([UNKNOWN_SPEAKER], invert=True)
 
 
-def post_process_annotation(annotation, max_gap_merge: float, rm_unknown: bool, rm_overlaps: bool):
+def post_process_annotation(
+    annotation, max_gap_merge: float, rm_unknown: bool, rm_overlaps: bool
+):
     """Merge segments in annotation, remove unknown speaker segments, etc."""
     processed_annotation = annotation
     if rm_overlaps:
@@ -248,7 +274,10 @@ def post_process_annotation(annotation, max_gap_merge: float, rm_unknown: bool, 
 
 
 def json_to_annotation(
-    json_path: str, max_gap_merge: float = SEG_MERGE_GAP, rm_unknown: bool = True, rm_overlaps: bool = True
+    json_path: str,
+    max_gap_merge: float = SEG_MERGE_GAP,
+    rm_unknown: bool = True,
+    rm_overlaps: bool = True,
 ) -> pyannote.core.Annotation:
     """Takes a json file specifying word level diarization results, and converts it into a `pyannote.core.Annotation`
     describing the diarisation.  Note that the input format can be either Speechmatics V2 transcription, or a
@@ -268,38 +297,50 @@ def json_to_annotation(
             rm_unknown = False
 
     annotation = pyannote.core.Annotation()
-    for (start_time, end_time, speaker_label) in entries:
+    for start_time, end_time, speaker_label in entries:
         annotation[pyannote.core.Segment(start_time, end_time)] = speaker_label
-    final_annotation = post_process_annotation(annotation, max_gap_merge, rm_unknown, rm_overlaps)
+    final_annotation = post_process_annotation(
+        annotation, max_gap_merge, rm_unknown, rm_overlaps
+    )
 
     return final_annotation
 
 
 def lab_file_to_annotation(
-    lab_file_path: str, max_gap_merge: float = SEG_MERGE_GAP, rm_unknown: bool = True, rm_overlaps: bool = True
+    lab_file_path: str,
+    max_gap_merge: float = SEG_MERGE_GAP,
+    rm_unknown: bool = True,
+    rm_overlaps: bool = True,
 ) -> pyannote.core.Annotation:
     """Takes a label file (.lab) and converts it into a
     a `pyannote.core.Annotation` describing the diarisation.
     """
     entries = utils.load_lab_file(lab_file_path)
     annotation = pyannote.core.Annotation()
-    for (start, end, speaker_label) in entries:
+    for start, end, speaker_label in entries:
         annotation[pyannote.core.Segment(start, end)] = speaker_label
-    final_annotation = post_process_annotation(annotation, max_gap_merge, rm_unknown, rm_overlaps)
+    final_annotation = post_process_annotation(
+        annotation, max_gap_merge, rm_unknown, rm_overlaps
+    )
     return final_annotation
 
 
 def ctm_file_to_annotation(
-    ctm_file_path: str, max_gap_merge: float = SEG_MERGE_GAP, rm_unknown: bool = True, rm_overlaps: bool = True
+    ctm_file_path: str,
+    max_gap_merge: float = SEG_MERGE_GAP,
+    rm_unknown: bool = True,
+    rm_overlaps: bool = True,
 ) -> pyannote.core.Annotation:
     """Takes a .ctm file  and converts it into a `pyannote.core.Annotation`
     describing the diarisation.
     """
     entries = utils.load_ctm_file(ctm_file_path)
     annotation = pyannote.core.Annotation()
-    for (start, end, speaker_label) in entries:
+    for start, end, speaker_label in entries:
         annotation[pyannote.core.Segment(start, end)] = speaker_label
-    final_annotation = post_process_annotation(annotation, max_gap_merge, rm_unknown, rm_overlaps)
+    final_annotation = post_process_annotation(
+        annotation, max_gap_merge, rm_unknown, rm_overlaps
+    )
     return final_annotation
 
 
@@ -321,9 +362,17 @@ def file_to_annotation(
     elif file_extension == "json":
         function_ptr = json_to_annotation
     else:
-        raise ValueError("Unsupported diarisation file type: %s (supported extensions: ctm, json, lab)", file_extension)
+        raise ValueError(
+            "Unsupported diarisation file type: %s (supported extensions: ctm, json, lab)",
+            file_extension,
+        )
 
-    return function_ptr(file_path, max_gap_merge=max_gap_merge, rm_unknown=rm_unknown, rm_overlaps=rm_overlaps)
+    return function_ptr(
+        file_path,
+        max_gap_merge=max_gap_merge,
+        rm_unknown=rm_unknown,
+        rm_overlaps=rm_overlaps,
+    )
 
 
 def write_annotation_to_label_file(annotation, filename):
@@ -333,7 +382,9 @@ def write_annotation_to_label_file(annotation, filename):
             outfp.write("{} {} {}\n".format(entry[0].start, entry[0].end, entry[2]))
 
 
-def get_der_component_details_for_files(reference_file: str, hypothesis_file: str) -> set:
+def get_der_component_details_for_files(
+    reference_file: str, hypothesis_file: str
+) -> set:
     """Returns the diarisation error rate and its component details for a pair of files."""
     reference_annotation = file_to_annotation(reference_file, rm_unknown=False)
     hypothesis_annotation = file_to_annotation(hypothesis_file)
@@ -355,7 +406,7 @@ def get_unknown_speaker_count_for_files(hypothesis_file: str) -> int:
     if entries is None:
         return 0
     unknown_speaker_count = 0
-    for (_, _, speaker_label, content_type) in entries:
+    for _, _, speaker_label, content_type in entries:
         if content_type == "word" and speaker_label == UNKNOWN_SPEAKER:
             unknown_speaker_count += 1
     return unknown_speaker_count
@@ -365,7 +416,9 @@ def get_coverage_for_files(reference_file: str, hypothesis_file: str) -> float:
     """Returns the diarisation coverage for a pair of files."""
     reference_annotation = file_to_annotation(reference_file, rm_unknown=False)
     hypothesis_annotation = file_to_annotation(hypothesis_file)
-    diarisation_coverage = get_coverage_from_annotations(reference_annotation, hypothesis_annotation)
+    diarisation_coverage = get_coverage_from_annotations(
+        reference_annotation, hypothesis_annotation
+    )
     return diarisation_coverage
 
 
@@ -373,7 +426,9 @@ def get_purity_for_files(reference_file: str, hypothesis_file: str) -> float:
     """Returns the diarisation purity for a pair of files."""
     reference_annotation = file_to_annotation(reference_file, rm_unknown=False)
     hypothesis_annotation = file_to_annotation(hypothesis_file)
-    diarisation_purity = get_purity_from_annotations(reference_annotation, hypothesis_annotation)
+    diarisation_purity = get_purity_from_annotations(
+        reference_annotation, hypothesis_annotation
+    )
     return diarisation_purity
 
 
@@ -381,40 +436,58 @@ def get_jaccard_error_rate_for_files(reference_file: str, hypothesis_file: str) 
     """Returns the Jaccard error rate for a pair of files."""
     reference_annotation = file_to_annotation(reference_file, rm_unknown=False)
     hypothesis_annotation = file_to_annotation(hypothesis_file)
-    return get_jaccard_error_rate_from_annotations(reference_annotation, hypothesis_annotation)
+    return get_jaccard_error_rate_from_annotations(
+        reference_annotation, hypothesis_annotation
+    )
 
 
 def get_segmentation_metrics_for_files(
-    reference_file: str, hypothesis_file: str, tolerance: float = DEFAULT_SEGMENT_TOLERANCE
+    reference_file: str,
+    hypothesis_file: str,
+    tolerance: float = DEFAULT_SEGMENT_TOLERANCE,
 ) -> set:
     """Returns the speaker change point metrics for a pair of files."""
 
     # Note, we remove all gaps between segments of the same speaker, however large (thus we
     # set the max gap to MERGE_GAP_ANY).  We are only looking to analyse changes in speaker here.
-    reference_annotation = file_to_annotation(reference_file, rm_unknown=False, max_gap_merge=MERGE_GAP_ANY)
-    hypothesis_annotation = file_to_annotation(hypothesis_file, max_gap_merge=MERGE_GAP_ANY)
+    reference_annotation = file_to_annotation(
+        reference_file, rm_unknown=False, max_gap_merge=MERGE_GAP_ANY
+    )
+    hypothesis_annotation = file_to_annotation(
+        hypothesis_file, max_gap_merge=MERGE_GAP_ANY
+    )
     purity, coverage, precision, recall = get_segmentation_metrics_from_annotations(
         reference_annotation, hypothesis_annotation, tolerance=tolerance
     )
     return (purity, coverage, precision, recall)
 
 
-def get_speaker_count_metrics_for_files(reference_file: str, hypothesis_file: str) -> tuple:
+def get_speaker_count_metrics_for_files(
+    reference_file: str, hypothesis_file: str
+) -> tuple:
     """Returns the speaker count metrics for a pair of files"""
     reference_annotation = file_to_annotation(reference_file, rm_unknown=False)
     hypothesis_annotation = file_to_annotation(hypothesis_file)
-    ref_speakers, hyp_speakers = get_speaker_count_metrics(reference_annotation, hypothesis_annotation)
+    ref_speakers, hyp_speakers = get_speaker_count_metrics(
+        reference_annotation, hypothesis_annotation
+    )
     return (ref_speakers, hyp_speakers)
 
 
-def get_word_level_metrics_for_files(reference_file: str, hypothesis_file: str) -> tuple:
+def get_word_level_metrics_for_files(
+    reference_file: str, hypothesis_file: str
+) -> tuple:
     """Returns the word level speaker labelling accuracy for a pair of files."""
     # Note, we leave UU in the hypothesis as we wish to consider words with UU, which will be considered
     # as having the wrong label.  Also, we do not perform any merging on the hypothesis, as we assume
     # these are at word level, and want to keep that so as it's over words we compute the error.
     reference_annotation = file_to_annotation(reference_file, rm_unknown=False)
-    hypothesis_annotation = file_to_annotation(hypothesis_file, max_gap_merge=MERGE_GAP_NONE, rm_unknown=False)
-    error_rate, nwords, words = get_word_level_metrics(reference_annotation, hypothesis_annotation)
+    hypothesis_annotation = file_to_annotation(
+        hypothesis_file, max_gap_merge=MERGE_GAP_NONE, rm_unknown=False
+    )
+    error_rate, nwords, words = get_word_level_metrics(
+        reference_annotation, hypothesis_annotation
+    )
     unknown_speaker = get_unknown_speaker_count_for_files(hypothesis_file)
     speaker_uu_percentage = unknown_speaker / nwords
     return (error_rate, nwords, words, speaker_uu_percentage)
@@ -479,8 +552,14 @@ def get_data_set_results(
     total_files_single_speaker_issue = 0
     total_speaker_discrepancy = 0
 
-    for (i, (ref, hyp)) in enumerate(zip(references, hypotheses)):
-        logger.debug("Computing results for files: ref=%s, hyp=%s. Progress: %d/%d", ref, hyp, i + 1, len(references))
+    for i, (ref, hyp) in enumerate(zip(references, hypotheses)):
+        logger.debug(
+            "Computing results for files: ref=%s, hyp=%s. Progress: %d/%d",
+            ref,
+            hyp,
+            i + 1,
+            len(references),
+        )
 
         if dbl_root is not None:
             ref_path = os.path.join(dbl_root, ref)
@@ -497,11 +576,15 @@ def get_data_set_results(
         total_ref_duration += ref_duration
         total_hyp_duration += hyp_duration
 
-        if not os.path.isfile(hyp_path):  # current VAD doesn't give output for some telephony data in RT mode
+        if not os.path.isfile(
+            hyp_path
+        ):  # current VAD doesn't give output for some telephony data in RT mode
             if hyp_path.endswith(".lab"):
                 if allow_none_hyp_lab:
                     with open(hyp_path, "w") as fake_hyp:
-                        fake_hyp.write(f"0.000 {str(audio_duration)} {UNKNOWN_SPEAKER}\n")
+                        fake_hyp.write(
+                            f"0.000 {str(audio_duration)} {UNKNOWN_SPEAKER}\n"
+                        )
                 else:
                     raise ValueError(
                         f"Hypothesis lab does not exist: {hyp_path}, use --allow-none-hyp-lab for creating dummy lab"
@@ -510,7 +593,9 @@ def get_data_set_results(
                 raise ValueError(f"Hypothesis json does not exist: {hyp_path}")
 
         # DER and related metrics
-        der, insertion, deletion, confusion = get_der_component_details_for_files(ref_path, hyp_path)
+        der, insertion, deletion, confusion = get_der_component_details_for_files(
+            ref_path, hyp_path
+        )
         weighted_diarisation_error_rates.append(der * ref_duration)
         weighted_der_insertion.append(insertion * ref_duration)
         weighted_der_deletion.append(deletion * ref_duration)
@@ -527,7 +612,12 @@ def get_data_set_results(
         weighted_jaccard_error_rates.append(jaccard_error_rate * ref_duration)
 
         # Speaker change metrics
-        seg_purity, seg_coverage, seg_precision, seg_recall = get_segmentation_metrics_for_files(
+        (
+            seg_purity,
+            seg_coverage,
+            seg_precision,
+            seg_recall,
+        ) = get_segmentation_metrics_for_files(
             ref_path, hyp_path, tolerance=seg_tolerance
         )
         seg_f1_score = f1_score(seg_precision, seg_recall)
@@ -538,13 +628,17 @@ def get_data_set_results(
         weighted_segmentation_f1.append(seg_f1_score * ref_duration)
 
         # Word level DER
-        word_der, nwords, _, speaker_uu_percentage = get_word_level_metrics_for_files(ref_path, hyp_path)
+        word_der, nwords, _, speaker_uu_percentage = get_word_level_metrics_for_files(
+            ref_path, hyp_path
+        )
         weighted_word_der.append(word_der * nwords)
         speaker_uu_percentages.append(speaker_uu_percentage)
         total_nwords += nwords
 
         # Speaker counts
-        ref_speakers, hyp_speakers = get_speaker_count_metrics_for_files(ref_path, hyp_path)
+        ref_speakers, hyp_speakers = get_speaker_count_metrics_for_files(
+            ref_path, hyp_path
+        )
         total_ref_speakers += ref_speakers
         total_hyp_speakers += hyp_speakers
         total_speaker_discrepancy += abs(ref_speakers - hyp_speakers)
@@ -615,7 +709,9 @@ def get_data_set_results(
     # Compute averages across set
     if total_nwords > 0:
         average_word_der = sum(weighted_word_der) / total_nwords
-        average_speaker_uu_percentage = sum(speaker_uu_percentages) / len(speaker_uu_percentages)
+        average_speaker_uu_percentage = sum(speaker_uu_percentages) / len(
+            speaker_uu_percentages
+        )
     else:
         average_word_der = 0.0
         average_speaker_uu_percentage = 0
@@ -627,20 +723,44 @@ def get_data_set_results(
     overall_results["ref_labelled"] = total_hyp_duration / total_ref_duration
     overall_results["total_nwords"] = total_nwords
 
-    overall_results["average_der"] = sum(weighted_diarisation_error_rates) / total_ref_duration
-    overall_results["average_jer"] = sum(weighted_jaccard_error_rates) / total_ref_duration
-    overall_results["average_insertion"] = sum(weighted_der_insertion) / total_ref_duration
-    overall_results["average_deletion"] = sum(weighted_der_deletion) / total_ref_duration
-    overall_results["average_confusion"] = sum(weighted_der_confusion) / total_ref_duration
+    overall_results["average_der"] = (
+        sum(weighted_diarisation_error_rates) / total_ref_duration
+    )
+    overall_results["average_jer"] = (
+        sum(weighted_jaccard_error_rates) / total_ref_duration
+    )
+    overall_results["average_insertion"] = (
+        sum(weighted_der_insertion) / total_ref_duration
+    )
+    overall_results["average_deletion"] = (
+        sum(weighted_der_deletion) / total_ref_duration
+    )
+    overall_results["average_confusion"] = (
+        sum(weighted_der_confusion) / total_ref_duration
+    )
 
-    overall_results["average_diarisation_coverage"] = sum(weighted_diarisation_coverage) / total_ref_duration
-    overall_results["average_diarisation_purity"] = sum(weighted_diarisation_purities) / total_ref_duration
+    overall_results["average_diarisation_coverage"] = (
+        sum(weighted_diarisation_coverage) / total_ref_duration
+    )
+    overall_results["average_diarisation_purity"] = (
+        sum(weighted_diarisation_purities) / total_ref_duration
+    )
 
-    overall_results["average_segmentation_coverage"] = sum(weighted_segmentation_coverage) / total_ref_duration
-    overall_results["average_segmentation_purity"] = sum(weighted_segmentation_purity) / total_ref_duration
-    overall_results["average_segmentation_precision"] = sum(weighted_segmentation_precision) / total_ref_duration
-    overall_results["average_segmentation_recall"] = sum(weighted_segmentation_recall) / total_ref_duration
-    overall_results["average_segmentation_f1"] = sum(weighted_segmentation_f1) / total_ref_duration
+    overall_results["average_segmentation_coverage"] = (
+        sum(weighted_segmentation_coverage) / total_ref_duration
+    )
+    overall_results["average_segmentation_purity"] = (
+        sum(weighted_segmentation_purity) / total_ref_duration
+    )
+    overall_results["average_segmentation_precision"] = (
+        sum(weighted_segmentation_precision) / total_ref_duration
+    )
+    overall_results["average_segmentation_recall"] = (
+        sum(weighted_segmentation_recall) / total_ref_duration
+    )
+    overall_results["average_segmentation_f1"] = (
+        sum(weighted_segmentation_f1) / total_ref_duration
+    )
 
     overall_results["average_word_der"] = average_word_der
     overall_results["average_speaker_uu_percentage"] = average_speaker_uu_percentage
@@ -657,8 +777,12 @@ def get_data_set_results(
         single_speaker_issue_rate = total_files_single_speaker_issue / total_nfiles
         overall_results["average_nspeakers_ref"] = avg_nspeakers_ref
         overall_results["average_nspeakers_hyp"] = avg_nspeakers_hyp
-        overall_results["average_nspeakers_discrepancy"] = avg_nspeakers_hyp - avg_nspeakers_ref
-        overall_results["average_nspeakers_abs_discrepancy"] = total_speaker_discrepancy / total_nfiles
+        overall_results["average_nspeakers_discrepancy"] = (
+            avg_nspeakers_hyp - avg_nspeakers_ref
+        )
+        overall_results["average_nspeakers_abs_discrepancy"] = (
+            total_speaker_discrepancy / total_nfiles
+        )
         overall_results["rate_nspeakers_correct"] = nspeakers_correct_rate
         overall_results["rate_nspeakers_plus_one"] = nspeakers_plus_one_rate
         overall_results["rate_nspeakers_plus_many"] = nspeakers_plus_many_rate
@@ -680,7 +804,9 @@ def get_data_set_results(
     return overall_results, file_results
 
 
-def output_results_as_json(parameters: dict, overall_results: dict, file_results: list, outdir: str):
+def output_results_as_json(
+    parameters: dict, overall_results: dict, file_results: list, outdir: str
+):
     """Takes in the results data and output as a json file"""
     final_json_output = {}
     final_json_output["args"] = parameters
@@ -691,29 +817,50 @@ def output_results_as_json(parameters: dict, overall_results: dict, file_results
         json.dump(final_json_output, result_json_file)
 
 
-def output_results_as_csv(overall_results: dict, file_results: list, overall_csv: str, details_csv: str):
+def output_results_as_csv(
+    overall_results: dict, file_results: list, overall_csv: str, details_csv: str
+):
     """Takes in the results data and output as a csv file"""
 
     # Write the results for each file (including header)
     if len(file_results) == 0:
         raise RuntimeError("No file results found, so aborting CSV output")
-    header = str(list(file_results[0].keys())).replace("]", "").replace("[", "").replace("'", "")
+    header = (
+        str(list(file_results[0].keys()))
+        .replace("]", "")
+        .replace("[", "")
+        .replace("'", "")
+    )
     with open(details_csv, "w") as cfh:
         print(header, file=cfh)
         for file_result in file_results:
-            values = str(list(file_result.values())).replace("]", "").replace("[", "").replace("'", "")
+            values = (
+                str(list(file_result.values()))
+                .replace("]", "")
+                .replace("[", "")
+                .replace("'", "")
+            )
             print(values, file=cfh)
 
     # Now write the overall results
-    header = str(list(overall_results.keys())).replace("]", "").replace("[", "").replace("'", "")
+    header = (
+        str(list(overall_results.keys()))
+        .replace("]", "")
+        .replace("[", "")
+        .replace("'", "")
+    )
     with open(overall_csv, "w") as cfh:
         print(header, file=cfh)
-        values = str(list(overall_results.values())).replace("]", "").replace("[", "").replace("'", "")
+        values = (
+            str(list(overall_results.values()))
+            .replace("]", "")
+            .replace("[", "")
+            .replace("'", "")
+        )
         print(values, file=cfh)
 
 
-def main():
-    parser = argparse.ArgumentParser()
+def get_diarization_args(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
     parser.add_argument(
         "reference_file",
         type=str,
@@ -736,25 +883,35 @@ def main():
         "--dbl-root",
         type=str,
         default=os.getcwd(),
-        help=("If using DBL input then this argument specifies the root directory " "for files listed in the DBL."),
+        help=(
+            "If using DBL input then this argument specifies the root directory "
+            "for files listed in the DBL."
+        ),
     )
     parser.add_argument(
         "--output-format",
         type=str,
         default="json",
-        help=("Output mertics scores for data set and each file in a certain format" "can choose between json or csv"),
+        help=(
+            "Output mertics scores for data set and each file in a certain format"
+            "can choose between json or csv"
+        ),
     )
     parser.add_argument(
         "--segmentation-tolerance",
         type=float,
         default=DEFAULT_SEGMENT_TOLERANCE,
-        help=("Tolerance in seconds when matching hypothesised change point gwith that in the reference (in seconds)"),
+        help=(
+            "Tolerance in seconds when matching hypothesised change point gwith that in the reference (in seconds)"
+        ),
     )
     parser.add_argument(
         "--show-words",
         action="store_true",
         default=False,
-        help=("Show the words (if using json hypothesis) alongside whether correct or not."),
+        help=(
+            "Show the words (if using json hypothesis) alongside whether correct or not."
+        ),
     )
     parser.add_argument(
         "--output-hyp-label",
@@ -766,7 +923,9 @@ def main():
         "--allow-none-hyp-lab",
         type=str,
         default=False,
-        help=("If missing, create a dummy hypothesis lab file with all speakers set to 'UU'"),
+        help=(
+            "If missing, create a dummy hypothesis lab file with all speakers set to 'UU'"
+        ),
     )
     parser.add_argument(
         "--debug",
@@ -774,8 +933,93 @@ def main():
         help=("Enable debugging information."),
     )
 
-    parser.add_argument("--outdir", type=str, default=None, help=("Output directory (OPTIONAL)."))
-    args = parser.parse_args()
+    parser.add_argument(
+        "--outdir", type=str, default=None, help=("Output directory (OPTIONAL).")
+    )
+    return parser
+
+
+def main(args: Optional[argparse.Namespace] = None):
+    # parser = argparse.ArgumentParser()
+    # parser.add_argument(
+    #     "reference_file",
+    #     type=str,
+    #     help=(
+    #         "A file describing the true diarisation of some audio."
+    #         " Several formats are supported including 'dbl', 'ctm', 'lab' and"
+    #         " Speechmatics V2 'json'"
+    #     ),
+    # )
+    # parser.add_argument(
+    #     "hypothesis_file",
+    #     type=str,
+    #     help=(
+    #         "A file describing the hypothesised diarisation of some audio."
+    #         " Several formats are supported including 'dbl', 'ctm', 'lab' and"
+    #         " Speechmatics V2 'json'"
+    #     ),
+    # )
+    # parser.add_argument(
+    #     "--dbl-root",
+    #     type=str,
+    #     default=os.getcwd(),
+    #     help=(
+    #         "If using DBL input then this argument specifies the root directory "
+    #         "for files listed in the DBL."
+    #     ),
+    # )
+    # parser.add_argument(
+    #     "--output-format",
+    #     type=str,
+    #     default="json",
+    #     help=(
+    #         "Output mertics scores for data set and each file in a certain format"
+    #         "can choose between json or csv"
+    #     ),
+    # )
+    # parser.add_argument(
+    #     "--segmentation-tolerance",
+    #     type=float,
+    #     default=DEFAULT_SEGMENT_TOLERANCE,
+    #     help=(
+    #         "Tolerance in seconds when matching hypothesised change point gwith that in the reference (in seconds)"
+    #     ),
+    # )
+    # parser.add_argument(
+    #     "--show-words",
+    #     action="store_true",
+    #     default=False,
+    #     help=(
+    #         "Show the words (if using json hypothesis) alongside whether correct or not."
+    #     ),
+    # )
+    # parser.add_argument(
+    #     "--output-hyp-label",
+    #     type=str,
+    #     default=None,
+    #     help=("Output hypothesis label file (for single file pair only, not DBL)."),
+    # )
+    # parser.add_argument(
+    #     "--allow-none-hyp-lab",
+    #     type=str,
+    #     default=False,
+    #     help=(
+    #         "If missing, create a dummy hypothesis lab file with all speakers set to 'UU'"
+    #     ),
+    # )
+    # parser.add_argument(
+    #     "--debug",
+    #     action="store_true",
+    #     help=("Enable debugging information."),
+    # )
+
+    # parser.add_argument(
+    #     "--outdir", type=str, default=None, help=("Output directory (OPTIONAL).")
+    # )
+    # args = parser.parse_args()
+    if args is None:
+        parser = get_diarization_args(argparse.ArgumentParser())
+        args = parser.parse_args()
 
     log_level = logging.DEBUG if args.debug else logging.INFO
     logging.basicConfig(
@@ -797,7 +1041,9 @@ def main():
 
     if "dbl" in [reference_file_extension, hypothesis_file_extension]:
         # Process over a set of files (pairs of hypothesis / reference)
-        if not (reference_file_extension == "dbl" and hypothesis_file_extension == "dbl"):
+        if not (
+            reference_file_extension == "dbl" and hypothesis_file_extension == "dbl"
+        ):
             raise ValueError("If using DBL input then both files must be DBLs")
 
         overall_results, file_results = get_data_set_results(
@@ -818,7 +1064,9 @@ def main():
         if args.output_format == "csv":
             details_csv = os.path.join(outdir, "results-details.csv")
             overall_csv = os.path.join(outdir, "results-summary.csv")
-            output_results_as_csv(overall_results, file_results, overall_csv, details_csv)
+            output_results_as_csv(
+                overall_results, file_results, overall_csv, details_csv
+            )
     else:
         # Compute metrics on a single hypothesis / reference pair
         audio_duration = get_diarisation_file_duration_seconds(args.reference_file)
@@ -830,16 +1078,32 @@ def main():
         der, insertion, deletion, confusion = get_der_component_details_for_files(
             args.reference_file, args.hypothesis_file
         )
-        diarization_coverage = get_coverage_for_files(args.reference_file, args.hypothesis_file)
-        diarization_purity = get_purity_for_files(args.reference_file, args.hypothesis_file)
-        jaccard_error_rate = get_jaccard_error_rate_for_files(args.reference_file, args.hypothesis_file)
-        segment_purity, segment_coverage, segment_precision, segment_recall = get_segmentation_metrics_for_files(
-            args.reference_file, args.hypothesis_file, tolerance=args.segmentation_tolerance
-        )
-        segment_F1_score = f1_score(segment_precision, segment_recall)
-        word_der, nwords, words, speaker_uu_percentage = get_word_level_metrics_for_files(
+        diarization_coverage = get_coverage_for_files(
             args.reference_file, args.hypothesis_file
         )
+        diarization_purity = get_purity_for_files(
+            args.reference_file, args.hypothesis_file
+        )
+        jaccard_error_rate = get_jaccard_error_rate_for_files(
+            args.reference_file, args.hypothesis_file
+        )
+        (
+            segment_purity,
+            segment_coverage,
+            segment_precision,
+            segment_recall,
+        ) = get_segmentation_metrics_for_files(
+            args.reference_file,
+            args.hypothesis_file,
+            tolerance=args.segmentation_tolerance,
+        )
+        segment_F1_score = f1_score(segment_precision, segment_recall)
+        (
+            word_der,
+            nwords,
+            words,
+            speaker_uu_percentage,
+        ) = get_word_level_metrics_for_files(args.reference_file, args.hypothesis_file)
         nspeakers_reference, nspeakers_hypothesis = get_speaker_count_metrics_for_files(
             args.reference_file, args.hypothesis_file
         )
@@ -883,7 +1147,11 @@ def main():
         print("--------------------------------")
         print("NSpeakers Reference:        {}".format(nspeakers_reference))
         print("NSpeakers Hypothesis:       {}".format(nspeakers_hypothesis))
-        print("NSpeakers Discrepancy:      {}".format(nspeakers_hypothesis - nspeakers_reference))
+        print(
+            "NSpeakers Discrepancy:      {}".format(
+                nspeakers_hypothesis - nspeakers_reference
+            )
+        )
         print("--------------------------------")
 
 

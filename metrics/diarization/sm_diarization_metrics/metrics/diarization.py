@@ -94,7 +94,9 @@ class DiarizationErrorRate(IdentificationErrorRate):
         return DER_NAME
 
     def __init__(self, collar=0.0, skip_overlap=False, **kwargs):
-        super(DiarizationErrorRate, self).__init__(collar=collar, skip_overlap=skip_overlap, **kwargs)
+        super(DiarizationErrorRate, self).__init__(
+            collar=collar, skip_overlap=skip_overlap, **kwargs
+        )
         self.mapper_ = HungarianMapper()
 
     def optimal_mapping(self, reference, hypothesis, uem=None):
@@ -124,12 +126,16 @@ class DiarizationErrorRate(IdentificationErrorRate):
         return self.mapper_(hypothesis, reference)
 
     def compute_components(self, reference, hypothesis, uem=None, **kwargs):
-
         # crop reference and hypothesis to evaluated regions (uem)
         # remove collars around reference segment boundaries
         # remove overlap regions (if requested)
         reference, hypothesis, uem = self.uemify(
-            reference, hypothesis, uem=uem, collar=self.collar, skip_overlap=self.skip_overlap, returns_uem=True
+            reference,
+            hypothesis,
+            uem=uem,
+            collar=self.collar,
+            skip_overlap=self.skip_overlap,
+            returns_uem=True,
         )
         # NOTE that this 'uemification' must be done here because it
         # might have an impact on the search for the optimal mapping.
@@ -207,7 +213,9 @@ class GreedyDiarizationErrorRate(IdentificationErrorRate):
         return DER_NAME
 
     def __init__(self, collar=0.0, skip_overlap=False, **kwargs):
-        super(GreedyDiarizationErrorRate, self).__init__(collar=collar, skip_overlap=skip_overlap, **kwargs)
+        super(GreedyDiarizationErrorRate, self).__init__(
+            collar=collar, skip_overlap=skip_overlap, **kwargs
+        )
         self.mapper_ = GreedyMapper()
 
     def greedy_mapping(self, reference, hypothesis, uem=None):
@@ -231,12 +239,16 @@ class GreedyDiarizationErrorRate(IdentificationErrorRate):
         return self.mapper_(hypothesis, reference)
 
     def compute_components(self, reference, hypothesis, uem=None, **kwargs):
-
         # crop reference and hypothesis to evaluated regions (uem)
         # remove collars around reference segment boundaries
         # remove overlap regions (if requested)
         reference, hypothesis, uem = self.uemify(
-            reference, hypothesis, uem=uem, collar=self.collar, skip_overlap=self.skip_overlap, returns_uem=True
+            reference,
+            hypothesis,
+            uem=uem,
+            collar=self.collar,
+            skip_overlap=self.skip_overlap,
+            returns_uem=True,
         )
         # NOTE that this 'uemification' must be done here because it
         # might have an impact on the search for the greedy mapping.
@@ -342,12 +354,16 @@ class JaccardErrorRate(DiarizationErrorRate):
         self.mapper_ = HungarianMapper()
 
     def compute_components(self, reference, hypothesis, uem=None, **kwargs):
-
         # crop reference and hypothesis to evaluated regions (uem)
         # remove collars around reference segment boundaries
         # remove overlap regions (if requested)
         reference, hypothesis, uem = self.uemify(
-            reference, hypothesis, uem=uem, collar=self.collar, skip_overlap=self.skip_overlap, returns_uem=True
+            reference,
+            hypothesis,
+            uem=uem,
+            collar=self.collar,
+            skip_overlap=self.skip_overlap,
+            returns_uem=True,
         )
         # NOTE that this 'uemification' must be done here because it
         # might have an impact on the search for the optimal mapping.
@@ -364,7 +380,6 @@ class JaccardErrorRate(DiarizationErrorRate):
         detail = self.init_components()
 
         for ref_speaker in reference.labels():
-
             hyp_speaker = mapping.get(ref_speaker, None)
 
             if hyp_speaker is None:
@@ -444,12 +459,15 @@ class DiarizationPurity(UEMSupportMixin, BaseMetric):
         self.skip_overlap = skip_overlap
 
     def compute_components(self, reference, hypothesis, uem=None, **kwargs):
-
         detail = self.init_components()
 
         # crop reference and hypothesis to evaluated regions (uem)
         reference, hypothesis = self.uemify(
-            reference, hypothesis, uem=uem, collar=self.collar, skip_overlap=self.skip_overlap
+            reference,
+            hypothesis,
+            uem=uem,
+            collar=self.collar,
+            skip_overlap=self.skip_overlap,
         )
 
         if not reference:
@@ -506,10 +524,14 @@ class DiarizationCoverage(DiarizationPurity):
         return COVERAGE_NAME
 
     def __init__(self, collar=0.0, skip_overlap=False, weighted=True, **kwargs):
-        super(DiarizationCoverage, self).__init__(collar=collar, skip_overlap=skip_overlap, weighted=weighted, **kwargs)
+        super(DiarizationCoverage, self).__init__(
+            collar=collar, skip_overlap=skip_overlap, weighted=weighted, **kwargs
+        )
 
     def compute_components(self, reference, hypothesis, uem=None, **kwargs):
-        return super(DiarizationCoverage, self).compute_components(hypothesis, reference, uem=uem, **kwargs)
+        return super(DiarizationCoverage, self).compute_components(
+            hypothesis, reference, uem=uem, **kwargs
+        )
 
 
 PURITY_COVERAGE_NAME = "F[purity|coverage]"
@@ -559,7 +581,9 @@ class DiarizationPurityCoverageFMeasure(UEMSupportMixin, BaseMetric):
             PURITY_COVERAGE_TOTAL_CLASS,
         ]
 
-    def __init__(self, collar=0.0, skip_overlap=False, weighted=True, beta=1.0, **kwargs):
+    def __init__(
+        self, collar=0.0, skip_overlap=False, weighted=True, beta=1.0, **kwargs
+    ):
         super(DiarizationPurityCoverageFMeasure, self).__init__(**kwargs)
         self.collar = collar
         self.skip_overlap = skip_overlap
@@ -567,12 +591,15 @@ class DiarizationPurityCoverageFMeasure(UEMSupportMixin, BaseMetric):
         self.beta = beta
 
     def compute_components(self, reference, hypothesis, uem=None, **kwargs):
-
         detail = self.init_components()
 
         # crop reference and hypothesis to evaluated regions (uem)
         reference, hypothesis = self.uemify(
-            reference, hypothesis, uem=uem, collar=self.collar, skip_overlap=self.skip_overlap
+            reference,
+            hypothesis,
+            uem=uem,
+            collar=self.collar,
+            skip_overlap=self.skip_overlap,
         )
 
         # cooccurrence matrix
@@ -602,23 +629,29 @@ class DiarizationPurityCoverageFMeasure(UEMSupportMixin, BaseMetric):
 
         else:
             # compute purity components
-            detail[PURITY_COVERAGE_LARGEST_CLASS] = (largest_class / duration_cluster).sum()
+            detail[PURITY_COVERAGE_LARGEST_CLASS] = (
+                largest_class / duration_cluster
+            ).sum()
             detail[PURITY_COVERAGE_TOTAL_CLUSTER] = len(largest_class)
             # compute coverage components
-            detail[PURITY_COVERAGE_LARGEST_CLUSTER] = (largest_cluster / duration_class).sum()
+            detail[PURITY_COVERAGE_LARGEST_CLUSTER] = (
+                largest_cluster / duration_class
+            ).sum()
             detail[PURITY_COVERAGE_TOTAL_CLASS] = len(largest_cluster)
 
         # compute purity
         detail[PURITY_NAME] = (
             1.0
             if detail[PURITY_COVERAGE_TOTAL_CLUSTER] == 0.0
-            else detail[PURITY_COVERAGE_LARGEST_CLASS] / detail[PURITY_COVERAGE_TOTAL_CLUSTER]
+            else detail[PURITY_COVERAGE_LARGEST_CLASS]
+            / detail[PURITY_COVERAGE_TOTAL_CLUSTER]
         )
         # compute coverage
         detail[COVERAGE_NAME] = (
             1.0
             if detail[PURITY_COVERAGE_TOTAL_CLASS] == 0.0
-            else detail[PURITY_COVERAGE_LARGEST_CLUSTER] / detail[PURITY_COVERAGE_TOTAL_CLASS]
+            else detail[PURITY_COVERAGE_LARGEST_CLUSTER]
+            / detail[PURITY_COVERAGE_TOTAL_CLASS]
         )
 
         return detail
@@ -628,19 +661,20 @@ class DiarizationPurityCoverageFMeasure(UEMSupportMixin, BaseMetric):
         return value
 
     def compute_metrics(self, detail=None):
-
         detail = self.accumulated_ if detail is None else detail
 
         purity = (
             1.0
             if detail[PURITY_COVERAGE_TOTAL_CLUSTER] == 0.0
-            else detail[PURITY_COVERAGE_LARGEST_CLASS] / detail[PURITY_COVERAGE_TOTAL_CLUSTER]
+            else detail[PURITY_COVERAGE_LARGEST_CLASS]
+            / detail[PURITY_COVERAGE_TOTAL_CLUSTER]
         )
 
         coverage = (
             1.0
             if detail[PURITY_COVERAGE_TOTAL_CLASS] == 0.0
-            else detail[PURITY_COVERAGE_LARGEST_CLUSTER] / detail[PURITY_COVERAGE_TOTAL_CLASS]
+            else detail[PURITY_COVERAGE_LARGEST_CLUSTER]
+            / detail[PURITY_COVERAGE_TOTAL_CLASS]
         )
 
         return purity, coverage, f_measure(purity, coverage, beta=self.beta)
@@ -679,12 +713,15 @@ class DiarizationHomogeneity(UEMSupportMixin, BaseMetric):
         self.skip_overlap = skip_overlap
 
     def compute_components(self, reference, hypothesis, uem=None, **kwargs):
-
         detail = self.init_components()
 
         # crop reference and hypothesis to evaluated regions (uem)
         reference, hypothesis = self.uemify(
-            reference, hypothesis, uem=uem, collar=self.collar, skip_overlap=self.skip_overlap
+            reference,
+            hypothesis,
+            uem=uem,
+            collar=self.collar,
+            skip_overlap=self.skip_overlap,
         )
 
         # cooccurrence matrix
@@ -700,7 +737,9 @@ class DiarizationHomogeneity(UEMSupportMixin, BaseMetric):
 
         ratio = np.ma.divide(matrix, duration).filled(0.0)
         hratio = np.ma.divide(matrix, hduration).filled(0.0)
-        detail[HOMOGENEITY_CROSS_ENTROPY] = -np.sum(ratio * np.ma.log(hratio).filled(0.0))
+        detail[HOMOGENEITY_CROSS_ENTROPY] = -np.sum(
+            ratio * np.ma.log(hratio).filled(0.0)
+        )
 
         return detail
 
@@ -738,4 +777,6 @@ class DiarizationCompleteness(DiarizationHomogeneity):
         return COMPLETENESS_NAME
 
     def compute_components(self, reference, hypothesis, uem=None, **kwargs):
-        return super(DiarizationCompleteness, self).compute_components(hypothesis, reference, uem=uem, **kwargs)
+        return super(DiarizationCompleteness, self).compute_components(
+            hypothesis, reference, uem=uem, **kwargs
+        )

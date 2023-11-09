@@ -86,8 +86,15 @@ class IdentificationErrorRate(UEMSupportMixin, BaseMetric):
     def metric_components(cls):
         return [IER_TOTAL, IER_CORRECT, IER_FALSE_ALARM, IER_MISS, IER_CONFUSION]
 
-    def __init__(self, confusion=1.0, miss=1.0, false_alarm=1.0, collar=0.0, skip_overlap=False, **kwargs):
-
+    def __init__(
+        self,
+        confusion=1.0,
+        miss=1.0,
+        false_alarm=1.0,
+        collar=0.0,
+        skip_overlap=False,
+        **kwargs
+    ):
         super(IdentificationErrorRate, self).__init__(**kwargs)
         self.matcher_ = LabelMatcher()
         self.confusion = confusion
@@ -96,7 +103,9 @@ class IdentificationErrorRate(UEMSupportMixin, BaseMetric):
         self.collar = collar
         self.skip_overlap = skip_overlap
 
-    def compute_components(self, reference, hypothesis, uem=None, collar=None, skip_overlap=None, **kwargs):
+    def compute_components(
+        self, reference, hypothesis, uem=None, collar=None, skip_overlap=None, **kwargs
+    ):
         """
 
         Parameters
@@ -121,12 +130,16 @@ class IdentificationErrorRate(UEMSupportMixin, BaseMetric):
             skip_overlap = self.skip_overlap
 
         R, H, common_timeline = self.uemify(
-            reference, hypothesis, uem=uem, collar=collar, skip_overlap=skip_overlap, returns_timeline=True
+            reference,
+            hypothesis,
+            uem=uem,
+            collar=collar,
+            skip_overlap=skip_overlap,
+            returns_timeline=True,
         )
 
         # loop on all segments
         for segment in common_timeline:
-
             # segment duration
             duration = segment.duration
 
@@ -147,7 +160,6 @@ class IdentificationErrorRate(UEMSupportMixin, BaseMetric):
         return detail
 
     def compute_metric(self, detail):
-
         numerator = 1.0 * (
             self.confusion * detail[IER_CONFUSION]
             + self.false_alarm * detail[IER_FALSE_ALARM]
@@ -183,16 +195,19 @@ class IdentificationPrecision(UEMSupportMixin, Precision):
         self.matcher_ = LabelMatcher()
 
     def compute_components(self, reference, hypothesis, uem=None, **kwargs):
-
         detail = self.init_components()
 
         R, H, common_timeline = self.uemify(
-            reference, hypothesis, uem=uem, collar=self.collar, skip_overlap=self.skip_overlap, returns_timeline=True
+            reference,
+            hypothesis,
+            uem=uem,
+            collar=self.collar,
+            skip_overlap=self.skip_overlap,
+            returns_timeline=True,
         )
 
         # loop on all segments
         for segment in common_timeline:
-
             # segment duration
             duration = segment.duration
 
@@ -230,16 +245,19 @@ class IdentificationRecall(UEMSupportMixin, Recall):
         self.matcher_ = LabelMatcher()
 
     def compute_components(self, reference, hypothesis, uem=None, **kwargs):
-
         detail = self.init_components()
 
         R, H, common_timeline = self.uemify(
-            reference, hypothesis, uem=uem, collar=self.collar, skip_overlap=self.skip_overlap, returns_timeline=True
+            reference,
+            hypothesis,
+            uem=uem,
+            collar=self.collar,
+            skip_overlap=self.skip_overlap,
+            returns_timeline=True,
         )
 
         # loop on all segments
         for segment in common_timeline:
-
             # segment duration
             duration = segment.duration
 

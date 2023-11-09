@@ -209,13 +209,22 @@ class BaseMetric(object):
         df = df[[self.name] + self.metric_components()]
 
         if display:
-            print(df.to_string(index=True, sparsify=False, justify="right", float_format=lambda f: "{0:.2f}".format(f)))
+            print(
+                df.to_string(
+                    index=True,
+                    sparsify=False,
+                    justify="right",
+                    float_format=lambda f: "{0:.2f}".format(f),
+                )
+            )
 
         return df
 
     def __str__(self):
         report = self.report(display=False)
-        return report.to_string(sparsify=False, float_format=lambda f: "{0:.2f}".format(f))
+        return report.to_string(
+            sparsify=False, float_format=lambda f: "{0:.2f}".format(f)
+        )
 
     def __abs__(self):
         """Compute metric value from accumulated components"""
@@ -309,7 +318,9 @@ class BaseMetric(object):
         scipy.stats.bayes_mvs
 
         """
-        m, _, _ = scipy.stats.bayes_mvs([r[self.metric_name_] for _, r in self.results_], alpha=alpha)
+        m, _, _ = scipy.stats.bayes_mvs(
+            [r[self.metric_name_] for _, r in self.results_], alpha=alpha
+        )
         return m
 
 

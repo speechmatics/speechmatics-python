@@ -68,7 +68,10 @@ def run_command(commands, args, cwd=None, verbose=False, hide_stderr=False):
         try:
             # remember shell=False, so use git.cmd on windows, not just git
             p = subprocess.Popen(
-                [c] + args, cwd=cwd, stdout=subprocess.PIPE, stderr=(subprocess.PIPE if hide_stderr else None)
+                [c] + args,
+                cwd=cwd,
+                stdout=subprocess.PIPE,
+                stderr=(subprocess.PIPE if hide_stderr else None),
             )
             break
         except EnvironmentError:
@@ -88,7 +91,9 @@ def run_command(commands, args, cwd=None, verbose=False, hide_stderr=False):
         stdout = stdout.decode()
     if p.returncode != 0:
         if verbose:
-            print("unable to run one of the following commands (error):  %s" % (commands,))
+            print(
+                "unable to run one of the following commands (error):  %s" % (commands,)
+            )
         return None
     return stdout
 
@@ -104,7 +109,12 @@ def versions_from_parentdir(parentdir_prefix, root, verbose):
                 "prefix '%s'" % (root, dirname, parentdir_prefix)
             )
         raise NotThisMethod("rootdir doesn't start with parentdir_prefix")
-    return {"version": dirname[len(parentdir_prefix) :], "full-revisionid": None, "dirty": False, "error": None}
+    return {
+        "version": dirname[len(parentdir_prefix) :],
+        "full-revisionid": None,
+        "dirty": False,
+        "error": None,
+    }
 
 
 @register_vcs_handler("git", "get_keywords")
@@ -164,7 +174,12 @@ def git_versions_from_keywords(keywords, tag_prefix, verbose):
             r = ref[len(tag_prefix) :]
             if verbose:
                 print("picking %s" % r)
-            return {"version": r, "full-revisionid": keywords["full"].strip(), "dirty": False, "error": None}
+            return {
+                "version": r,
+                "full-revisionid": keywords["full"].strip(),
+                "dirty": False,
+                "error": None,
+            }
     # no suitable tags, so version is "0+unknown", but full hex is still there
     if verbose:
         print("no suitable tags, using unknown + full revision id")
@@ -193,7 +208,9 @@ def git_pieces_from_vcs(tag_prefix, root, verbose, run_command=run_command):
         GITS = ["git.cmd", "git.exe"]
     # if there is a tag, this yields TAG-NUM-gHEX[-dirty]
     # if there are no tags, this yields HEX[-dirty] (no NUM)
-    describe_out = run_command(GITS, ["describe", "--tags", "--dirty", "--always", "--long"], cwd=root)
+    describe_out = run_command(
+        GITS, ["describe", "--tags", "--dirty", "--always", "--long"], cwd=root
+    )
     # --long was added in git-1.5.5
     if describe_out is None:
         raise NotThisMethod("'git describe' failed")
@@ -234,7 +251,10 @@ def git_pieces_from_vcs(tag_prefix, root, verbose, run_command=run_command):
             if verbose:
                 fmt = "tag '%s' doesn't start with prefix '%s'"
                 print(fmt % (full_tag, tag_prefix))
-            pieces["error"] = "tag '%s' doesn't start with prefix '%s'" % (full_tag, tag_prefix)
+            pieces["error"] = "tag '%s' doesn't start with prefix '%s'" % (
+                full_tag,
+                tag_prefix,
+            )
             return pieces
         pieces["closest-tag"] = full_tag[len(tag_prefix) :]
 
@@ -383,7 +403,12 @@ def render_git_describe_long(pieces):
 
 def render(pieces, style):
     if pieces["error"]:
-        return {"version": "unknown", "full-revisionid": pieces.get("long"), "dirty": None, "error": pieces["error"]}
+        return {
+            "version": "unknown",
+            "full-revisionid": pieces.get("long"),
+            "dirty": None,
+            "error": pieces["error"],
+        }
 
     if not style or style == "default":
         style = "pep440"  # the default
@@ -403,7 +428,12 @@ def render(pieces, style):
     else:
         raise ValueError("unknown style '%s'" % style)
 
-    return {"version": rendered, "full-revisionid": pieces["long"], "dirty": pieces["dirty"], "error": None}
+    return {
+        "version": rendered,
+        "full-revisionid": pieces["long"],
+        "dirty": pieces["dirty"],
+        "error": None,
+    }
 
 
 def get_versions():
@@ -447,4 +477,9 @@ def get_versions():
     except NotThisMethod:
         pass
 
-    return {"version": "0+unknown", "full-revisionid": None, "dirty": None, "error": "unable to compute version"}
+    return {
+        "version": "0+unknown",
+        "full-revisionid": None,
+        "dirty": None,
+        "error": "unable to compute version",
+    }

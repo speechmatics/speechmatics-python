@@ -71,7 +71,9 @@ def det_curve(y_true, scores, distances=False):
 
     # estimate equal error rate
     eer_index = np.where(fpr > fnr)[0][0]
-    eer = 0.25 * (fpr[eer_index - 1] + fpr[eer_index] + fnr[eer_index - 1] + fnr[eer_index])
+    eer = 0.25 * (
+        fpr[eer_index - 1] + fpr[eer_index] + fnr[eer_index - 1] + fnr[eer_index]
+    )
 
     return fpr, fnr, thresholds, eer
 
@@ -104,7 +106,9 @@ def precision_recall_curve(y_true, scores, distances=False):
     if distances:
         scores = -scores
 
-    precision, recall, thresholds = sklearn.metrics.precision_recall_curve(y_true, scores, pos_label=True)
+    precision, recall, thresholds = sklearn.metrics.precision_recall_curve(
+        y_true, scores, pos_label=True
+    )
 
     if distances:
         thresholds = -thresholds
@@ -171,7 +175,6 @@ class Calibration(object):
         # to force equal priors, randomly select (and average over)
         # up to fifty balanced (i.e. #true == #false) calibration sets.
         if self.equal_priors:
-
             counter = Counter(y_true)
             positive, negative = counter[True], counter[False]
 
@@ -190,7 +193,12 @@ class Calibration(object):
             cv = []
             for _ in range(n_splits):
                 test_index = np.hstack(
-                    [np.random.choice(majority_index, size=n_minority, replace=False), minority_index]
+                    [
+                        np.random.choice(
+                            majority_index, size=n_minority, replace=False
+                        ),
+                        minority_index,
+                    ]
                 )
                 cv.append(([], test_index))
             cv = _CVIterableWrapper(cv)
@@ -199,7 +207,9 @@ class Calibration(object):
         else:
             cv = "prefit"
 
-        self.calibration_ = CalibratedClassifierCV(base_estimator=_Passthrough(), method=self.method, cv=cv)
+        self.calibration_ = CalibratedClassifierCV(
+            base_estimator=_Passthrough(), method=self.method, cv=cv
+        )
         self.calibration_.fit(scores.reshape(-1, 1), y_true)
 
         return self
