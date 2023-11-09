@@ -2,14 +2,16 @@
 import argparse
 
 import metrics.diarization.sm_diarization_metrics.cookbook as diarization_metrics
-import metrics.wer as wer_metrics
+import metrics.wer.__main__ as wer_metrics
 
 
 def main():
     parser = argparse.ArgumentParser(description="Your CLI description")
 
     # Create subparsers
-    subparsers = parser.add_subparsers(dest="mode")
+    subparsers = parser.add_subparsers(
+        dest="mode", help="Metrics mode. Choose from 'wer' or 'diarization"
+    )
     subparsers.required = True  # Make sure a subparser id always provided
 
     wer_parser = subparsers.add_parser("wer", help="Entrypoint for WER metrics")
@@ -27,7 +29,7 @@ def main():
     elif args.mode == "diarization":
         diarization_metrics.main(args)
     else:
-        print("Invalid script specified")
+        print("Unsupported mode. Please use 'wer' or 'diarization'")
 
 
 if __name__ == "__main__":

@@ -72,7 +72,7 @@ setup(
     entry_points={
         "console_scripts": [
             "speechmatics = speechmatics.cli:main",
-            "sm_metrics = metrics.cli:main",
+            "sm-metrics = metrics.cli:main",
         ]
     },
     project_urls={
