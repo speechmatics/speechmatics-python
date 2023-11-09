@@ -12,5 +12,6 @@
     "summary_type": "bullets"
   },
   "sentiment_analysis_config": {},
-  "topic_detection_config": {}
+  "topic_detection_config": {},
+  "auto_chapters_config": {}
 }

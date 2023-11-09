@@ -27,6 +27,7 @@ from speechmatics.exceptions import JobNotFoundException, TranscriptionError
 from speechmatics.helpers import _process_status_errors
 from speechmatics.models import (
     AudioSettings,
+    AutoChaptersConfig,
     BatchLanguageIdentificationConfig,
     BatchSpeakerDiarizationConfig,
     BatchTranscriptionConfig,
@@ -299,10 +300,10 @@ def get_transcription_config(
         )
 
     # request summarization from config file
-    file_summarization_config = config.get("summarization_config", {})
+    file_summarization_config = config.get("summarization_config", None)
     # request summarization from cli
     args_summarization = args.get("summarize")
-    if args_summarization or config.get("summarization_config") is not None:
+    if args_summarization or file_summarization_config is not None:
         summarization_config = SummarizationConfig()
         content_type = args.get(
             "content_type", file_summarization_config.get("content_type")
@@ -321,19 +322,24 @@ def get_transcription_config(
             summarization_config.summary_type = summary_type
         config["summarization_config"] = summarization_config
 
-    sentiment_analysis_config = config.get("sentiment_analysis_config", {})
+    sentiment_analysis_config = config.get("sentiment_analysis_config", None)
     args_sentiment_analysis = args.get("sentiment_analysis")
-    if args_sentiment_analysis or sentiment_analysis_config:
+    if args_sentiment_analysis or sentiment_analysis_config is not None:
         config["sentiment_analysis_config"] = SentimentAnalysisConfig()
 
-    topic_detection_config = config.get("topic_detection_config", {})
+    file_topic_detection_config = config.get("topic_detection_config", None)
     args_topic_detection = args.get("detect_topics")
-    if args_topic_detection or topic_detection_config:
+    if args_topic_detection or file_topic_detection_config is not None:
         topic_detection_config = TopicDetectionConfig()
-        topics = args.get("topics", topic_detection_config.get("topics"))
+        topics = args.get("topics", file_topic_detection_config.get("topics"))
         if topics:
             topic_detection_config.topics = topics
         config["topic_detection_config"] = topic_detection_config
+
+    auto_chapters_config = config.get("auto_chapters_config", None)
+    args_auto_chapters = args.get("detect_chapters")
+    if args_auto_chapters or auto_chapters_config is not None:
+        config["auto_chapters_config"] = AutoChaptersConfig()
 
     if args["mode"] == "rt":
         # pylint: disable=unexpected-keyword-arg
