@@ -399,7 +399,7 @@ def get_unknown_speaker_count_for_files(hypothesis_file: str) -> int:
     Speaker labels of punctuations are not considered.
     If the input file is not in v2 json format, "0" will be returned."""
     hypothesis_file_extension = hypothesis_file.split(".")[-1]
-    if hypothesis_file_extension == "lab":
+    if hypothesis_file_extension == "lab" or "ctm":
         # unknown_speaker only supported for v2 json
         return 0
     entries = utils.load_v2_json_file(hypothesis_file, get_content_type=True)
