@@ -59,7 +59,7 @@ logging.basicConfig(level=logging.INFO)
 setup(
     name="speechmatics-python",
     version=os.getenv("VERSION", get_version("VERSION")),
-    packages=["speechmatics"],
+    packages=["speechmatics", "metrics"],
     url="https://github.com/speechmatics/speechmatics-python/",
     license="MIT",
     author="Speechmatics",
@@ -69,7 +69,12 @@ setup(
     long_description_content_type="text/markdown",
     install_requires=read_list("requirements.txt"),
     tests_require=read_list("requirements-dev.txt"),
-    entry_points={"console_scripts": ["speechmatics = speechmatics.cli:main"]},
+    entry_points={
+        "console_scripts": [
+            "speechmatics = speechmatics.cli:main",
+            "sm_metrics = metrics.cli:main",
+        ]
+    },
     project_urls={
         "Documentation": "https://speechmatics.github.io/speechmatics-python/",
         "Source Code": "https://github.com/speechmatics/speechmatics-python/",
