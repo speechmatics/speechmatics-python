@@ -9,7 +9,7 @@ from collections import Counter
 import argparse
 
 from jiwer import compute_measures, cer
-from metrics.normalizers import BasicTextNormalizer, EnglishTextNormalizer
+from metrics.wer.normalizers import BasicTextNormalizer, EnglishTextNormalizer
 
 
 def load_file(path: str) -> str:
