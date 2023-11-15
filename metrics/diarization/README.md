@@ -1,8 +1,10 @@
+# SM Diarisation Metrics
+
 ## Getting Started
 
 This project is Speechmatics' fork of https://github.com/pyannote/pyannote-metrics used to calculate various speaker diarization metrics from reference/hypothesis transcript pairs.
 
-To install the package:
+### Run from PyPI
 
 ```
 pip install speechmatics-python
@@ -22,11 +24,14 @@ sm-metrics diarization -h
 
 ### Run from source code
 
-If you would prefer to clone the repo and run the source code:
+If you would prefer to clone the repo and run the source code, that can be done as follows.
 
+Clone the repository and install package:
 ```bash
-git clone git@github.com:speechmatics/speechmatics-python.git && pip install -r ./requirements.txt
+git clone https://github.com/speechmatics/speechmatics-python.git && cd speechmatics-python && python setup.py install
 ```
+
+And run directly:
 ```
 python3 -m metrics.cli <reference file> <transcript_file>
 ```

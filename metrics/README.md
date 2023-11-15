@@ -28,19 +28,19 @@ This includes tools to:
 - Calculate the number of substitutions, deletions and insertions for a given ASR transcript
 - Visualise the alignment and differences between a reference and ASR transcript
 
-### Diarisation Metrics
+### Diarization Metrics
 
-This includes tools to calculate a number of metrics used in benchmarking diarisation, including:
+This includes tools to calculate a number of metrics used in benchmarking diarization, including:
 
-- Diarisation Error Rate
+- Diarization Error Rate
 - Segmentation precision, recall and F1-Scores
-- Word Diarisation Error Rate
+- Word Diarization Error Rate
 
 ## Documentation
 
 More extensive information on the metrics themselves, as well as how to run them can be found on the READMEs.
 
-For diarisation, we provide an additional PDF.
+For diarization, we provide an additional PDF.
 
 ## Support
 
