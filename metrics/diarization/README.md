@@ -1,4 +1,11 @@
-# SM Diarisation Metrics
+# SM Diarization Metrics
+
+This package includes tooling for a number of different metrics for benchmarking speaker diarization, including:
+
+- Diarization Error Rate
+- Word Diarization Error Rate
+- Jaccard Error Rate
+- Segmentation precision, recall and F1-Scores
 
 ## Getting Started
 
