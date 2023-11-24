@@ -3,16 +3,17 @@ Simple script to run WER analysis using Whisper normalisers
 Prints results to terminal
 """
 import difflib
-import csv
+from pathlib import Path
 from typing import Any, Tuple, Optional
 from collections import Counter
 import argparse
+import pandas as pd
 
 from jiwer import compute_measures, cer
 from metrics.wer.normalizers import BasicTextNormalizer, EnglishTextNormalizer
 
 
-def load_file(path: str) -> str:
+def load_file(path: Path) -> str:
     """
     Returns a string containing the contents of a file, given the file path
     """
@@ -20,7 +21,7 @@ def load_file(path: str) -> str:
         return input_path.read()
 
 
-def read_dbl(path: str) -> list[str]:
+def read_dbl(path: Path) -> list[str]:
     """
     Returns a list of file path, given an input DBL file path
     """
@@ -195,36 +196,13 @@ def run_wer(ref: str, hyp: str) -> Tuple[TranscriptDiff, dict[str, Any]]:
     return differ, stats
 
 
-def generate_csv(results, using_cer=False):
-    """
-    Writes results to a csv named 'results.csv'
-    """
-    fields = [
-        "file name",
-        "wer",
-        "accuracy",
-        "insertions",
-        "deletions",
-        "substitutions",
-        "reference length",
-    ]
-
-    if using_cer is True:
-        fields[1] = "cer"
-
-    with open("results.csv", "w", encoding="utf-8") as results_csv:
-        writer = csv.DictWriter(results_csv, fieldnames=fields, extrasaction="ignore")
-        writer.writeheader()
-        for row in results:
-            writer.writerow(row)
-
-
 def check_paths(ref_path, hyp_path) -> Tuple[list[str], list[str]]:
     """
     Returns lists of ref and hyp file paths given input paths
 
     Raises:
-        AssertionError: if input paths do not have same extension
+        AssertionError: if input paths do not have valid extension
+        ValueError: if input paths are not of the same type
     """
     assert is_supported(ref_path) and is_supported(hyp_path)
 
@@ -233,7 +211,7 @@ def check_paths(ref_path, hyp_path) -> Tuple[list[str], list[str]]:
     if ref_path.endswith(".dbl") and hyp_path.endswith(".dbl"):
         return read_dbl(ref_path), read_dbl(hyp_path)
 
-    raise ValueError("Unexpected file type. Please ensure files are .dbl or .txt files")
+    raise ValueError("Unexpected file type. Please ensure files of the same type")
 
 
 def get_wer_args(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
@@ -259,7 +237,7 @@ def get_wer_args(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
         """,
         action="store_true",
     )
-    parser.add_argument("--csv", help="Write the results to a CSV", action="store_true")
+    parser.add_argument("--csv", help="Write the results to a CSV", type=Path)
     parser.add_argument("ref_path", help="Path to the reference transcript", type=str)
     parser.add_argument("hyp_path", help="Path to the hypothesis transcript", type=str)
     return parser
@@ -277,18 +255,34 @@ def main(args: Optional[argparse.Namespace] = None):
     normaliser = BasicTextNormalizer() if args.non_en else EnglishTextNormalizer()
 
     ref_files, hyp_files = check_paths(args.ref_path, args.hyp_path)
-    results = []
+    columns = [
+        "file name",
+        "wer",
+        "reference length",
+        "substitutions",
+        "deletions",
+        "insertions",
+    ]
+    columns[1] = "cer" if args.cer else columns[1]
+    results = None
 
     for ref, hyp in zip(ref_files, hyp_files):
         norm_ref = normaliser(load_file(ref.strip()))
         norm_hyp = normaliser(load_file(hyp.strip()))
+
+        warning = (
+            f"Reference or Hypothesis file empty. Skipping...\nRef: {ref}Hyp: {hyp}"
+        )
+        if len(norm_ref) == 0 or len(norm_hyp) == 0:
+            print(warning)
+            continue
 
         if args.cer is True:
             differ, stats = run_cer(norm_ref, norm_hyp)
         else:
             differ, stats = run_wer(norm_ref, norm_hyp)
 
-        stats["file_name"] = hyp
+        stats["file name"] = hyp
 
         if args.show_normalised is True:
             print("NORMALISED REFERENCE:", norm_ref, sep="\n\n", end="\n\n")
@@ -300,23 +294,19 @@ def main(args: Optional[argparse.Namespace] = None):
         if args.show_errors is True:
             differ.print_errors_by_type()
 
-        for metric in [
-            "file name",
-            "wer",
-            "cer",
-            "reference length",
-            "substitutions",
-            "deletions",
-            "insertions",
-        ]:
-            res = stats.get(metric)
-            if res is not None:
-                print(f"{metric}: {res}")
+        if results is None:
+            results = pd.DataFrame(stats, columns=columns, index=[0])
+            continue
 
-        results.append(stats)
+        results = pd.concat(
+            [results, pd.DataFrame(stats, columns=columns, index=[0])],
+            ignore_index=True,
+        )
 
-    if args.cer is True:
-        generate_csv(results, args.cer)
+    print(results.to_markdown(index=False))
+
+    if args.csv:
+        results.to_csv(args.csv, index=False)
 
 
 if __name__ == "__main__":
