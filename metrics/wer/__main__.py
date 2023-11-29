@@ -3,6 +3,7 @@ Simple script to run WER analysis using Whisper normalisers
 Prints results to terminal
 """
 import difflib
+import json
 from pathlib import Path
 from typing import Any, Tuple, Optional
 from collections import Counter
@@ -13,12 +14,40 @@ from jiwer import compute_measures, cer
 from metrics.wer.normalizers import BasicTextNormalizer, EnglishTextNormalizer
 
 
-def load_file(path: Path) -> str:
+def load_file(path: Path, file_type: str) -> str:
     """
     Returns a string containing the contents of a file, given the file path
     """
+    return load_text(path) if file_type == "txt" else load_sm_json(path)
+
+
+def load_text(path: Path) -> str:
     with open(path, "r", encoding="utf-8") as input_path:
         return input_path.read()
+
+
+def load_sm_json(path: Path) -> str:
+    with open(path, "r", encoding="utf-8") as input_path:
+        json_transcript = json.load(input_path)
+
+    return parse_sm_json(json_transcript)
+
+
+def parse_sm_json(json_transcript: dict) -> str:
+    assert (
+        float(json_transcript["format"]) > 2.8
+    ), "Requires JSON transcript version 2.8 or later"
+    delimiter = json_transcript["metadata"]["language_pack_info"]["word_delimiter"]
+    words = []
+
+    for word in json_transcript["results"]:
+        content = word["alternatives"][0]["content"]
+        if word.get("attaches_to"):
+            words[-1] += content
+            continue
+        words.append(content)
+
+    return delimiter.join(words)
 
 
 def read_dbl(path: Path) -> list[str]:
@@ -155,7 +184,7 @@ def count_errors(errors_list: list) -> list[tuple[Any, int]]:
 
 def is_supported(file_name: str) -> bool:
     "Takes input file name, checks if file is valid"
-    return file_name.endswith((".dbl", ".txt"))
+    return file_name.endswith((".dbl", ".txt", ".json", ".json-v2"))
 
 
 def run_cer(ref: str, hyp: str) -> Tuple[TranscriptDiff, dict[str, Any]]:
@@ -206,10 +235,11 @@ def check_paths(ref_path, hyp_path) -> Tuple[list[str], list[str]]:
     """
     assert is_supported(ref_path) and is_supported(hyp_path)
 
-    if ref_path.endswith(".txt") and hyp_path.endswith(".txt"):
-        return [ref_path], [hyp_path]
     if ref_path.endswith(".dbl") and hyp_path.endswith(".dbl"):
         return read_dbl(ref_path), read_dbl(hyp_path)
+
+    if ref_path.endswith(".txt") and hyp_path.endswith((".txt", ".json", ".json-v2")):
+        return [ref_path], [hyp_path]
 
     raise ValueError("Unexpected file type. Please ensure files of the same type")
 
@@ -220,6 +250,13 @@ def get_wer_args(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--show-normalised", help="Show the normalised transcipts", action="store_true"
+    )
+    parser.add_argument(
+        "--transcript-type",
+        help="Choose the transcript format for the hypothesis. Reference must be text.",
+        choices=["json", "txt"],
+        default="txt",
+        type=str,
     )
     parser.add_argument(
         "--diff",
@@ -277,8 +314,8 @@ def main(args: Optional[argparse.Namespace] = None):
     results = None
 
     for ref, hyp in zip(ref_files, hyp_files):
-        norm_ref = normaliser(load_file(ref.strip()))
-        norm_hyp = normaliser(load_file(hyp.strip()))
+        norm_ref = normaliser(load_file(ref.strip(), file_type="txt"))
+        norm_hyp = normaliser(load_file(hyp.strip(), file_type=args.transcript_type))
 
         warning = (
             f"Reference or Hypothesis file empty. Skipping...\nRef: {ref}Hyp: {hyp}"
