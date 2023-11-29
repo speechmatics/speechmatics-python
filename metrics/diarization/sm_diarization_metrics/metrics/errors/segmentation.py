@@ -35,7 +35,6 @@ class SegmentationErrorAnalysis(object):
         super(SegmentationErrorAnalysis, self).__init__()
 
     def __call__(self, reference, hypothesis):
-
         if isinstance(reference, Annotation):
             reference = reference.get_timeline()
 
@@ -47,7 +46,6 @@ class SegmentationErrorAnalysis(object):
         prev_r = reference[0]
         intersection = []
         for r, h in reference.co_iter(hypothesis):
-
             if r != prev_r:
                 intersection = sorted(intersection)
                 for _, segment in intersection[:-1]:
@@ -67,7 +65,6 @@ class SegmentationErrorAnalysis(object):
         prev_h = hypothesis[0]
         intersection = []
         for h, r in hypothesis.co_iter(reference):
-
             if h != prev_h:
                 intersection = sorted(intersection)
                 for _, segment in intersection[:-1]:

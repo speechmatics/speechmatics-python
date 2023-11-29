@@ -237,6 +237,11 @@ def get_wer_args(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
         """,
         action="store_true",
     )
+    parser.add_argument(
+        "--keep-disfluencies",
+        help="Retain disfluencies such as 'uhhh' and 'umm'. Disfluencies will be removed otherwise.",
+        action="store_true",
+    )
     parser.add_argument("--csv", help="Write the results to a CSV", type=Path)
     parser.add_argument("ref_path", help="Path to the reference transcript", type=str)
     parser.add_argument("hyp_path", help="Path to the hypothesis transcript", type=str)
@@ -252,7 +257,12 @@ def main(args: Optional[argparse.Namespace] = None):
         parser = get_wer_args(argparse.ArgumentParser())
         args = parser.parse_args()
 
-    normaliser = BasicTextNormalizer() if args.non_en else EnglishTextNormalizer()
+    if args.non_en:
+        normaliser = BasicTextNormalizer()
+    elif args.keep_disfluencies:
+        normaliser = EnglishTextNormalizer(remove_disfluencies=False)
+    else:
+        normaliser = EnglishTextNormalizer(remove_disfluencies=True)
 
     ref_files, hyp_files = check_paths(args.ref_path, args.hyp_path)
     columns = [

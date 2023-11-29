@@ -1,8 +1,8 @@
-import json
+import yaml
 import os
 import re
 from fractions import Fraction
-from typing import Iterator, List, Match, Optional, Union
+from typing import Iterator, List, Match, Optional, Union, Tuple, Dict
 
 from more_itertools import windowed
 
@@ -466,72 +466,36 @@ class EnglishNumberNormalizer:
 
 
 class EnglishTextNormalizer(BasicTextNormalizer):
-    def __init__(self):
+    def __init__(self, remove_disfluencies=True):
         super().__init__()
 
-        # spelling map
-        mapping_path = os.path.join(os.path.dirname(__file__), "english.json")
-        with open(mapping_path, "r", encoding="utf-8") as spelling_file:
-            self.mapping = json.load(spelling_file)
+        config_path = os.path.join(os.path.dirname(__file__), "english.yaml")
+        with open(config_path, "r", encoding="utf-8") as config_file:
+            config = yaml.safe_load(config_file)
 
-        # hesitations to be removed
-        self.ignore_patterns = r"\b(hmm|mm|mhm|mmm|uh|um)\b"
-        self.replacers = {
-            # expand common contractions
-            r"\bwon't\b": "will not",
-            r"\bcan't\b": "can not",
-            r"\blet's\b": "let us",
-            r"\bain't\b": "aint",
-            r"\by'all\b": "you all",
-            r"\bwanna\b": "want to",
-            r"\bgotta\b": "got to",
-            r"\bgonna\b": "going to",
-            r"\bi'ma\b": "i am going to",
-            r"\bimma\b": "i am going to",
-            r"\bwoulda\b": "would have",
-            r"\bcoulda\b": "could have",
-            r"\bshoulda\b": "should have",
-            r"\bma'am\b": "madam",
-            # expand contracted titles/prefixes
-            r"\bmr\b": "mister ",
-            r"\bmrs\b": "missus ",
-            r"\bst\b": "saint ",
-            r"\bdr\b": "doctor ",
-            r"\bprof\b": "professor ",
-            r"\bcapt\b": "captain ",
-            r"\bgov\b": "governor ",
-            r"\bald\b": "alderman ",
-            r"\bgen\b": "general ",
-            r"\bsen\b": "senator ",
-            r"\brep\b": "representative ",
-            r"\bpres\b": "president ",
-            r"\brev\b": "reverend ",
-            r"\bhon\b": "honorable ",
-            r"\basst\b": "assistant ",
-            r"\bassoc\b": "associate ",
-            r"\blt\b": "lieutenant ",
-            r"\bcol\b": "colonel ",
-            r"\bjr\b": "junior ",
-            r"\bsr\b": "senior ",
-            r"\besq\b": "esquire ",
-            # prefect tenses, ideally it should be any past participles, but it's harder..
-            r"'d been\b": " had been",
-            r"'s been\b": " has been",
-            r"'d gone\b": " had gone",
-            r"'s gone\b": " has gone",
-            r"'d done\b": " had done",  # "'s done" is ambiguous
-            r"'s got\b": " has got",
-            # general contractions
-            r"n't\b": " not",
-            r"'re\b": " are",
-            r"'s\b": " is",
-            r"'d\b": " would",
-            r"'ll\b": " will",
-            r"'t\b": " not",
-            r"'ve\b": " have",
-            r"'m\b": " am",
-        }
+        self.remove_disfluencies = remove_disfluencies
+        self.replacers, self.disfluencies, self.spellings = self.parse_config(config)
         self.standardize_numbers = EnglishNumberNormalizer()
+
+    def parse_config(
+        self, config: dict
+    ) -> Tuple[Dict[str, str], Dict[str, str], Dict[str, str]]:
+        contractions_and_abbreviations: dict = config["standalone contractions"]
+
+        # add appropriate spaces
+        for replacement_type in ["perfect", "general contractions"]:
+            contractions_and_abbreviations.update(
+                {f" {key}": value for key, value in config[replacement_type].items()}
+            )
+        contractions_and_abbreviations.update(
+            {f"{key} ": value for key, value in config["titles"].items()}
+        )
+
+        return (
+            contractions_and_abbreviations,
+            config["disfluencies"],
+            config["spellings"],
+        )
 
     def __call__(self, s: str):
         s = s.lower()
@@ -539,13 +503,19 @@ class EnglishTextNormalizer(BasicTextNormalizer):
         # remove words between square / rounded brackets
         s = re.sub(r"[<\[][^>\]]*[>\]]", "", s)
         s = re.sub(r"\(([^)]+?)\)", "", s)
-        s = re.sub(self.ignore_patterns, "", s)
+
+        # remove disfluencies or map to standards
+        if self.remove_disfluencies:
+            s = re.sub("|".join(self.disfluencies.values()), "", s)
+        else:
+            for replacement, pattern in self.disfluencies.items():
+                s = re.sub(pattern, replacement, s)
 
         # standardize when there's a space before an apostrophe
         s = re.sub(r"\s+'", "'", s)
 
         # expand contractions using mapping
-        for pattern, replacement in self.replacers.items():
+        for replacement, pattern in self.replacers.items():
             s = re.sub(pattern, replacement, s)
 
         # remove commas between digits and remove full stops not followed by digits
@@ -557,7 +527,7 @@ class EnglishTextNormalizer(BasicTextNormalizer):
 
         # standardise numbers and spellings
         s = self.standardize_numbers(s)
-        s = " ".join(self.mapping.get(word, word) for word in s.split())
+        s = " ".join(self.spellings.get(word, word) for word in s.split())
 
         # now remove prefix/suffix symbols that are not preceded/followed by numbers
         s = re.sub(r"[.$¢€£]([^0-9])", r" \1", s)

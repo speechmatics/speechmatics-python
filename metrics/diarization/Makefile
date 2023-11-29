@@ -9,5 +9,5 @@ wheel:
 	(pip install wheel && python3 setup.py bdist_wheel)
 
 .PHONY: install
-install: 
+install:
 	pip install ./dist/*
