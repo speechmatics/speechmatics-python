@@ -92,8 +92,7 @@ def test_disfluencies_mapping():
     assert std("Hmmmm") == "hmm"
     assert std("Ehhhhh?") == "eh"
     assert std("ummmm") == "um"
-    assert std("mmmmm") == "mmm"
-    assert std("mm") == "mm"
+    assert std("mmmmm") == "mm"
     assert std("uhhh") == "uh"
     assert std(",uhh, this is ...very bad") == "uh this is very bad"
 
@@ -105,7 +104,7 @@ def test_disfluencies_removal():
     assert std("Ehhhhh?") == ""
     assert std("ummmm") == ""
     assert std("mmmmm") == ""
-    assert std("mm") == "mm"
+    assert std("mm") == ""
     assert std("uhhh") == ""
     assert std(",uhh, this is ...very bad") == "this is very bad"
     assert (

@@ -1,18 +1,18 @@
 disfluencies:
-  huh: huh
-  aha: (a)+((\-)?|(h\-)?)(h)+(a)+ # doesn't match if there is a space, e.g., ah ha
-  ah: (a)+(h)+
-  aw: (a)+(w)+ # is aw a disfluency?
-  eh: (e)+(h)+
-  err: (e)+r(r)+ # err is a word in it's own right
-  hmm: (h)+(m)+
-  mmm: m{3,}
-  um: (u)+(h)*(m)+|erm
-  uh: (u)+(g)*(h)+
-  uh-oh: uh\-oh
-  uh-huh: uhhuh|uh(\s|\-)huh
-  uh-uh: uh(\s|\-)uh
-  mhm: m(\-)*(h)+m|(m)+(\s|\-)*hm(m)+
+  huh: \bhuh\b
+  aha: \b(a)+((\-)?\b|\b(h\-)?)(h)+(a)+\b
+  ah: \b(a)+(h)+\b
+  aw: \b(a)+(w)+\b
+  eh: \b(e)+(h)+\b
+  err: \b(e)+r(r)+\b
+  hmm: \b(h)+(m)+\b
+  mm: \bm{2,}\b
+  um: \b(u)+(h)*(m)+\b|\berm\b
+  uh: \b(u)+(g)*(h)+\b
+  uh-oh: \buh\-oh\b
+  uh-huh: \buhhuh\b|\buh(\s|\-)huh\b
+  uh-uh: \buh(\s|\-)uh\b
+  mhm: \bm(\-)*(h)+m\b|\b(m)+(\s|\-)*hm(m)+\b
 
 standalone contractions:
   will not: \bwon\'t\b
@@ -55,11 +55,9 @@ titles: # need to add space after
   captain: \bcapt\b
   governor: \bgov\b
   alderman: \bald\b
-  general: \bgen\b # also short for generation
   senator: \bsen\b
   representative: \brep\b
   president: \bpres\b
-  reverend: \brev\b # could be rev up an engine
   honorable: \bhon\b
   assistant: \basst\b
   associate: \bassoc\b
