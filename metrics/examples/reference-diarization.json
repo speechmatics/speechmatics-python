@@ -1,0 +1,56 @@
+[
+    {
+        "speaker_name": "spk1",
+        "word": "hello",
+        "start": 0.0,
+        "duration": 3.0
+    },
+    {
+        "speaker_name": "spk2",
+        "word": "how",
+        "start": 3.0,
+        "duration": 4.0
+    },
+    {
+        "speaker_name": "spk1",
+        "word": "are",
+        "start": 7.0,
+        "duration": 3.0
+    },
+    {
+        "speaker_name": "spk2",
+        "word": "you",
+        "start": 10.0,
+        "duration": 5.0
+    },
+    {
+        "speaker_name": "spk1",
+        "word": "doing",
+        "start": 15.0,
+        "duration": 5.0
+    },
+    {
+        "speaker_name": "spk3",
+        "word": "hi",
+        "start": 0.0,
+        "duration": 5.0
+    },
+    {
+        "speaker_name": "spk4",
+        "word": "there",
+        "start": 5.0,
+        "duration": 5.0
+    },
+    {
+        "speaker_name": "spk3",
+        "word": "I'm",
+        "start": 10.0,
+        "duration": 5.0
+    },
+    {
+        "speaker_name": "spk4",
+        "word": "good",
+        "start": 15.0,
+        "duration": 5.0
+    }
+]

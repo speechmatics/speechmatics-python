@@ -1,0 +1,9 @@
+channel1 segment1 0.0 3.0 spk1 0.9
+channel1 segment2 3.0 7.0 spk2 0.8
+channel1 segment3 7.0 10.0 spk1 0.95
+channel1 segment4 10.0 15.0 spk2 0.85
+channel1 segment5 15.0 20.0 spk1 0.75
+channel2 segment6 0.0 5.0 spk3 0.92
+channel2 segment7 5.0 10.0 spk4 0.88
+channel2 segment8 10.0 15.0 spk3 0.91
+channel2 segment9 15.0 20.0 spk4 0.89

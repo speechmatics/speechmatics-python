@@ -315,6 +315,12 @@ A complete list of commands and flags can be found in the SDK docs at https://sp
   and [RT API documentation](https://docs.speechmatics.com/rt-api-ref#transcription-config).
 
 
+## SM Metrics
+
+This package includes tooling for benchmarking transcription and diarization accuracy.
+
+For more information, see the `metrics/README.md`
+
 ## Testing
 
 To install development dependencies and run tests
