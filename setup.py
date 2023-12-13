@@ -55,7 +55,6 @@ def get_version(fname):
 
 
 logging.basicConfig(level=logging.INFO)
-print(f"Packages to install: {find_packages(exclude=['tests'])}")
 setup(
     name="speechmatics-python",
     version=os.getenv("VERSION", get_version("VERSION")),
