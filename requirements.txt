@@ -9,4 +9,4 @@ more-itertools
 pyannote.core
 pyannote.database
 docopt
-pandas[tabulate]
+tabulate>=0.8.9
