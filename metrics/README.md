@@ -6,7 +6,7 @@ We provide some additional tooling to help benchmark transcription and diarizati
 
 ### CLI
 
-The `sm-metrics` binary is built after installing with PyPI or running `python3 setup.py` from the source code. To see the options from the command-line, use the following:
+The `sm-metrics` binary is built after installing with PyPI or running `python3 setup.py install` from the source code. To see the options from the command-line, use the following:
 ``` bash
 sm-metrics -h
 ```

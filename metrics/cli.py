@@ -10,7 +10,7 @@ def main():
 
     # Create subparsers
     subparsers = parser.add_subparsers(
-        dest="mode", help="Metrics mode. Choose from 'wer' or 'diarization"
+        dest="mode", help="Metrics mode. Choose from 'wer' or 'diarization'"
     )
     subparsers.required = True  # Make sure a subparser id always provided
 

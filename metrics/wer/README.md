@@ -71,6 +71,8 @@ To see all the commands, run:
 sm-metrics wer -h
 ```
 
+You must ensure that both the reference and hypothesis files are encoded in UTF-8.
+
 ## Read More
 
 - [The Future of Word Error Rate](https://www.speechmatics.com/company/articles-and-news/the-future-of-word-error-rate?utm_source=facebook&utm_medium=social&fbclid=IwAR1z7ZU4WowgDBs91MNKFTwPACD9gb7dkrQpkr1HmfsgXPv-Ndt5PeySjIk&restored=1676632411598)

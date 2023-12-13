@@ -22,8 +22,13 @@ def load_file(path: Path, file_type: str) -> str:
 
 
 def load_text(path: Path) -> str:
-    with open(path, "r", encoding="utf-8") as input_path:
-        return input_path.read()
+    try:
+        with open(path, "r", encoding="utf-8") as input_path:
+            return input_path.read()
+    except UnicodeDecodeError as error:
+        raise ValueError(
+            f"Error reading file {path}: {error}. Ensure the file is UTF-8 encoded."
+        )
 
 
 def load_sm_json(path: Path) -> str:
