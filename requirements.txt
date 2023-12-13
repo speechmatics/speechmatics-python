@@ -9,4 +9,4 @@ more-itertools
 pyannote.core
 pyannote.database
 docopt
-tabulate
+pandas[tabulate]
