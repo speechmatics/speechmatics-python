@@ -11,7 +11,7 @@ import argparse
 import pandas as pd
 
 from jiwer import compute_measures, cer
-from metrics.wer.normalizers import BasicTextNormalizer, EnglishTextNormalizer
+from asr_metrics.wer.normalizers import BasicTextNormalizer, EnglishTextNormalizer
 
 
 def load_file(path: Path, file_type: str) -> str:

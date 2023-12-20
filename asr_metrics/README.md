@@ -15,7 +15,7 @@ sm-metrics -h
 
 When executing directly from the source code:
 ```bash
-python3 -m metrics.cli -h
+python3 -m asr_metrics.cli -h
 ```
 
 ## What's Included?

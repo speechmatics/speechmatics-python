@@ -1,8 +1,8 @@
 """Entrypoint for SM metrics"""
 import argparse
 
-import metrics.diarization.sm_diarization_metrics.cookbook as diarization_metrics
-import metrics.wer.__main__ as wer_metrics
+import asr_metrics.diarization.sm_diarization_metrics.cookbook as diarization_metrics
+import asr_metrics.wer.__main__ as wer_metrics
 
 
 def main():

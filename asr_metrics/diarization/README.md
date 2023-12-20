@@ -40,7 +40,7 @@ git clone https://github.com/speechmatics/speechmatics-python.git && cd speechma
 
 And run directly:
 ```
-python3 -m metrics.cli <reference file> <transcript_file>
+python3 -m asr_metrics.cli <reference file> <transcript_file>
 ```
 
 
@@ -85,4 +85,4 @@ V2 JSON output of Speechmatics ASR can be directly used as a hypothesis for diar
 
 Further description of how to use the tool and the metrics available are in sm_diarization_metrics.pdf
 
-When using the PDF, be aware that it assumes you are running the source code directly from `./metrics/diarization`
+When using the PDF, be aware that it assumes you are running the source code directly from `./asr_metrics/diarization`

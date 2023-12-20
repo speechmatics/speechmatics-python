@@ -59,7 +59,7 @@ setup(
     name="speechmatics-python",
     version=os.getenv("VERSION", get_version("VERSION")),
     packages=find_packages(exclude=["tests"]),
-    package_data={"metrics": ["wer/normalizers/english.yaml"]},
+    package_data={"asr_metrics": ["wer/normalizers/english.yaml"]},
     url="https://github.com/speechmatics/speechmatics-python/",
     license="MIT",
     author="Speechmatics",
@@ -72,7 +72,7 @@ setup(
     entry_points={
         "console_scripts": [
             "speechmatics = speechmatics.cli:main",
-            "sm-metrics = metrics.cli:main",
+            "sm-metrics = asr_metrics.cli:main",
         ]
     },
     project_urls={

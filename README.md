@@ -319,7 +319,7 @@ A complete list of commands and flags can be found in the SDK docs at https://sp
 
 This package includes tooling for benchmarking transcription and diarization accuracy.
 
-For more information, see the `metrics/README.md`
+For more information, see the `asr_metrics/README.md`
 
 ## Testing
 

@@ -54,7 +54,7 @@ Installation will build a `sm-metrics` binary which can be used from the command
 Alteratively, the source code can also be executed directly, using:
 
 ```bash
-cd speechmatics-python && python3 -m metrics.cli wer <options>
+cd speechmatics-python && python3 -m asr_metrics.cli wer <options>
 ```
 
 To compute the WER and show a transcript highlighting the difference between the Reference and the Hypothesis, run the following:
