@@ -1,7 +1,7 @@
 import pytest
 
-from metrics.wer.normalizers import EnglishTextNormalizer
-from metrics.wer.normalizers.english import EnglishNumberNormalizer
+from asr_metrics.wer.normalizers import EnglishTextNormalizer
+from asr_metrics.wer.normalizers.english import EnglishNumberNormalizer
 
 
 @pytest.mark.parametrize("std", [EnglishNumberNormalizer(), EnglishTextNormalizer()])

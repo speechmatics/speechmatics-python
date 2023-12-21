@@ -6,7 +6,7 @@ Setuptools configuration for Speechmatics
 import os
 import logging
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 
 def read(fname):
@@ -55,11 +55,11 @@ def get_version(fname):
 
 
 logging.basicConfig(level=logging.INFO)
-
 setup(
     name="speechmatics-python",
     version=os.getenv("VERSION", get_version("VERSION")),
-    packages=["speechmatics", "metrics"],
+    packages=find_packages(exclude=["tests"]),
+    package_data={"asr_metrics": ["wer/normalizers/english.yaml"]},
     url="https://github.com/speechmatics/speechmatics-python/",
     license="MIT",
     author="Speechmatics",
@@ -72,7 +72,7 @@ setup(
     entry_points={
         "console_scripts": [
             "speechmatics = speechmatics.cli:main",
-            "sm-metrics = metrics.cli:main",
+            "sm-metrics = asr_metrics.cli:main",
         ]
     },
     project_urls={

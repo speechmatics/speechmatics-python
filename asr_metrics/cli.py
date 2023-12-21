@@ -1,8 +1,8 @@
 """Entrypoint for SM metrics"""
 import argparse
 
-import metrics.diarization.sm_diarization_metrics.cookbook as diarization_metrics
-import metrics.wer.__main__ as wer_metrics
+import asr_metrics.diarization.sm_diarization_metrics.cookbook as diarization_metrics
+import asr_metrics.wer.__main__ as wer_metrics
 
 
 def main():
@@ -10,7 +10,7 @@ def main():
 
     # Create subparsers
     subparsers = parser.add_subparsers(
-        dest="mode", help="Metrics mode. Choose from 'wer' or 'diarization"
+        dest="mode", help="Metrics mode. Choose from 'wer' or 'diarization'"
     )
     subparsers.required = True  # Make sure a subparser id always provided
 
