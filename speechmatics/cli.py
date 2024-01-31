@@ -11,7 +11,7 @@ import ssl
 import sys
 from dataclasses import dataclass
 from socket import gaierror
-from typing import List
+from typing import Any, Dict, List
 
 import httpx
 import toml
@@ -26,6 +26,7 @@ from speechmatics.constants import BATCH_SELF_SERVICE_URL, RT_SELF_SERVICE_URL
 from speechmatics.exceptions import JobNotFoundException, TranscriptionError
 from speechmatics.helpers import _process_status_errors
 from speechmatics.models import (
+    AudioEventsConfig,
     AudioSettings,
     AutoChaptersConfig,
     BatchLanguageIdentificationConfig,
@@ -198,7 +199,7 @@ def get_transcription_config(
             config = json.load(config_file)
     else:
         # Ensure "en" is the default language as to not break existing API behavior.
-        config = {"language": "en"}
+        config: Dict[str, Any] = {"language": "en"}
 
     # transcription_config is flattened in the BatchTranscriptionConfig,
     # so the config entry from JSON must be flattened here, otherwise the JSON entry would be ignored
@@ -341,6 +342,14 @@ def get_transcription_config(
     if args_auto_chapters or auto_chapters_config is not None:
         config["auto_chapters_config"] = AutoChaptersConfig()
 
+    audio_events_config = config.get("audio_events_config", None)
+    arg_audio_events = args.get("audio_events")
+    if audio_events_config or arg_audio_events is not None:
+        types = None
+        if audio_events_config and audio_events_config.get("types"):
+            types = audio_events_config.get("types")
+        config["audio_events_config"] = AudioEventsConfig(types)
+
     if args["mode"] == "rt":
         # pylint: disable=unexpected-keyword-arg
         return TranscriptionConfig(**config)
@@ -448,6 +457,14 @@ def add_printing_handlers(
             sys.stdout.write(f"{escape_seq}{plaintext}\n")
         transcripts.text += plaintext
 
+    def audio_event_handler(message):
+        if print_json:
+            print(json.dumps(message))
+            return
+        event_name = message["event"].get("type", "").upper()
+        sys.stdout.write(f"{escape_seq}[{event_name}]\n")
+        transcripts.text += f"[{event_name}] "
+
     def partial_translation_handler(message):
         if print_json:
             print(json.dumps(message))
@@ -480,6 +497,8 @@ def add_printing_handlers(
     # print both transcription and translation messages (if json was requested)
     # print translation (if text was requested then)
     # print transcription (if text was requested without translation)
+
+    api.add_event_handler(ServerMessageType.AudioEventStarted, audio_event_handler)
     if print_json:
         if enable_partials or enable_translation_partials:
             api.add_event_handler(

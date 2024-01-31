@@ -176,7 +176,7 @@ class BatchTranslationConfig(TranslationConfig):
 class BatchLanguageIdentificationConfig:
     """Batch mode: Language identification config."""
 
-    expected_languages: List[str] = None
+    expected_languages: Optional[List[str]] = None
     """Expected languages for language identification"""
 
 
@@ -203,13 +203,25 @@ class SentimentAnalysisConfig:
 class TopicDetectionConfig:
     """Defines topic detection parameters."""
 
-    topics: List[str] = None
+    topics: Optional[List[str]] = None
     """Optional list of topics for topic detection."""
 
 
 @dataclass
 class AutoChaptersConfig:
     """Auto Chapters config."""
+
+
+@dataclass
+class AudioEventsConfig:
+
+    types: Optional[List[str]]
+    """Optional list of audio event types to detect."""
+
+    def asdict(self):
+        if self.types is None:
+            self.types = []
+        return asdict(self)
 
 
 @dataclass(init=False)
@@ -254,12 +266,16 @@ class TranscriptionConfig(_TranscriptionConfig):
     """Indicates if partial translation, where words are produced
     immediately, is enabled."""
 
-    translation_config: TranslationConfig = None
+    translation_config: Optional[TranslationConfig] = None
     """Optional configuration for translation."""
+
+    audio_events_config: Optional[AudioEventsConfig] = None
+    """Optional configuration for audio events"""
 
     def as_config(self):
         dictionary = self.asdict()
         dictionary.pop("translation_config", None)
+        dictionary.pop("audio_events_config", None)
         dictionary.pop("enable_translation_partials", None)
         enable_transcription_partials = dictionary.pop(
             "enable_transcription_partials", False
@@ -503,6 +519,12 @@ class ServerMessageType(str, Enum):
 
     AddTranscript = "AddTranscript"
     """Indicates the final transcript of a part of the audio."""
+
+    AudioEventStarted = "AudioEventStarted"
+    """Indicates the start of an audio event."""
+
+    AudioEventEnded = "AudioEventEnded"
+    """Indicates the end of an audio event."""
 
     AddPartialTranslation = "AddPartialTranslation"
     """Indicates a partial translation, which is an incomplete translation that
