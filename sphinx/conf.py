@@ -19,7 +19,7 @@ sys.path.insert(0, os.path.abspath(".."))
 # -- Project information -----------------------------------------------------
 
 project = "speechmatics-python"
-copyright = "2022, Cantab Research Ltd."
+copyright = "2024, Cantab Research Ltd."
 author = "Speechmatics"
 
 
