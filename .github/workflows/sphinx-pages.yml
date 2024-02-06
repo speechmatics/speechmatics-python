@@ -34,6 +34,7 @@ jobs:
         uses: ammaraskar/sphinx-action@master
         with:
           docs-folder: sphinx/
+          pre-build-command: "pip3 install -r -requirements-dev.txt"
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
