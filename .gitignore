@@ -79,7 +79,6 @@ coverage.xml
 .scrapy
 
 # Sphinx documentation
-docs/_build/
 sphinx/_build/
 
 # PyBuilder
@@ -169,3 +168,4 @@ Temporary Items
 .nfs*
 
 .ruff_cache
+.vscode
