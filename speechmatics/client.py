@@ -72,7 +72,6 @@ class WebsocketClient:
             self.connection_settings.set_missing_values_from_config(UsageMode.RealTime)
         self.websocket = None
         self.transcription_config = None
-        self.translation_config = None
 
         self.event_handlers = {x: [] for x in ServerMessageType}
         self.middlewares = {x: [] for x in ClientMessageType}
@@ -135,12 +134,19 @@ class WebsocketClient:
         :py:attr:`speechmatics.models.ClientMessageType.SetRecognitionConfig`
         message.
         """
+        assert self.transcription_config is not None
         msg = {
             "message": ClientMessageType.SetRecognitionConfig,
             "transcription_config": self.transcription_config.as_config(),
         }
-        if self.translation_config is not None:
-            msg["translation_config"] = self.translation_config.asdict()
+        if self.transcription_config.translation_config is not None:
+            msg[
+                "translation_config"
+            ] = self.transcription_config.translation_config.asdict()
+        if self.transcription_config.audio_events_config is not None:
+            msg[
+                "audio_events_config"
+            ] = self.transcription_config.audio_events_config.asdict()
         self._call_middleware(ClientMessageType.SetRecognitionConfig, msg, False)
         return msg
 
@@ -155,13 +161,20 @@ class WebsocketClient:
         :param audio_settings: Audio settings to use.
         :type audio_settings: speechmatics.models.AudioSettings
         """
+        assert self.transcription_config is not None
         msg = {
             "message": ClientMessageType.StartRecognition,
             "audio_format": audio_settings.asdict(),
             "transcription_config": self.transcription_config.as_config(),
         }
-        if self.translation_config is not None:
-            msg["translation_config"] = self.translation_config.asdict()
+        if self.transcription_config.translation_config is not None:
+            msg[
+                "translation_config"
+            ] = self.transcription_config.translation_config.asdict()
+        if self.transcription_config.audio_events_config is not None:
+            msg[
+                "audio_events_config"
+            ] = self.transcription_config.audio_events_config.asdict()
         self.session_running = True
         self._call_middleware(ClientMessageType.StartRecognition, msg, False)
         LOGGER.debug(msg)
@@ -435,7 +448,6 @@ class WebsocketClient:
             consumer/producer tasks.
         """
         self.transcription_config = transcription_config
-        self.translation_config = transcription_config.translation_config
         self.seq_no = 0
         self._language_pack_info = None
         await self._init_synchronization_primitives()

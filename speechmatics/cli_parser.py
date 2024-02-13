@@ -467,6 +467,12 @@ def get_arg_parser():
         help="Which type of diarization to use.",
     )
 
+    rt_transcribe_command_parser.add_argument(
+        "--audio-events",
+        action="store_true",
+        help="Enable audio event detection and print events in square-brackets to the console, e.g. [MUSIC]",
+    )
+
     # Build our actual parsers.
     mode_subparsers = parser.add_subparsers(title="Mode", dest="mode")
 
