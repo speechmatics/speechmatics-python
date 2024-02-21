@@ -343,8 +343,8 @@ def get_transcription_config(
         config["auto_chapters_config"] = AutoChaptersConfig()
 
     audio_events_config = config.get("audio_events_config", None)
-    arg_audio_events = args.get("audio_events")
-    if audio_events_config or arg_audio_events is not None:
+    arg_audio_events = args.get("audio_events", False)
+    if audio_events_config is not None or arg_audio_events:
         types = None
         if audio_events_config and audio_events_config.get("types"):
             types = audio_events_config.get("types")
