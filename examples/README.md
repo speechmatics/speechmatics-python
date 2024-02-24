@@ -1,6 +1,8 @@
 # Examples
 
-This folder provides some examples of how the Speechmatics python client can be used to build different systems. The current examples include:
+This folder provides some examples of how the Speechmatics python client can be used to build different systems.
+Each of the examples should have a separate README with all the necessary steps to get them up and running.
+The current examples include:
 
 1. [notification_flow](./notification_flow/README.md) (webhooks)
 
@@ -18,4 +20,6 @@ Demonstrates how to run a websocket server that acts as a proxy to a speechmatic
 
 Tools for batch synchronising a local folder of audio into a searchable database of transcriptions.
 
-Each of the examples should have a separate README with all the necessary steps to get them up and running.
+5. [Microphone transcription example](./transcribe_from_microphone.py)
+
+This shows how the `sounddevice` python package can be used to stream audio from a microphone to Speechmatics.
