@@ -214,7 +214,6 @@ class AutoChaptersConfig:
 
 @dataclass
 class AudioEventsConfig:
-
     types: Optional[List[str]]
     """Optional list of audio event types to detect."""
 
@@ -340,6 +339,7 @@ class BatchTranscriptionConfig(_TranscriptionConfig):
         sentiment_analysis_config = dictionary.pop("sentiment_analysis_config", None)
         topic_detection_config = dictionary.pop("topic_detection_config", None)
         auto_chapters_config = dictionary.pop("auto_chapters_config", None)
+        audio_events_config = dictionary.pop("audio_events_config", None)
         config = {"type": "transcription", "transcription_config": dictionary}
 
         if fetch_data:
@@ -370,6 +370,9 @@ class BatchTranscriptionConfig(_TranscriptionConfig):
 
         if auto_chapters_config is not None:
             config["auto_chapters_config"] = auto_chapters_config
+
+        if audio_events_config is not None:
+            config["audio_events_config"] = audio_events_config
 
         return json.dumps(config)
 
