@@ -325,6 +325,8 @@ class BatchTranscriptionConfig(_TranscriptionConfig):
     auto_chapters_config: Optional[AutoChaptersConfig] = None
     """Optional configuration for detecting chapters of the transcript"""
 
+    audio_events_config: Optional[AudioEventsConfig] = None
+
     def as_config(self):
         dictionary = self.asdict()
 
