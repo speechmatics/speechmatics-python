@@ -324,6 +324,10 @@ from tests.utils import path_to_test_resource
                 "detect_chapters": True,
             },
         ),
+        (
+            ["batch", "transcribe", "--volume-threshold", "3.1"],
+            {"volume_threshold": 3.1},
+        ),
     ],
 )
 def test_cli_arg_parse_with_file(args, values):
@@ -332,6 +336,7 @@ def test_cli_arg_parse_with_file(args, values):
     actual_values = vars(cli.parse_args(args=test_args))
 
     for key, val in values.items():
+        assert key in actual_values, f"Expected {key} in {actual_values}"
         assert actual_values[key] == val, f"Expected {actual_values} to match {values}"
 
 
