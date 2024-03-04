@@ -170,7 +170,7 @@ def get_arg_parser():
         dest="volume_threshold",
         type=float,
         default=None,
-        help=("Filter out quiet audio which falls below this threshold (0.0-10.0)"),
+        help=("Filter out quiet audio which falls below this threshold (0.0-100.0)"),
     )
     config_parser.add_argument(
         "--operating-point",
