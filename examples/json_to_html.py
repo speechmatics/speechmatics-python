@@ -6,7 +6,6 @@ from jinja2 import BaseLoader, Environment
 from pathlib import Path
 from argparse import ArgumentParser
 from itertools import groupby
-from operator import itemgetter
 from speechmatics.adapters import join_tokens
 
 COLORS = ["#800000", "#9A6324", "#808000", "#469990", "#000075"]
@@ -281,22 +280,73 @@ class TimedText:
     sentence: str
 
 
-def parse_transcript_results(transcript_data: dict) -> Iterator[TimedText]:
+FILLWORDS = ["the", "but", "say", "I"]
+
+
+def parse_transcript_results(
+    transcript_data: dict,
+    include_disfluencies: bool = False,
+    sentences_per_paragraph: int = 3,
+) -> Iterator[TimedText]:
     for speaker, words in groupby(
         transcript_data["results"], lambda x: x["alternatives"][0]["speaker"]
     ):
         word_list = list(words)
-        start = min(word_list, key=itemgetter("start_time"))["start_time"]
-        text = join_tokens(
-            word_list,
-            transcript_data["metadata"]["language_pack_info"]["word_delimiter"],
-        )
-        yield TimedText(
-            speaker,
-            speaker_color=None,
-            timestamp=timedelta(seconds=round(start, 3)),
-            sentence=text,
-        )
+        if not include_disfluencies:
+            word_list = [
+                w
+                for w in word_list
+                if "tags" not in w["alternatives"][0]
+                or "disfluency" not in w["alternatives"][0]["tags"]
+            ]
+            # remove duplicate punctuation
+            word_list = [
+                w
+                for i, w in enumerate(word_list)
+                if i == 0
+                or not (
+                    w["type"] == "punctuation"
+                    and word_list[i - 1]["type"] == "punctuation"
+                )
+            ]
+            # remove duplicate fillwords after punctuation removed
+            word_list = [
+                w
+                for i, w in enumerate(word_list)
+                if i == 0
+                or not (
+                    w["alternatives"][0]["content"].lower() in FILLWORDS
+                    and word_list[i - 1]["alternatives"][0]["content"].lower()
+                    == w["alternatives"][0]["content"].lower()
+                )
+            ]
+
+        paragraph_boundaries = [
+            i + 1 for i, w in enumerate(word_list) if "is_eos" in w and w["is_eos"]
+        ]
+        paragraph_boundaries = paragraph_boundaries[::sentences_per_paragraph]
+        # breakpoint()
+        for paragraph_start, paragraph_end in zip(
+            [0] + paragraph_boundaries, paragraph_boundaries
+        ):
+            partial_list = word_list[paragraph_start:paragraph_end]
+            # breakpoint()
+            if len(partial_list) == 0:
+                continue
+            text = join_tokens(
+                partial_list,
+                transcript_data["metadata"]["language_pack_info"]["word_delimiter"],
+            )
+            if text[0].islower():
+                text = text[0].upper() + text[1:]
+            start = partial_list[0]["start_time"]
+
+            yield TimedText(
+                speaker,
+                speaker_color=None,
+                timestamp=timedelta(seconds=round(start, 3)),
+                sentence=text,
+            )
 
 
 def generate_html(
@@ -335,11 +385,15 @@ def main():
     ap.add_argument("--discard-speakers", nargs="+", type=str, default=[])
     ap.add_argument("--speakers", nargs="+", type=str, default=[])
     ap.add_argument("--title", type=str)
+    ap.add_argument("--include-disfluencies", action="store_true")
+    ap.add_argument("--max-sentences-per-paragraph", type=int, default=3)
     args = ap.parse_args()
     with args.json_file.open() as json_fh:
         transcript_data = json.load(json_fh)
     speaker_dict = {f"S{i+1}": speaker for i, speaker in enumerate(args.speakers)}
-    transcript = parse_transcript_results(transcript_data)
+    transcript = parse_transcript_results(
+        transcript_data, args.include_disfluencies, args.max_sentences_per_paragraph
+    )
     summary = transcript_data.get("summary")
     summary = summary["content"] if summary else None
     generate_html(
