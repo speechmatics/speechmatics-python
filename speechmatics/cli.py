@@ -230,7 +230,7 @@ def get_transcription_config(
     ]:
         config[option] = True if args.get(option) else config.get(option)
 
-    if args.get("volume_threshold"):
+    if args.get("volume_threshold") is not None:
         config["audio_filtering_config"] = {
             "volume_threshold": args.get("volume_threshold")
         }
