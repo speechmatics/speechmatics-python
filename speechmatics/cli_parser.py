@@ -166,6 +166,13 @@ def get_arg_parser():
         help="Language (ISO 639-1 code, e.g. en, fr, de).",
     )
     config_parser.add_argument(
+        "--volume-threshold",
+        dest="volume_threshold",
+        type=float,
+        default=None,
+        help=("Filter out quiet audio which falls below this threshold (0.0-100.0)"),
+    )
+    config_parser.add_argument(
         "--operating-point",
         choices=["standard", "enhanced"],
         help=(
