@@ -479,6 +479,29 @@ def get_arg_parser():
         action="store_true",
         help="Enable audio event detection and print events in square-brackets to the console, e.g. [MUSIC]",
     )
+    rt_transcribe_command_parser.add_argument(
+        "--event-types",
+        default=None,
+        type=str,
+        required=False,
+        help="Comma-separated list of whitelisted event types for audio events.",
+    )
+
+    # Parent parser for batch auto-chapters argument
+    batch_audio_events_parser = argparse.ArgumentParser(add_help=False)
+    batch_audio_events_parser.add_argument(
+        "--audio-events",
+        action="store_true",
+        help="Enable audio event detection, "
+        "will include `audio_events` and `audio_event_summary` keys in output (JSON only)",
+    )
+    batch_audio_events_parser.add_argument(
+        "--event-types",
+        default=None,
+        type=str,
+        required=False,
+        help="Comma-separated list of whitelisted event types for audio events.",
+    )
 
     # Build our actual parsers.
     mode_subparsers = parser.add_subparsers(title="Mode", dest="mode")
@@ -514,6 +537,7 @@ def get_arg_parser():
             batch_sentiment_analysis_parser,
             batch_topic_detection_parser,
             batch_auto_chapters_parser,
+            batch_audio_events_parser,
         ],
         help="Transcribe one or more audio files using batch mode, while waiting for results.",
     )
