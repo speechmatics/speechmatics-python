@@ -350,10 +350,12 @@ def get_transcription_config(
     audio_events_config = config.get("audio_events_config", None)
     arg_audio_events = args.get("audio_events", False)
     if audio_events_config is not None or arg_audio_events:
-        types = None
+        event_types = None
         if audio_events_config and audio_events_config.get("types"):
-            types = audio_events_config.get("types")
-        config["audio_events_config"] = AudioEventsConfig(types)
+            event_types = audio_events_config.get("types")
+        if args.get("event_types"):
+            event_types = str(args.get("event_types")).split(",")
+        config["audio_events_config"] = AudioEventsConfig(event_types)
 
     if args["mode"] == "rt":
         # pylint: disable=unexpected-keyword-arg
