@@ -486,7 +486,6 @@ def get_arg_parser():
         required=False,
         help="Comma-separated list of whitelisted event types for audio events.",
     )
-    
     rt_transcribe_command_parser.add_argument(
         "--remove-disfluencies",
         default=False,
