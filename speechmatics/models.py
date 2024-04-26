@@ -274,6 +274,9 @@ class TranscriptionConfig(_TranscriptionConfig):
     audio_events_config: Optional[AudioEventsConfig] = None
     """Optional configuration for audio events"""
 
+    remove_disfluencies: bool = None
+    """Remove words tagged as disfluency."""
+
     def as_config(self):
         dictionary = self.asdict()
         dictionary.pop("translation_config", None)

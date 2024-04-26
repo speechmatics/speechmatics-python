@@ -218,6 +218,7 @@ def get_transcription_config(
         "channel_diarization_labels",
         "speaker_change_sensitivity",
         "speaker_diarization_sensitivity",
+        "remove_disfluencies",
     ]:
         if args.get(option) is not None:
             config[option] = args[option]

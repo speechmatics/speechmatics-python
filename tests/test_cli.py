@@ -623,6 +623,7 @@ def test_rt_main_with_all_options(mock_server, tmp_path):
         str(chunk_size),
         "--auth-token=xyz",
         audio_path,
+        "--remove-disfluencies",
     ]
 
     cli.main(vars(cli.parse_args(args)))
@@ -660,6 +661,7 @@ def test_rt_main_with_all_options(mock_server, tmp_path):
     assert msg["transcription_config"]["max_delay_mode"] == "fixed"
     assert msg["transcription_config"]["speaker_change_sensitivity"] == 0.8
     assert msg["transcription_config"].get("operating_point") is None
+    assert msg["transcription_config"]["remove_disfluencies"]
 
     # Check that the chunk size argument is respected
     add_audio_messages = mock_server.find_add_audio_messages()
