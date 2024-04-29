@@ -237,7 +237,9 @@ def get_transcription_config(
 
     if args.get("remove_disfluencies") is not None:
         config["transcript_filtering_config"] = {}
-        config["transcript_filtering_config"]["remove_disfluencies"] = args.get("remove_disfluencies")
+        config["transcript_filtering_config"]["remove_disfluencies"] = args.get(
+            "remove_disfluencies"
+        )
 
     if args.get("ctrl"):
         LOGGER.warning(f"Using internal dev control command: {args['ctrl']}")
