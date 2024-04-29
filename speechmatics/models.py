@@ -131,6 +131,9 @@ class _TranscriptionConfig:  # pylint: disable=too-many-instance-attributes
     audio_filtering_config: dict = None
     """Configuration for limiting the transcription of quiet audio."""
 
+    transcript_filtering_config: dict = None
+    """Configuration for applying filtering to the transcription."""
+
 
 @dataclass
 class RTSpeakerDiarizationConfig:
@@ -273,9 +276,6 @@ class TranscriptionConfig(_TranscriptionConfig):
 
     audio_events_config: Optional[AudioEventsConfig] = None
     """Optional configuration for audio events"""
-
-    remove_disfluencies: bool = None
-    """Remove words tagged as disfluency."""
 
     def as_config(self):
         dictionary = self.asdict()

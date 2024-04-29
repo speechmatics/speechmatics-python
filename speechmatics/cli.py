@@ -218,7 +218,6 @@ def get_transcription_config(
         "channel_diarization_labels",
         "speaker_change_sensitivity",
         "speaker_diarization_sensitivity",
-        "remove_disfluencies",
     ]:
         if args.get(option) is not None:
             config[option] = args[option]
@@ -235,6 +234,10 @@ def get_transcription_config(
         config["audio_filtering_config"] = {
             "volume_threshold": args.get("volume_threshold")
         }
+
+    if args.get("remove_disfluencies") is not None:
+        config["transcript_filtering_config"] = {}
+        config["transcript_filtering_config"]["remove_disfluencies"] = args.get("remove_disfluencies")
 
     if args.get("ctrl"):
         LOGGER.warning(f"Using internal dev control command: {args['ctrl']}")
