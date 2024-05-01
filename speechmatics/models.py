@@ -131,8 +131,8 @@ class _TranscriptionConfig:  # pylint: disable=too-many-instance-attributes
     audio_filtering_config: Optional[dict] = None
     """Configuration for limiting the transcription of quiet audio."""
 
-    audio_filtering_config: Optional[dict] = None
-    """Configuration for limiting the transcription of quiet audio."""
+    transcript_filtering_config: Optional[dict] = None
+    """Configuration for applying filtering to the transcription."""
 
 
 @dataclass
