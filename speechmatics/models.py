@@ -100,8 +100,7 @@ class _TranscriptionConfig:  # pylint: disable=too-many-instance-attributes
     def asdict(self) -> Dict[Any, Any]:
         """Returns model as a dict while excluding None values recursively."""
         return asdict(
-            self, dict_factory=lambda x: {
-                k: v for (k, v) in x if v is not None}
+            self, dict_factory=lambda x: {k: v for (k, v) in x if v is not None}
         )
 
     language: str = "en"
@@ -132,8 +131,8 @@ class _TranscriptionConfig:  # pylint: disable=too-many-instance-attributes
     audio_filtering_config: Optional[dict] = None
     """Configuration for limiting the transcription of quiet audio."""
 
-    transcript_filtering_config: Optional[dict] = None
-    """Configuration for applying filtering to the transcription."""
+    audio_filtering_config: Optional[dict] = None
+    """Configuration for limiting the transcription of quiet audio."""
 
 
 @dataclass
@@ -278,6 +277,9 @@ class TranscriptionConfig(_TranscriptionConfig):
     audio_events_config: Optional[AudioEventsConfig] = None
     """Optional configuration for audio events"""
 
+    remove_disfluencies: bool = None
+    """Remove words tagged as disfluency."""
+
     def as_config(self):
         dictionary = self.asdict()
         dictionary.pop("translation_config", None)
@@ -345,8 +347,7 @@ class BatchTranscriptionConfig(_TranscriptionConfig):
         translation_config = dictionary.pop("translation_config", None)
         srt_overrides = dictionary.pop("srt_overrides", None)
         summarization_config = dictionary.pop("summarization_config", None)
-        sentiment_analysis_config = dictionary.pop(
-            "sentiment_analysis_config", None)
+        sentiment_analysis_config = dictionary.pop("sentiment_analysis_config", None)
         topic_detection_config = dictionary.pop("topic_detection_config", None)
         auto_chapters_config = dictionary.pop("auto_chapters_config", None)
         audio_events_config = dictionary.pop("audio_events_config", None)
@@ -428,8 +429,7 @@ class ConnectionSettings:
     message_buffer_size: int = 512
     """Message buffer size in bytes."""
 
-    ssl_context: ssl.SSLContext = field(
-        default_factory=ssl.create_default_context)
+    ssl_context: ssl.SSLContext = field(default_factory=ssl.create_default_context)
     """SSL context."""
 
     semaphore_timeout_seconds: float = 120
@@ -481,8 +481,7 @@ class ConnectionSettings:
             return ConnectionSettings(
                 url,
                 auth_token=stored_config["auth_token"],
-                generate_temp_token=stored_config.get(
-                    "generate_temp_token", True),
+                generate_temp_token=stored_config.get("generate_temp_token", True),
             )
         raise ValueError(f"No acces token provided or set in {CONFIG_PATH}")
 
