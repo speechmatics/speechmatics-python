@@ -486,6 +486,12 @@ def get_arg_parser():
         required=False,
         help="Comma-separated list of whitelisted event types for audio events.",
     )
+    rt_transcribe_command_parser.add_argument(
+        "--remove-disfluencies",
+        default=False,
+        action="store_true",
+        help="Removes words tagged as disfluency.",
+    )
 
     # Parent parser for batch auto-chapters argument
     batch_audio_events_parser = argparse.ArgumentParser(add_help=False)

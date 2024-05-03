@@ -128,8 +128,11 @@ class _TranscriptionConfig:  # pylint: disable=too-many-instance-attributes
     enable_entities: bool = None
     """Indicates if inverse text normalization entity output is enabled."""
 
-    audio_filtering_config: dict = None
+    audio_filtering_config: Optional[dict] = None
     """Configuration for limiting the transcription of quiet audio."""
+
+    transcript_filtering_config: Optional[dict] = None
+    """Configuration for applying filtering to the transcription."""
 
 
 @dataclass

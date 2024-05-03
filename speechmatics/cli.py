@@ -235,6 +235,12 @@ def get_transcription_config(
             "volume_threshold": args.get("volume_threshold")
         }
 
+    if args.get("remove_disfluencies") is not None:
+        config["transcript_filtering_config"] = {}
+        config["transcript_filtering_config"]["remove_disfluencies"] = args.get(
+            "remove_disfluencies"
+        )
+
     if args.get("ctrl"):
         LOGGER.warning(f"Using internal dev control command: {args['ctrl']}")
         config["ctrl"] = json.loads(args["ctrl"])
