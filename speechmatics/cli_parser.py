@@ -488,8 +488,9 @@ def get_arg_parser():
     )
     rt_transcribe_command_parser.add_argument(
         "--remove-disfluencies",
-        default=False,
+        default=None,
         action="store_true",
+        required=False,
         help="Removes words tagged as disfluency.",
     )
 
