@@ -200,3 +200,23 @@ def test_topic_detection_config(params, want):
 def test_notification_config(params, want):
     notification_config = models.NotificationConfig(**params)
     assert asdict(notification_config) == want
+
+
+@mark.parametrize(
+    "params, want",
+    [
+        param(
+            {"types": None},
+            {},
+            id="default params",
+        ),
+        param(
+            {"types": ["music"]},
+            {"types": ["music"]},
+            id="set types param",
+        ),
+    ],
+)
+def test_audio_events_config_config(params, want):
+    audio_events_config = models.AudioEventsConfig(**params)
+    assert audio_events_config.asdict() == want

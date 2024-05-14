@@ -220,12 +220,12 @@ class AutoChaptersConfig:
 
 @dataclass
 class AudioEventsConfig:
-    types: Optional[List[str]]
+    types: Optional[List[str]] = None
     """Optional list of audio event types to detect."""
 
     def asdict(self):
         if self.types is None:
-            self.types = []
+            return {}
         return asdict(self)
 
 
