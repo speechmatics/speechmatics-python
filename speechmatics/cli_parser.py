@@ -9,6 +9,25 @@ from urllib.parse import urlparse
 LOGGER = logging.getLogger(__name__)
 
 
+class kvdictAppendAction(argparse.Action):
+    """
+    argparse action to split an argument into KEY=VALUE form
+    on the first = and append to a dictionary.
+    """
+
+    def __call__(self, parser, args, values, option_string=None):
+        for pair in values:
+            try:
+                (k, v) = pair.split("=", 2)
+            except ValueError as ex:
+                raise argparse.ArgumentError(
+                    self, f'could not parse argument "{pair}" as k=v format'
+                )
+            d = getattr(args, self.dest) or {}
+            d[k] = v
+            setattr(args, self.dest, d)
+
+
 def additional_vocab_item(to_parse):
     """
     Parses a single item of additional vocab. Used in conjunction with the
@@ -492,6 +511,16 @@ def get_arg_parser():
         action="store_true",
         required=False,
         help="Removes words tagged as disfluency.",
+    )
+    
+    rt_transcribe_command_parser.add_argument(
+        "--extra-headers",
+        default=None,
+        nargs='+',
+        action=kvdictAppendAction,
+        metavar="KEY=VALUE",
+        required=False,
+        help="Adds extra headers to the websocket client",
     )
 
     # Parent parser for batch auto-chapters argument

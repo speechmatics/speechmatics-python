@@ -9,7 +9,7 @@ import copy
 import json
 import logging
 import os
-from typing import Union
+from typing import Dict, Union
 from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 
 import httpx
@@ -423,8 +423,9 @@ class WebsocketClient:
         self,
         stream,
         transcription_config: TranscriptionConfig,
-        audio_settings=AudioSettings(),
-        from_cli=False,
+        audio_settings:AudioSettings=AudioSettings(),
+        from_cli:bool=False,
+        extra_headers: Dict = dict()
     ):
         """
         Begin a new recognition session.
@@ -451,7 +452,6 @@ class WebsocketClient:
         self.seq_no = 0
         self._language_pack_info = None
         await self._init_synchronization_primitives()
-        extra_headers = {}
         if (
             not self.connection_settings.generate_temp_token
             and self.connection_settings.auth_token is not None
