@@ -321,6 +321,33 @@ def test_helpful_error_message_received_on_connection_reset_error():
                 assert exc is not None
 
 
+def test_extra_headers_are_passed_to_websocket_connect_correctly(mock_server):
+    """Tests extra headers are passed correclty to the websocket onConnect call."""
+    extra_headers = {"keyy": "value"}
+
+    def call_exit(*args, **kwargs):
+        raise Exception()
+
+    connect_mock = MagicMock(side_effect=call_exit)
+    ws_client, transcription_config, audio_settings = default_ws_client_setup(
+        mock_server.url
+    )
+    stream = MagicMock()
+    with patch("websockets.connect", connect_mock):
+        try:
+            ws_client.run_synchronously(
+                stream,
+                transcription_config,
+                audio_settings,
+                extra_headers=extra_headers,
+            )
+        except Exception:
+            assert len(connect_mock.mock_calls) == 1
+            assert (
+                connect_mock.mock_calls[0][2]["extra_headers"] == extra_headers
+            ), f"Extra headers don't appear in the call list = {connect_mock.mock_calls}"
+
+
 @pytest.mark.asyncio
 async def test__buffer_semaphore():
     """Test the WebsocketClient internal BoundedSemaphore."""

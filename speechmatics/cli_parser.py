@@ -19,7 +19,7 @@ class kvdictAppendAction(argparse.Action):
         for pair in values:
             try:
                 (k, v) = pair.split("=", 2)
-            except ValueError as ex:
+            except ValueError:
                 raise argparse.ArgumentError(
                     self, f'could not parse argument "{pair}" as k=v format'
                 )
@@ -512,11 +512,10 @@ def get_arg_parser():
         required=False,
         help="Removes words tagged as disfluency.",
     )
-    
     rt_transcribe_command_parser.add_argument(
         "--extra-headers",
-        default=None,
-        nargs='+',
+        default=dict(),
+        nargs="+",
         action=kvdictAppendAction,
         metavar="KEY=VALUE",
         required=False,

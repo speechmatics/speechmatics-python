@@ -423,9 +423,9 @@ class WebsocketClient:
         self,
         stream,
         transcription_config: TranscriptionConfig,
-        audio_settings:AudioSettings=AudioSettings(),
-        from_cli:bool=False,
-        extra_headers: Dict = dict()
+        audio_settings: AudioSettings = AudioSettings(),
+        from_cli: bool = False,
+        extra_headers: Dict = dict(),
     ):
         """
         Begin a new recognition session.
