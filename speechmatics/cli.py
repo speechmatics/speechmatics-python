@@ -650,6 +650,7 @@ def rt_main(args):
     transcription_config = get_transcription_config(args)
     settings = get_connection_settings(args, lang=transcription_config.language)
     api = WebsocketClient(settings)
+    extra_headers = args.get("extra_headers")
 
     if settings.url.lower().startswith("ws://") and args["ssl_mode"] != "none":
         raise SystemExit(
@@ -677,7 +678,11 @@ def rt_main(args):
     def run(stream):
         try:
             api.run_synchronously(
-                stream, transcription_config, get_audio_settings(args), from_cli=True
+                stream,
+                transcription_config,
+                get_audio_settings(args),
+                from_cli=True,
+                extra_headers=extra_headers,
             )
         except KeyboardInterrupt:
             # Gracefully handle Ctrl-C, else we get a huge stack-trace.

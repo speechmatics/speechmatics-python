@@ -61,6 +61,21 @@ from tests.utils import path_to_test_resource
             {"additional_vocab": ["Speechmatics", "gnocchi"]},
         ),
         (
+            [
+                "rt",
+                "transcribe",
+                "--extra-headers",
+                "magic_header=magic_value",
+                "another_magic_header=another_magic_value",
+            ],
+            {
+                "extra_headers": {
+                    "magic_header": "magic_value",
+                    "another_magic_header": "another_magic_value",
+                }
+            },
+        ),
+        (
             ["batch", "transcribe", "--additional-vocab", "Speechmatics", "gnocchi"],
             {"additional_vocab": ["Speechmatics", "gnocchi"]},
         ),
