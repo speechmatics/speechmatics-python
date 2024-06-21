@@ -192,6 +192,13 @@ def get_arg_parser():
         help=("Filter out quiet audio which falls below this threshold (0.0-100.0)"),
     )
     config_parser.add_argument(
+        "--remove-disfluencies",
+        default=None,
+        action="store_true",
+        required=False,
+        help=("Removes words tagged as disfluency."),
+    )
+    config_parser.add_argument(
         "--operating-point",
         choices=["standard", "enhanced"],
         help=(
@@ -504,13 +511,6 @@ def get_arg_parser():
         type=str,
         required=False,
         help="Comma-separated list of whitelisted event types for audio events.",
-    )
-    rt_transcribe_command_parser.add_argument(
-        "--remove-disfluencies",
-        default=None,
-        action="store_true",
-        required=False,
-        help="Removes words tagged as disfluency.",
     )
     rt_transcribe_command_parser.add_argument(
         "--extra-headers",
