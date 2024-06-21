@@ -343,6 +343,10 @@ from tests.utils import path_to_test_resource
             ["batch", "transcribe", "--volume-threshold", "3.1"],
             {"volume_threshold": 3.1},
         ),
+        (
+            ["batch", "transcribe", "--remove-disfluencies"],
+            {"remove_disfluencies": True},
+        ),
     ],
 )
 def test_cli_arg_parse_with_file(args, values):
