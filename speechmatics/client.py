@@ -448,7 +448,10 @@ class WebsocketClient:
         :raises Exception: Can raise any exception returned by the
             consumer/producer tasks.
         """
-        if transcription_config.speaker_change_sensitivity or transcription_config.diarization == "speaker_change":
+        if (
+            transcription_config.speaker_change_sensitivity
+            or transcription_config.diarization == "speaker_change"
+        ):
             LOGGER.warning(
                 "DeprecationWarning: Speaker Change Detection has been deprecated "
                 "and will not be supported in future versions of this package."
