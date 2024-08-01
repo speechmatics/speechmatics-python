@@ -231,6 +231,15 @@ class BatchClient:
                 a filepath as a string or Path object, or a dict"""
             )
 
+        if (
+            config_dict.get("transcription_config", {}).get("diarization")
+            == "channel_and_speaker_change"
+        ):
+            LOGGER.warning(
+                "DeprecationWarning: Speaker Change Detection has been deprecated "
+                "and will not be supported in future versions of this package."
+            )
+
         # If audio=None, fetch_data must be specified
         file_object = None
         try:
