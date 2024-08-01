@@ -34,7 +34,6 @@ def convert_to_txt(
     language: str,
     language_pack_info: dict = None,
     speaker_labels: bool = True,
-    speaker_change_token: bool = False,
 ) -> str:
     """
     Convert a set of transcription result tokens to a plain text format.
@@ -59,13 +58,6 @@ def convert_to_txt(
         if not group:
             continue
 
-        # group_tokens always puts speaker_change tokens first in a new group
-        if speaker_change_token and group[0]["type"] == "speaker_change":
-            if len(group) == 1:
-                texts.append("<sc>")
-            else:
-                texts.append("<sc>\n")
-
         speaker = get_speaker(group[0])
         if speaker and speaker != current_speaker and speaker_labels:
             current_speaker = speaker
@@ -79,25 +71,18 @@ def convert_to_txt(
 def group_tokens(tokens: List[dict]) -> List[List[dict]]:
     """
     Group the tokens in a set of results by speaker (and language if present).
-    speaker_change tokens also cause a new group to form.
 
     :param results: the JSON v2 results
     :return: list of lists
     """
     groups = []
     last = None
-    last_is_speaker_change = False
     for token in tokens:
-        if token["type"] == "speaker_change":
-            groups.append([token])
-            last_is_speaker_change = True
-            continue
-        if last_is_speaker_change or last == (get_speaker(token), get_language(token)):
+        if last == (get_speaker(token), get_language(token)):
             groups[-1].append(token)
         else:
             groups.append([token])
         last = (get_speaker(token), get_language(token))
-        last_is_speaker_change = False
 
     return groups
 

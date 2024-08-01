@@ -159,10 +159,6 @@ from tests.utils import path_to_test_resource
             {"speaker_diarization_sensitivity": 0.7},
         ),
         (
-            ["rt", "transcribe", "--speaker-change-token"],
-            {"speaker_change_token": True},
-        ),
-        (
             [
                 "rt",
                 "transcribe",
@@ -183,18 +179,6 @@ from tests.utils import path_to_test_resource
                 "channel_diarization_labels": ["label5 label4 label3"],
             },
         ),
-        (
-            [
-                "batch",
-                "transcribe",
-                "--diarization=channel_and_speaker_change",
-                "--channel-diarization-labels=label1 label2",
-            ],
-            {
-                "diarization": "channel_and_speaker_change",
-                "channel_diarization_labels": ["label1 label2"],
-            },
-        ),
         (["rt", "transcribe", "--auth-token=xyz"], {"auth_token": "xyz"}),
         (
             ["batch", "transcribe", "--domain=finance"],
@@ -207,10 +191,6 @@ from tests.utils import path_to_test_resource
         (
             ["batch", "transcribe", "--output-format=json-v2"],
             {"output_format": "json-v2"},
-        ),
-        (
-            ["batch", "transcribe", "--diarization=channel_and_speaker_change"],
-            {"diarization": "channel_and_speaker_change"},
         ),
         (["batch", "submit"], {"command": "submit"}),
         (
@@ -631,9 +611,6 @@ def test_rt_main_with_all_options(mock_server, tmp_path):
         "0.1",
         "--diarization",
         "none",
-        "--speaker-change-sensitivity",
-        "0.8",
-        "--speaker-change-token",
         "--max-delay",
         "5.0",
         "--max-delay-mode",
@@ -678,7 +655,6 @@ def test_rt_main_with_all_options(mock_server, tmp_path):
     assert msg["transcription_config"]["diarization"] == "none"
     assert msg["transcription_config"]["max_delay"] == 5.0
     assert msg["transcription_config"]["max_delay_mode"] == "fixed"
-    assert msg["transcription_config"]["speaker_change_sensitivity"] == 0.8
     assert msg["transcription_config"].get("operating_point") is None
     assert (
         msg["transcription_config"]["transcript_filtering_config"][
@@ -751,8 +727,6 @@ def test_rt_main_with_config_file_cmdline_override(mock_server):
         "--output-locale=en-US",
         "--domain=different",
         "--operating-point=enhanced",
-        "--speaker-change-sensitivity",
-        "0.8",
         audio_path,
     ]
 
@@ -773,7 +747,6 @@ def test_rt_main_with_config_file_cmdline_override(mock_server):
     assert msg["transcription_config"]["domain"] == "different"
     assert msg["transcription_config"]["enable_entities"] is True
     assert msg["transcription_config"]["output_locale"] == "en-US"
-    assert msg["transcription_config"]["speaker_change_sensitivity"] == 0.8
     assert msg["transcription_config"]["operating_point"] == "enhanced"
     assert msg["translation_config"] is not None
     assert msg["translation_config"]["enable_partials"] is True

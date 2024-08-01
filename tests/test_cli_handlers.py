@@ -159,52 +159,17 @@ def test_add_printing_handlers_translation_handler(mocker, capsys, check_tty):
     assert not err
 
 
-TRANSCRIPT_TXT_WITH_SC = "Hey\nHello"
-TRANSCRIPT_WITH_SC = {
-    "message": "AddTranscript",
-    "results": [
-        {
-            "type": "word",
-            "start_time": 0.08999999612569809,
-            "end_time": 0.29999998211860657,
-            "alternatives": [{"confidence": 1.0, "content": "Hey", "language": "en"}],
-        },
-        {
-            "type": "speaker_change",
-            "start_time": 0.08999999612569809,
-            "end_time": 0.29999998211860657,
-            "score": 1,
-        },
-        {
-            "type": "word",
-            "start_time": 0.08999999612569809,
-            "end_time": 0.29999998211860657,
-            "alternatives": [{"confidence": 1.0, "content": "Hello", "language": "en"}],
-        },
-    ],
-    "metadata": {
-        "start_time": 58.920005798339844,
-        "end_time": 60.0000057220459,
-        "transcript": TRANSCRIPT_TXT_WITH_SC,
-    },
-    "format": "2.4",
-}
-
-
 def check_printing_handlers(
     mocker,
     capsys,
     transcript,
     expected_transcript_txt,
-    speaker_change_token,
 ):
     api = mocker.MagicMock()
     api.get_language_pack_info = mocker.MagicMock(return_value={"word_delimiter": " "})
     transcripts = cli.Transcripts(text="", json=[])
 
-    cli.add_printing_handlers(
-        api, transcripts, speaker_change_token=speaker_change_token
-    )
+    cli.add_printing_handlers(api, transcripts)
     assert not transcripts.text
     assert not transcripts.json
     out, err = capsys.readouterr()
@@ -225,35 +190,3 @@ def check_printing_handlers(
     out, err = capsys.readouterr()
     assert out == escape_seq + expected_transcript_txt + "\n"
     assert not err
-
-
-@pytest.mark.parametrize("check_tty", [False, True])
-def test_add_printing_handlers_with_speaker_change_token(mocker, capsys, check_tty):
-    # patch in isatty, in order to check behaviour with and without tty
-    sys.stderr.isatty = lambda: check_tty
-    sys.stdout.isatty = lambda: check_tty
-
-    expected_transcript = "Hey\n<sc>\nHello"
-    check_printing_handlers(
-        mocker,
-        capsys,
-        TRANSCRIPT_WITH_SC,
-        expected_transcript,
-        speaker_change_token=True,
-    )
-
-
-@pytest.mark.parametrize("check_tty", [False, True])
-def test_add_printing_handlers_with_speaker_change_no_token(mocker, capsys, check_tty):
-    # patch in isatty, in order to check beheviour with and without tty
-    sys.stderr.isatty = lambda: check_tty
-    sys.stdout.isatty = lambda: check_tty
-
-    expected_transcript = "Hey\nHello"
-    check_printing_handlers(
-        mocker,
-        capsys,
-        TRANSCRIPT_WITH_SC,
-        expected_transcript,
-        speaker_change_token=False,
-    )

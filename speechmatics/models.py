@@ -250,9 +250,6 @@ class TranscriptionConfig(_TranscriptionConfig):
     speaker_diarization_config: RTSpeakerDiarizationConfig = None
     """Configuration for speaker diarization."""
 
-    speaker_change_sensitivity: float = None
-    """Sensitivity level for speaker change."""
-
     streaming_mode: bool = None
     """Indicates if we run the engine in streaming mode, or regular RT mode."""
 

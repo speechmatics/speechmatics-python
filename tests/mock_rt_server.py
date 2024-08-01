@@ -136,12 +136,6 @@ def dummy_add_transcript():
                 ],
             },
             {
-                "type": "speaker_change",
-                "start_time": 1.0,
-                "end_time": 1.0,
-                "score": 0.8,
-            },
-            {
                 "type": "word",
                 "start_time": 1.0,
                 "end_time": 2.0,
