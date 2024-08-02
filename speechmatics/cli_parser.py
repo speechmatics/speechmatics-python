@@ -363,7 +363,7 @@ def get_arg_parser():
     )
     batch_diarization_parser.add_argument(
         "--diarization",
-        choices=["none", "speaker", "channel", "channel_and_speaker_change"],
+        choices=["none", "speaker", "channel"],
         help="Which type of diarization to use.",
     )
     batch_diarization_parser.add_argument(
@@ -423,17 +423,6 @@ def get_arg_parser():
         "--speaker-diarization-max-speakers",
         type=int,
         help="Enforces the maximum number of speakers allowed in a single audio stream. Min: 2, Max: 20, Default: 20.",
-    )
-    rt_transcribe_command_parser.add_argument(
-        "--speaker-change-sensitivity",
-        type=float,
-        help="Sensitivity level for speaker change.",
-    )
-    rt_transcribe_command_parser.add_argument(
-        "--speaker-change-token",
-        default=False,
-        action="store_true",
-        help="Shows a <sc> token where a speaker change was detected.",
     )
     rt_transcribe_command_parser.add_argument(
         "--max-delay",
@@ -496,7 +485,7 @@ def get_arg_parser():
 
     rt_transcribe_command_parser.add_argument(
         "--diarization",
-        choices=["none", "speaker", "speaker_change"],
+        choices=["none", "speaker"],
         help="Which type of diarization to use.",
     )
 

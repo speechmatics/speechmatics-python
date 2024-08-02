@@ -216,7 +216,6 @@ def get_transcription_config(
         "max_delay_mode",
         "diarization",
         "channel_diarization_labels",
-        "speaker_change_sensitivity",
         "speaker_diarization_sensitivity",
     ]:
         if args.get(option) is not None:
@@ -398,7 +397,6 @@ def add_printing_handlers(
     enable_transcription_partials=False,
     enable_translation_partials=False,
     debug_handlers_too=False,
-    speaker_change_token=False,
     print_json=False,
     translation_config=None,
 ):
@@ -419,9 +417,6 @@ def add_printing_handlers(
         debug_handlers_too (bool, optional): Whether to enable 'debug'
             handlers that print out an ASCII symbol representing messages being
             received and sent.
-        speaker_change_token (bool, optional): Whether to explicitly include a
-            speaker change token '<sc>' in the output to indicate speaker
-            changes.
         print_json (bool, optional): Whether to print json transcript messages.
         translation_config (TranslationConfig, optional): Translation config with target languages.
     """
@@ -449,7 +444,6 @@ def add_printing_handlers(
             api.transcription_config.language,
             language_pack_info=api.get_language_pack_info(),
             speaker_labels=True,
-            speaker_change_token=speaker_change_token,
         )
         if plaintext:
             sys.stderr.write(f"{escape_seq}{plaintext}\r")
@@ -464,7 +458,6 @@ def add_printing_handlers(
             api.transcription_config.language,
             language_pack_info=api.get_language_pack_info(),
             speaker_labels=True,
-            speaker_change_token=speaker_change_token,
         )
         if plaintext:
             sys.stdout.write(f"{escape_seq}{plaintext}\n")
@@ -670,7 +663,6 @@ def rt_main(args):
         enable_transcription_partials=args["enable_transcription_partials"],
         enable_translation_partials=args["enable_translation_partials"],
         debug_handlers_too=args["debug"],
-        speaker_change_token=args["speaker_change_token"],
         print_json=args["print_json"],
         translation_config=transcription_config.translation_config,
     )
