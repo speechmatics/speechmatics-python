@@ -423,9 +423,9 @@ class WebsocketClient:
         self,
         stream,
         transcription_config: TranscriptionConfig,
-        audio_settings: AudioSettings = AudioSettings(),
+        audio_settings: AudioSettings = None,
         from_cli: bool = False,
-        extra_headers: Dict = dict(),
+        extra_headers: Dict = None,
     ):
         """
         Begin a new recognition session.
@@ -452,6 +452,10 @@ class WebsocketClient:
         self.seq_no = 0
         self._language_pack_info = None
         await self._init_synchronization_primitives()
+        if extra_headers is None:
+            extra_headers = {}
+        if audio_settings is None:
+            audio_settings = AudioSettings()
         if (
             not self.connection_settings.generate_temp_token
             and self.connection_settings.auth_token is not None
