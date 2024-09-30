@@ -36,6 +36,7 @@ LOGGER = logging.getLogger(__name__)
 # including a hex dump of every message being sent. Setting the websockets
 # logger at INFO level specifically prevents this spam.
 logging.getLogger("websockets.protocol").setLevel(logging.INFO)
+HIDDEN_MSG_PREFIX = "Hidden_"
 
 
 class WebsocketClient:
@@ -275,6 +276,28 @@ class WebsocketClient:
                 raise ex
             self._consumer(message)
 
+    async def _send_message(self, msg):
+        """
+        Sends a message to the server. A dict/json like object is expected as the msg param.
+        """
+        if self.session_running:
+            assert self.websocket
+            try:
+                await self.websocket.send(json.dumps(msg))
+            except TypeError as ex:
+                LOGGER.info(
+                    f"Cannot send this type of object msg={msg} as a message. Exception occured:%s",
+                    repr(ex),
+                )
+                return
+            except websockets.exceptions.ConnectionClosedOK:
+                # Can occur if a timeout has closed the connection.
+                LOGGER.info("Cannot send from a closed websocket.")
+                return
+            except websockets.exceptions.ConnectionClosedError:
+                LOGGER.info("Disconnected while sending a message().")
+                return
+
     async def _producer_handler(self, stream, audio_chunk_size):
         """
         Controls the producer loop for sending messages to the server.
@@ -344,6 +367,11 @@ class WebsocketClient:
 
         :raises ValueError: If the given event name is not valid.
         """
+        if (
+            event_name.startswith(HIDDEN_MSG_PREFIX)
+            and event_name not in self.event_handlers
+        ):
+            self.event_handlers[event_name] = []
         if event_name == "all":
             for name in self.event_handlers.keys():
                 self.event_handlers[name].append(event_handler)
@@ -377,6 +405,11 @@ class WebsocketClient:
 
         :raises ValueError: If the given event name is not valid.
         """
+        if (
+            event_name.startswith(HIDDEN_MSG_PREFIX)
+            and event_name not in self.middlewares
+        ):
+            self.middlewares[event_name] = []
         if event_name == "all":
             for name in self.middlewares.keys():
                 self.middlewares[name].append(middleware)
