@@ -10,6 +10,7 @@ import asynctest
 import pytest
 
 from pytest_httpx import HTTPXMock
+import websockets
 from speechmatics import client
 from speechmatics.batch_client import BatchClient
 from speechmatics.exceptions import ForceEndSession
@@ -104,6 +105,47 @@ def test_handlers_called(mock_server, mocker):
 
     # The 'all' handler should have been called for every message.
     assert all_handler.call_count == len(mock_server.messages_sent)
+
+
+def test_hidden_msg_handlers_called(mock_server, mocker):
+    ws_client, _, _ = default_ws_client_setup(mock_server.url)
+    handlers = {}
+    hidden_msg = client.HIDDEN_MSG_PREFIX + "AMSG"
+    mock = mocker.MagicMock()
+    handlers[hidden_msg] = mock
+    ws_client.add_event_handler(hidden_msg, mock)
+    ws_client._consumer(json.dumps({"message": hidden_msg}))
+    assert handlers[hidden_msg].call_count == 1
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "input",
+    [
+        pytest.param("random_str", id="Sending pure string"),
+        pytest.param(243, id="Sending random number"),
+        pytest.param({}, id="Sending empty dict"),
+        pytest.param({"message": "expected"}, id="Sending dict with strs"),
+        pytest.param({3232: 43}, id="Sending dict with numbers"),
+    ],
+)
+async def test_send_message_doesnt_raise_Exception(mock_server, input):
+    ws_client, _, _ = default_ws_client_setup(mock_server.url)
+    exception_raised = False
+    ws_client.session_running = True
+
+    async with websockets.connect(  # pylint: disable=no-member
+        mock_server.url,
+        ssl=ws_client.connection_settings.ssl_context,
+        ping_timeout=ws_client.connection_settings.ping_timeout_seconds,
+        max_size=None,
+        extra_headers=None,
+    ) as ws_client.websocket:
+        try:
+            await ws_client._send_message(input)
+        except Exception:
+            exception_raised = True
+    assert not exception_raised
 
 
 def test_middlewares_called(mock_server, mocker):

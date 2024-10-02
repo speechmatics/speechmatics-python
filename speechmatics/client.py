@@ -278,15 +278,15 @@ class WebsocketClient:
 
     async def _send_message(self, msg):
         """
-        Sends a message to the server. A dict/json like object is expected as the msg param.
+        Sends a message to the server.
         """
         if self.session_running:
-            assert self.websocket
+            assert self.websocket, "Websocket hasn't been instantiated"
             try:
                 await self.websocket.send(json.dumps(msg))
             except TypeError as ex:
                 LOGGER.info(
-                    f"Cannot send this type of object msg={msg} as a message. Exception occured:%s",
+                    f"Cannot send this type of object msg={msg} as a message. Exception occurred:%s",
                     repr(ex),
                 )
                 return
@@ -297,6 +297,10 @@ class WebsocketClient:
             except websockets.exceptions.ConnectionClosedError:
                 LOGGER.info("Disconnected while sending a message().")
                 return
+        else:
+            LOGGER.info(
+                f"Websocket client isn't running - Not the sending message = {msg}",
+            )
 
     async def _producer_handler(self, stream, audio_chunk_size):
         """
