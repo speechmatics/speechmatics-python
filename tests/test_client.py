@@ -5,11 +5,13 @@ import io
 import json
 from collections import Counter
 from unittest.mock import patch, MagicMock
+from typing import Any
 
 import asynctest
 import pytest
 
 from pytest_httpx import HTTPXMock
+import websockets
 from speechmatics import client
 from speechmatics.batch_client import BatchClient
 from speechmatics.exceptions import ForceEndSession
@@ -194,6 +196,37 @@ def test_run_synchronously_with_timeout(mock_server):
             ws_client.run_synchronously(
                 audio_stream, transcription_config, audio_settings, timeout=0.0001
             )
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "message_type, message_data",
+    [
+        pytest.param(ClientMessageType.GetSpeakers, None, id="Sending pure string"),
+        pytest.param("custom_message_type", None, id="Sending random number"),
+        pytest.param(
+            "custom_message_type", {"data": "some_data"}, id="Sending random number"
+        ),
+    ],
+)
+async def test_send_message(mock_server, message_type: str, message_data: Any):
+    """
+    Tests that the client.send_message method correctly sends message to the server.
+    """
+    ws_client, _, _ = default_ws_client_setup(mock_server.url)
+    ws_client.session_running = True
+
+    async with websockets.connect(
+        mock_server.url,
+        ssl=ws_client.connection_settings.ssl_context,
+        ping_timeout=ws_client.connection_settings.ping_timeout_seconds,
+        max_size=None,
+        extra_headers=None,
+    ) as ws_client.websocket:
+        await ws_client.send_message(message_type, message_data)
+    assert message_type in [
+        msg_types["message"] for msg_types in mock_server.messages_received
+    ]
 
 
 @pytest.mark.parametrize(

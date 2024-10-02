@@ -507,6 +507,9 @@ class ClientMessageType(str, Enum):
     SetRecognitionConfig = "SetRecognitionConfig"
     """Allows the client to re-configure the recognition session."""
 
+    GetSpeakers = "GetSpeakers"
+    """Allows the client to request the speakers data."""
+
 
 class ServerMessageType(str, Enum):
     # pylint: disable=invalid-name
@@ -546,6 +549,10 @@ class ServerMessageType(str, Enum):
     """Server response to :py:attr:`ClientMessageType.EndOfStream`,
     after the server has finished sending all :py:attr:`AddTranscript`
     messages."""
+
+    SpeakersResult = "SpeakersResult"
+    """Server response to :py:attr:`ClientMessageType.GetSpeakers`, containing
+    the speakers data."""
 
     Info = "Info"
     """Indicates a generic info message."""
