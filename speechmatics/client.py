@@ -9,7 +9,7 @@ import copy
 import json
 import logging
 import os
-from typing import Dict, Union
+from typing import Any, Dict, Optional, Union
 from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 
 import httpx
@@ -518,6 +518,30 @@ class WebsocketClient:
         """
         # pylint: disable=no-value-for-parameter
         asyncio.run(asyncio.wait_for(self.run(*args, **kwargs), timeout=timeout))
+
+    async def send_message(self, message_type: str, data: Optional[Any] = None):
+        """
+        Sends a message to the server.
+        """
+        if not self.session_running:
+            raise RuntimeError(
+                "Recognition session not running. Cannot send the message."
+            )
+
+        assert self.websocket, "WebSocket not connected"
+
+        data_ = data if data is not None else {}
+        serialized_data = json.dumps({"message": message_type, **data_})
+        try:
+            await self.websocket.send(serialized_data)
+        except websockets.exceptions.ConnectionClosedOK as exc:
+            LOGGER.error("WebSocket connection is closed. Cannot send the message.")
+            raise exc
+        except websockets.exceptions.ConnectionClosedError as exc:
+            LOGGER.error(
+                "WebSocket connection closed unexpectedly while sending the message."
+            )
+            raise exc
 
 
 async def _get_temp_token(api_key):
