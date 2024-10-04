@@ -9,8 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Added
 
-- Added new client message: GetSpeakers, and server message: SpeakersResult
-- Added new client method: send_message
+- Added internal, Speechmatics only client message: GetSpeakers, and server message: SpeakersResult
+- Added internal, Speechmatics only client method: send_message
 
 ## [2.0.1] - 2024-08-28
 

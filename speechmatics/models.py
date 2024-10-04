@@ -508,7 +508,7 @@ class ClientMessageType(str, Enum):
     """Allows the client to re-configure the recognition session."""
 
     GetSpeakers = "GetSpeakers"
-    """Allows the client to request the speakers data."""
+    """Internal, Speechmatics only message. Allows the client to request the speakers data."""
 
 
 class ServerMessageType(str, Enum):
@@ -551,7 +551,7 @@ class ServerMessageType(str, Enum):
     messages."""
 
     SpeakersResult = "SpeakersResult"
-    """Server response to :py:attr:`ClientMessageType.GetSpeakers`, containing
+    """Internal, Speechmatics only message. Server response to :py:attr:`ClientMessageType.GetSpeakers`, containing
     the speakers data."""
 
     Info = "Info"
