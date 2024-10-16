@@ -213,6 +213,7 @@ def get_transcription_config(
         "output_locale",
         "operating_point",
         "max_delay",
+        "streaming_lag",
         "max_delay_mode",
         "diarization",
         "channel_diarization_labels",
@@ -228,6 +229,11 @@ def get_transcription_config(
         "enable_transcription_partials",
     ]:
         config[option] = True if args.get(option) else config.get(option)
+    if config.get("streaming_mode") and config.get("max_delay"):
+        if config.get("streaming_lag"):
+            LOGGER.warning(
+                "When using streaming mode only streaming_lag will be used. max_delay isn't used."
+            )
 
     if args.get("volume_threshold") is not None:
         config["audio_filtering_config"] = {

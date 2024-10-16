@@ -613,6 +613,8 @@ def test_rt_main_with_all_options(mock_server, tmp_path):
         "none",
         "--max-delay",
         "5.0",
+        "--streaming-lag",  # we shouldn't have max-delay and streaming lag for this test is ok
+        "0.8",
         "--max-delay-mode",
         "fixed",
         "--chunk-size",
@@ -654,6 +656,7 @@ def test_rt_main_with_all_options(mock_server, tmp_path):
     )  # noqa
     assert msg["transcription_config"]["diarization"] == "none"
     assert msg["transcription_config"]["max_delay"] == 5.0
+    assert msg["transcription_config"]["streaming_lag"] == 0.8
     assert msg["transcription_config"]["max_delay_mode"] == "fixed"
     assert msg["transcription_config"].get("operating_point") is None
     assert (

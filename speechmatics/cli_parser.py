@@ -385,7 +385,7 @@ def get_arg_parser():
         "--streaming-mode",
         default=False,
         action="store_true",
-        help="Whether to run the engine in streaming mode. Internal Speechmatics use only.",
+        help="Whether to run the engine in streaming mode.",
     )
     rt_transcribe_command_parser.add_argument(
         "--enable-partials",
@@ -428,6 +428,11 @@ def get_arg_parser():
         "--max-delay",
         type=float,
         help="Maximum acceptable delay before sending a piece of transcript.",
+    )
+    rt_transcribe_command_parser.add_argument(
+        "--streaming-lag",
+        type=float,
+        help="Maximum streaming delay before sending a word.",
     )
     rt_transcribe_command_parser.add_argument(
         "--max-delay-mode",

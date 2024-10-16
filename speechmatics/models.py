@@ -240,6 +240,9 @@ class TranscriptionConfig(_TranscriptionConfig):
     max_delay: float = None
     """Maximum acceptable delay."""
 
+    streaming_lag: float = None
+    """Maximum acceptable streaming delay."""
+
     max_delay_mode: str = None
     """Determines whether the threshold specified in max_delay can be exceeded
     if a potential entity is detected. Flexible means if a potential entity
