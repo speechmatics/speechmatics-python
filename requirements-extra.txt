@@ -1,0 +1,7 @@
+jiwer
+regex
+more-itertools
+pyannote.core
+pyannote.database
+docopt
+tabulate>=0.8.9
