@@ -68,6 +68,7 @@ setup(
     long_description=read("README.md"),
     long_description_content_type="text/markdown",
     install_requires=read_list("requirements.txt"),
+    extras_require={"full": read_list("requirements-extra.txt")},
     tests_require=read_list("requirements-dev.txt"),
     entry_points={
         "console_scripts": [

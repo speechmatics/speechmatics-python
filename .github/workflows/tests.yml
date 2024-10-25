@@ -22,7 +22,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
 
     - name: Install dependencies
-      run: pip3 install -r requirements.txt -r requirements-dev.txt
+      run: pip3 install -r requirements.txt -r requirements-dev.txt -r requirements-extra.txt
 
     - name: Lint
       run: make lint

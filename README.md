@@ -317,9 +317,13 @@ A complete list of commands and flags can be found in the SDK docs at https://sp
 
 ## SM Metrics
 
-This package includes tooling for benchmarking transcription and diarization accuracy.
+This package includes optional tooling for benchmarking transcription and diarization accuracy.
 
 For more information, see the `asr_metrics/README.md`
+
+To install the optional requirements, 
+
+    pip install speechmatics-python[full]
 
 ## Testing
 
