@@ -7,7 +7,6 @@ from collections import Counter
 from unittest.mock import patch, MagicMock
 from typing import Any
 
-import asynctest
 import pytest
 
 from pytest_httpx import HTTPXMock
@@ -221,7 +220,7 @@ async def test_send_message(mock_server, message_type: str, message_data: Any):
         ssl=ws_client.connection_settings.ssl_context,
         ping_timeout=ws_client.connection_settings.ping_timeout_seconds,
         max_size=None,
-        extra_headers=None,
+        additional_headers=None,
     ) as ws_client.websocket:
         await ws_client.send_message(message_type, message_data)
     assert message_type in [
@@ -377,7 +376,7 @@ def test_extra_headers_are_passed_to_websocket_connect_correctly(mock_server):
         except Exception:
             assert len(connect_mock.mock_calls) == 1
             assert (
-                connect_mock.mock_calls[0][2]["extra_headers"] == extra_headers
+                connect_mock.mock_calls[0][2]["additional_headers"] == extra_headers
             ), f"Extra headers don't appear in the call list = {connect_mock.mock_calls}"
 
 
@@ -445,7 +444,7 @@ async def test__producer_happy_path(mocker):
     await ws_client._init_synchronization_primitives()
     original_state = deepcopy_state(ws_client)
 
-    async_iter_mock = asynctest.MagicMock()
+    async_iter_mock = MagicMock()
     async_iter_mock.return_value.__aiter__.return_value = range(no_chunks_to_send)
     mock_read_in_chunks = mocker.patch(
         "speechmatics.client.read_in_chunks", new=async_iter_mock
@@ -498,7 +497,7 @@ async def test__producer_semaphore_pause_and_resume(mocker):
     )
     await ws_client._init_synchronization_primitives()
 
-    async_iter_mock = asynctest.MagicMock()
+    async_iter_mock = MagicMock()
     async_iter_mock.return_value.__aiter__.return_value = range(no_chunks_to_send)
     mocker.patch(
         "speechmatics.client.read_in_chunks", new=async_iter_mock
@@ -553,7 +552,7 @@ async def test__producer_semaphore_timeout(mocker):
     )
     await ws_client._init_synchronization_primitives()
 
-    async_iter_mock = asynctest.MagicMock()
+    async_iter_mock = MagicMock()
     async_iter_mock.return_value.__aiter__.return_value = range(no_chunks_to_send)
     mocker.patch(
         "speechmatics.client.read_in_chunks", new=async_iter_mock

@@ -1,4 +1,4 @@
-websockets>=10.0,<=13.1
+websockets>=14.0
 httpx[http2]~=0.23
 polling2~=0.5
 toml~=0.10.2

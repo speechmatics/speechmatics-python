@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.0] - 2024-11-12
+
+### Changed
+
+- Renamed `extra_headers` to `additional_headers` in `websockets.connect()` to support WebSockets version 14.0,
+  as per [documentation](https://websockets.readthedocs.io/en/stable/howto/upgrade.html#arguments-of-connect)
+- Updated `speechmatics-python` to require `Python >= 3.9`, aligning with WebSockets 14.0
+
 ## [2.0.3] - 2024-11-12
 
 speechmatics-python `2.0.3` is the last version supporting `Python 3.8`
