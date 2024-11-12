@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.3] - 2024-11-12
+
+speechmatics-python `2.0.3` is the last version supporting `Python 3.8`
+
+## Fixed
+
+- Unexpected `keyword argument 'extra_headers'` error in `websockets.connect()`
+  by updating requirements to allow versions of websockets from 10.0 up to and including 13.1
+
 ## [2.0.2] - 2024-10-04
 
 ## Added
