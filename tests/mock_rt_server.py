@@ -156,8 +156,8 @@ def dummy_add_transcript():
 async def mock_server_handler(websocket, logbook):
     mock_server_handler.next_audio_seq_no = 1
     address, _ = websocket.remote_address
-    logbook.connection_request = websocket.request_headers
-    logbook.path = websocket.path
+    logbook.connection_request = websocket.request.headers
+    logbook.path = websocket.request.path
 
     # Begin a connection
     logging.info("%s %s", address, "connected")

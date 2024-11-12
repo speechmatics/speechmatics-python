@@ -5,12 +5,11 @@ Helper functions used by the library.
 
 import asyncio
 import concurrent.futures
+import importlib.metadata
 import inspect
 import json
 import os
 import sys
-
-import pkg_resources
 
 
 def del_none(dictionary):
@@ -84,8 +83,8 @@ def get_version() -> str:
     :rtype: str
     """
     try:
-        version = pkg_resources.get_distribution("speechmatics-python").version
-    except pkg_resources.DistributionNotFound:
+        version = importlib.metadata.version("speechmatics-python")
+    except importlib.metadata.PackageNotFoundError:
         # The library is not running from the distributed package
         # Get the version from the VERSION file
         base_path = os.path.abspath(os.path.dirname(__file__))

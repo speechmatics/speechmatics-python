@@ -494,7 +494,7 @@ class WebsocketClient:
                 ping_timeout=self.connection_settings.ping_timeout_seconds,
                 # Don't limit the max. size of incoming messages
                 max_size=None,
-                extra_headers=extra_headers,
+                additional_headers=extra_headers,
             ) as self.websocket:
                 await self._communicate(stream, audio_settings)
         finally:
