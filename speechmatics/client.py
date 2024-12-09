@@ -472,20 +472,26 @@ class WebsocketClient:
             extra_headers["Authorization"] = token
 
         url = self.connection_settings.url
-        if not url.endswith(self.transcription_config.language.strip()):
-            if url.endswith("/"):
-                url += self.transcription_config.language.strip()
-            else:
-                url += f"/{self.transcription_config.language.strip()}"
 
         # Extend connection url with sdk version information
         cli = "-cli" if from_cli is True else ""
         version = get_version()
         parsed_url = urlparse(url)
+
         query_params = dict(parse_qsl(parsed_url.query))
         query_params["sm-sdk"] = f"python{cli}-{version}"
         updated_query = urlencode(query_params)
-        updated_url = urlunparse(parsed_url._replace(query=updated_query))
+
+        url_path = parsed_url.path
+        if not url_path.endswith(self.transcription_config.language.strip()):
+            if url_path.endswith("/"):
+                url_path += self.transcription_config.language.strip()
+            else:
+                url_path += f"/{self.transcription_config.language.strip()}"
+
+        updated_url = urlunparse(
+            parsed_url._replace(path=url_path, query=updated_query)
+        )
 
         try:
             async with websockets.connect(  # pylint: disable=no-member
