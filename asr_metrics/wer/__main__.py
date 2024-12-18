@@ -9,6 +9,7 @@ from typing import Any, Tuple, Optional
 from collections import Counter
 import argparse
 import pandas as pd
+import re
 
 from jiwer import compute_measures, cer
 from asr_metrics.wer.normalizers import BasicTextNormalizer, EnglishTextNormalizer
@@ -249,6 +250,17 @@ def check_paths(ref_path, hyp_path) -> Tuple[list[str], list[str]]:
     raise ValueError("Unexpected file type. Please ensure files of the same type")
 
 
+def add_space_between_cjk(input_str) -> str:
+    # Regular expression to match CJK characters
+    cjk_pattern = r"([\u4e00-\u9fff\u3400-\u4dbf\uf900-\ufaff])"
+
+    # Add a space before and after each CJK character
+    spaced_str = re.sub(cjk_pattern, r" \1 ", input_str)
+
+    # Replace multiple spaces with a single space and strip leading/trailing spaces
+    return " ".join(spaced_str.split())
+
+
 def get_wer_args(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
     parser.add_argument(
         "--non-en", help="Indicate the language is NOT english", action="store_true"
@@ -276,6 +288,14 @@ def get_wer_args(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
         help="""
         Compute Character Error Rate instead of Word Error Rate.
         Spaces are considered as characters here.
+        """,
+        action="store_true",
+    )
+    parser.add_argument(
+        "--mixed-error-rate",
+        help="""
+        Compute Mixed Error Rate instead of Word Error Rate.
+        Each English word and Chinese character is treated as 1 unit.
         """,
         action="store_true",
     )
@@ -332,6 +352,9 @@ def main(args: Optional[argparse.Namespace] = None):
         if args.cer is True:
             differ, stats = run_cer(norm_ref, norm_hyp)
         else:
+            if args.mixed_error_rate is True:
+                norm_ref = add_space_between_cjk(norm_ref)
+                norm_hyp = add_space_between_cjk(norm_hyp)
             differ, stats = run_wer(norm_ref, norm_hyp)
 
         stats["file name"] = hyp
@@ -354,6 +377,9 @@ def main(args: Optional[argparse.Namespace] = None):
             [results, pd.DataFrame(stats, columns=columns, index=[0])],
             ignore_index=True,
         )
+
+    if args.mixed_error_rate is True:
+        results.rename(columns={"wer": "mixed_error_rate"}, inplace=True)
 
     print(results.to_markdown(index=False))
 
