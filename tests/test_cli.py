@@ -110,6 +110,36 @@ from tests.utils import path_to_test_resource
             },
         ),
         (
+            [
+                "batch",
+                "transcribe",
+                "--replacement-words",
+                "foo:bar",
+                "/regex*/:[redacted]",
+            ],
+            {
+                "replacement_words": [
+                    {"from": "foo", "to": "bar"},
+                    {"from": "/regex*/", "to": "[redacted]"},
+                ],
+            },
+        ),
+        (
+            [
+                "rt",
+                "transcribe",
+                "--replacement-words",
+                "foo:bar",
+                "/regex*/:[redacted]",
+            ],
+            {
+                "replacement_words": [
+                    {"from": "foo", "to": "bar"},
+                    {"from": "/regex*/", "to": "[redacted]"},
+                ],
+            },
+        ),
+        (
             ["rt", "transcribe", "--punctuation-permitted-marks", ", ? ."],
             {"punctuation_permitted_marks": ", ? ."},
         ),
@@ -584,6 +614,8 @@ def test_rt_main_with_all_options(mock_server, tmp_path):
     vocab_file.write_text(
         '["jabberwock", {"content": "brillig", "sounds_like": ["brillick"]}]'
     )
+    replacement_words_file = tmp_path / "replacement_words.json"
+    replacement_words_file.write_text('[{"from": "baz", "to": "quux"}]')
 
     chunk_size = 1024 * 8
     audio_path = path_to_test_resource("ch.wav")
@@ -620,6 +652,11 @@ def test_rt_main_with_all_options(mock_server, tmp_path):
         "--auth-token=xyz",
         audio_path,
         "--remove-disfluencies",
+        "--replacement-words-file",
+        str(replacement_words_file),
+        "--replacement-words",
+        "foo:bar",
+        "/regex*/:[redacted]",
     ]
 
     cli.main(vars(cli.parse_args(args)))
@@ -662,6 +699,13 @@ def test_rt_main_with_all_options(mock_server, tmp_path):
         ]
         is True
     )
+    assert msg["transcription_config"]["transcript_filtering_config"][
+        "replacements"
+    ] == [
+        {"from": "baz", "to": "quux"},
+        {"from": "foo", "to": "bar"},
+        {"from": "/regex*/", "to": "[redacted]"},
+    ]
 
     # Check that the chunk size argument is respected
     add_audio_messages = mock_server.find_add_audio_messages()

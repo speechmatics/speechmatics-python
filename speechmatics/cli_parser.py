@@ -28,6 +28,32 @@ class kvdictAppendAction(argparse.Action):
             setattr(args, self.dest, d)
 
 
+def replacement_words_item(to_parse):
+    """
+    Parses a single item of replacement words. Used in conjunction with the
+    replacement words command line argument.
+
+    :param to_parse: The item to parse.
+    :type to_parse: str
+
+    :return: a dictionary of replacements
+    :rtype: dict
+    """
+    to_parse = str(to_parse)
+    parts = to_parse.split(":")
+    if len(parts) != 2:
+        raise argparse.ArgumentTypeError(
+            f"Must have exactly two colon-separated parts in replacement words: "
+            f"{to_parse}."
+        )
+    if len(parts[0]) == 0:
+        raise argparse.ArgumentTypeError(
+            f"Replacement words must have a 'from' value in: {to_parse}"
+        )
+
+    return {"from": parts[0], "to": parts[1]}
+
+
 def additional_vocab_item(to_parse):
     """
     Parses a single item of additional vocab. Used in conjunction with the
@@ -197,6 +223,24 @@ def get_arg_parser():
         action="store_true",
         required=False,
         help=("Removes words tagged as disfluency."),
+    )
+    config_parser.add_argument(
+        "--replacement-words",
+        nargs="*",
+        default=None,
+        type=replacement_words_item,
+        help=(
+            "List of replacements to make in the transcript, in the form 'from:to' or '/regex/:to'."
+        ),
+    )
+    config_parser.add_argument(
+        "--replacement-words-file",
+        default=None,
+        type=str,
+        help=(
+            "Path to a file containing a list of words to replace in the transcript."
+            "The file should be formatted as as JSON list of objects with 'from' and 'to' keys."
+        ),
     )
     config_parser.add_argument(
         "--operating-point",
