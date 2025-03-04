@@ -5,6 +5,7 @@ Parsers used by the CLI to handle CLI arguments
 import argparse
 import logging
 from urllib.parse import urlparse
+from typing import Dict
 
 LOGGER = logging.getLogger(__name__)
 
@@ -28,7 +29,7 @@ class kvdictAppendAction(argparse.Action):
             setattr(args, self.dest, d)
 
 
-def replacement_words_item(to_parse):
+def replacement_words_item(to_parse: str) -> Dict[str, str]:
     """
     Parses a single item of replacement words. Used in conjunction with the
     replacement words command line argument.
@@ -40,7 +41,7 @@ def replacement_words_item(to_parse):
     :rtype: dict
     """
     to_parse = str(to_parse)
-    parts = to_parse.split(":")
+    parts = to_parse.split(":", 2)
     if len(parts) != 2:
         raise argparse.ArgumentTypeError(
             f"Must have exactly two colon-separated parts in replacement words: "

@@ -56,17 +56,25 @@ def print_symbol(symbol):
     print(symbol, end="", file=sys.stderr, flush=True)
 
 
-def parse_word_replacements(replacement_words_filepath) -> list[dict]:
+def parse_word_replacements(replacement_words_filepath) -> List[Dict]:
     """
     Parses a word replacements list from a file.
 
     :param replacement_words_filepath: Path to the replacement words file.
     :type replacement_words_filepath: str
 
-    :return: A list of objects or strings which are the replacement words
-    :rtype: List[dict]
+    :return: A list of objects which are the replacement from->to pairs
+    :rtype: List[Dict]
 
     :raises SystemExit: If the file is not valid JSON.
+
+    The file should be formatted as:
+    ```
+    [
+        {"from":"search_term", "to":"the_replacement"},
+        {"from":"/^[Dd]octor$/", "to":"Dr"}
+    ]
+    ```
     """
 
     replacement_words = []
