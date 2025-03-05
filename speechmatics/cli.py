@@ -56,6 +56,61 @@ def print_symbol(symbol):
     print(symbol, end="", file=sys.stderr, flush=True)
 
 
+def parse_word_replacements(replacement_words_filepath) -> List[Dict]:
+    """
+    Parses a word replacements list from a file.
+
+    :param replacement_words_filepath: Path to the replacement words file.
+    :type replacement_words_filepath: str
+
+    :return: A list of objects which are the replacement from->to pairs
+    :rtype: List[Dict]
+
+    :raises SystemExit: If the file is not valid JSON.
+
+    The file should be formatted as:
+    ```
+    [
+        {"from":"search_term", "to":"the_replacement"},
+        {"from":"/^[Dd]octor$/", "to":"Dr"}
+    ]
+    ```
+    """
+
+    replacement_words = []
+    with open(replacement_words_filepath, encoding="utf-8") as replacement_words_file:
+        try:
+            replacement_words = json.load(replacement_words_file)
+        except json.JSONDecodeError as exc:
+            raise SystemExit(
+                f"Word replacements at: {replacement_words_filepath} "
+                f"is not valid json."
+            ) from exc
+
+    if not isinstance(replacement_words, list):
+        raise SystemExit(
+            (
+                f"Word replacements file at: {replacement_words_filepath} "
+                "should be a list of objects."
+            )
+        )
+    if not replacement_words:
+        LOGGER.warning(
+            "Provided word replacements at: %s is an empty list.",
+            replacement_words_filepath,
+        )
+    for item in replacement_words:
+        if "from" not in item or "to" not in item:
+            raise SystemExit(
+                (
+                    f"Word replacements file at: {replacement_words_filepath} "
+                    "should have 'from' and 'to' keys."
+                )
+            )
+
+    return replacement_words
+
+
 def parse_additional_vocab(additional_vocab_filepath):
     """
     Parses an additional vocab list from a file.
@@ -239,6 +294,27 @@ def get_transcription_config(
         config["transcript_filtering_config"]["remove_disfluencies"] = args.get(
             "remove_disfluencies"
         )
+
+    if args.get("replacement_words_file") is not None:
+        replace_words = parse_word_replacements(args["replacement_words_file"])
+        if "transcript_filtering_config" not in config:
+            config["transcript_filtering_config"] = {}
+        config["transcript_filtering_config"]["replacements"] = replace_words
+        LOGGER.info(
+            "Using additional vocab from file %s", args["replacement_words_file"]
+        )
+
+    if args.get("replacement_words") is not None:
+        if "transcript_filtering_config" not in config:
+            config["transcript_filtering_config"] = {}
+        if "replacements" in config["transcript_filtering_config"]:
+            config["transcript_filtering_config"]["replacements"].extend(
+                args.get("replacement_words")
+            )
+        else:
+            config["transcript_filtering_config"]["replacements"] = args.get(
+                "replacement_words"
+            )
 
     if args.get("ctrl"):
         LOGGER.warning(f"Using internal dev control command: {args['ctrl']}")
