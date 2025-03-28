@@ -531,6 +531,9 @@ class ServerMessageType(str, Enum):
     AddTranscript = "AddTranscript"
     """Indicates the final transcript of a part of the audio."""
 
+    EndOfUtterance = "EndOfUtterance"
+    """Indicates that an utterance has ended, based on silence"""
+
     AudioEventStarted = "AudioEventStarted"
     """Indicates the start of an audio event."""
 

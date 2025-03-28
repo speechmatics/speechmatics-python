@@ -547,6 +547,13 @@ def add_printing_handlers(
         sys.stdout.write(f"{escape_seq}[{event_name}]\n")
         transcripts.text += f"[{event_name}] "
 
+    def end_of_utterance_handler(message):
+        if print_json:
+            print(json.dumps(message))
+            return
+        sys.stdout.write("[EndOfUtterance]\n")
+        transcripts.text += "[EndOfUtterance]"
+
     def partial_translation_handler(message):
         if print_json:
             print(json.dumps(message))
@@ -594,6 +601,7 @@ def add_printing_handlers(
                 partial_transcript_handler,
             )
         api.add_event_handler(ServerMessageType.AddTranscript, transcript_handler)
+        api.add_event_handler(ServerMessageType.EndOfUtterance, end_of_utterance_handler)
     else:
         if translation_config is not None:
             if enable_partials or enable_translation_partials:
