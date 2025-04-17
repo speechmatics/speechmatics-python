@@ -185,17 +185,41 @@ from tests.utils import path_to_test_resource
         (["rt", "transcribe", "--enable-entities"], {"enable_entities": True}),
         (["batch", "transcribe", "--enable-entities"], {"enable_entities": True}),
         (
+            ["batch", "transcribe", "--diarization=speaker"],
+            {
+                "diarization": "speaker",
+                "speaker_diarization_prefer_current_speaker": False,
+                "speaker_diarization_sensitivity": None,
+            },
+        ),
+        (
+            ["batch", "transcribe", "--speaker-diarization-prefer-current-speaker"],
+            {"speaker_diarization_prefer_current_speaker": True},
+        ),
+        (
             ["batch", "transcribe", "--speaker-diarization-sensitivity=0.7"],
             {"speaker_diarization_sensitivity": 0.7},
         ),
         (
-            [
-                "rt",
-                "transcribe",
-                "--diarization=speaker",
-                "--speaker-diarization-max-speakers=3",
-            ],
-            {"diarization": "speaker", "speaker_diarization_max_speakers": 3},
+            ["rt", "transcribe", "--diarization=speaker"],
+            {
+                "diarization": "speaker",
+                "speaker_diarization_prefer_current_speaker": False,
+                "speaker_diarization_max_speakers": None,
+                "speaker_diarization_sensitivity": None,
+            },
+        ),
+        (
+            ["rt", "transcribe", "--speaker-diarization-max-speakers=3"],
+            {"speaker_diarization_max_speakers": 3},
+        ),
+        (
+            ["rt", "transcribe", "--speaker-diarization-prefer-current-speaker"],
+            {"speaker_diarization_prefer_current_speaker": True},
+        ),
+        (
+            ["rt", "transcribe", "--speaker-diarization-sensitivity=0.7"],
+            {"speaker_diarization_sensitivity": 0.7},
         ),
         (
             [
