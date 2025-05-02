@@ -34,7 +34,7 @@ def convert_to_txt(
     language: str,
     language_pack_info: dict = None,
     speaker_labels: bool = True,
-    channel: str = None
+    channel: str = None,
 ) -> str:
     """
     Convert a set of transcription result tokens to a plain text format.

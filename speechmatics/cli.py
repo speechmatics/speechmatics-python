@@ -109,6 +109,8 @@ def parse_word_replacements(replacement_words_filepath) -> List[Dict]:
             )
 
     return replacement_words
+
+
 def parse_multichannel_args(multichannel_args):
     """
     Parses multichannel arguments from the command line
@@ -122,8 +124,11 @@ def parse_multichannel_args(multichannel_args):
     try:
         channels = multichannel_args.split(",")
     except ValueError:
-        raise SystemExit(f"Invalid format for multichannel arguments: '{multichannel_args}'. Expected format <channel_1>,<channel_2>")
+        raise SystemExit(
+            f"Invalid format for multichannel arguments: '{multichannel_args}'. Expected format <channel_1>,<channel_2>"
+        )
     return channels
+
 
 def parse_additional_vocab(additional_vocab_filepath):
     """
@@ -344,9 +349,7 @@ def get_transcription_config(
     if args.get("multichannel"):
         multichannel_args = parse_multichannel_args(args["multichannel"])
         config["channel_diarization_labels"] = multichannel_args
-        LOGGER.info(
-            f"Using multchannel mode with channels {multichannel_args}"
-        )
+        LOGGER.info(f"Using multchannel mode with channels {multichannel_args}")
 
     if args.get("additional_vocab"):
         if not config.get("additional_vocab"):
@@ -533,7 +536,9 @@ def add_printing_handlers(
             ServerMessageType.AddTranscript, lambda *args: print_symbol("|")
         )
         api.add_middleware(ClientMessageType.AddAudio, lambda *args: print_symbol("+"))
-        api.add_middleware(ClientMessageType.AddChannelAudio, lambda *args: print_symbol("x"))
+        api.add_middleware(
+            ClientMessageType.AddChannelAudio, lambda *args: print_symbol("x")
+        )
 
     def partial_transcript_handler(message):
         # "\n" does not appear in partial transcripts
@@ -543,7 +548,7 @@ def add_printing_handlers(
         # Check whether the message received indicates multichannel
         channel = next(
             (result["channel"] for result in message["results"] if "channel" in result),
-            None
+            None,
         )
         plaintext = speechmatics.adapters.convert_to_txt(
             message["results"],
@@ -782,7 +787,7 @@ def rt_main(args):
             if stream is not None:
                 args_list.append(stream)
             elif channel_stream_pairs is not None:
-                args_list.append(None) # This skips the stream argument
+                args_list.append(None)  # This skips the stream argument
                 args_list.append(channel_stream_pairs)
             else:
                 raise SystemExit(
@@ -807,7 +812,10 @@ def rt_main(args):
     else:
         # Check we have the right diarixation type
         if transcription_config["channel_diarization_labels"]:
-            if transcription_config["diarization"] == "channel" or transcription_config["diarization"] == "channel_and_speaker":
+            if (
+                transcription_config["diarization"] == "channel"
+                or transcription_config["diarization"] == "channel_and_speaker"
+            ):
                 num_channels = len(transcription_config["channel_diarization_labels"])
                 if len(args["files"]) != num_channels:
                     raise SystemExit(
@@ -816,7 +824,9 @@ def rt_main(args):
                 else:
                     channel_stream_pairs = {}
                     for i in range(num_channels):
-                        channel_name = transcription_config["channel_diarization_labels"][i]
+                        channel_name = transcription_config[
+                            "channel_diarization_labels"
+                        ][i]
                         channel_stream_pairs[channel_name] = args["files"][i]
                     run(channel_stream_pairs=channel_stream_pairs)
             else:

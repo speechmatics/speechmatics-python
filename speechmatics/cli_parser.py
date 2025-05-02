@@ -320,8 +320,8 @@ def get_arg_parser():
         nargs="+",
         metavar="CHANNEL",
         help=(
-        "Enables multichannel mode and specifies channels."
-        "Each channel must be separated by a comma, e.g.: <CHANNEL_1>,<CHANNEL_2,>."
+            "Enables multichannel mode and specifies channels."
+            "Each channel must be separated by a comma, e.g.: <CHANNEL_1>,<CHANNEL_2,>."
         ),
     )
 

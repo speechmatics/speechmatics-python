@@ -245,27 +245,35 @@ class WebsocketClient:
         :type audio_chunk_size: int
         """
         if self.channel_stream_pairs is not None:
-                # Multichannel mode: create a task for each channel
-                channel_tasks = [
-                    asyncio.create_task(
-                        self._process_multichannel_streams(
-                            channel, stream, audio_chunk_size, ClientMessageType.AddChannelAudio
-                        )
+            # Multichannel mode: create a task for each channel
+            channel_tasks = [
+                asyncio.create_task(
+                    self._process_multichannel_streams(
+                        channel,
+                        stream,
+                        audio_chunk_size,
+                        ClientMessageType.AddChannelAudio,
                     )
-                    for channel, stream in self.channel_stream_pairs.items()
-                ]
-                # Run in a different thread for each channel - try using something else other than asyncio
-                await asyncio.gather(*channel_tasks)
+                )
+                for channel, stream in self.channel_stream_pairs.items()
+            ]
+            # Run in a different thread for each channel - try using something else other than asyncio
+            await asyncio.gather(*channel_tasks)
         else:
             # Single channel mode
-            self.seq_no['single'] = 0
+            self.seq_no["single"] = 0
             await self._process_stream(
-                stream, audio_chunk_size, channel='single', message_type=ClientMessageType.AddAudio
+                stream,
+                audio_chunk_size,
+                channel="single",
+                message_type=ClientMessageType.AddAudio,
             )
 
         yield self._end_of_stream()
 
-    async def _process_multichannel_streams(self, channel, stream, audio_chunk_size, message_type):
+    async def _process_multichannel_streams(
+        self, channel, stream, audio_chunk_size, message_type
+    ):
         async for audio_chunk in read_in_chunks(stream, audio_chunk_size):
             base64_chunk = base64.b64encode(audio_chunk).decode("utf-8")
             message = {
@@ -470,8 +478,8 @@ class WebsocketClient:
     async def run(
         self,
         transcription_config: TranscriptionConfig,
-        stream = None,
-        channel_stream_pairs = None,
+        stream=None,
+        channel_stream_pairs=None,
         audio_settings: AudioSettings = None,
         from_cli: bool = False,
         extra_headers: Dict = None,

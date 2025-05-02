@@ -109,15 +109,7 @@ from tests.utils import path_to_test_resource
                 ]
             },
         ),
-        (
-            [
-                "rt",
-                "transcribe",
-                "--multichannel",
-                "channel_1,channel_2"
-                
-            ]
-        ),
+        (["rt", "transcribe", "--multichannel", "channel_1,channel_2"]),
         (
             [
                 "batch",
@@ -724,6 +716,7 @@ def test_rt_main_with_all_options(mock_server, tmp_path):
     expected_num_messages = size_of_audio_file / chunk_size
     assert -1 <= (len(add_audio_messages) - expected_num_messages) <= 1
 
+
 def test_rt_main_with_multichannel_option(mock_server):
     chunk_size = 512
     audio_path_1 = path_to_test_resource("ch_converted.wav")
@@ -736,8 +729,7 @@ def test_rt_main_with_multichannel_option(mock_server):
         "--url",
         mock_server.url,
         "diarization=channel",
-        "--multichannel=channel_1,channel_2"
-        "--lang=en",
+        "--multichannel=channel_1,channel_2" "--lang=en",
         "--chunk-size",
         str(chunk_size),
         "--raw=pcm_s16le",
@@ -769,12 +761,16 @@ def test_rt_main_with_multichannel_option(mock_server):
     # Check we get all channels in the add channel audio messages
     add_channel_audio_messages = mock_server.find_messages_by_type("AddChannelAudio")
     assert add_channel_audio_messages
-    assert all(channel in add_channel_audio_messages for channel in ["channel_1", "channel_2"])
+    assert all(
+        channel in add_channel_audio_messages for channel in ["channel_1", "channel_2"]
+    )
 
     # Check file sizes are respected
     size_of_audio_file_1 = os.stat(audio_path_1).st_size
     size_of_audio_file_2 = os.stat(audio_path_2).st_size
-    expected_num_messages_ = (size_of_audio_file_1 / chunk_size) + (size_of_audio_file_2 / chunk_size)
+    expected_num_messages_ = (size_of_audio_file_1 / chunk_size) + (
+        size_of_audio_file_2 / chunk_size
+    )
     assert -1 <= (len(add_channel_audio_messages) - expected_num_messages_) <= 1
 
 
