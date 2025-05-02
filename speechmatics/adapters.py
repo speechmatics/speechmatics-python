@@ -34,6 +34,7 @@ def convert_to_txt(
     language: str,
     language_pack_info: dict = None,
     speaker_labels: bool = True,
+    channel: str = None
 ) -> str:
     """
     Convert a set of transcription result tokens to a plain text format.
@@ -41,6 +42,7 @@ def convert_to_txt(
     :param tokens: the transcription results.
     :param language_pack_info: information about the language pack.
     :param speaker_labels: whether or not to output speaker labels in the text.
+    :param channel: the channel name (if multichannel).
     :return: the plain text as a string.
     """
     # Although we should get word_delimiter from language_pack_info, we still want sensible
@@ -59,6 +61,8 @@ def convert_to_txt(
             continue
 
         speaker = get_speaker(group[0])
+        if channel is not None:
+            texts.append(f"CHANNEL: {channel}\n")
         if speaker and speaker != current_speaker and speaker_labels:
             current_speaker = speaker
             texts.append(f"SPEAKER: {current_speaker}\n")

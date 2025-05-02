@@ -109,7 +109,21 @@ def parse_word_replacements(replacement_words_filepath) -> List[Dict]:
             )
 
     return replacement_words
-
+def parse_multichannel_args(multichannel_args):
+    """
+    Parses multichannel arguments from the command line
+    :param multichannel_args: Multichannel arguments
+    :type multichannel_args: str
+    :return: A list of channels to be used.
+    :rtype: List[str]
+    :raises SystemExit: If the arguments are not formatted properly.
+    """
+    channels = []
+    try:
+        channels = multichannel_args.split(",")
+    except ValueError:
+        raise SystemExit(f"Invalid format for multichannel arguments: '{multichannel_args}'. Expected format <channel_1>,<channel_2>")
+    return channels
 
 def parse_additional_vocab(additional_vocab_filepath):
     """
@@ -327,6 +341,13 @@ def get_transcription_config(
             "Using additional vocab from file %s", args["additional_vocab_file"]
         )
 
+    if args.get("multichannel"):
+        multichannel_args = parse_multichannel_args(args["multichannel"])
+        config["channel_diarization_labels"] = multichannel_args
+        LOGGER.info(
+            f"Using multchannel mode with channels {multichannel_args}"
+        )
+
     if args.get("additional_vocab"):
         if not config.get("additional_vocab"):
             config["additional_vocab"] = args["additional_vocab"]
@@ -503,23 +524,33 @@ def add_printing_handlers(
             ServerMessageType.AudioAdded, lambda *args: print_symbol("-")
         )
         api.add_event_handler(
+            ServerMessageType.ChannelAudioAdded, lambda *args: print_symbol("=")
+        )
+        api.add_event_handler(
             ServerMessageType.AddPartialTranscript, lambda *args: print_symbol(".")
         )
         api.add_event_handler(
             ServerMessageType.AddTranscript, lambda *args: print_symbol("|")
         )
         api.add_middleware(ClientMessageType.AddAudio, lambda *args: print_symbol("+"))
+        api.add_middleware(ClientMessageType.AddChannelAudio, lambda *args: print_symbol("x"))
 
     def partial_transcript_handler(message):
         # "\n" does not appear in partial transcripts
         if print_json:
             print(json.dumps(message))
             return
+        # Check whether the message received indicates multichannel
+        channel = next(
+            (result["channel"] for result in message["results"] if "channel" in result),
+            None
+        )
         plaintext = speechmatics.adapters.convert_to_txt(
             message["results"],
             api.transcription_config.language,
             language_pack_info=api.get_language_pack_info(),
             speaker_labels=True,
+            channel=channel,
         )
         if plaintext:
             sys.stderr.write(f"{escape_seq}{plaintext}\r")
@@ -743,12 +774,23 @@ def rt_main(args):
         translation_config=transcription_config.translation_config,
     )
 
-    def run(stream):
+    def run(stream=None, channel_stream_pairs=None):
         try:
+            # Pass in either stream or channel_stream_pairs depending on what != None
+            # Dynamically construct the args based on the input
+            args_list = [transcription_config]
+            if stream is not None:
+                args_list.append(stream)
+            elif channel_stream_pairs is not None:
+                args_list.append(None) # This skips the stream argument
+                args_list.append(channel_stream_pairs)
+            else:
+                raise SystemExit(
+                    "Neither stream nor channel_stream_pairs were provided."
+                )
             api.run_synchronously(
-                stream,
-                transcription_config,
-                get_audio_settings(args),
+                *args_list,
+                audio_settings=get_audio_settings(args),
                 from_cli=True,
                 extra_headers=extra_headers,
             )
@@ -757,11 +799,34 @@ def rt_main(args):
             LOGGER.warning("Keyboard interrupt received.")
 
     if args["files"][0] == "-":
-        run(sys.stdin.buffer)
+        if transcription_config["channel_diarization_labels"]:
+            raise SystemExit(
+                "Channel diarization is not yet supported when reading from stdin."
+            )
+        run(stream=sys.stdin.buffer)
     else:
-        for filename in args["files"]:
-            with open(filename, "rb") as audio_file:
-                run(audio_file)
+        # Check we have the right diarixation type
+        if transcription_config["channel_diarization_labels"]:
+            if transcription_config["diarization"] == "channel" or transcription_config["diarization"] == "channel_and_speaker":
+                num_channels = len(transcription_config["channel_diarization_labels"])
+                if len(args["files"]) != num_channels:
+                    raise SystemExit(
+                        f"Number of  specified: ({len(args['files'])}) must match the number of channels: ({num_channels})."
+                    )
+                else:
+                    channel_stream_pairs = {}
+                    for i in range(num_channels):
+                        channel_name = transcription_config["channel_diarization_labels"][i]
+                        channel_stream_pairs[channel_name] = args["files"][i]
+                    run(channel_stream_pairs=channel_stream_pairs)
+            else:
+                raise SystemExit(
+                    f"Diarization type with multichannel must be 'channel' or 'channel_and_speaker'."
+                )
+        else:
+            for filename in args["files"]:
+                with open(filename, "rb") as audio_file:
+                    run(stream=audio_file)
 
 
 def batch_main(args):

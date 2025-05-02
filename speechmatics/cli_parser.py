@@ -315,6 +315,15 @@ def get_arg_parser():
         default=None,
         help=("Comma-separated list of expected languages for language identification"),
     )
+    config_parser.add_argument(
+        "--multichannel",
+        nargs="+",
+        metavar="CHANNEL",
+        help=(
+        "Enables multichannel mode and specifies channels."
+        "Each channel must be separated by a comma, e.g.: <CHANNEL_1>,<CHANNEL_2,>."
+        ),
+    )
 
     # Parent parser for batch summarize argument
     batch_summarization_parser = argparse.ArgumentParser(add_help=False)

@@ -111,6 +111,15 @@ from tests.utils import path_to_test_resource
         ),
         (
             [
+                "rt",
+                "transcribe",
+                "--multichannel",
+                "channel_1,channel_2"
+                
+            ]
+        ),
+        (
+            [
                 "batch",
                 "transcribe",
                 "--replacement-words",
@@ -361,6 +370,8 @@ from tests.utils import path_to_test_resource
 )
 def test_cli_arg_parse_with_file(args, values):
     common_transcribe_args = ["--auth-token=xyz", "--url=example", "fake_file.wav"]
+    if "--multichannel" in args:
+        common_transcribe_args.append("very_fake_file.wav")
     test_args = args + common_transcribe_args
     actual_values = vars(cli.parse_args(args=test_args))
 
@@ -712,6 +723,59 @@ def test_rt_main_with_all_options(mock_server, tmp_path):
     size_of_audio_file = os.stat(audio_path).st_size
     expected_num_messages = size_of_audio_file / chunk_size
     assert -1 <= (len(add_audio_messages) - expected_num_messages) <= 1
+
+def test_rt_main_with_multichannel_option(mock_server):
+    chunk_size = 512
+    audio_path_1 = path_to_test_resource("ch_converted.wav")
+    audio_path_2 = path_to_test_resource("short-text_converted.wav")
+
+    args = [
+        "rt",
+        "transcribe",
+        "--ssl-mode=none",
+        "--url",
+        mock_server.url,
+        "diarization=channel",
+        "--multichannel=channel_1,channel_2"
+        "--lang=en",
+        "--chunk-size",
+        str(chunk_size),
+        "--raw=pcm_s16le",
+        "--sample_rate=16000",
+        audio_path_1,
+        audio_path_2,
+    ]
+
+    cli.main(vars(cli.parse_args(args)))
+    mock_server.wait_for_clean_disconnects()
+
+    assert mock_server.clients_connected_count == 1
+    assert mock_server.clients_disconnected_count == 1
+    assert mock_server.messages_received
+    assert mock_server.messages_sent
+
+    # Check that the StartRecognition message contains the correct fields
+    msg = mock_server.find_start_recognition_message()
+
+    # Check that audio types are preserved
+    assert msg["audio_format"]["type"] == "raw"
+    assert msg["audio_format"]["encoding"] == "pcm_s16le"
+    assert msg["audio_format"]["sample_rate"] == 16000
+    assert msg["transcription_config"]["language"] == "en"
+    assert msg["transcription_config"]["diarization"] == "channel"
+    assert msg["transcription_config"]["max_delay_mode"] == "fixed"
+    assert msg["transcription_config"].get("operating_point") is None
+
+    # Check we get all channels in the add channel audio messages
+    add_channel_audio_messages = mock_server.find_messages_by_type("AddChannelAudio")
+    assert add_channel_audio_messages
+    assert all(channel in add_channel_audio_messages for channel in ["channel_1", "channel_2"])
+
+    # Check file sizes are respected
+    size_of_audio_file_1 = os.stat(audio_path_1).st_size
+    size_of_audio_file_2 = os.stat(audio_path_2).st_size
+    expected_num_messages_ = (size_of_audio_file_1 / chunk_size) + (size_of_audio_file_2 / chunk_size)
+    assert -1 <= (len(add_channel_audio_messages) - expected_num_messages_) <= 1
 
 
 def test_rt_main_with_config_file(mock_server):

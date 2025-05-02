@@ -5,6 +5,7 @@ Based on http://asyncio.readthedocs.io/en/latest/producer_consumer.html
 """
 
 import asyncio
+import base64
 import copy
 import json
 import logging
@@ -76,7 +77,7 @@ class WebsocketClient:
         self.event_handlers = {x: [] for x in ServerMessageType}
         self.middlewares = {x: [] for x in ClientMessageType}
 
-        self.seq_no = 0
+        self.seq_no: dict[str, int] = {}
         self.session_running = False
         self._language_pack_info = None
         self._transcription_config_needs_update = False
@@ -167,6 +168,8 @@ class WebsocketClient:
             "audio_format": audio_settings.asdict(),
             "transcription_config": self.transcription_config.as_config(),
         }
+        if self.channel_stream_pairs is not None:
+            msg["channel_diarization_labels"] = list(self.channel_stream_pairs.keys())
         if self.transcription_config.translation_config is not None:
             msg[
                 "translation_config"
@@ -222,6 +225,8 @@ class WebsocketClient:
                 self._set_language_pack_info(message["language_pack_info"])
         elif message_type == ServerMessageType.AudioAdded:
             self._buffer_semaphore.release()
+        elif message_type == ServerMessageType.ChannelAudioAdded:
+            self._buffer_semaphore.release()
         elif message_type == ServerMessageType.EndOfTranscript:
             raise EndOfTranscriptException()
         elif message_type == ServerMessageType.Warning:
@@ -239,6 +244,51 @@ class WebsocketClient:
         :param audio_chunk_size: Size of audio chunks to send.
         :type audio_chunk_size: int
         """
+        if self.channel_stream_pairs is not None:
+                # Multichannel mode: create a task for each channel
+                channel_tasks = [
+                    asyncio.create_task(
+                        self._process_multichannel_streams(
+                            channel, stream, audio_chunk_size, ClientMessageType.AddChannelAudio
+                        )
+                    )
+                    for channel, stream in self.channel_stream_pairs.items()
+                ]
+                # Run in a different thread for each channel - try using something else other than asyncio
+                await asyncio.gather(*channel_tasks)
+        else:
+            # Single channel mode
+            self.seq_no['single'] = 0
+            await self._process_stream(
+                stream, audio_chunk_size, channel='single', message_type=ClientMessageType.AddAudio
+            )
+
+        yield self._end_of_stream()
+
+    async def _process_multichannel_streams(self, channel, stream, audio_chunk_size, message_type):
+        async for audio_chunk in read_in_chunks(stream, audio_chunk_size):
+            base64_chunk = base64.b64encode(audio_chunk).decode("utf-8")
+            message = {
+                "message": "AddChannelAudio",
+                "channel": channel,
+                "audio": base64_chunk,
+            }
+            if self._session_needs_closing:
+                break
+
+            if self._transcription_config_needs_update:
+                yield self._set_recognition_config()
+                self._transcription_config_needs_update = False
+
+            await asyncio.wait_for(
+                self._buffer_semaphore.acquire(),
+                timeout=self.connection_settings.semaphore_timeout_seconds,
+            )
+            self.seq_no[channel] += 1
+            self._call_middleware(message_type, message)
+            yield message
+
+    async def _process_stream(self, stream, audio_chunk_size, channel, message_type):
         async for audio_chunk in read_in_chunks(stream, audio_chunk_size):
             if self._session_needs_closing:
                 break
@@ -251,11 +301,9 @@ class WebsocketClient:
                 self._buffer_semaphore.acquire(),
                 timeout=self.connection_settings.semaphore_timeout_seconds,
             )
-            self.seq_no += 1
-            self._call_middleware(ClientMessageType.AddAudio, audio_chunk, True)
+            self.seq_no[channel] += 1
+            self._call_middleware(message_type, audio_chunk, True)
             yield audio_chunk
-
-        yield self._end_of_stream()
 
     async def _consumer_handler(self):
         """
@@ -421,8 +469,9 @@ class WebsocketClient:
 
     async def run(
         self,
-        stream,
         transcription_config: TranscriptionConfig,
+        stream = None,
+        channel_stream_pairs = None,
         audio_settings: AudioSettings = None,
         from_cli: bool = False,
         extra_headers: Dict = None,
@@ -433,11 +482,14 @@ class WebsocketClient:
         :py:meth:`run_synchronously` which will block until the session is
         finished.
 
-        :param stream: File-like object which an audio stream can be read from.
-        :type stream: io.IOBase
-
         :param transcription_config: Configuration for the transcription.
         :type transcription_config: speechmatics.models.TranscriptionConfig
+
+        :param stream: Optional file-like object which an audio stream can be read from.
+        :type stream: io.IOBase
+
+        :param channel_stream_pairs: Optional dict containing channel-name stream pairs.
+        :type stream: io.IOBase
 
         :param audio_settings: Configuration for the audio stream.
         :type audio_settings: speechmatics.models.AudioSettings
@@ -448,8 +500,8 @@ class WebsocketClient:
         :raises Exception: Can raise any exception returned by the
             consumer/producer tasks.
         """
+        self.channel_stream_pairs = channel_stream_pairs
         self.transcription_config = transcription_config
-        self.seq_no = 0
         self._language_pack_info = None
         await self._init_synchronization_primitives()
         if extra_headers is None:

@@ -274,6 +274,9 @@ class TranscriptionConfig(_TranscriptionConfig):
     audio_events_config: Optional[AudioEventsConfig] = None
     """Optional configuration for audio events"""
 
+    channel_diarization_labels: List[str] = None
+    """Add your own speaker or channel labels to the transcript"""
+
     def as_config(self):
         dictionary = self.asdict()
         dictionary.pop("translation_config", None)
@@ -312,9 +315,6 @@ class BatchTranscriptionConfig(_TranscriptionConfig):
 
     speaker_diarization_config: BatchSpeakerDiarizationConfig = None
     """The sensitivity of the speaker detection."""
-
-    channel_diarization_labels: List[str] = None
-    """Add your own speaker or channel labels to the transcript"""
 
     summarization_config: SummarizationConfig = None
     """Optional configuration for transcript summarization."""
@@ -501,6 +501,11 @@ class ClientMessageType(str, Enum):
     """Adds more audio data to the recognition job. The server confirms
     receipt by sending an :py:attr:`ServerMessageType.AudioAdded` message."""
 
+    AddChannelAudio = "AddChannelAudio"
+    """Adds more audio data to the recognition job for a specific channel.
+    The server confirms receipt by sending an :py:attr:`ServerMessageType.ChannelAudioAdded` message.
+    """
+
     EndOfStream = "EndOfStream"
     """Indicates that the client has no more audio to send."""
 
@@ -521,6 +526,10 @@ class ServerMessageType(str, Enum):
 
     AudioAdded = "AudioAdded"
     """Server response to :py:attr:`ClientMessageType.AddAudio`, indicating
+    that audio has been added successfully."""
+
+    ChannelAudioAdded = "ChannelAudioAdded"
+    """Server response to :py:attr:`ClientMessageType.AddAChanneludio`, indicating
     that audio has been added successfully."""
 
     AddPartialTranscript = "AddPartialTranscript"
