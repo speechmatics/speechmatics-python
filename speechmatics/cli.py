@@ -291,6 +291,7 @@ def get_transcription_config(
         "diarization",
         "channel_diarization_labels",
         "speaker_diarization_sensitivity",
+        "speaker_diarization_max_speakers",
     ]:
         if args.get(option) is not None:
             config[option] = args[option]
@@ -300,6 +301,7 @@ def get_transcription_config(
         "enable_entities",
         "enable_translation_partials",
         "enable_transcription_partials",
+        "speaker_diarization_prefer_current_speaker",
     ]:
         config[option] = True if args.get(option) else config.get(option)
 
@@ -374,17 +376,31 @@ def get_transcription_config(
                 "punctuation_sensitivity"
             ]
 
-    if args.get("speaker_diarization_max_speakers") is not None:
-        max_speakers = args.get("speaker_diarization_max_speakers")
-        config["speaker_diarization_config"] = RTSpeakerDiarizationConfig(
-            max_speakers=max_speakers
+    diarization_config = config.get("speaker_diarization_config", {})
+    if diarization_config or args.get("diarization") == "speaker":
+        max_speakers = args.get(
+            "speaker_diarization_max_speakers",
+            diarization_config.get("speaker_diarization_max_speakers", None),
         )
-
-    if args.get("speaker_diarization_sensitivity") is not None:
-        speaker_sensitivity = args.get("speaker_diarization_sensitivity")
-        config["speaker_diarization_config"] = BatchSpeakerDiarizationConfig(
-            speaker_sensitivity=speaker_sensitivity
+        prefer_current_speaker = args.get(
+            "speaker_diarization_prefer_current_speaker",
+            diarization_config.get("speaker_diarization_prefer_current_speaker", None),
         )
+        speaker_sensitivity = args.get(
+            "speaker_diarization_sensitivity",
+            diarization_config.get("speaker_diarization_sensitivity", None),
+        )
+        if args["mode"] == "rt":
+            config["speaker_diarization_config"] = RTSpeakerDiarizationConfig(
+                max_speakers=max_speakers,
+                prefer_current_speaker=prefer_current_speaker,
+                speaker_sensitivity=speaker_sensitivity,
+            )
+        else:
+            config["speaker_diarization_config"] = BatchSpeakerDiarizationConfig(
+                prefer_current_speaker=prefer_current_speaker,
+                speaker_sensitivity=speaker_sensitivity,
+            )
 
     translation_config = config.get("translation_config", {})
     args_target_languages = args.get("translation_target_languages")

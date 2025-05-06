@@ -139,8 +139,20 @@ class _TranscriptionConfig:  # pylint: disable=too-many-instance-attributes
 class RTSpeakerDiarizationConfig:
     """Real-time mode: Speaker diarization config."""
 
-    max_speakers: int = None
+    max_speakers: Optional[int] = None
     """This enforces the maximum number of speakers allowed in a single audio stream."""
+
+    speaker_sensitivity: Optional[float] = None
+    """The sensitivity of the speaker detection.
+    This is a number between 0 and 1, where 0 means least sensitive and 1 means
+    most sensitive."""
+
+    prefer_current_speaker: Optional[bool] = None
+    """Whether to prefer the current speaker when assigning speaker labels.
+    If true, the algorithm will prefer to stay with the current active speaker if it
+    is a close enough match, even if other speakers may be closer.  This is useful
+    for cases where we can flip incorrectly between similar speakers during a single
+    speaker section."""
 
 
 @dataclass
@@ -167,10 +179,17 @@ class RTTranslationConfig(TranslationConfig):
 class BatchSpeakerDiarizationConfig:
     """Batch mode: Speaker diarization config."""
 
-    speaker_sensitivity: float = None
+    speaker_sensitivity: Optional[float] = None
     """The sensitivity of the speaker detection.
     This is a number between 0 and 1, where 0 means least sensitive and 1 means
     most sensitive."""
+
+    prefer_current_speaker: Optional[bool] = None
+    """Whether to prefer the current speaker when assigning speaker labels.
+    If true, the algorithm will prefer to stay with the current active speaker if it
+    is a close enough match, even if other speakers may be closer.  This is useful
+    for cases where we can flip incorrectly between similar speakers during a single
+    speaker section."""
 
 
 @dataclass
@@ -314,7 +333,7 @@ class BatchTranscriptionConfig(_TranscriptionConfig):
     """Optional configuration for SRT output."""
 
     speaker_diarization_config: BatchSpeakerDiarizationConfig = None
-    """The sensitivity of the speaker detection."""
+    """Optional parameters for speaker diarization."""
 
     summarization_config: SummarizationConfig = None
     """Optional configuration for transcript summarization."""
