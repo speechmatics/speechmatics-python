@@ -76,6 +76,16 @@ from tests.utils import path_to_test_resource
             },
         ),
         (
+            [
+                "rt",
+                "transcribe",
+            ],
+            {
+                "multichannel": "channel_1,channel_2",
+                "diarization": "speaker",
+            },
+        ),
+        (
             ["batch", "transcribe", "--additional-vocab", "Speechmatics", "gnocchi"],
             {"additional_vocab": ["Speechmatics", "gnocchi"]},
         ),
@@ -109,7 +119,6 @@ from tests.utils import path_to_test_resource
                 ]
             },
         ),
-        (["rt", "transcribe", "--multichannel", "channel_1,channel_2"]),
         (
             [
                 "batch",
@@ -753,7 +762,8 @@ def test_rt_main_with_multichannel_option(mock_server):
         "--url",
         mock_server.url,
         "diarization=channel",
-        "--multichannel=channel_1,channel_2" "--lang=en",
+        "--multichannel=channel_1,channel_2",
+        "--lang=en",
         "--chunk-size",
         str(chunk_size),
         "--raw=pcm_s16le",
