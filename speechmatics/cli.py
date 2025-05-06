@@ -831,7 +831,7 @@ def rt_main(args):
                     run(channel_stream_pairs=channel_stream_pairs)
             else:
                 raise SystemExit(
-                    f"Multichannel DZ type must be 'channel' or 'channel_and_speaker'."
+                    "Multichannel DZ type must be 'channel' or 'channel_and_speaker'."
                 )
         else:
             for filename in args["files"]:
