@@ -819,7 +819,7 @@ def rt_main(args):
                 num_channels = len(transcription_config["channel_diarization_labels"])
                 if len(args["files"]) != num_channels:
                     raise SystemExit(
-                        f"Number of  specified: ({len(args['files'])}) must match the number of channels: ({num_channels})."
+                        f"Number of files: ({len(args['files'])}) must match number of channels: ({num_channels})."
                     )
                 else:
                     channel_stream_pairs = {}
@@ -831,7 +831,7 @@ def rt_main(args):
                     run(channel_stream_pairs=channel_stream_pairs)
             else:
                 raise SystemExit(
-                    f"Diarization type with multichannel must be 'channel' or 'channel_and_speaker'."
+                    f"Multichannel DZ type must be 'channel' or 'channel_and_speaker'."
                 )
         else:
             for filename in args["files"]:
