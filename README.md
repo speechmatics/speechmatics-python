@@ -9,6 +9,11 @@ To install from PyPI:
 ```bash
 pip install speechmatics-python
 ```
+
+To use the sm-metrics tool for diarization features and speaker identification metrics, install with the optional dependencies:
+```bash
+pip install speechmatics-python[metrics]
+```
 To install from source:
 ```bash
 git clone https://github.com/speechmatics/speechmatics-python
