@@ -67,8 +67,11 @@ setup(
     description="Python library and CLI for Speechmatics",
     long_description=read("README.md"),
     long_description_content_type="text/markdown",
-    install_requires=read_list("requirements.txt"),
+    install_requires=[req for req in read_list("requirements.txt") if not req.startswith("pyannote")],
     tests_require=read_list("requirements-dev.txt"),
+    extras_require={
+        "metrics": ["pyannote.core", "pyannote.database"],
+    },
     entry_points={
         "console_scripts": [
             "speechmatics = speechmatics.cli:main",
