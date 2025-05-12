@@ -840,7 +840,9 @@ def rt_main(args):
                 else:
                     channel_stream_pairs = {}
                     for i in range(num_channels):
-                        channel_name = transcription_config.channel_diarization_labels[i]
+                        channel_name = transcription_config.channel_diarization_labels[
+                            i
+                        ]
                         channel_stream_pairs[channel_name] = args["files"][i]
                     run(channel_stream_pairs=channel_stream_pairs)
             else:

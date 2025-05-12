@@ -265,7 +265,7 @@ class WebsocketClient:
             async for audio_chunk in read_in_chunks(stream, audio_chunk_size):
                 if self._session_needs_closing:
                     break
-                
+
                 if self._transcription_config_needs_update:
                     yield self._set_recognition_config()
                     self._transcription_config_needs_update = False

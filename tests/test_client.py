@@ -95,9 +95,9 @@ def test_handlers_called(mock_server, mocker):
 
     with open(path_to_test_resource("ch.wav"), "rb") as audio_stream:
         ws_client.run_synchronously(
-            transcription_config=transcription_config, 
-            stream=audio_stream, 
-            audio_settings=audio_settings
+            transcription_config=transcription_config,
+            stream=audio_stream,
+            audio_settings=audio_settings,
         )
     mock_server.wait_for_clean_disconnects()
 
@@ -142,7 +142,7 @@ def test_middlewares_called(mock_server, mocker):
             transcription_config=transcription_config,
             stream=audio_stream,
             audio_settings=audio_settings,
-            )
+        )
     mock_server.wait_for_clean_disconnects()
 
     # Each handler should have been called once for every message
@@ -181,7 +181,7 @@ def test_force_end_session_from_event_handler(mock_server):
             transcription_config=transcription_config,
             stream=audio_stream,
             audio_settings=audio_settings,
-            )
+        )
     mock_server.wait_for_clean_disconnects()
 
     # Only one message should have been sent from the server
@@ -208,7 +208,7 @@ def test_run_synchronously_with_timeout(mock_server):
                 transcription_config=transcription_config,
                 stream=audio_stream,
                 audio_settings=audio_settings,
-                timeout = 0.0001,
+                timeout=0.0001,
             )
 
 
@@ -269,7 +269,7 @@ def test_force_end_session_from_middleware(
             transcription_config=transcription_config,
             stream=audio_stream,
             audio_settings=audio_settings,
-            )
+        )
     mock_server.wait_for_clean_disconnects()
 
     assert len(mock_server.messages_received) == expect_received_count
@@ -293,7 +293,7 @@ def test_update_transcription_config_sends_set_recognition_config(mock_server):
             transcription_config=transcription_config,
             stream=audio_stream,
             audio_settings=audio_settings,
-            )
+        )
     mock_server.wait_for_clean_disconnects()
 
     set_recognition_config_msgs = mock_server.find_messages_by_type(
@@ -320,7 +320,7 @@ def test_start_recognition_sends_speaker_diarization_config(mock_server):
             transcription_config=transcription_config,
             stream=audio_stream,
             audio_settings=audio_settings,
-            )
+        )
     mock_server.wait_for_clean_disconnects()
 
     start_recognition_msgs = mock_server.find_messages_by_type("StartRecognition")
@@ -363,7 +363,7 @@ def test_client_stops_when_asked_and_sends_end_of_stream(mock_server):
             transcription_config=transcription_config,
             stream=audio_stream,
             audio_settings=audio_settings,
-            )
+        )
     mock_server.wait_for_clean_disconnects()
 
     num_messages_after_stop = len(mock_server.messages_received)
@@ -391,9 +391,9 @@ def test_helpful_error_message_received_on_connection_reset_error():
         with patch.object(client.LOGGER, "error", mock_logger_error_method):
             try:
                 ws_client.run_synchronously(
-                transcription_config=TranscriptionConfig(language="en"),
-                stream=MagicMock(),
-                audio_settings=MagicMock(),
+                    transcription_config=TranscriptionConfig(language="en"),
+                    stream=MagicMock(),
+                    audio_settings=MagicMock(),
                 )
             except ConnectionResetError as exc:
                 assert exc is not None
@@ -511,13 +511,20 @@ async def test__producer_happy_path(mocker):
         if index < exp_iters - 1:
             assert msg == index  # from range in mock_read_in_chunks
             exp_current_seq_no += 1
-            cmp_dicts(original_state, state, exp_diffs={"seq_no": {"single": exp_current_seq_no}})
+            cmp_dicts(
+                original_state,
+                state,
+                exp_diffs={"seq_no": {"single": exp_current_seq_no}},
+            )
         else:
             assert msg == json.dumps(
                 {"message": "EndOfStream", "last_seq_no": {"single": exp_final_seq_no}}
             )
-            cmp_dicts(original_state, state, exp_diffs={"seq_no": {"single": exp_current_seq_no}})
-
+            cmp_dicts(
+                original_state,
+                state,
+                exp_diffs={"seq_no": {"single": exp_current_seq_no}},
+            )
 
     assert exp_iters == len(msgs_states)
 
@@ -647,7 +654,7 @@ def test_language_pack_info_is_stored(mock_server):
             transcription_config=transcription_config,
             stream=audio_stream,
             audio_settings=audio_settings,
-            )
+        )
 
     info = ws_client.get_language_pack_info()
     assert info is not None
