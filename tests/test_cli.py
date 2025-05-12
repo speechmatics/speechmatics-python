@@ -76,12 +76,11 @@ from tests.utils import path_to_test_resource
             },
         ),
         (
-            [
-                "rt",
-                "transcribe",
-            ],
+            ["rt", "transcribe", "--multichannel", "test_channel_1,test_channel_2", "diarization", "speaker"],
             {
-                "multichannel": "channel_1,channel_2",
+                "mode": "rt",
+                "command": "transcribe",                
+                "multichannel": "test_channel_1,test_channel_2",
                 "diarization": "speaker",
             },
         ),

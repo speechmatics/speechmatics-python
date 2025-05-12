@@ -82,6 +82,7 @@ class WebsocketClient:
         self._language_pack_info = None
         self._transcription_config_needs_update = False
         self._session_needs_closing = False
+        self.channel_stream_pairs = None
 
         # The following asyncio fields are fully instantiated in
         # _init_synchronization_primitives
@@ -260,16 +261,26 @@ class WebsocketClient:
             # Run in a different thread for each channel - try using something else other than asyncio
             await asyncio.gather(*channel_tasks)
         else:
-            # Single channel mode
-            self.seq_no["single"] = 0
-            await self._process_stream(
-                stream,
-                audio_chunk_size,
-                channel="single",
-                message_type=ClientMessageType.AddAudio,
-            )
+            # Single channel mode:
+            async for audio_chunk in read_in_chunks(stream, audio_chunk_size):
+                if self._session_needs_closing:
+                    break
+                
+                if self._transcription_config_needs_update:
+                    yield self._set_recognition_config()
+                    self._transcription_config_needs_update = False
 
-        yield self._end_of_stream()
+                await asyncio.wait_for(
+                    self._buffer_semaphore.acquire(),
+                    timeout=self.connection_settings.semaphore_timeout_seconds,
+                )
+                if "single" not in self.seq_no:
+                    self.seq_no["single"] = 0
+                self.seq_no["single"] += 1
+                self._call_middleware(ClientMessageType.AddAudio, audio_chunk, True)
+                yield audio_chunk
+
+            yield self._end_of_stream()
 
     async def _process_multichannel_streams(
         self, channel, stream, audio_chunk_size, message_type
@@ -497,7 +508,7 @@ class WebsocketClient:
         :type stream: io.IOBase
 
         :param channel_stream_pairs: Optional dict containing channel-name stream pairs.
-        :type stream: io.IOBase
+        :type channel_stream_pairs dict[str, io.IOBase]
 
         :param audio_settings: Configuration for the audio stream.
         :type audio_settings: speechmatics.models.AudioSettings

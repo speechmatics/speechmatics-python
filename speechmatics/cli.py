@@ -820,19 +820,19 @@ def rt_main(args):
             LOGGER.warning("Keyboard interrupt received.")
 
     if args["files"][0] == "-":
-        if transcription_config["channel_diarization_labels"]:
+        if transcription_config.channel_diarization_labels:
             raise SystemExit(
                 "Channel diarization is not yet supported when reading from stdin."
             )
         run(stream=sys.stdin.buffer)
     else:
         # Check we have the right diarixation type
-        if transcription_config["channel_diarization_labels"]:
+        if transcription_config.channel_diarization_labels:
             if (
                 transcription_config["diarization"] == "channel"
                 or transcription_config["diarization"] == "channel_and_speaker"
             ):
-                num_channels = len(transcription_config["channel_diarization_labels"])
+                num_channels = len(transcription_config.channel_diarization_labels)
                 if len(args["files"]) != num_channels:
                     raise SystemExit(
                         f"Number of files: ({len(args['files'])}) must match number of channels: ({num_channels})."
@@ -840,9 +840,7 @@ def rt_main(args):
                 else:
                     channel_stream_pairs = {}
                     for i in range(num_channels):
-                        channel_name = transcription_config[
-                            "channel_diarization_labels"
-                        ][i]
+                        channel_name = transcription_config.channel_diarization_labels[i]
                         channel_stream_pairs[channel_name] = args["files"][i]
                     run(channel_stream_pairs=channel_stream_pairs)
             else:
