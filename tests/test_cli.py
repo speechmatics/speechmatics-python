@@ -81,8 +81,7 @@ from tests.utils import path_to_test_resource
                 "transcribe",
                 "--multichannel",
                 "test_channel_1,test_channel_2",
-                "diarization",
-                "speaker",
+                "--diarization=speaker",
             ],
             {
                 "mode": "rt",

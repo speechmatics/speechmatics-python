@@ -317,12 +317,11 @@ def get_arg_parser():
     )
     config_parser.add_argument(
         "--multichannel",
-        nargs="+",
-        metavar="CHANNEL",
+        metavar="CHANNELS",
         help=(
-            "Enables multichannel mode and specifies channels."
-            "Each channel must be separated by a comma, e.g.: <CHANNEL_1>,<CHANNEL_2,>."
-        ),
+            "Enables multichannel mode and specifies channels. "
+            "Pass channels as a comma-separated string, e.g.: <CHANNEL_1>,<CHANNEL_2>."
+        )
     )
 
     # Parent parser for batch summarize argument
