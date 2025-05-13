@@ -321,7 +321,7 @@ def get_arg_parser():
         help=(
             "Enables multichannel mode and specifies channels. "
             "Pass channels as a comma-separated string, e.g.: <CHANNEL_1>,<CHANNEL_2>."
-        )
+        ),
     )
 
     # Parent parser for batch summarize argument
