@@ -829,8 +829,8 @@ def rt_main(args):
         # Check we have the right diarixation type
         if transcription_config.channel_diarization_labels:
             if (
-                transcription_config["diarization"] == "channel"
-                or transcription_config["diarization"] == "channel_and_speaker"
+                transcription_config.diarization == "channel"
+                or transcription_config.diarization == "channel_and_speaker"
             ):
                 num_channels = len(transcription_config.channel_diarization_labels)
                 if len(args["files"]) != num_channels:

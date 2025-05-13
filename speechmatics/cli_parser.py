@@ -555,7 +555,7 @@ def get_arg_parser():
 
     rt_transcribe_command_parser.add_argument(
         "--diarization",
-        choices=["none", "speaker"],
+        choices=["none", "speaker", "channel", ],
         help="Which type of diarization to use.",
     )
 

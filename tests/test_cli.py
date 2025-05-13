@@ -759,20 +759,21 @@ def test_rt_main_with_multichannel_option(mock_server):
     chunk_size = 512
     audio_path_1 = path_to_test_resource("ch_converted.wav")
     audio_path_2 = path_to_test_resource("short-text_converted.wav")
+    audio_paths = audio_path_1 + " " + audio_path_2
 
     args = [
         "rt",
         "transcribe",
-        "--ssl-mode=none",
+        "--ssl-mode=insecure",
         "--url",
         mock_server.url,
-        "diarization=channel",
+        "--diarization=channel",
         "--multichannel=channel_1,channel_2",
         "--lang=en",
         "--chunk-size",
         str(chunk_size),
         "--raw=pcm_s16le",
-        "--sample_rate=16000",
+        "--sample-rate=16000",
         audio_path_1,
         audio_path_2,
     ]
