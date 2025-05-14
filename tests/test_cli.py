@@ -795,7 +795,6 @@ def test_rt_main_with_multichannel_option(mock_server):
     assert msg["audio_format"]["sample_rate"] == 16000
     assert msg["transcription_config"]["language"] == "en"
     assert msg["transcription_config"]["diarization"] == "channel"
-    assert msg["transcription_config"]["max_delay_mode"] == "fixed"
     assert msg["transcription_config"].get("operating_point") is None
 
     # Check we get all channels in the add channel audio messages

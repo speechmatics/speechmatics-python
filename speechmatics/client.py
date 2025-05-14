@@ -246,20 +246,37 @@ class WebsocketClient:
         :type audio_chunk_size: int
         """
         if self.channel_stream_pairs is not None:
-            # Multichannel mode: create a task for each channel
-            channel_tasks = [
+            queue = asyncio.Queue()
+            channels_finished_event = asyncio.Event()
+
+            async def stream_channel(channel, stream):
+                async for message in self._process_multichannel_streams(
+                    channel, stream, audio_chunk_size, ClientMessageType.AddChannelAudio
+                ):
+                    await queue.put(message)
+                return
+            
+            # Launch a task for each channel stream
+            channel_streaming_tasks = [
                 asyncio.create_task(
-                    self._process_multichannel_streams(
-                        channel,
-                        stream,
-                        audio_chunk_size,
-                        ClientMessageType.AddChannelAudio,
-                    )
+                    stream_channel(channel, stream)
                 )
                 for channel, stream in self.channel_stream_pairs.items()
             ]
-            # Run in a different thread for each channel - try using something else other than asyncio
-            await asyncio.gather(*channel_tasks)
+
+            async def wait_for_all_streams():
+                await asyncio.wait(channel_streaming_tasks)
+                channels_finished_event.set()
+
+            asyncio.create_task(wait_for_all_streams())
+
+            # yield messages from queue until all channels are finished
+            while not (channels_finished_event.is_set() and queue.empty()):
+                message = await queue.get()
+                yield message
+
+            yield self._end_of_stream()
+
         else:
             # Single channel mode:
             async for audio_chunk in read_in_chunks(stream, audio_chunk_size):
