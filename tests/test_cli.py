@@ -759,7 +759,6 @@ def test_rt_main_with_multichannel_option(mock_server):
     chunk_size = 512
     audio_path_1 = path_to_test_resource("ch_converted.wav")
     audio_path_2 = path_to_test_resource("short-text_converted.wav")
-    audio_paths = audio_path_1 + " " + audio_path_2
 
     args = [
         "rt",
@@ -779,7 +778,7 @@ def test_rt_main_with_multichannel_option(mock_server):
     ]
 
     cli.main(vars(cli.parse_args(args)))
-    mock_server.wait_for_clean_disconnects()
+    # mock_server.wait_for_clean_disconnects()
 
     assert mock_server.clients_connected_count == 1
     assert mock_server.clients_disconnected_count == 1

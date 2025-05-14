@@ -222,9 +222,9 @@ async def mock_server_handler(websocket, logbook):
                 responses.append(
                     responses.append(
                         {
-                            "message": "AddChannelAudio",
+                            "message": "ChannelAudioAdded",
                             "channel": message["channel"],
-                            "data": "mock_data",
+                            "seq_no": "123",
                         }
                     )
                 )
