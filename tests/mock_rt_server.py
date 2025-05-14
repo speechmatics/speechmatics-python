@@ -220,11 +220,13 @@ async def mock_server_handler(websocket, logbook):
                 pass
             elif msg_name == "AddChannelAudio":
                 responses.append(
-                    responses.append({
-                        "message": "AddChannelAudio",
-                        "channel": message["channel"],
-                        "data": "mock_data",
-                    })
+                    responses.append(
+                        {
+                            "message": "AddChannelAudio",
+                            "channel": message["channel"],
+                            "data": "mock_data",
+                        }
+                    )
                 )
             else:
                 raise ValueError(f"Unrecognized message: {message}")

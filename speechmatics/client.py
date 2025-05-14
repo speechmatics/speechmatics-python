@@ -255,12 +255,10 @@ class WebsocketClient:
                 ):
                     await queue.put(message)
                 return
-            
+
             # Launch a task for each channel stream
             channel_streaming_tasks = [
-                asyncio.create_task(
-                    stream_channel(channel, stream)
-                )
+                asyncio.create_task(stream_channel(channel, stream))
                 for channel, stream in self.channel_stream_pairs.items()
             ]
 
