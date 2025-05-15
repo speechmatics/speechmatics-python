@@ -3,6 +3,7 @@ A server which receives the Speechmatics API Notification (Webhook)
 
 This is a dev example - DO NOT USE IN PRODUCTION
 """
+
 import json
 import sqlite3
 

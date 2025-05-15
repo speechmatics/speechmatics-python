@@ -50,15 +50,19 @@ class BasicTextNormalizer:
         and drop any diacritics (category 'Mn' and some manual mappings)
         """
         return "".join(
-            c
-            if c in keep
-            else self.additional_diacritics[c]
-            if c in self.additional_diacritics
-            else ""
-            if unicodedata.category(c) == "Mn"
-            else " "
-            if unicodedata.category(c)[0] in "MSP"
-            else c
+            (
+                c
+                if c in keep
+                else (
+                    self.additional_diacritics[c]
+                    if c in self.additional_diacritics
+                    else (
+                        ""
+                        if unicodedata.category(c) == "Mn"
+                        else " " if unicodedata.category(c)[0] in "MSP" else c
+                    )
+                )
+            )
             for c in unicodedata.normalize("NFKD", s)
         )
 
