@@ -588,6 +588,8 @@ def add_printing_handlers(
     # print transcription (if text was requested without translation)
 
     api.add_event_handler(ServerMessageType.AudioEventStarted, audio_event_handler)
+    api.add_event_handler(ServerMessageType.EndOfUtterance, end_of_utterance_handler)
+
     if print_json:
         if enable_partials or enable_translation_partials:
             api.add_event_handler(
@@ -601,7 +603,6 @@ def add_printing_handlers(
                 partial_transcript_handler,
             )
         api.add_event_handler(ServerMessageType.AddTranscript, transcript_handler)
-        api.add_event_handler(ServerMessageType.EndOfUtterance, end_of_utterance_handler)
     else:
         if translation_config is not None:
             if enable_partials or enable_translation_partials:
