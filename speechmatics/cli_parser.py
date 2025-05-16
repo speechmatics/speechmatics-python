@@ -219,6 +219,13 @@ def get_arg_parser():
         help=("Filter out quiet audio which falls below this threshold (0.0-100.0)"),
     )
     config_parser.add_argument(
+        "--end-of-utterance-silence-trigger",
+        dest="end_of_utterance_silence_trigger",
+        type=float,
+        default=None,
+        help=("Generate an EndOfUtterance message from the server after this many seconds of silence."),
+    )
+    config_parser.add_argument(
         "--remove-disfluencies",
         default=None,
         action="store_true",

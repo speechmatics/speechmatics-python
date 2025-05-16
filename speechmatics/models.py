@@ -153,7 +153,13 @@ class TranslationConfig:
     def asdict(self):
         return asdict(self)
 
+@dataclass
+class ConversationConfig:
+    """Conversation config."""
 
+    end_of_utterance_silence_trigger: Optional[float] = None
+    """How much silence in seconds is required to trigger end of utterance detection."""
+    
 @dataclass
 class RTTranslationConfig(TranslationConfig):
     """Real-time mode: Translation config."""
@@ -267,6 +273,9 @@ class TranscriptionConfig(_TranscriptionConfig):
     enable_translation_partials: bool = None
     """Indicates if partial translation, where words are produced
     immediately, is enabled."""
+
+    conversation_config: Optional[ConversationConfig] = None
+    """Optional configuration for end-of-utterance detection."""
 
     translation_config: Optional[TranslationConfig] = None
     """Optional configuration for translation."""
