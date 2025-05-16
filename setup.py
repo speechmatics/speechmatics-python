@@ -69,6 +69,9 @@ setup(
     long_description_content_type="text/markdown",
     install_requires=read_list("requirements.txt"),
     tests_require=read_list("requirements-dev.txt"),
+    extras_require={
+        "metrics": read_list("requirements-metrics.txt"),
+    },
     entry_points={
         "console_scripts": [
             "speechmatics = speechmatics.cli:main",
