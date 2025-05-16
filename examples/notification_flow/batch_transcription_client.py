@@ -1,6 +1,7 @@
 """
 Client module which calls the Speechmatics API
 """
+
 import sqlite3
 
 from speechmatics.batch_client import BatchClient

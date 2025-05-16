@@ -36,8 +36,8 @@ from speechmatics.models import (
     ConnectionSettings,
     RTSpeakerDiarizationConfig,
     RTTranslationConfig,
-    ServerMessageType,
     SentimentAnalysisConfig,
+    ServerMessageType,
     SummarizationConfig,
     TopicDetectionConfig,
     TranscriptionConfig,
@@ -271,8 +271,6 @@ def get_transcription_config(
         "max_delay_mode",
         "diarization",
         "channel_diarization_labels",
-        "speaker_diarization_sensitivity",
-        "speaker_diarization_max_speakers",
     ]:
         if args.get(option) is not None:
             config[option] = args[option]
@@ -280,9 +278,6 @@ def get_transcription_config(
         "streaming_mode",
         "enable_partials",
         "enable_entities",
-        "enable_translation_partials",
-        "enable_transcription_partials",
-        "speaker_diarization_prefer_current_speaker",
     ]:
         config[option] = True if args.get(option) else config.get(option)
 
@@ -355,17 +350,15 @@ def get_transcription_config(
     diarization_config = config.get("speaker_diarization_config", {})
     if diarization_config or args.get("diarization") == "speaker":
         max_speakers = args.get(
-            "speaker_diarization_max_speakers",
-            diarization_config.get("speaker_diarization_max_speakers", None),
-        )
+            "speaker_diarization_max_speakers"
+        ) or diarization_config.get("max_speakers", None)
         prefer_current_speaker = args.get(
-            "speaker_diarization_prefer_current_speaker",
-            diarization_config.get("speaker_diarization_prefer_current_speaker", None),
-        )
+            "speaker_diarization_prefer_current_speaker"
+        ) or diarization_config.get("prefer_current_speaker", None)
         speaker_sensitivity = args.get(
-            "speaker_diarization_sensitivity",
-            diarization_config.get("speaker_diarization_sensitivity", None),
-        )
+            "speaker_diarization_sensitivity"
+        ) or diarization_config.get("speaker_sensitivity", None)
+
         if args["mode"] == "rt":
             config["speaker_diarization_config"] = RTSpeakerDiarizationConfig(
                 max_speakers=max_speakers,
@@ -434,7 +427,7 @@ def get_transcription_config(
     args_topic_detection = args.get("detect_topics")
     if args_topic_detection or file_topic_detection_config is not None:
         topic_detection_config = TopicDetectionConfig()
-        topics = args.get("topics", file_topic_detection_config.get("topics"))
+        topics = args.get("topics") or file_topic_detection_config.get("topics")
         if topics:
             topic_detection_config.topics = topics
         config["topic_detection_config"] = topic_detection_config

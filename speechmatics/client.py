@@ -140,13 +140,13 @@ class WebsocketClient:
             "transcription_config": self.transcription_config.as_config(),
         }
         if self.transcription_config.translation_config is not None:
-            msg[
-                "translation_config"
-            ] = self.transcription_config.translation_config.asdict()
+            msg["translation_config"] = (
+                self.transcription_config.translation_config.asdict()
+            )
         if self.transcription_config.audio_events_config is not None:
-            msg[
-                "audio_events_config"
-            ] = self.transcription_config.audio_events_config.asdict()
+            msg["audio_events_config"] = (
+                self.transcription_config.audio_events_config.asdict()
+            )
         self._call_middleware(ClientMessageType.SetRecognitionConfig, msg, False)
         return msg
 
@@ -168,13 +168,13 @@ class WebsocketClient:
             "transcription_config": self.transcription_config.as_config(),
         }
         if self.transcription_config.translation_config is not None:
-            msg[
-                "translation_config"
-            ] = self.transcription_config.translation_config.asdict()
+            msg["translation_config"] = (
+                self.transcription_config.translation_config.asdict()
+            )
         if self.transcription_config.audio_events_config is not None:
-            msg[
-                "audio_events_config"
-            ] = self.transcription_config.audio_events_config.asdict()
+            msg["audio_events_config"] = (
+                self.transcription_config.audio_events_config.asdict()
+            )
         self.session_running = True
         self._call_middleware(ClientMessageType.StartRecognition, msg, False)
         LOGGER.debug(msg)
