@@ -223,7 +223,8 @@ def get_arg_parser():
         dest="end_of_utterance_silence_trigger",
         type=float,
         default=None,
-        help=("Generate an EndOfUtterance message from the server after this many seconds of silence."),
+        help=("Generate an EndOfUtterance message from the server after this many seconds of silence (0.0-2.0)"),
+
     )
     config_parser.add_argument(
         "--remove-disfluencies",
