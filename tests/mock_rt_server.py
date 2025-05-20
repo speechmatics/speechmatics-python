@@ -120,6 +120,15 @@ def dummy_add_partial_transcript():
     }
 
 
+def dummy_end_of_utterance():
+    """Returns a dummy EndOfUtterance message."""
+    return {
+        "message": "EndOfUtterance",
+        "format": "2.1",
+        "metadata": {"start_time": 3.0, "end_time": 3.0},
+    }
+
+
 def dummy_add_transcript():
     """Returns a dummy AddTranscript message."""
     return {
@@ -194,9 +203,10 @@ async def mock_server_handler(websocket, logbook):
             )
             mock_server_handler.next_audio_seq_no += 1
 
-            # Answer immediately with a partial and a final.
+            # Answer immediately with a partial and a final and an end of utterance.
             responses.append(dummy_add_partial_transcript())
             responses.append(dummy_add_transcript())
+            responses.append(dummy_end_of_utterance())
         else:
             msg_name = message.get("message")
             if not msg_name:

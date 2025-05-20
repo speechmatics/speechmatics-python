@@ -281,6 +281,13 @@ def get_transcription_config(
     ]:
         config[option] = True if args.get(option) else config.get(option)
 
+    if args.get("end_of_utterance_silence_trigger") is not None:
+        config["conversation_config"] = {
+            "end_of_utterance_silence_trigger": args.get(
+                "end_of_utterance_silence_trigger"
+            )
+        }
+
     if args.get("volume_threshold") is not None:
         config["audio_filtering_config"] = {
             "volume_threshold": args.get("volume_threshold")
@@ -556,6 +563,13 @@ def add_printing_handlers(
         sys.stdout.write(f"{escape_seq}[{event_name}]\n")
         transcripts.text += f"[{event_name}] "
 
+    def end_of_utterance_handler(message):
+        if print_json:
+            print(json.dumps(message))
+            return
+        sys.stdout.write("[EndOfUtterance]\n")
+        transcripts.text += "[EndOfUtterance]"
+
     def partial_translation_handler(message):
         if print_json:
             print(json.dumps(message))
@@ -590,6 +604,8 @@ def add_printing_handlers(
     # print transcription (if text was requested without translation)
 
     api.add_event_handler(ServerMessageType.AudioEventStarted, audio_event_handler)
+    api.add_event_handler(ServerMessageType.EndOfUtterance, end_of_utterance_handler)
+
     if print_json:
         if enable_partials or enable_translation_partials:
             api.add_event_handler(

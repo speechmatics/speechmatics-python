@@ -167,6 +167,14 @@ class TranslationConfig:
 
 
 @dataclass
+class ConversationConfig:
+    """Conversation config."""
+
+    end_of_utterance_silence_trigger: Optional[float] = None
+    """How much silence in seconds is required to trigger end of utterance detection."""
+
+
+@dataclass
 class RTTranslationConfig(TranslationConfig):
     """Real-time mode: Translation config."""
 
@@ -286,6 +294,9 @@ class TranscriptionConfig(_TranscriptionConfig):
     enable_translation_partials: bool = None
     """Indicates if partial translation, where words are produced
     immediately, is enabled."""
+
+    conversation_config: Optional[ConversationConfig] = None
+    """Optional configuration for end-of-utterance detection."""
 
     translation_config: Optional[TranslationConfig] = None
     """Optional configuration for translation."""
@@ -549,6 +560,9 @@ class ServerMessageType(str, Enum):
 
     AddTranscript = "AddTranscript"
     """Indicates the final transcript of a part of the audio."""
+
+    EndOfUtterance = "EndOfUtterance"
+    """Indicates that an utterance has ended, based on silence"""
 
     AudioEventStarted = "AudioEventStarted"
     """Indicates the start of an audio event."""
