@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.0] - 2025-05-20
+
+### Changed
+
+BREAKING CHANGE: Metrics functionality now requires explicit installation
+
+Previously, all metrics dependencies (pyannote, pandas, jiwer, etc.) were
+installed by default. This change moves them to an optional '[metrics]' extra
+to reduce the default installation footprint.
+
+- Move metrics dependencies to requirements-metrics.txt
+- Configure extras_require in setup.py for optional installation
+- Add graceful error handling in CLI when dependencies are missing
+
 ## [3.0.6] - 2025-05-20
 
 ### Added
