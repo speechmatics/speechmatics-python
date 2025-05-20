@@ -286,7 +286,9 @@ def get_transcription_config(
 
     if args.get("end_of_utterance_silence_trigger") is not None:
         config["conversation_config"] = {
-            "end_of_utterance_silence_trigger": args.get("end_of_utterance_silence_trigger")
+            "end_of_utterance_silence_trigger": args.get(
+                "end_of_utterance_silence_trigger"
+            )
         }
 
     if args.get("volume_threshold") is not None:

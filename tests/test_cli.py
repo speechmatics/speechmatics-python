@@ -183,6 +183,10 @@ from tests.utils import path_to_test_resource
             {"enable_translation_partials": True},
         ),
         (["rt", "transcribe", "--enable-entities"], {"enable_entities": True}),
+        (
+            ["rt", "transcribe", "--end-of-utterance-silence-trigger=1.8"],
+            {"end_of_utterance_silence_trigger": 1.8},
+        ),
         (["batch", "transcribe", "--enable-entities"], {"enable_entities": True}),
         (
             ["batch", "transcribe", "--speaker-diarization-sensitivity=0.7"],
