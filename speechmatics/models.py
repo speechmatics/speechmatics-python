@@ -153,13 +153,15 @@ class TranslationConfig:
     def asdict(self):
         return asdict(self)
 
+
 @dataclass
 class ConversationConfig:
     """Conversation config."""
 
     end_of_utterance_silence_trigger: Optional[float] = None
     """How much silence in seconds is required to trigger end of utterance detection."""
-    
+
+
 @dataclass
 class RTTranslationConfig(TranslationConfig):
     """Real-time mode: Translation config."""
