@@ -287,7 +287,9 @@ def test_start_recognition_sends_speaker_diarization_config(mock_server):
         mock_server.url
     )
     transcription_config.speaker_diarization_config = RTSpeakerDiarizationConfig(
-        max_speakers=5
+        max_speakers=5,
+        speaker_sensitivity=0.75,
+        prefer_current_speaker=True,
     )
 
     with open(path_to_test_resource("ch.wav"), "rb") as audio_stream:
@@ -298,10 +300,21 @@ def test_start_recognition_sends_speaker_diarization_config(mock_server):
     assert len(start_recognition_msgs) == 1
     assert (
         start_recognition_msgs[0]["transcription_config"]["speaker_diarization_config"][
+            "speaker_sensitivity"
+        ]
+        == 0.75
+    )  # noqa
+    assert (
+        start_recognition_msgs[0]["transcription_config"]["speaker_diarization_config"][
             "max_speakers"
         ]
         == 5
     )  # noqa
+    assert start_recognition_msgs[0]["transcription_config"][
+        "speaker_diarization_config"
+    ][
+        "prefer_current_speaker"
+    ]  # noqa
 
 
 def test_client_stops_when_asked_and_sends_end_of_stream(mock_server):

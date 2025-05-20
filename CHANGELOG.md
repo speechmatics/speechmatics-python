@@ -5,11 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [3.0.4] - 2025-05-19
+## [3.0.6] - 2025-05-20
 
 ### Added
 
 - Support end-of-utterance messages (DEL-24982)
+
+## [3.0.5] - 2025-05-15
+
+- cli: fix some config options not being set when defined in a config file: `topic_detection_config` and `speaker_diarization_config`
+
+## [3.0.4] - 2025-04-16
+
+- Support for new parameters `prefer_current_speaker` and `speaker_sensitivity` in Speaker Diarization
 
 ## [3.0.3] - 2025-03-03
 

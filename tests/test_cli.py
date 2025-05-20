@@ -6,8 +6,7 @@ import os
 import pytest
 import toml
 
-from speechmatics import cli
-from speechmatics import cli_parser
+from speechmatics import cli, cli_parser
 from speechmatics.constants import (
     BATCH_SELF_SERVICE_URL,
     RT_SELF_SERVICE_URL,
@@ -189,17 +188,41 @@ from tests.utils import path_to_test_resource
         ),
         (["batch", "transcribe", "--enable-entities"], {"enable_entities": True}),
         (
+            ["batch", "transcribe", "--diarization=speaker"],
+            {
+                "diarization": "speaker",
+                "speaker_diarization_prefer_current_speaker": False,
+                "speaker_diarization_sensitivity": None,
+            },
+        ),
+        (
+            ["batch", "transcribe", "--speaker-diarization-prefer-current-speaker"],
+            {"speaker_diarization_prefer_current_speaker": True},
+        ),
+        (
             ["batch", "transcribe", "--speaker-diarization-sensitivity=0.7"],
             {"speaker_diarization_sensitivity": 0.7},
         ),
         (
-            [
-                "rt",
-                "transcribe",
-                "--diarization=speaker",
-                "--speaker-diarization-max-speakers=3",
-            ],
-            {"diarization": "speaker", "speaker_diarization_max_speakers": 3},
+            ["rt", "transcribe", "--diarization=speaker"],
+            {
+                "diarization": "speaker",
+                "speaker_diarization_prefer_current_speaker": False,
+                "speaker_diarization_max_speakers": None,
+                "speaker_diarization_sensitivity": None,
+            },
+        ),
+        (
+            ["rt", "transcribe", "--speaker-diarization-max-speakers=3"],
+            {"speaker_diarization_max_speakers": 3},
+        ),
+        (
+            ["rt", "transcribe", "--speaker-diarization-prefer-current-speaker"],
+            {"speaker_diarization_prefer_current_speaker": True},
+        ),
+        (
+            ["rt", "transcribe", "--speaker-diarization-sensitivity=0.7"],
+            {"speaker_diarization_sensitivity": 0.7},
         ),
         (
             [
@@ -751,6 +774,12 @@ def test_rt_main_with_config_file(mock_server):
     assert msg["transcription_config"]["domain"] == "fake"
     assert msg["transcription_config"]["enable_entities"] is True
     assert msg["transcription_config"].get("operating_point") is None
+    assert msg["transcription_config"]["diarization"] == "speaker"
+    assert msg["transcription_config"]["speaker_diarization_config"] == {
+        "prefer_current_speaker": True,
+        "max_speakers": 5,
+        "speaker_sensitivity": 0.3,
+    }
     assert msg["translation_config"] is not None
     assert msg["translation_config"]["enable_partials"] is False
     assert msg["translation_config"]["target_languages"] == ["es"]
@@ -775,6 +804,8 @@ def test_rt_main_with_config_file_cmdline_override(mock_server):
         "--output-locale=en-US",
         "--domain=different",
         "--operating-point=enhanced",
+        "--speaker-diarization-max-speakers=3",
+        "--speaker-diarization-sensitivity=0.7",
         audio_path,
     ]
 
@@ -796,6 +827,12 @@ def test_rt_main_with_config_file_cmdline_override(mock_server):
     assert msg["transcription_config"]["enable_entities"] is True
     assert msg["transcription_config"]["output_locale"] == "en-US"
     assert msg["transcription_config"]["operating_point"] == "enhanced"
+    assert msg["transcription_config"]["diarization"] == "speaker"
+    assert msg["transcription_config"]["speaker_diarization_config"] == {
+        "prefer_current_speaker": True,
+        "max_speakers": 3,
+        "speaker_sensitivity": 0.7,
+    }
     assert msg["translation_config"] is not None
     assert msg["translation_config"]["enable_partials"] is True
     assert msg["translation_config"]["target_languages"] == ["fr"]

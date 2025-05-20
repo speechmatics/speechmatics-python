@@ -1,4 +1,5 @@
 """Entrypoint for SM metrics"""
+
 import argparse
 
 import asr_metrics.diarization.sm_diarization_metrics.cookbook as diarization_metrics
