@@ -2,7 +2,7 @@
 """
 Functions for converting our JSON transcription results to other formats.
 """
-from typing import Any, List
+from typing import Any, List, Optional
 
 
 def get_txt_translation(translations: List[dict]):
@@ -32,9 +32,9 @@ def get_txt_translation(translations: List[dict]):
 def convert_to_txt(
     tokens: List[dict],
     language: str,
-    language_pack_info: dict = None,
+    language_pack_info: Optional[dict] = None,
     speaker_labels: bool = True,
-    channel: str = None,
+    channel: Optional[str] = None,
 ) -> str:
     """
     Convert a set of transcription result tokens to a plain text format.
@@ -61,13 +61,13 @@ def convert_to_txt(
             continue
 
         speaker = get_speaker(group[0])
-        if channel is not None:
-            texts.append(f"CHANNEL: {channel}\n")
         if speaker and speaker != current_speaker and speaker_labels:
             current_speaker = speaker
             texts.append(f"SPEAKER: {current_speaker}\n")
         texts.append(join_tokens(group, word_delimiter=word_delimiter))
         texts.append("\n")
+    if texts and channel:
+        texts.insert(0, f"{channel}: ")
 
     return "".join(texts).rstrip()
 

@@ -581,11 +581,19 @@ def add_printing_handlers(
         if print_json:
             print(json.dumps(message))
             return
+
+        # Check whether the message received indicates multichannel
+        channel = next(
+            (result["channel"] for result in message["results"] if "channel" in result),
+            None,
+        )
+
         plaintext = speechmatics.adapters.convert_to_txt(
             message["results"],
             api.transcription_config.language,
             language_pack_info=api.get_language_pack_info(),
             speaker_labels=True,
+            channel=channel,
         )
         if plaintext:
             sys.stdout.write(f"{escape_seq}{plaintext}\n")
@@ -829,26 +837,25 @@ def rt_main(args):
         # Check we have the right diarixation type
         if transcription_config.channel_diarization_labels:
             if (
-                transcription_config.diarization == "channel"
-                or transcription_config.diarization == "channel_and_speaker"
+                transcription_config.diarization != "channel"
+                and transcription_config.diarization != "channel_and_speaker"
             ):
-                num_channels = len(transcription_config.channel_diarization_labels)
-                if len(args["files"]) != num_channels:
-                    raise SystemExit(
-                        f"Number of files: ({len(args['files'])}) must match number of channels: ({num_channels})."
-                    )
-                else:
-                    channel_stream_pairs = {}
-                    for i in range(num_channels):
-                        channel_name = transcription_config.channel_diarization_labels[
-                            i
-                        ]
-                        channel_stream_pairs[channel_name] = args["files"][i]
-                    run(channel_stream_pairs=channel_stream_pairs)
-            else:
                 raise SystemExit(
                     "Multichannel DZ type must be 'channel' or 'channel_and_speaker'."
                 )
+
+            num_channels = len(transcription_config.channel_diarization_labels)
+            if len(args["files"]) != num_channels:
+                raise SystemExit(
+                    f"Number of files: ({len(args['files'])}) must match number of channels: ({num_channels})."
+                )
+
+            channel_stream_pairs = {}
+            for i in range(num_channels):
+                channel_name = transcription_config.channel_diarization_labels[i]
+                channel_stream_pairs[channel_name] = args["files"][i]
+            run(channel_stream_pairs=channel_stream_pairs)
+
         else:
             for filename in args["files"]:
                 with open(filename, "rb") as audio_file:

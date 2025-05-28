@@ -528,6 +528,9 @@ class ClientMessageType(str, Enum):
     EndOfStream = "EndOfStream"
     """Indicates that the client has no more audio to send."""
 
+    EndOfChannel = "EndOfChannel"
+    """Indicates that the client has no more audio to send in particular channel."""
+
     SetRecognitionConfig = "SetRecognitionConfig"
     """Allows the client to re-configure the recognition session."""
 

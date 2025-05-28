@@ -1,6 +1,7 @@
 import argparse
 import collections
 import logging
+from math import ceil
 import os
 
 import pytest
@@ -797,19 +798,28 @@ def test_rt_main_with_multichannel_option(mock_server):
     assert msg["transcription_config"].get("operating_point") is None
 
     # Check we get all channels in the add channel audio messages
+    eoc = mock_server.find_messages_by_type("EndOfChannel")
+    assert eoc
+    seq_no_map = {m["channel"]: m["last_seq_no"] for m in eoc}
     add_channel_audio_messages = mock_server.find_messages_by_type("AddChannelAudio")
     assert add_channel_audio_messages
+
+    for channel, seq in seq_no_map.items():
+        assert seq == sum(
+            1 for msg in add_channel_audio_messages if msg.get("channel") == channel
+        )
+
     assert all(
-        channel in add_channel_audio_messages for channel in ["channel_1", "channel_2"]
-    )
+        msg.get("channel") in seq_no_map.keys() for msg in add_channel_audio_messages
+    ), "Some messages have invalid channels!"
 
     # Check file sizes are respected
     size_of_audio_file_1 = os.stat(audio_path_1).st_size
     size_of_audio_file_2 = os.stat(audio_path_2).st_size
-    expected_num_messages_ = (size_of_audio_file_1 / chunk_size) + (
+    expected_num_messages = ceil(size_of_audio_file_1 / chunk_size) + ceil(
         size_of_audio_file_2 / chunk_size
     )
-    assert -1 <= (len(add_channel_audio_messages) - expected_num_messages_) <= 1
+    assert -1 <= (len(add_channel_audio_messages) - expected_num_messages) <= 1
 
 
 def test_rt_main_with_config_file(mock_server):

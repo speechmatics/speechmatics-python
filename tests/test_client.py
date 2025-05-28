@@ -518,7 +518,7 @@ async def test__producer_happy_path(mocker):
             )
         else:
             assert msg == json.dumps(
-                {"message": "EndOfStream", "last_seq_no": {"single": exp_final_seq_no}}
+                {"message": "EndOfStream", "last_seq_no": exp_final_seq_no}
             )
             cmp_dicts(
                 original_state,

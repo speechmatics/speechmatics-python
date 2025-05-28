@@ -6,6 +6,7 @@ Based on http://asyncio.readthedocs.io/en/latest/producer_consumer.html
 
 import asyncio
 import base64
+from collections import defaultdict
 from contextlib import AsyncExitStack
 import copy
 import json
@@ -22,7 +23,12 @@ from speechmatics.exceptions import (
     ForceEndSession,
     TranscriptionError,
 )
-from speechmatics.helpers import get_version, json_utf8, read_in_chunks
+from speechmatics.helpers import (
+    check_tasks_exceptions,
+    get_version,
+    json_utf8,
+    read_in_chunks,
+)
 from speechmatics.models import (
     AudioSettings,
     ClientMessageType,
@@ -78,7 +84,7 @@ class WebsocketClient:
         self.event_handlers = {x: [] for x in ServerMessageType}
         self.middlewares = {x: [] for x in ClientMessageType}
 
-        self.seq_no: dict[str, int] = {}
+        self.seq_no: defaultdict = defaultdict(int)
         self.session_running = False
         self._language_pack_info = None
         self._transcription_config_needs_update = False
@@ -87,10 +93,10 @@ class WebsocketClient:
 
         # The following asyncio fields are fully instantiated in
         # _init_synchronization_primitives
-        self._recognition_started = asyncio.Event
+        self._recognition_started: asyncio.Event
         # Semaphore used to ensure that we don't send too much audio data to
         # the server too quickly and burst any buffers downstream.
-        self._buffer_semaphore = asyncio.BoundedSemaphore
+        self._buffer_semaphore: asyncio.BoundedSemaphore
 
     async def _init_synchronization_primitives(self):
         """
@@ -170,8 +176,7 @@ class WebsocketClient:
             "audio_format": audio_settings.asdict(),
             "transcription_config": self.transcription_config.as_config(),
         }
-        if self.channel_stream_pairs is not None:
-            msg["channel_diarization_labels"] = list(self.channel_stream_pairs.keys())
+
         if self.transcription_config.translation_config is not None:
             msg[
                 "translation_config"
@@ -192,8 +197,30 @@ class WebsocketClient:
         :py:attr:`speechmatics.models.ClientMessageType.EndOfStream`
         message.
         """
-        msg = {"message": ClientMessageType.EndOfStream, "last_seq_no": self.seq_no}
+        assert (
+            self.channel_stream_pairs is None
+        ), "End of stream can only be sent for a single channel"
+        seq_no = 0
+        # if client disconnects before sending any audio, seq_no will be empty
+        if len(self.seq_no) == 1:
+            seq_no = next(iter(self.seq_no.values()))
+        msg = {"message": ClientMessageType.EndOfStream, "last_seq_no": seq_no}
         self._call_middleware(ClientMessageType.EndOfStream, msg, False)
+        LOGGER.debug(msg)
+        return msg
+
+    def _end_of_channel(self, channel) -> dict:
+        """
+        Constructs an
+        :py:attr:`speechmatics.models.ClientMessageType.EndOfChannel`
+        message.
+        """
+        msg = {
+            "message": ClientMessageType.EndOfChannel,
+            "channel": channel,
+            "last_seq_no": self.seq_no[channel],
+        }
+        self._call_middleware(ClientMessageType.EndOfChannel, msg, False)
         LOGGER.debug(msg)
         return msg
 
@@ -210,7 +237,7 @@ class WebsocketClient:
         :raises ForceEndSession: If this was raised by the user's event
             handler.
         """
-        LOGGER.debug(message)
+        LOGGER.debug(f"{message=}")
         message = json.loads(message)
         message_type = message["message"]
 
@@ -247,124 +274,70 @@ class WebsocketClient:
         :type audio_chunk_size: int
         """
         if self.channel_stream_pairs is not None:
-            LOGGER.warning("Producer in multichannel mode")
-            queue = asyncio.Queue()
-
-            async def stream_channel(channel, stream):
-                async for audio_chnk in read_in_chunks(stream, audio_chunk_size):
-                    LOGGER.warning(f"Processing chunk for channel {channel}")
-
-                    base64_chunk = base64.b64encode(audio_chnk).decode("utf-8")
-                    message = { 
-                        "message": "AddChannelAudio",
-                        "channel": channel,
-                        "audio": base64_chunk,
-                    }
-
-                    if self._session_needs_closing:
-                        break
-
-                    if self._transcription_config_needs_update:
-                        await queue.put(self._set_recognition_config())
-                        self._transcription_config_needs_update = False
-
-                    if channel not in self.seq_no:
-                        self.seq_no[channel] = 0
-
-                    LOGGER.warning(f"Channel {channel} waiting to acquire semaphore")
-                    try:
-                        await asyncio.wait_for(
-                            self._buffer_semaphore.acquire(),
-                            timeout=self.connection_settings.semaphore_timeout_seconds,
-                        )
-                    except asyncio.TimeoutError:
-                        LOGGER.error(f"Channel {channel} timed out waiting for buffer semaphore")
-                        return
-                    except asyncio.CancelledError:
-                        LOGGER.error(f"Channel {channel} semaphore acquire cancelled, exiting")
-                        return
-
-                    self.seq_no[channel] += 1
-                    self._call_middleware(ClientMessageType.AddChannelAudio, message)
-                    LOGGER.warning(f"Channel {channel} releasing semaphore, enqueuing message")
-                    await queue.put(message)
-
-            # Create tasks for each channel stream
-            LOGGER.warning("Creating channel streaming tasks")
-            tasks = [
-                asyncio.create_task(stream_channel(channel, channel_stream))
-                for channel, channel_stream in self.channel_stream_pairs.items()
-            ]
-            LOGGER.warning("Channel streaming tasks created")
-
-            # Consume queue while tasks are running
-            pending_tasks = asyncio.gather(*tasks)
-
-            while True:
-                if pending_tasks.done() and queue.empty():
-                    break
-                try:
-                    message = await asyncio.wait_for(queue.get(), timeout=1.0)
-                    LOGGER.warning("Got message from queue, yielding")
-                    yield message
-                except asyncio.TimeoutError:
-                    continue
-
-            LOGGER.warning("Yielding end of stream message")
-            yield self._end_of_stream()
-
+            async for msg in self._process_multichannel_streams(audio_chunk_size):
+                yield msg
         else:
-            # Single channel mode:
-            async for audio_chunk in read_in_chunks(stream, audio_chunk_size):
-                if self._session_needs_closing:
-                    break
+            async for msg in self._process_single_stream(stream, audio_chunk_size):
+                yield msg
 
-                if self._transcription_config_needs_update:
-                    yield self._set_recognition_config()
-                    self._transcription_config_needs_update = False
+    async def _stream_channel(self, channel, stream, queue, audio_chunk_size):
+        """
+        Stream audio data for a specific channel and put messages into the queue.
+        """
+        async for audio_chnk in read_in_chunks(stream, audio_chunk_size):
+            if self._session_needs_closing:
+                break
+            if self._transcription_config_needs_update:
+                await queue.put(self._set_recognition_config())
+                self._transcription_config_needs_update = False
+            await asyncio.wait_for(
+                self._buffer_semaphore.acquire(),
+                timeout=self.connection_settings.semaphore_timeout_seconds,
+            )
 
-                await asyncio.wait_for(
-                    self._buffer_semaphore.acquire(),
-                    timeout=self.connection_settings.semaphore_timeout_seconds,
-                )
-                if "single" not in self.seq_no:
-                    self.seq_no["single"] = 0
-                self.seq_no["single"] += 1
-                self._call_middleware(ClientMessageType.AddAudio, audio_chunk, True)
-                yield audio_chunk
-
-            yield self._end_of_stream()
-
-    async def _process_multichannel_streams(
-        self, channel, stream, audio_chunk_size, message_type, queue
-    ):
-        async for audio_chunk in read_in_chunks(stream, audio_chunk_size):
-            LOGGER.warning(f"Processing multichannel audio stream chunk for channel {channel}")
-            base64_chunk = base64.b64encode(audio_chunk).decode("utf-8")
+            base64_chunk = base64.b64encode(audio_chnk).decode("utf-8")
             message = {
                 "message": "AddChannelAudio",
                 "channel": channel,
-                "audio": base64_chunk,
+                "data": base64_chunk,
             }
-            if self._session_needs_closing:
-                break
 
-            if self._transcription_config_needs_update:
-                yield self._set_recognition_config()
-                self._transcription_config_needs_update = False
-
-            LOGGER.warning(f"Channel {channel} waiting to acquire semaphore")
-            await asyncio.wait_for(
-                self._buffer_semaphore.acquire(),
-                timeout=self.connection_settings.semaphore_timeout_seconds,
-            )
+            # seq_no is defaultdict is so the keys are created automatically
             self.seq_no[channel] += 1
-            LOGGER.warning(f"Channel {channel} acquired semaphore, calling middleware")
-            self._call_middleware(message_type, message)
-            LOGGER.warning(f"Channel {channel} releasing semaphore, yielding message")
-            yield message
+            self._call_middleware(ClientMessageType.AddChannelAudio, message)
+            await queue.put(message)
+        await queue.put(self._end_of_channel(channel))
 
-    async def _process_stream(self, stream, audio_chunk_size, channel, message_type):
+    async def _process_multichannel_streams(self, audio_chunk_size):
+        """
+        Process multiple channel streams and yield messages to send to the server.
+        """
+        assert (
+            self.channel_stream_pairs is not None
+        ), "Channel stream pairs must be set for multichannel mode"
+        queue = asyncio.Queue()
+        tasks = [
+            asyncio.create_task(
+                self._stream_channel(channel, channel_stream, queue, audio_chunk_size)
+            )
+            for channel, channel_stream in self.channel_stream_pairs.items()
+        ]
+        while True:
+            check_tasks_exceptions(tasks)
+            streams_done = all(task.done() for task in tasks)
+            if streams_done and queue.empty():
+                break
+            try:
+                message = await asyncio.wait_for(queue.get(), timeout=0.5)
+                yield json.dumps(message)
+            except asyncio.TimeoutError:
+                continue
+
+    async def _process_single_stream(self, stream, audio_chunk_size):
+        """
+        Process a single channel stream and yield messages to send to the server.
+        Yilds binary audio chunks
+        """
         async for audio_chunk in read_in_chunks(stream, audio_chunk_size):
             if self._session_needs_closing:
                 break
@@ -377,9 +350,11 @@ class WebsocketClient:
                 self._buffer_semaphore.acquire(),
                 timeout=self.connection_settings.semaphore_timeout_seconds,
             )
-            self.seq_no[channel] += 1
-            self._call_middleware(message_type, audio_chunk, True)
+            self.seq_no["single"] += 1
+            self._call_middleware(ClientMessageType.AddAudio, audio_chunk, True)
             yield audio_chunk
+
+        yield self._end_of_stream()
 
     async def _consumer_handler(self):
         """
@@ -406,11 +381,7 @@ class WebsocketClient:
         await self._recognition_started.wait()
         async for message in self._producer(stream, audio_chunk_size):
             try:
-                if self.channel_stream_pairs is None:
-                    await self.websocket.send(message)
-                else:
-                    # In multichannel mode, we need to send the JSON message not the dict
-                    await self.websocket.send(json.dumps(message))
+                await self.websocket.send(message)
             except websockets.exceptions.ConnectionClosedOK:
                 # Can occur if a timeout has closed the connection.
                 LOGGER.info("Cannot send from a closed websocket.")
