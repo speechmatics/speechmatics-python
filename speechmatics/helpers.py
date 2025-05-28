@@ -127,3 +127,18 @@ def _process_status_errors(error):
             + "(e.g. --lang abc is invalid)."
         )
     sys.exit(f"httpx.HTTPStatusError: {error}")
+
+
+def check_tasks_exceptions(tasks):
+    for t in tasks:
+        if not t.done() or t.cancelled():
+            continue
+
+        exc = t.exception()
+        if not exc:
+            continue
+
+        for other in tasks:
+            if other is not t:
+                other.cancel()
+        raise exc

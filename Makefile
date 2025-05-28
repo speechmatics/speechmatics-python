@@ -9,6 +9,11 @@ lint:
 	black --check --diff $(SOURCES)
 	ruff $(SOURCES)
 
+.PHONY: lint-fix
+lint-fix:
+	black $(SOURCES)
+	ruff --fix $(SOURCES)
+
 .PHONY: format
 format:
 	black $(SOURCES)
