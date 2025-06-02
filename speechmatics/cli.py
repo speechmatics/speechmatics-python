@@ -111,7 +111,7 @@ def parse_word_replacements(replacement_words_filepath) -> List[Dict]:
     return replacement_words
 
 
-def parse_multichannel_args(multichannel_args):
+def parse_multichannel_args(multichannel_args: str) -> list[str]:
     """
     Parses multichannel arguments from the command line
     :param multichannel_args: Multichannel arguments

@@ -779,7 +779,6 @@ def test_rt_main_with_multichannel_option(mock_server):
     ]
 
     cli.main(vars(cli.parse_args(args)))
-    # mock_server.wait_for_clean_disconnects()
 
     assert mock_server.clients_connected_count == 1
     assert mock_server.clients_disconnected_count == 1
@@ -796,6 +795,7 @@ def test_rt_main_with_multichannel_option(mock_server):
     assert msg["transcription_config"]["language"] == "en"
     assert msg["transcription_config"]["diarization"] == "channel"
     assert msg["transcription_config"].get("operating_point") is None
+    assert len(msg["transcription_config"]["channel_diarization_labels"]) == 2
 
     # Check we get all channels in the add channel audio messages
     eoc = mock_server.find_messages_by_type("EndOfChannel")

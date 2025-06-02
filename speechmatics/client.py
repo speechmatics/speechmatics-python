@@ -521,7 +521,7 @@ class WebsocketClient:
     async def run(
         self,
         transcription_config: TranscriptionConfig,
-        stream=None,
+        stream: Optional[Any] = None,
         channel_stream_pairs=None,
         audio_settings: AudioSettings = None,
         from_cli: bool = False,
@@ -531,7 +531,7 @@ class WebsocketClient:
         Begin a new recognition session.
         This will run asynchronously. Most callers may prefer to use
         :py:meth:`run_synchronously` which will block until the session is
-        finished.
+        finished.`
 
         :param transcription_config: Configuration for the transcription.
         :type transcription_config: speechmatics.models.TranscriptionConfig
