@@ -561,17 +561,13 @@ def add_printing_handlers(
         if print_json:
             print(json.dumps(message))
             return
-        # Check whether the message received indicates multichannel
-        channel = next(
-            (result["channel"] for result in message["results"] if "channel" in result),
-            None,
-        )
+
         plaintext = speechmatics.adapters.convert_to_txt(
             message["results"],
             api.transcription_config.language,
             language_pack_info=api.get_language_pack_info(),
             speaker_labels=True,
-            channel=channel,
+            channel=get_channel(message),
         )
         if plaintext:
             sys.stderr.write(f"{escape_seq}{plaintext}\r")
@@ -582,22 +578,30 @@ def add_printing_handlers(
             print(json.dumps(message))
             return
 
-        # Check whether the message received indicates multichannel
-        channel = next(
-            (result["channel"] for result in message["results"] if "channel" in result),
-            None,
-        )
-
         plaintext = speechmatics.adapters.convert_to_txt(
             message["results"],
             api.transcription_config.language,
             language_pack_info=api.get_language_pack_info(),
             speaker_labels=True,
-            channel=channel,
+            channel=get_channel(message),
         )
         if plaintext:
             sys.stdout.write(f"{escape_seq}{plaintext}\n")
         transcripts.text += plaintext
+
+    def get_channel(message) -> str | None:
+        """
+        Checks if the message contains a channel and returns the channel name if present.
+
+        :param message: The message to check.
+        :type message: dict
+        :return: The channel name if present, otherwise None.
+        :rtype: str | None
+        """
+        return next(
+            (result["channel"] for result in message["results"] if "channel" in result),
+            None,
+        )
 
     def audio_event_handler(message):
         if print_json:
