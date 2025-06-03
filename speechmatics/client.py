@@ -209,11 +209,12 @@ class WebsocketClient:
         LOGGER.debug(msg)
         return msg
 
-    def _end_of_channel(self, channel) -> dict:
+    def _end_of_channel(self, channel: str) -> dict:
         """
-        Constructs an
-        :py:attr:`speechmatics.models.ClientMessageType.EndOfChannel`
-        message.
+        Constructs a :py:attr:`speechmatics.models.ClientMessageType.EndOfChannel` message.
+
+        :param channel: The name of the channel for which the end message is being constructed.
+        :type channel: str
         """
         msg = {
             "message": ClientMessageType.EndOfChannel,
@@ -336,7 +337,7 @@ class WebsocketClient:
     async def _process_single_stream(self, stream, audio_chunk_size):
         """
         Process a single channel stream and yield messages to send to the server.
-        Yilds binary audio chunks
+        Yields binary audio chunks
         """
         async for audio_chunk in read_in_chunks(stream, audio_chunk_size):
             if self._session_needs_closing:

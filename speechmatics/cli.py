@@ -834,7 +834,7 @@ def rt_main(args):
             )
         run(stream=sys.stdin.buffer)
     else:
-        # Check we have the right diarixation type
+        # Check we have the right diarization type
         if transcription_config.channel_diarization_labels:
             if (
                 transcription_config.diarization != "channel"
