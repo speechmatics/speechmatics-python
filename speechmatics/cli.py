@@ -856,6 +856,7 @@ def rt_main(args):
 
             channel_stream_pairs = {}
             for i in range(num_channels):
+                # Here the order matters, as stream positions and diarization labels correspond to one another.
                 channel_name = transcription_config.channel_diarization_labels[i]
                 channel_stream_pairs[channel_name] = args["files"][i]
             run(channel_stream_pairs=channel_stream_pairs)

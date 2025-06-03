@@ -320,7 +320,8 @@ def get_arg_parser():
         metavar="CHANNELS",
         help=(
             "Enables multichannel mode and specifies channels. "
-            "Pass channels as a comma-separated string, e.g.: <CHANNEL_1>,<CHANNEL_2>."
+            "Pass channels as a comma-separated string, e.g.: <CHANNEL_1>,<CHANNEL_2>. "
+            "The number of channels specified must match the number of input files."
         ),
     )
 
