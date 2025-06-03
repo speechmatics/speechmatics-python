@@ -589,15 +589,7 @@ def add_printing_handlers(
             sys.stdout.write(f"{escape_seq}{plaintext}\n")
         transcripts.text += plaintext
 
-    def get_channel(message) -> Any | None:
-        """
-        Checks if the message contains a channel and returns the channel name if present.
-
-        :param message: The message to check.
-        :type message: dict
-        :return: The channel name if present, otherwise None.
-        :rtype: Any | None
-        """
+    def get_channel(message):
         return next(
             (result["channel"] for result in message["results"] if "channel" in result),
             None,
