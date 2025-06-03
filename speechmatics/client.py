@@ -5,6 +5,9 @@ Based on http://asyncio.readthedocs.io/en/latest/producer_consumer.html
 """
 
 import asyncio
+import base64
+from collections import defaultdict
+from contextlib import AsyncExitStack
 import copy
 import json
 import logging
@@ -20,7 +23,12 @@ from speechmatics.exceptions import (
     ForceEndSession,
     TranscriptionError,
 )
-from speechmatics.helpers import get_version, json_utf8, read_in_chunks
+from speechmatics.helpers import (
+    check_tasks_exceptions,
+    get_version,
+    json_utf8,
+    read_in_chunks,
+)
 from speechmatics.models import (
     AudioSettings,
     ClientMessageType,
@@ -76,18 +84,19 @@ class WebsocketClient:
         self.event_handlers = {x: [] for x in ServerMessageType}
         self.middlewares = {x: [] for x in ClientMessageType}
 
-        self.seq_no = 0
+        self.seq_no: defaultdict = defaultdict(int)
         self.session_running = False
         self._language_pack_info = None
         self._transcription_config_needs_update = False
         self._session_needs_closing = False
+        self.channel_stream_pairs = None
 
         # The following asyncio fields are fully instantiated in
         # _init_synchronization_primitives
-        self._recognition_started = asyncio.Event
+        self._recognition_started: asyncio.Event
         # Semaphore used to ensure that we don't send too much audio data to
         # the server too quickly and burst any buffers downstream.
-        self._buffer_semaphore = asyncio.BoundedSemaphore
+        self._buffer_semaphore: asyncio.BoundedSemaphore
 
     async def _init_synchronization_primitives(self):
         """
@@ -167,6 +176,7 @@ class WebsocketClient:
             "audio_format": audio_settings.asdict(),
             "transcription_config": self.transcription_config.as_config(),
         }
+
         if self.transcription_config.translation_config is not None:
             msg["translation_config"] = (
                 self.transcription_config.translation_config.asdict()
@@ -187,8 +197,31 @@ class WebsocketClient:
         :py:attr:`speechmatics.models.ClientMessageType.EndOfStream`
         message.
         """
-        msg = {"message": ClientMessageType.EndOfStream, "last_seq_no": self.seq_no}
+        assert (
+            self.channel_stream_pairs is None
+        ), "End of stream can only be sent for a single channel"
+        seq_no = 0
+        # if client disconnects before sending any audio, seq_no will be empty
+        if len(self.seq_no) == 1:
+            seq_no = next(iter(self.seq_no.values()))
+        msg = {"message": ClientMessageType.EndOfStream, "last_seq_no": seq_no}
         self._call_middleware(ClientMessageType.EndOfStream, msg, False)
+        LOGGER.debug(msg)
+        return msg
+
+    def _end_of_channel(self, channel: str) -> dict:
+        """
+        Constructs a :py:attr:`speechmatics.models.ClientMessageType.EndOfChannel` message.
+
+        :param channel: The name of the channel for which the end message is being constructed.
+        :type channel: str
+        """
+        msg = {
+            "message": ClientMessageType.EndOfChannel,
+            "channel": channel,
+            "last_seq_no": self.seq_no[channel],
+        }
+        self._call_middleware(ClientMessageType.EndOfChannel, msg, False)
         LOGGER.debug(msg)
         return msg
 
@@ -205,7 +238,7 @@ class WebsocketClient:
         :raises ForceEndSession: If this was raised by the user's event
             handler.
         """
-        LOGGER.debug(message)
+        LOGGER.debug(f"{message=}")
         message = json.loads(message)
         message_type = message["message"]
 
@@ -221,6 +254,8 @@ class WebsocketClient:
             if "language_pack_info" in message:
                 self._set_language_pack_info(message["language_pack_info"])
         elif message_type == ServerMessageType.AudioAdded:
+            self._buffer_semaphore.release()
+        elif message_type == ServerMessageType.ChannelAudioAdded:
             self._buffer_semaphore.release()
         elif message_type == ServerMessageType.EndOfTranscript:
             raise EndOfTranscriptException()
@@ -239,6 +274,71 @@ class WebsocketClient:
         :param audio_chunk_size: Size of audio chunks to send.
         :type audio_chunk_size: int
         """
+        if self.channel_stream_pairs is not None:
+            async for msg in self._process_multichannel_streams(audio_chunk_size):
+                yield msg
+        else:
+            async for msg in self._process_single_stream(stream, audio_chunk_size):
+                yield msg
+
+    async def _stream_channel(self, channel, stream, queue, audio_chunk_size):
+        """
+        Stream audio data for a specific channel and put messages into the queue.
+        """
+        async for audio_chnk in read_in_chunks(stream, audio_chunk_size):
+            if self._session_needs_closing:
+                break
+            if self._transcription_config_needs_update:
+                await queue.put(self._set_recognition_config())
+                self._transcription_config_needs_update = False
+            await asyncio.wait_for(
+                self._buffer_semaphore.acquire(),
+                timeout=self.connection_settings.semaphore_timeout_seconds,
+            )
+
+            base64_chunk = base64.b64encode(audio_chnk).decode("utf-8")
+            message = {
+                "message": "AddChannelAudio",
+                "channel": channel,
+                "data": base64_chunk,
+            }
+
+            # seq_no is defaultdict is so the keys are created automatically
+            self.seq_no[channel] += 1
+            self._call_middleware(ClientMessageType.AddChannelAudio, message)
+            await queue.put(message)
+        await queue.put(self._end_of_channel(channel))
+
+    async def _process_multichannel_streams(self, audio_chunk_size):
+        """
+        Process multiple channel streams and yield messages to send to the server.
+        """
+        assert (
+            self.channel_stream_pairs is not None
+        ), "Channel stream pairs must be set for multichannel mode"
+        queue = asyncio.Queue()
+        tasks = [
+            asyncio.create_task(
+                self._stream_channel(channel, channel_stream, queue, audio_chunk_size)
+            )
+            for channel, channel_stream in self.channel_stream_pairs.items()
+        ]
+        while True:
+            check_tasks_exceptions(tasks)
+            streams_done = all(task.done() for task in tasks)
+            if streams_done and queue.empty():
+                break
+            try:
+                message = await asyncio.wait_for(queue.get(), timeout=0.5)
+                yield json.dumps(message)
+            except asyncio.TimeoutError:
+                continue
+
+    async def _process_single_stream(self, stream, audio_chunk_size):
+        """
+        Process a single channel stream and yield messages to send to the server.
+        Yields binary audio chunks
+        """
         async for audio_chunk in read_in_chunks(stream, audio_chunk_size):
             if self._session_needs_closing:
                 break
@@ -251,7 +351,7 @@ class WebsocketClient:
                 self._buffer_semaphore.acquire(),
                 timeout=self.connection_settings.semaphore_timeout_seconds,
             )
-            self.seq_no += 1
+            self.seq_no["single"] += 1
             self._call_middleware(ClientMessageType.AddAudio, audio_chunk, True)
             yield audio_chunk
 
@@ -421,8 +521,9 @@ class WebsocketClient:
 
     async def run(
         self,
-        stream,
         transcription_config: TranscriptionConfig,
+        stream: Optional[Any] = None,
+        channel_stream_pairs=None,
         audio_settings: AudioSettings = None,
         from_cli: bool = False,
         extra_headers: Dict = None,
@@ -433,11 +534,14 @@ class WebsocketClient:
         :py:meth:`run_synchronously` which will block until the session is
         finished.
 
-        :param stream: File-like object which an audio stream can be read from.
-        :type stream: io.IOBase
-
         :param transcription_config: Configuration for the transcription.
         :type transcription_config: speechmatics.models.TranscriptionConfig
+
+        :param stream: Optional file-like object which an audio stream can be read from.
+        :type stream: io.IOBase
+
+        :param channel_stream_pairs: Optional dict containing channel-name stream pairs.
+        :type channel_stream_pairs dict[str, io.IOBase]
 
         :param audio_settings: Configuration for the audio stream.
         :type audio_settings: speechmatics.models.AudioSettings
@@ -448,8 +552,19 @@ class WebsocketClient:
         :raises Exception: Can raise any exception returned by the
             consumer/producer tasks.
         """
+        if channel_stream_pairs:
+            opened_streams = {}
+            self._stream_exits = AsyncExitStack()
+            for channel_name, path in channel_stream_pairs.items():
+                if isinstance(path, str):
+                    file_object = await asyncio.to_thread(open, path, "rb")
+                else:
+                    file_object = path
+                opened_streams[channel_name] = file_object
+            self.channel_stream_pairs = opened_streams
+        else:
+            self.channel_stream_pairs = None
         self.transcription_config = transcription_config
-        self.seq_no = 0
         self._language_pack_info = None
         await self._init_synchronization_primitives()
         if extra_headers is None:

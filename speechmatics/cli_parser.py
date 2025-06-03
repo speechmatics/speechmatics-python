@@ -324,6 +324,15 @@ def get_arg_parser():
         default=None,
         help=("Comma-separated list of expected languages for language identification"),
     )
+    config_parser.add_argument(
+        "--multichannel",
+        metavar="CHANNELS",
+        help=(
+            "Enables multichannel mode and specifies channels. "
+            "Pass channels as a comma-separated string, e.g.: <CHANNEL_1>,<CHANNEL_2>. "
+            "The number of channels specified must match the number of input files."
+        ),
+    )
 
     # Parent parser for batch summarize argument
     batch_summarization_parser = argparse.ArgumentParser(add_help=False)
@@ -556,7 +565,11 @@ def get_arg_parser():
 
     rt_transcribe_command_parser.add_argument(
         "--diarization",
-        choices=["none", "speaker"],
+        choices=[
+            "none",
+            "speaker",
+            "channel",
+        ],
         help="Which type of diarization to use.",
     )
 
