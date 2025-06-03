@@ -589,7 +589,7 @@ def add_printing_handlers(
             sys.stdout.write(f"{escape_seq}{plaintext}\n")
         transcripts.text += plaintext
 
-    def get_channel(message)-> Any | None:
+    def get_channel(message) -> Any | None:
         """
         Checks if the message contains a channel and returns the channel name if present.
 
