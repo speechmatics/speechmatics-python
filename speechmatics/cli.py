@@ -36,8 +36,8 @@ from speechmatics.models import (
     ConnectionSettings,
     RTSpeakerDiarizationConfig,
     RTTranslationConfig,
-    ServerMessageType,
     SentimentAnalysisConfig,
+    ServerMessageType,
     SummarizationConfig,
     TopicDetectionConfig,
     TranscriptionConfig,
@@ -109,6 +109,25 @@ def parse_word_replacements(replacement_words_filepath) -> List[Dict]:
             )
 
     return replacement_words
+
+
+def parse_multichannel_args(multichannel_args: str) -> list[str]:
+    """
+    Parses multichannel arguments from the command line
+    :param multichannel_args: Multichannel arguments
+    :type multichannel_args: str
+    :return: A list of channels to be used.
+    :rtype: List[str]
+    :raises SystemExit: If the arguments are not formatted properly.
+    """
+    channels = []
+    try:
+        channels = multichannel_args.split(",")
+    except ValueError:
+        raise SystemExit(
+            f"Invalid format for multichannel arguments: '{multichannel_args}'. Expected format <channel_1>,<channel_2>"
+        )
+    return channels
 
 
 def parse_additional_vocab(additional_vocab_filepath):
@@ -271,8 +290,6 @@ def get_transcription_config(
         "max_delay_mode",
         "diarization",
         "channel_diarization_labels",
-        "speaker_diarization_sensitivity",
-        "speaker_diarization_max_speakers",
     ]:
         if args.get(option) is not None:
             config[option] = args[option]
@@ -280,11 +297,15 @@ def get_transcription_config(
         "streaming_mode",
         "enable_partials",
         "enable_entities",
-        "enable_translation_partials",
-        "enable_transcription_partials",
-        "speaker_diarization_prefer_current_speaker",
     ]:
         config[option] = True if args.get(option) else config.get(option)
+
+    if args.get("end_of_utterance_silence_trigger") is not None:
+        config["conversation_config"] = {
+            "end_of_utterance_silence_trigger": args.get(
+                "end_of_utterance_silence_trigger"
+            )
+        }
 
     if args.get("volume_threshold") is not None:
         config["audio_filtering_config"] = {
@@ -329,6 +350,11 @@ def get_transcription_config(
             "Using additional vocab from file %s", args["additional_vocab_file"]
         )
 
+    if args.get("multichannel"):
+        multichannel_args = parse_multichannel_args(args["multichannel"])
+        config["channel_diarization_labels"] = multichannel_args
+        LOGGER.info(f"Using multchannel mode with channels {multichannel_args}")
+
     if args.get("additional_vocab"):
         if not config.get("additional_vocab"):
             config["additional_vocab"] = args["additional_vocab"]
@@ -355,17 +381,15 @@ def get_transcription_config(
     diarization_config = config.get("speaker_diarization_config", {})
     if diarization_config or args.get("diarization") == "speaker":
         max_speakers = args.get(
-            "speaker_diarization_max_speakers",
-            diarization_config.get("speaker_diarization_max_speakers", None),
-        )
+            "speaker_diarization_max_speakers"
+        ) or diarization_config.get("max_speakers", None)
         prefer_current_speaker = args.get(
-            "speaker_diarization_prefer_current_speaker",
-            diarization_config.get("speaker_diarization_prefer_current_speaker", None),
-        )
+            "speaker_diarization_prefer_current_speaker"
+        ) or diarization_config.get("prefer_current_speaker", None)
         speaker_sensitivity = args.get(
-            "speaker_diarization_sensitivity",
-            diarization_config.get("speaker_diarization_sensitivity", None),
-        )
+            "speaker_diarization_sensitivity"
+        ) or diarization_config.get("speaker_sensitivity", None)
+
         if args["mode"] == "rt":
             config["speaker_diarization_config"] = RTSpeakerDiarizationConfig(
                 max_speakers=max_speakers,
@@ -434,7 +458,7 @@ def get_transcription_config(
     args_topic_detection = args.get("detect_topics")
     if args_topic_detection or file_topic_detection_config is not None:
         topic_detection_config = TopicDetectionConfig()
-        topics = args.get("topics", file_topic_detection_config.get("topics"))
+        topics = args.get("topics") or file_topic_detection_config.get("topics")
         if topics:
             topic_detection_config.topics = topics
         config["topic_detection_config"] = topic_detection_config
@@ -519,23 +543,31 @@ def add_printing_handlers(
             ServerMessageType.AudioAdded, lambda *args: print_symbol("-")
         )
         api.add_event_handler(
+            ServerMessageType.ChannelAudioAdded, lambda *args: print_symbol("=")
+        )
+        api.add_event_handler(
             ServerMessageType.AddPartialTranscript, lambda *args: print_symbol(".")
         )
         api.add_event_handler(
             ServerMessageType.AddTranscript, lambda *args: print_symbol("|")
         )
         api.add_middleware(ClientMessageType.AddAudio, lambda *args: print_symbol("+"))
+        api.add_middleware(
+            ClientMessageType.AddChannelAudio, lambda *args: print_symbol("x")
+        )
 
     def partial_transcript_handler(message):
         # "\n" does not appear in partial transcripts
         if print_json:
             print(json.dumps(message))
             return
+
         plaintext = speechmatics.adapters.convert_to_txt(
             message["results"],
             api.transcription_config.language,
             language_pack_info=api.get_language_pack_info(),
             speaker_labels=True,
+            channel=get_channel(message),
         )
         if plaintext:
             sys.stderr.write(f"{escape_seq}{plaintext}\r")
@@ -545,15 +577,23 @@ def add_printing_handlers(
         if print_json:
             print(json.dumps(message))
             return
+
         plaintext = speechmatics.adapters.convert_to_txt(
             message["results"],
             api.transcription_config.language,
             language_pack_info=api.get_language_pack_info(),
             speaker_labels=True,
+            channel=get_channel(message),
         )
         if plaintext:
             sys.stdout.write(f"{escape_seq}{plaintext}\n")
         transcripts.text += plaintext
+
+    def get_channel(message):
+        return next(
+            (result["channel"] for result in message["results"] if "channel" in result),
+            None,
+        )
 
     def audio_event_handler(message):
         if print_json:
@@ -562,6 +602,13 @@ def add_printing_handlers(
         event_name = message["event"].get("type", "").upper()
         sys.stdout.write(f"{escape_seq}[{event_name}]\n")
         transcripts.text += f"[{event_name}] "
+
+    def end_of_utterance_handler(message):
+        if print_json:
+            print(json.dumps(message))
+            return
+        sys.stdout.write("[EndOfUtterance]\n")
+        transcripts.text += "[EndOfUtterance]"
 
     def partial_translation_handler(message):
         if print_json:
@@ -597,6 +644,8 @@ def add_printing_handlers(
     # print transcription (if text was requested without translation)
 
     api.add_event_handler(ServerMessageType.AudioEventStarted, audio_event_handler)
+    api.add_event_handler(ServerMessageType.EndOfUtterance, end_of_utterance_handler)
+
     if print_json:
         if enable_partials or enable_translation_partials:
             api.add_event_handler(
@@ -759,12 +808,23 @@ def rt_main(args):
         translation_config=transcription_config.translation_config,
     )
 
-    def run(stream):
+    def run(stream=None, channel_stream_pairs=None):
         try:
+            # Pass in either stream or channel_stream_pairs depending on what != None
+            # Dynamically construct the args based on the input
+            args_list = [transcription_config]
+            if stream is not None:
+                args_list.append(stream)
+            elif channel_stream_pairs is not None:
+                args_list.append(None)  # This skips the stream argument
+                args_list.append(channel_stream_pairs)
+            else:
+                raise SystemExit(
+                    "Neither stream nor channel_stream_pairs were provided."
+                )
             api.run_synchronously(
-                stream,
-                transcription_config,
-                get_audio_settings(args),
+                *args_list,
+                audio_settings=get_audio_settings(args),
                 from_cli=True,
                 extra_headers=extra_headers,
             )
@@ -773,11 +833,39 @@ def rt_main(args):
             LOGGER.warning("Keyboard interrupt received.")
 
     if args["files"][0] == "-":
-        run(sys.stdin.buffer)
+        if transcription_config.channel_diarization_labels:
+            raise SystemExit(
+                "Channel diarization is not yet supported when reading from stdin."
+            )
+        run(stream=sys.stdin.buffer)
     else:
-        for filename in args["files"]:
-            with open(filename, "rb") as audio_file:
-                run(audio_file)
+        # Check we have the right diarization type
+        if transcription_config.channel_diarization_labels:
+            if (
+                transcription_config.diarization != "channel"
+                and transcription_config.diarization != "channel_and_speaker"
+            ):
+                raise SystemExit(
+                    "Multichannel DZ type must be 'channel' or 'channel_and_speaker'."
+                )
+
+            num_channels = len(transcription_config.channel_diarization_labels)
+            if len(args["files"]) != num_channels:
+                raise SystemExit(
+                    f"Number of files: ({len(args['files'])}) must match number of channels: ({num_channels})."
+                )
+
+            channel_stream_pairs = {}
+            for i in range(num_channels):
+                # Here the order matters, as stream positions and diarization labels correspond to one another.
+                channel_name = transcription_config.channel_diarization_labels[i]
+                channel_stream_pairs[channel_name] = args["files"][i]
+            run(channel_stream_pairs=channel_stream_pairs)
+
+        else:
+            for filename in args["files"]:
+                with open(filename, "rb") as audio_file:
+                    run(stream=audio_file)
 
 
 def batch_main(args):

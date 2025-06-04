@@ -219,6 +219,15 @@ def get_arg_parser():
         help=("Filter out quiet audio which falls below this threshold (0.0-100.0)"),
     )
     config_parser.add_argument(
+        "--end-of-utterance-silence-trigger",
+        dest="end_of_utterance_silence_trigger",
+        type=float,
+        default=None,
+        help=(
+            "Generate an EndOfUtterance message from the server after this many seconds of silence (0.0-2.0)"
+        ),
+    )
+    config_parser.add_argument(
         "--remove-disfluencies",
         default=None,
         action="store_true",
@@ -314,6 +323,15 @@ def get_arg_parser():
         type=str,
         default=None,
         help=("Comma-separated list of expected languages for language identification"),
+    )
+    config_parser.add_argument(
+        "--multichannel",
+        metavar="CHANNELS",
+        help=(
+            "Enables multichannel mode and specifies channels. "
+            "Pass channels as a comma-separated string, e.g.: <CHANNEL_1>,<CHANNEL_2>. "
+            "The number of channels specified must match the number of input files."
+        ),
     )
 
     # Parent parser for batch summarize argument
@@ -547,7 +565,11 @@ def get_arg_parser():
 
     rt_transcribe_command_parser.add_argument(
         "--diarization",
-        choices=["none", "speaker"],
+        choices=[
+            "none",
+            "speaker",
+            "channel",
+        ],
         help="Which type of diarization to use.",
     )
 

@@ -4,10 +4,40 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+## [4.0.1] - 2025-04-30
+
+### Added 
+
+- Support RT Multichannel and channel DZ
+
+## [4.0.0] - 2025-05-20
+
+### Changed
+
+BREAKING CHANGE: Metrics functionality now requires explicit installation
+
+Previously, all metrics dependencies (pyannote, pandas, jiwer, etc.) were
+installed by default. This change moves them to an optional '[metrics]' extra
+to reduce the default installation footprint.
+
+- Move metrics dependencies to requirements-metrics.txt
+- Configure extras_require in setup.py for optional installation
+- Add graceful error handling in CLI when dependencies are missing
+
+## [3.0.6] - 2025-05-20
+
+### Added
+
+- Support end-of-utterance messages (DEL-24982)
+
+## [3.0.5] - 2025-05-15
+
+- cli: fix some config options not being set when defined in a config file: `topic_detection_config` and `speaker_diarization_config`
 
 ## [3.0.4] - 2025-04-16
 
 - Support for new parameters `prefer_current_speaker` and `speaker_sensitivity` in Speaker Diarization
+
 
 ## [3.0.3] - 2025-03-03
 

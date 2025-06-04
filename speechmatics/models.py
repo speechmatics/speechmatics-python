@@ -167,6 +167,14 @@ class TranslationConfig:
 
 
 @dataclass
+class ConversationConfig:
+    """Conversation config."""
+
+    end_of_utterance_silence_trigger: Optional[float] = None
+    """How much silence in seconds is required to trigger end of utterance detection."""
+
+
+@dataclass
 class RTTranslationConfig(TranslationConfig):
     """Real-time mode: Translation config."""
 
@@ -287,11 +295,17 @@ class TranscriptionConfig(_TranscriptionConfig):
     """Indicates if partial translation, where words are produced
     immediately, is enabled."""
 
+    conversation_config: Optional[ConversationConfig] = None
+    """Optional configuration for end-of-utterance detection."""
+
     translation_config: Optional[TranslationConfig] = None
     """Optional configuration for translation."""
 
     audio_events_config: Optional[AudioEventsConfig] = None
     """Optional configuration for audio events"""
+
+    channel_diarization_labels: List[str] = None
+    """Add your own speaker or channel labels to the transcript"""
 
     def as_config(self):
         dictionary = self.asdict()
@@ -331,9 +345,6 @@ class BatchTranscriptionConfig(_TranscriptionConfig):
 
     speaker_diarization_config: BatchSpeakerDiarizationConfig = None
     """Optional parameters for speaker diarization."""
-
-    channel_diarization_labels: List[str] = None
-    """Add your own speaker or channel labels to the transcript"""
 
     summarization_config: SummarizationConfig = None
     """Optional configuration for transcript summarization."""
@@ -520,8 +531,16 @@ class ClientMessageType(str, Enum):
     """Adds more audio data to the recognition job. The server confirms
     receipt by sending an :py:attr:`ServerMessageType.AudioAdded` message."""
 
+    AddChannelAudio = "AddChannelAudio"
+    """Adds more audio data to the recognition job for a specific channel.
+    The server confirms receipt by sending an :py:attr:`ServerMessageType.ChannelAudioAdded` message.
+    """
+
     EndOfStream = "EndOfStream"
     """Indicates that the client has no more audio to send."""
+
+    EndOfChannel = "EndOfChannel"
+    """Indicates that the client has no more audio to send in particular channel."""
 
     SetRecognitionConfig = "SetRecognitionConfig"
     """Allows the client to re-configure the recognition session."""
@@ -542,6 +561,10 @@ class ServerMessageType(str, Enum):
     """Server response to :py:attr:`ClientMessageType.AddAudio`, indicating
     that audio has been added successfully."""
 
+    ChannelAudioAdded = "ChannelAudioAdded"
+    """Server response to :py:attr:`ClientMessageType.AddAChanneludio`, indicating
+    that audio has been added successfully."""
+
     AddPartialTranscript = "AddPartialTranscript"
     """Indicates a partial transcript, which is an incomplete transcript that
     is immediately produced and may change as more context becomes available.
@@ -549,6 +572,9 @@ class ServerMessageType(str, Enum):
 
     AddTranscript = "AddTranscript"
     """Indicates the final transcript of a part of the audio."""
+
+    EndOfUtterance = "EndOfUtterance"
+    """Indicates that an utterance has ended, based on silence"""
 
     AudioEventStarted = "AudioEventStarted"
     """Indicates the start of an audio event."""

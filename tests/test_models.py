@@ -220,3 +220,17 @@ def test_notification_config(params, want):
 def test_audio_events_config_config(params, want):
     audio_events_config = models.AudioEventsConfig(**params)
     assert audio_events_config.asdict() == want
+
+
+@mark.parametrize(
+    "params, want",
+    [
+        param(
+            {"end_of_utterance_silence_trigger": 1.8},
+            {"end_of_utterance_silence_trigger": 1.8},
+        ),
+    ],
+)
+def test_conversation_config(params, want):
+    conversation_config = models.ConversationConfig(**params)
+    assert asdict(conversation_config) == want

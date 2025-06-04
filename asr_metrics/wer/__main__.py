@@ -2,6 +2,7 @@
 Simple script to run WER analysis using Whisper normalisers
 Prints results to terminal
 """
+
 import difflib
 import json
 from pathlib import Path

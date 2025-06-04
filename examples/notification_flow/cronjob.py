@@ -3,6 +3,7 @@ Cronjob data sync script which should be run on a regular basis using e.g. k8s c
 
 Async fallback checking in case of webhook failure is a common pattern in production systems
 """
+
 import sqlite3
 
 from speechmatics.batch_client import BatchClient

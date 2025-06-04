@@ -2,6 +2,7 @@ import json
 import logging
 import time
 import websockets
+from collections import defaultdict
 
 
 class MockRealtimeLogbook:
@@ -120,6 +121,15 @@ def dummy_add_partial_transcript():
     }
 
 
+def dummy_end_of_utterance():
+    """Returns a dummy EndOfUtterance message."""
+    return {
+        "message": "EndOfUtterance",
+        "format": "2.1",
+        "metadata": {"start_time": 3.0, "end_time": 3.0},
+    }
+
+
 def dummy_add_transcript():
     """Returns a dummy AddTranscript message."""
     return {
@@ -153,8 +163,12 @@ def dummy_add_transcript():
     }
 
 
+channel_seq = defaultdict(int)
+
+
 async def mock_server_handler(websocket, logbook):
     mock_server_handler.next_audio_seq_no = 1
+    mock_server_handler.number_of_channels = 0
     address, _ = websocket.remote_address
     logbook.connection_request = websocket.request.headers
     logbook.path = websocket.request.path
@@ -194,15 +208,21 @@ async def mock_server_handler(websocket, logbook):
             )
             mock_server_handler.next_audio_seq_no += 1
 
-            # Answer immediately with a partial and a final.
+            # Answer immediately with a partial and a final and an end of utterance.
             responses.append(dummy_add_partial_transcript())
             responses.append(dummy_add_transcript())
+            responses.append(dummy_end_of_utterance())
         else:
             msg_name = message.get("message")
             if not msg_name:
                 raise ValueError(message)
 
             if msg_name == "StartRecognition":
+                mock_server_handler.number_of_channels = len(
+                    message.get("transcription_config", {}).get(
+                        "channel_diarization_labels", []
+                    )
+                )
                 responses.append(
                     {
                         "message": "RecognitionStarted",
@@ -216,11 +236,24 @@ async def mock_server_handler(websocket, logbook):
                 )
             elif msg_name == "EndOfStream":
                 responses.append({"message": "EndOfTranscript"})
+            elif msg_name == "EndOfChannel":
+                mock_server_handler.number_of_channels -= 1
+                if mock_server_handler.number_of_channels == 0:
+                    responses.append({"message": "EndOfTranscript"})
             elif msg_name == "SetRecognitionConfig":
                 pass
+            elif msg_name == "AddChannelAudio":
+                channel = message["channel"]
+                channel_seq[channel] += 1
+                responses.append(
+                    {
+                        "message": "ChannelAudioAdded",
+                        "channel": channel,
+                        "seq_no": channel_seq[channel],
+                    }
+                )
             else:
                 raise ValueError(f"Unrecognized message: {message}")
-
         return responses
 
     def is_str(data_in):

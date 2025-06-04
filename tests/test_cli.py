@@ -1,13 +1,13 @@
 import argparse
 import collections
 import logging
+from math import ceil
 import os
 
 import pytest
 import toml
 
-from speechmatics import cli
-from speechmatics import cli_parser
+from speechmatics import cli, cli_parser
 from speechmatics.constants import (
     BATCH_SELF_SERVICE_URL,
     RT_SELF_SERVICE_URL,
@@ -73,6 +73,21 @@ from tests.utils import path_to_test_resource
                     "magic_header": "magic_value",
                     "another_magic_header": "another_magic_value",
                 }
+            },
+        ),
+        (
+            [
+                "rt",
+                "transcribe",
+                "--multichannel",
+                "test_channel_1,test_channel_2",
+                "--diarization=speaker",
+            ],
+            {
+                "mode": "rt",
+                "command": "transcribe",
+                "multichannel": "test_channel_1,test_channel_2",
+                "diarization": "speaker",
             },
         ),
         (
@@ -183,6 +198,10 @@ from tests.utils import path_to_test_resource
             {"enable_translation_partials": True},
         ),
         (["rt", "transcribe", "--enable-entities"], {"enable_entities": True}),
+        (
+            ["rt", "transcribe", "--end-of-utterance-silence-trigger=1.8"],
+            {"end_of_utterance_silence_trigger": 1.8},
+        ),
         (["batch", "transcribe", "--enable-entities"], {"enable_entities": True}),
         (
             ["batch", "transcribe", "--diarization=speaker"],
@@ -385,6 +404,8 @@ from tests.utils import path_to_test_resource
 )
 def test_cli_arg_parse_with_file(args, values):
     common_transcribe_args = ["--auth-token=xyz", "--url=example", "fake_file.wav"]
+    if "--multichannel" in args:
+        common_transcribe_args.append("very_fake_file.wav")
     test_args = args + common_transcribe_args
     actual_values = vars(cli.parse_args(args=test_args))
 
@@ -738,6 +759,72 @@ def test_rt_main_with_all_options(mock_server, tmp_path):
     assert -1 <= (len(add_audio_messages) - expected_num_messages) <= 1
 
 
+def test_rt_main_with_multichannel_option(mock_server):
+    chunk_size = 512
+    audio_path_1 = path_to_test_resource("ch_converted.wav")
+    audio_path_2 = path_to_test_resource("short-text_converted.wav")
+
+    args = [
+        "rt",
+        "transcribe",
+        "--ssl-mode=insecure",
+        "--url",
+        mock_server.url,
+        "--diarization=channel",
+        "--multichannel=channel_1,channel_2",
+        "--lang=en",
+        "--chunk-size",
+        str(chunk_size),
+        "--raw=pcm_s16le",
+        "--sample-rate=16000",
+        audio_path_1,
+        audio_path_2,
+    ]
+
+    cli.main(vars(cli.parse_args(args)))
+
+    assert mock_server.clients_connected_count == 1
+    assert mock_server.clients_disconnected_count == 1
+    assert mock_server.messages_received
+    assert mock_server.messages_sent
+
+    # Check that the StartRecognition message contains the correct fields
+    msg = mock_server.find_start_recognition_message()
+
+    # Check that audio types are preserved
+    assert msg["audio_format"]["type"] == "raw"
+    assert msg["audio_format"]["encoding"] == "pcm_s16le"
+    assert msg["audio_format"]["sample_rate"] == 16000
+    assert msg["transcription_config"]["language"] == "en"
+    assert msg["transcription_config"]["diarization"] == "channel"
+    assert msg["transcription_config"].get("operating_point") is None
+    assert len(msg["transcription_config"]["channel_diarization_labels"]) == 2
+
+    # Check we get all channels in the add channel audio messages
+    eoc = mock_server.find_messages_by_type("EndOfChannel")
+    assert eoc
+    seq_no_map = {m["channel"]: m["last_seq_no"] for m in eoc}
+    add_channel_audio_messages = mock_server.find_messages_by_type("AddChannelAudio")
+    assert add_channel_audio_messages
+
+    for channel, seq in seq_no_map.items():
+        assert seq == sum(
+            1 for msg in add_channel_audio_messages if msg.get("channel") == channel
+        )
+
+    assert all(
+        msg.get("channel") in seq_no_map.keys() for msg in add_channel_audio_messages
+    ), "Some messages have invalid channels!"
+
+    # Check file sizes are respected
+    size_of_audio_file_1 = os.stat(audio_path_1).st_size
+    size_of_audio_file_2 = os.stat(audio_path_2).st_size
+    expected_num_messages = ceil(size_of_audio_file_1 / chunk_size) + ceil(
+        size_of_audio_file_2 / chunk_size
+    )
+    assert -1 <= (len(add_channel_audio_messages) - expected_num_messages) <= 1
+
+
 def test_rt_main_with_config_file(mock_server):
     audio_path = path_to_test_resource("ch.wav")
     config_path = path_to_test_resource("transcription_config.json")
@@ -771,6 +858,12 @@ def test_rt_main_with_config_file(mock_server):
     assert msg["transcription_config"]["domain"] == "fake"
     assert msg["transcription_config"]["enable_entities"] is True
     assert msg["transcription_config"].get("operating_point") is None
+    assert msg["transcription_config"]["diarization"] == "speaker"
+    assert msg["transcription_config"]["speaker_diarization_config"] == {
+        "prefer_current_speaker": True,
+        "max_speakers": 5,
+        "speaker_sensitivity": 0.3,
+    }
     assert msg["translation_config"] is not None
     assert msg["translation_config"]["enable_partials"] is False
     assert msg["translation_config"]["target_languages"] == ["es"]
@@ -795,6 +888,8 @@ def test_rt_main_with_config_file_cmdline_override(mock_server):
         "--output-locale=en-US",
         "--domain=different",
         "--operating-point=enhanced",
+        "--speaker-diarization-max-speakers=3",
+        "--speaker-diarization-sensitivity=0.7",
         audio_path,
     ]
 
@@ -816,6 +911,12 @@ def test_rt_main_with_config_file_cmdline_override(mock_server):
     assert msg["transcription_config"]["enable_entities"] is True
     assert msg["transcription_config"]["output_locale"] == "en-US"
     assert msg["transcription_config"]["operating_point"] == "enhanced"
+    assert msg["transcription_config"]["diarization"] == "speaker"
+    assert msg["transcription_config"]["speaker_diarization_config"] == {
+        "prefer_current_speaker": True,
+        "max_speakers": 3,
+        "speaker_sensitivity": 0.7,
+    }
     assert msg["translation_config"] is not None
     assert msg["translation_config"]["enable_partials"] is True
     assert msg["translation_config"]["target_languages"] == ["fr"]
