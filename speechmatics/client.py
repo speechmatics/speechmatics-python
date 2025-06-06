@@ -553,6 +553,10 @@ class WebsocketClient:
             consumer/producer tasks.
         """
         if channel_stream_pairs:
+            if not isinstance(channel_stream_pairs, dict):
+                raise TypeError(
+                    "channel_stream_pairs must be a dict of {str: file-like or path}"
+                )
             opened_streams = {}
             self._stream_exits = AsyncExitStack()
             for channel_name, path in channel_stream_pairs.items():
@@ -569,6 +573,9 @@ class WebsocketClient:
         await self._init_synchronization_primitives()
         if extra_headers is None:
             extra_headers = {}
+        else:
+            if not isinstance(extra_headers, dict):
+                raise TypeError("extra_headers must be a dict")
         if audio_settings is None:
             audio_settings = AudioSettings()
         if (
@@ -632,13 +639,35 @@ class WebsocketClient:
         """
         self._session_needs_closing = True
 
-    def run_synchronously(self, *args, timeout=None, **kwargs):
+    def run_synchronously(
+        self,
+        transcription_config: TranscriptionConfig,
+        *,
+        stream: Optional[Any] = None,
+        channel_stream_pairs: Optional[Dict[str, Any]] = None,
+        audio_settings: Optional[AudioSettings] = None,
+        from_cli: bool = False,
+        extra_headers: Optional[Dict] = None,
+        timeout=None,
+    ):
         """
         Run the transcription synchronously.
         :raises asyncio.TimeoutError: If the given timeout is exceeded.
         """
         # pylint: disable=no-value-for-parameter
-        asyncio.run(asyncio.wait_for(self.run(*args, **kwargs), timeout=timeout))
+        asyncio.run(
+            asyncio.wait_for(
+                self.run(
+                    transcription_config=transcription_config,
+                    stream=stream,
+                    channel_stream_pairs=channel_stream_pairs,
+                    audio_settings=audio_settings,
+                    from_cli=from_cli,
+                    extra_headers=extra_headers,
+                ),
+                timeout=timeout,
+            )
+        )
 
     async def send_message(self, message_type: str, data: Optional[Any] = None):
         """

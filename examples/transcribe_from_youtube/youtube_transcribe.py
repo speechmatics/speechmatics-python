@@ -52,7 +52,11 @@ def main(args):
 
     def run(stream):
         try:
-            api.run_synchronously(stream, transcription_config, AudioSettings())
+            api.run_synchronously(
+                stream=stream,
+                transcription_config=transcription_config,
+                audio_settings=AudioSettings(),
+            )
         except KeyboardInterrupt:
             # Gracefully handle Ctrl-C, else we get a huge stack-trace.
             LOGGER.warning("Keyboard interrupt received.")
