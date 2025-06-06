@@ -33,7 +33,11 @@ async def transcribe_from_device(device, speechmatics_client, language: str, max
             enable_partials=True,
             enable_entities=True,
         )
-        await speechmatics_client.run(RawInputStreamWrapper(stream), conf, settings)
+        await speechmatics_client.run(
+            transcription_config=conf,
+            stream=RawInputStreamWrapper(stream),
+            audio_settings=settings,
+        )
 
 
 def main(args):
