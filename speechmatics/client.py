@@ -9,6 +9,7 @@ import base64
 from collections import defaultdict
 from contextlib import AsyncExitStack
 import copy
+from io import IOBase
 import json
 import logging
 import os
@@ -521,9 +522,8 @@ class WebsocketClient:
 
     async def run(
         self,
+        stream: Union[IOBase, dict],
         transcription_config: TranscriptionConfig,
-        stream: Optional[Any] = None,
-        channel_stream_pairs=None,
         audio_settings: AudioSettings = None,
         from_cli: bool = False,
         extra_headers: Dict = None,
@@ -552,7 +552,14 @@ class WebsocketClient:
         :raises Exception: Can raise any exception returned by the
             consumer/producer tasks.
         """
-        if channel_stream_pairs:
+        # Check we get either a dict or a file-like object
+        channel_stream_pairs = None
+        if isinstance(stream, dict):
+            # Case where stream is channel stream pairs
+            channel_stream_pairs = stream
+
+        # Set channel_stream pairs if provided
+        if channel_stream_pairs is not None:
             opened_streams = {}
             self._stream_exits = AsyncExitStack()
             for channel_name, path in channel_stream_pairs.items():
@@ -564,6 +571,7 @@ class WebsocketClient:
             self.channel_stream_pairs = opened_streams
         else:
             self.channel_stream_pairs = None
+
         self.transcription_config = transcription_config
         self._language_pack_info = None
         await self._init_synchronization_primitives()

@@ -810,21 +810,19 @@ def rt_main(args):
 
     def run(stream=None, channel_stream_pairs=None):
         try:
-            # Pass in either stream or channel_stream_pairs depending on what != None
-            # Dynamically construct the args based on the input
-            args_list = [transcription_config]
+            stream_or_channel_stream_pairs = None
             if stream is not None:
-                args_list.append(stream)
+                stream_or_channel_stream_pairs = stream
             elif channel_stream_pairs is not None:
-                args_list.append(None)  # This skips the stream argument
-                args_list.append(channel_stream_pairs)
+                stream_or_channel_stream_pairs = channel_stream_pairs
             else:
                 raise SystemExit(
                     "Neither stream nor channel_stream_pairs were provided."
                 )
             api.run_synchronously(
-                *args_list,
-                audio_settings=get_audio_settings(args),
+                stream_or_channel_stream_pairs,
+                transcription_config,
+                get_audio_settings(args),
                 from_cli=True,
                 extra_headers=extra_headers,
             )
