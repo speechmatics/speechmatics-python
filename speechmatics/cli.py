@@ -808,19 +808,10 @@ def rt_main(args):
         translation_config=transcription_config.translation_config,
     )
 
-    def run(stream=None, channel_stream_pairs=None):
+    def run(stream):
         try:
-            stream_or_channel_stream_pairs = None
-            if stream is not None:
-                stream_or_channel_stream_pairs = stream
-            elif channel_stream_pairs is not None:
-                stream_or_channel_stream_pairs = channel_stream_pairs
-            else:
-                raise SystemExit(
-                    "Neither stream nor channel_stream_pairs were provided."
-                )
             api.run_synchronously(
-                stream_or_channel_stream_pairs,
+                stream,
                 transcription_config,
                 get_audio_settings(args),
                 from_cli=True,
@@ -858,7 +849,7 @@ def rt_main(args):
                 # Here the order matters, as stream positions and diarization labels correspond to one another.
                 channel_name = transcription_config.channel_diarization_labels[i]
                 channel_stream_pairs[channel_name] = args["files"][i]
-            run(channel_stream_pairs=channel_stream_pairs)
+            run(stream=channel_stream_pairs)
 
         else:
             for filename in args["files"]:
