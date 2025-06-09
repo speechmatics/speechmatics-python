@@ -537,11 +537,8 @@ class WebsocketClient:
         :param transcription_config: Configuration for the transcription.
         :type transcription_config: speechmatics.models.TranscriptionConfig
 
-        :param stream: Optional file-like object which an audio stream can be read from.
-        :type stream: io.IOBase
-
-        :param channel_stream_pairs: Optional dict containing channel-name stream pairs.
-        :type channel_stream_pairs dict[str, io.IOBase]
+        :param stream: Optional file-like object or Dict of file-likes which an audio stream can be read from.
+        :type stream: Union[IOBase, Dict[str, IOBase]],
 
         :param audio_settings: Configuration for the audio stream.
         :type audio_settings: speechmatics.models.AudioSettings
