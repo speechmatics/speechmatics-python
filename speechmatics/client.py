@@ -522,7 +522,7 @@ class WebsocketClient:
 
     async def run(
         self,
-        stream: Union[IOBase, dict],
+        stream: Union[IOBase, Dict[str, IOBase]],
         transcription_config: TranscriptionConfig,
         audio_settings: AudioSettings = None,
         from_cli: bool = False,
