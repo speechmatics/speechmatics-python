@@ -306,7 +306,7 @@ class WebsocketClient:
 
             # seq_no is defaultdict is so the keys are created automatically
             self.seq_no[channel] += 1
-            self._call_middleware(ClientMessageType.AddChannelAudio, message)
+            self._call_middleware(ClientMessageType.AddChannelAudio, message, False)
             await queue.put(message)
         await queue.put(self._end_of_channel(channel))
 
