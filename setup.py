@@ -85,6 +85,7 @@ setup(
     classifiers=[
         "Environment :: Console",
         "Intended Audience :: Developers",
+        "Development Status :: 7 - Inactive",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
         "Programming Language :: Python :: 3",
