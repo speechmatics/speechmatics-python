@@ -587,7 +587,7 @@ class WebsocketClient:
             self.connection_settings.generate_temp_token
             and self.connection_settings.auth_token is not None
         ):
-            temp_token = await _get_temp_token(self.connection_settings.auth_token)
+            temp_token = await _get_temp_token(self.connection_settings)
             token = f"Bearer {temp_token}"
             extra_headers["Authorization"] = token
 
@@ -670,18 +670,30 @@ class WebsocketClient:
             raise exc
 
 
-async def _get_temp_token(api_key):
+async def _get_temp_token(connection_settings: ConnectionSettings):
     """
     Used to get a temporary token from management platform api for SaaS users
     """
     version = get_version()
-    mp_api_url = os.getenv("SM_MANAGEMENT_PLATFORM_URL", "https://mp.speechmatics.com")
+    mp_api_url = os.getenv("SM_MANAGEMENT_PLATFORM_URL", connection_settings.mp_url)
+
+    assert mp_api_url, "Management platform URL not set"
+
     endpoint = mp_api_url + "/v1/api_keys"
     params = {"type": "rt", "sm-sdk": f"python-{version}"}
-    body = {"ttl": 60}
-    headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
+    payload: dict[str, Union[str, int]] = {"ttl": 60}
+
+    if connection_settings.region:
+        payload["region"] = connection_settings.region
+    if connection_settings.client_ref:
+        payload["client_ref"] = connection_settings.client_ref
+
+    headers = {
+        "Authorization": f"Bearer {connection_settings.auth_token}",
+        "Content-Type": "application/json",
+    }
     # pylint: disable=no-member
-    response = httpx.post(endpoint, json=body, params=params, headers=headers)
+    response = httpx.post(endpoint, json=payload, params=params, headers=headers)
     response.raise_for_status()
     response.read()
     key_object = response.json()
