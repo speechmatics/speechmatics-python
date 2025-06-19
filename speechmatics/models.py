@@ -134,6 +134,9 @@ class _TranscriptionConfig:  # pylint: disable=too-many-instance-attributes
     transcript_filtering_config: Optional[dict] = None
     """Configuration for applying filtering to the transcription."""
 
+    channel_diarization_labels: List[str] = None
+    """Add your own speaker or channel labels to the transcript"""
+
 
 @dataclass
 class RTSpeakerDiarizationConfig:
@@ -303,9 +306,6 @@ class TranscriptionConfig(_TranscriptionConfig):
 
     audio_events_config: Optional[AudioEventsConfig] = None
     """Optional configuration for audio events"""
-
-    channel_diarization_labels: List[str] = None
-    """Add your own speaker or channel labels to the transcript"""
 
     def as_config(self):
         dictionary = self.asdict()
