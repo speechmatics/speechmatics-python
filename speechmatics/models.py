@@ -134,7 +134,7 @@ class _TranscriptionConfig:  # pylint: disable=too-many-instance-attributes
     transcript_filtering_config: Optional[dict] = None
     """Configuration for applying filtering to the transcription."""
 
-    channel_diarization_labels: List[str] = None
+    channel_diarization_labels: Optional[List[str]] = None
     """Add your own speaker or channel labels to the transcript"""
 
 
