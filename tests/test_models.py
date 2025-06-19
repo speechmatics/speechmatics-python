@@ -90,6 +90,25 @@ def test_connection_settings_url(url, want):
     assert got == want
 
 
+def test_default_jwt_connection_settings():
+    connection_settings = models.ConnectionSettings(url="examples.com")
+    assert connection_settings.generate_temp_token is False
+    assert connection_settings.region == "eu"
+    assert connection_settings.client_ref is None
+
+
+def test_custom_jwt_connection_settings():
+    connection_settings = models.ConnectionSettings(
+        url="examples.com",
+        generate_temp_token=True,
+        region="usa",
+        client_ref="test",
+    )
+    assert connection_settings.generate_temp_token is True
+    assert connection_settings.region == "usa"
+    assert connection_settings.client_ref == "test"
+
+
 @mark.parametrize(
     "params, want",
     [

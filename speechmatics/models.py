@@ -469,6 +469,15 @@ class ConnectionSettings:
     """Automatically generate a temporary token for authentication.
     Enterprise customers should set this to False."""
 
+    mp_url: Optional[str] = "https://mp.speechmatics.com"
+    """Management platform URL for generating temporary tokens."""
+
+    region: Optional[str] = "eu"
+    """Region for generating temporary tokens."""
+
+    client_ref: Optional[str] = None
+    """Client reference for generating temporary tokens."""
+
     def set_missing_values_from_config(self, mode: UsageMode):
         stored_config = read_config_from_home()
         if self.url is None or self.url == "":

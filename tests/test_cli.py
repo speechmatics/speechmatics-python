@@ -782,6 +782,7 @@ def test_rt_main_with_multichannel_option(mock_server):
     ]
 
     cli.main(vars(cli.parse_args(args)))
+    mock_server.wait_for_clean_disconnects()
 
     assert mock_server.clients_connected_count == 1
     assert mock_server.clients_disconnected_count == 1
