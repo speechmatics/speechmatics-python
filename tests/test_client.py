@@ -10,7 +10,6 @@ from typing import Any
 import pytest
 
 from pytest_httpx import HTTPXMock
-import websockets
 from speechmatics import client
 from speechmatics.batch_client import BatchClient
 from speechmatics.exceptions import ForceEndSession
@@ -24,6 +23,17 @@ from speechmatics.models import (
 )
 
 from tests.utils import path_to_test_resource, default_ws_client_setup
+
+try:
+    # Try to import from new websockets >= 13
+    from websockets.asyncio.client import connect
+
+    WS_HEADERS_KEY = "additional_headers"
+except ImportError:
+    # Fall back to legacy websockets
+    from websockets.legacy.client import connect
+
+    WS_HEADERS_KEY = "extra_headers"
 
 
 def test_json_utf8():
@@ -229,13 +239,16 @@ async def test_send_message(mock_server, message_type: str, message_data: Any):
     """
     ws_client, _, _ = default_ws_client_setup(mock_server.url)
     ws_client.session_running = True
+    ws_kwargs = {
+        "ssl": ws_client.connection_settings.ssl_context,
+        "ping_timeout": ws_client.connection_settings.ping_timeout_seconds,
+        "max_size": None,
+        WS_HEADERS_KEY: None,
+    }
 
-    async with websockets.connect(
+    async with connect(
         mock_server.url,
-        ssl=ws_client.connection_settings.ssl_context,
-        ping_timeout=ws_client.connection_settings.ping_timeout_seconds,
-        max_size=None,
-        additional_headers=None,
+        **ws_kwargs,
     ) as ws_client.websocket:
         await ws_client.send_message(message_type, message_data)
     assert message_type in [
@@ -387,7 +400,7 @@ def test_helpful_error_message_received_on_connection_reset_error():
 
     mock_logger_error_method = MagicMock()
 
-    with patch("websockets.connect", mock_connect):
+    with patch("speechmatics.client.connect", mock_connect):
         with patch.object(client.LOGGER, "error", mock_logger_error_method):
             try:
                 ws_client.run_synchronously(
@@ -411,7 +424,7 @@ def test_extra_headers_are_passed_to_websocket_connect_correctly(mock_server):
         mock_server.url
     )
     stream = MagicMock()
-    with patch("websockets.connect", connect_mock):
+    with patch("speechmatics.client.connect", connect_mock):
         try:
             ws_client.run_synchronously(
                 transcription_config=transcription_config,
@@ -422,7 +435,7 @@ def test_extra_headers_are_passed_to_websocket_connect_correctly(mock_server):
         except Exception:
             assert len(connect_mock.mock_calls) == 1
             assert (
-                connect_mock.mock_calls[0][2]["additional_headers"] == extra_headers
+                connect_mock.mock_calls[0][2][WS_HEADERS_KEY] == extra_headers
             ), f"Extra headers don't appear in the call list = {connect_mock.mock_calls}"
 
 

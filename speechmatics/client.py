@@ -39,6 +39,18 @@ from speechmatics.models import (
     UsageMode,
 )
 
+try:
+    # Try to import from new websockets >=13.0
+    from websockets.asyncio.client import connect
+
+    WS_HEADERS_KEY = "additional_headers"
+except ImportError:
+    # Fall back to legacy websockets
+    from websockets.legacy.client import connect
+
+    WS_HEADERS_KEY = "extra_headers"
+
+
 LOGGER = logging.getLogger(__name__)
 
 # If the logging level is set to DEBUG then websockets logs very verbosely,
@@ -613,14 +625,18 @@ class WebsocketClient:
             parsed_url._replace(path=url_path, query=updated_query)
         )
 
+        ws_kwargs = {
+            WS_HEADERS_KEY: extra_headers,
+            "ssl": self.connection_settings.ssl_context,
+            "ping_timeout": self.connection_settings.ping_timeout_seconds,
+            # Don't limit the max. size of incoming messages
+            "max_size": None,
+        }
+
         try:
-            async with websockets.connect(  # pylint: disable=no-member
+            async with connect(
                 updated_url,
-                ssl=self.connection_settings.ssl_context,
-                ping_timeout=self.connection_settings.ping_timeout_seconds,
-                # Don't limit the max. size of incoming messages
-                max_size=None,
-                additional_headers=extra_headers,
+                **ws_kwargs,
             ) as self.websocket:
                 await self._communicate(stream, audio_settings)
         finally:
