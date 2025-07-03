@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.9] - 2025-07-03
+
+- Deprecating `speechmatics-python` in favor of `speechmatics-rt` for real-time transcription and 'speechmatics-batch' for batch transcription.
+
 ## [4.0.8] - 2025-07-03
 
 - Patch WebsocketClient to work with any websockets version >= 10.0
@@ -38,7 +42,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [4.0.1] - 2025-04-30
 
-### Added 
+### Added
 
 - Support RT Multichannel and channel DZ
 

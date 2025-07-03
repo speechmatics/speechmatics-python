@@ -1,7 +1,22 @@
-# speechmatics-python &ensp; ![Tests](https://github.com/speechmatics/speechmatics-python/workflows/Tests/badge.svg) [![License](https://img.shields.io/badge/license-MIT-yellow.svg)](https://github.com/speechmatics/speechmatics-python/blob/master/LICENSE.txt) ![PythonSupport](https://img.shields.io/badge/Python-3.7%2B-green)
+# Legacy Speechmatics Python Client
+
+> **⚠️ WARNING: This package (`speechmatics-python`) has been deprecated.**
+>
+> - **No new features** will be added
+> - **Bug fixes and security patches only** until **2025-12-31**
+>
+
+### Migration Path
+
+**New Official SDKs** (at [speechmatics-python-sdk](https://github.com/speechmatics/speechmatics-python-sdk)):
+
+| Old Package | New Package | Purpose | Migration Guide |
+|-------------|-------------|---------|-----------------|
+| `speechmatics-python` | [`speechmatics-batch`](https://pypi.org/project/speechmatics-batch) | Batch transcription | [📖 Batch Migration Guide](https://github.com/speechmatics/speechmatics-python-sdk/blob/main/sdk/batch/MIGRATION.md) |
+| `speechmatics-python` | [`speechmatics-rt`](https://pypi.org/project/speechmatics-rt) | Real-time transcription | [📖 RT Migration Guide](https://github.com/speechmatics/speechmatics-python-sdk/blob/main/sdk/rt/MIGRATION.md) |
+| `speechmatics.cli` | Not available (will be released as a separate package) | | |
 
 Python client library and CLI for Speechmatics Realtime and Batch ASR v2 APIs.
-
 
 ## Getting started
 
