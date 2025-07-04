@@ -787,6 +787,57 @@ def test_batch_client_api_key_constructor(mocker):
         assert batch_client.connection_settings.generate_temp_token
 
 
+class BlockingSyncStream:
+    def __init__(self):
+        self.content = [b"\x00", b"\x01", b"\x02", b"\x03", b"\x04"]
+
+    def read(self, _):
+        while True:
+            if self.content:
+                # Block forever if the end of the array is reached
+                return self.content.pop(0)
+
+
+class AsyncStream(BlockingSyncStream):
+    def __init__(self):
+        super().__init__()
+
+    async def read(self, _):
+        while True:
+            if self.content:
+                return self.content.pop(0)
+            await asyncio.sleep(0.01)  # Non-blocking wait
+
+
+@pytest.mark.asyncio
+async def test_blocking_stream_close(mock_server):
+    ws_client, transcription_config, audio_settings = default_ws_client_setup(
+        mock_server.url
+    )
+    stream = BlockingSyncStream()
+    try:
+        await asyncio.wait_for(
+            ws_client.run(stream, transcription_config, audio_settings), timeout=10
+        )
+    except asyncio.TimeoutError:
+        assert False, "The command failed to finish within the timeout period"
+
+
+@pytest.mark.asyncio
+@pytest.mark.xfail(reason="Expected to fail due to malformed input")
+async def test_async_stream_close(mock_server):
+    ws_client, transcription_config, audio_settings = default_ws_client_setup(
+        mock_server.url
+    )
+    stream = AsyncStream()
+    try:
+        await asyncio.wait_for(
+            ws_client.run(stream, transcription_config, audio_settings), timeout=10
+        )
+    except asyncio.TimeoutError:
+        assert False, "The command failed to finish within the timeout period"
+
+
 def deepcopy_state(obj):
     """
     Return a deepcopy of the __dict__ (or state) of an object but ignore
