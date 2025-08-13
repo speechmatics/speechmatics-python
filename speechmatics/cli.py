@@ -590,10 +590,7 @@ def add_printing_handlers(
         transcripts.text += plaintext
 
     def get_channel(message):
-        return next(
-            (result["channel"] for result in message["results"] if "channel" in result),
-            None,
-        )
+        return message.get("channel", None)
 
     def audio_event_handler(message):
         if print_json:
