@@ -1,3 +1,4 @@
+import asyncio
 import json
 import logging
 import time
@@ -162,6 +163,19 @@ def dummy_add_transcript():
         ],
     }
 
+async def close_connection(ws):
+    """Closes the connection after a delay."""
+    await asyncio.sleep(5)
+    await ws.send(json.dumps(
+        {
+        "message": "Error",
+        "format": "2.1",
+        "metadata": {"start_time": 0.0, "end_time": 1.0},
+        "type": "idle_timeout"
+        }
+        ))
+    await ws.close(code=1008)
+    logging.info("Connection closed after 5 seconds")
 
 channel_seq = defaultdict(int)
 
@@ -234,6 +248,7 @@ async def mock_server_handler(websocket, logbook):
                         },
                     }
                 )
+                asyncio.create_task(close_connection(websocket))
             elif msg_name == "EndOfStream":
                 responses.append({"message": "EndOfTranscript"})
             elif msg_name == "EndOfChannel":
