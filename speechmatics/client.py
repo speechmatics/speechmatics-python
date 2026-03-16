@@ -255,12 +255,15 @@ class WebsocketClient:
         message = json.loads(message)
         message_type = message["message"]
 
-        for handler in self.event_handlers[message_type]:
-            try:
-                handler(copy.deepcopy(message))
-            except ForceEndSession:
-                LOGGER.warning("Session was ended forcefully by an event handler")
-                raise
+        try:
+            for handler in self.event_handlers[message_type]:
+                try:
+                    handler(copy.deepcopy(message))
+                except ForceEndSession:
+                    LOGGER.warning("Session was ended forcefully by an event handler")
+                    raise
+        except KeyError as kex:
+            LOGGER.debug(f"Unknown handler for message type: {message_type} {kex=}")
 
         if message_type == ServerMessageType.RecognitionStarted:
             self._flag_recognition_started()
