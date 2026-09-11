@@ -551,6 +551,10 @@ class ClientMessageType(str, Enum):
     EndOfChannel = "EndOfChannel"
     """Indicates that the client has no more audio to send in particular channel."""
 
+    ForceEndOfUtterance = "ForceEndOfUtterance"
+    """Asks the server to end the current utterance immediately. The server
+    responds with an :py:attr:`ServerMessageType.EndOfUtterance` message."""
+
     SetRecognitionConfig = "SetRecognitionConfig"
     """Allows the client to re-configure the recognition session."""
 
@@ -607,6 +611,9 @@ class ServerMessageType(str, Enum):
     SpeakersResult = "SpeakersResult"
     """Internal, Speechmatics only message. Server response to :py:attr:`ClientMessageType.GetSpeakers`, containing
     the speakers data."""
+
+    LanguageInfo = "LanguageInfo"
+    """Indicates the detected language of the audio."""
 
     Info = "Info"
     """Indicates a generic info message."""

@@ -254,7 +254,7 @@ def get_arg_parser():
     )
     config_parser.add_argument(
         "--operating-point",
-        choices=["standard", "enhanced"],
+        choices=["standard", "enhanced", "melia-1"],
         help=(
             "Selects the acoustic model configuration. "
             '"enhanced" is more computationally expensive than "standard" but '
@@ -511,7 +511,7 @@ def get_arg_parser():
     )
     rt_transcribe_command_parser.add_argument(
         "--max-delay-mode",
-        default="flexible",
+        # default="flexible",
         choices=["fixed", "flexible"],
         type=str,
         help=(
