@@ -58,10 +58,6 @@ LOGGER = logging.getLogger(__name__)
 # logger at INFO level specifically prevents this spam.
 logging.getLogger("websockets.protocol").setLevel(logging.INFO)
 
-# Number of audio chunks after which a single ForceEndOfUtterance message is
-# sent. Temporary, for testing the ForceEndOfUtterance message.
-FORCE_END_OF_UTTERANCE_AFTER_CHUNKS = 10
-
 
 class WebsocketClient:
     """
@@ -386,9 +382,6 @@ class WebsocketClient:
             self.seq_no["single"] += 1
             self._call_middleware(ClientMessageType.AddAudio, audio_chunk, True)
             yield audio_chunk
-
-            if self.seq_no["single"] == FORCE_END_OF_UTTERANCE_AFTER_CHUNKS:
-                yield self._force_end_of_utterance()
 
         yield self._end_of_stream()
 
